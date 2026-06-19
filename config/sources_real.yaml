@@ -1,0 +1,77 @@
+# SIS-MT Clima-Saúde V4 — fontes reais
+# Regra operacional ajustada: IndicaSUS, CNES, SINAN, SIM e GAL/LACEN usam o MESMO Data Warehouse SES/MT
+# com o login/senha configurados no .env pelo prefixo DW_. O SIVEP/SRAG usa banco local atualizado.
+fontes:
+  municipios:
+    modo: local_shapefile_csv
+    shapefile: data/geo/municipios_mt/MT_Municipios_2025.shp
+    csv: data/input/municipios_mt.csv
+    chaves: [cod_ibge, municipio, lat, lon, populacao_2025]
+
+  dw:
+    modo: sqlserver
+    prefixo_sqlserver: DW
+    observacao: fonte única para IndicaSUS, CNES, SINAN, SIM e GAL/LACEN
+
+  indicasus_leitos:
+    modo: dw
+    prefixo_sqlserver: DW
+    query: sql/dw_indicasus_leitos.sql
+    fallback_csv: data/input/indicasus_leitos.csv
+
+  cnes_estabelecimentos:
+    modo: dw
+    prefixo_sqlserver: DW
+    query: sql/dw_cnes_estabelecimentos.sql
+
+  cnes_leitos:
+    modo: dw
+    prefixo_sqlserver: DW
+    query: sql/dw_cnes_leitos.sql
+
+  sinan:
+    modo: dw
+    prefixo_sqlserver: DW
+    query: sql/dw_sinan_agravos_calor.sql
+    fallback_csv: data/input/sinan_agravos.csv
+
+  sim:
+    modo: dw
+    prefixo_sqlserver: DW
+    query: sql/dw_sim_obitos_calor.sql
+    fallback_csv: data/input/sim_obitos.csv
+
+  gal_lacen:
+    modo: dw
+    prefixo_sqlserver: DW
+    query: sql/dw_gal_lacen_resultados.sql
+    fallback_csv: data/input/lacen_gal.csv
+
+  sivep_srag:
+    modo: local_db
+    db_path: data/local/sivep/sivep_srag_local.db
+    tabela: sivep_srag
+    update_folder: data/input/sivep_atualizacao
+    regra: atualizar banco local antes do ciclo, processar por data de início dos sintomas e município de residência
+
+  copernicus_cams:
+    modo: api_ou_arquivo_titan
+    dataset: cams-global-atmospheric-composition-forecasts
+    variaveis: [particulate_matter_2.5um, particulate_matter_10um, ozone, nitrogen_dioxide, carbon_monoxide, sulphur_dioxide]
+    saida: qualidade_ar_municipal
+
+  copernicus_era5_land:
+    modo: api_ou_arquivo_titan
+    dataset: reanalysis-era5-land
+    variaveis: [2m_temperature, 2m_dewpoint_temperature, surface_solar_radiation_downwards, 10m_u_component_of_wind, 10m_v_component_of_wind, total_precipitation]
+
+  inmet_alertas:
+    modo: api_ou_csv
+    fallback_csv: data/input/inmet_alertas.csv
+
+  sentinela:
+    modo: csv_ou_api
+    fallback_csv: data/input/sentinela_rumores.csv
+
+  comunicacao_alertas:
+    canais: [email, telegram, webhook]

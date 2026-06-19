@@ -1,0 +1,3 @@
+data_emissao,municipio,cod_ibge,nivel_alerta,evento,descricao
+2026-06-12T13:36:06,Cuiabá,5103403,laranja,Onda de calor,Perigo: persistência de calor intenso e baixa umidade.
+2026-06-12T13:36:06,Várzea Grande,5108402,laranja,Baixa umidade,Perigo: umidade relativa muito baixa associada a calor.

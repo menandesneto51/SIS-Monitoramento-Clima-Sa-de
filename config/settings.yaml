@@ -1,0 +1,149 @@
+﻿app:
+  nome: SIS Integrado Clima-Saúde MT
+  municipio: Cuiabá
+  uf: MT
+  lat: -15.6014
+  lon: -56.0979
+  timezone: America/Cuiaba
+  periodo_critico_meses: [7, 8, 9, 10, 11]
+
+stages:
+  verde: 0
+  amarela: 1
+  laranja: 2
+  vermelha: 3
+  roxa: 4
+
+limiares_calor:
+  # UTCI/proxy conforme plano de contingência
+  utci:
+    verde_max: 26
+    amarela_max: 32
+    laranja_max: 38
+    vermelha_max: 46
+  # fallback por temperatura máxima quando UTCI formal não estiver disponível
+  tmax_fallback:
+    amarela: 37
+    laranja: 39
+    vermelha: 41
+    roxa: 43
+  ehf:
+    positivo: 0
+    persistencia_dias_emergencia: 5
+  risco_cumulativo:
+    t_umbral: 39
+    amarela: 3
+    laranja: 7
+    vermelha: 12
+    roxa: 18
+
+limiares_assistenciais:
+  pressao_calor_pct:
+    amarela: 2.0
+    laranja: 4.0
+    vermelha: 7.0
+    roxa: 10.0
+  ocupacao_leitos_pct:
+    amarela: 75
+    laranja: 85
+    vermelha: 95
+    roxa: 100
+  zscore:
+    amarela: 1.0
+    laranja: 2.0
+    vermelha: 3.0
+    roxa: 4.0
+
+limiares_operacionais:
+  autonomia_insumos_dias:
+    verde_min: 14
+    amarela_min: 10
+    laranja_min: 7
+    vermelha_min: 3
+  falhas_infra_pct:
+    amarela: 1
+    laranja: 5
+    vermelha: 10
+    roxa: 20
+  busca_ativa_cobertura_min_pct:
+    amarela: 50
+    laranja: 90
+    vermelha: 95
+  comunicacao_tempo_max_horas: 2
+
+pesos_resiliencia:
+  capacidade_leitos: 0.25
+  estoque: 0.20
+  infraestrutura: 0.20
+  busca_ativa: 0.20
+  comunicacao: 0.15
+
+data_sources:
+  input_dir: data/input
+  output_dir: data/output
+  geo_dir: data/geo
+  meteorologia_csv: meteorologia.csv
+  inmet_alertas_csv: inmet_alertas.csv
+  indicasus_csv: indicasus_leitos.csv
+  sivep_csv: sivep_srag.csv
+  lacen_csv: lacen_gal.csv
+  sinan_csv: sinan_agravos.csv
+  sim_csv: sim_obitos.csv
+  sentinela_csv: sentinela_rumores.csv
+  infraestrutura_csv: infraestrutura_unidades.csv
+  estoque_csv: estoque_insumos.csv
+  busca_ativa_csv: busca_ativa.csv
+  comunicacao_csv: comunicacao.csv
+  municipios_csv: municipios_mt.csv
+  populacao_csv: populacao_municipal_mt_2020_2025.csv
+  qualidade_ar_csv: qualidade_ar_copernicus.csv
+
+alertas:
+  enviar_mudanca_nivel: true
+  cooldown_minutos: 60
+  niveis_minimos_para_push: [laranja, vermelha, roxa]
+
+
+qualidade_ar:
+  # Índice operacional, não substitui laudo ambiental oficial. Valores em ug/m3, exceto CO em mg/m3 quando disponível.
+  pm25_ugm3:
+    amarela: 15
+    laranja: 25
+    vermelha: 50
+    roxa: 75
+  pm10_ugm3:
+    amarela: 50
+    laranja: 100
+    vermelha: 150
+    roxa: 250
+  o3_ugm3:
+    amarela: 100
+    laranja: 160
+    vermelha: 200
+    roxa: 240
+  no2_ugm3:
+    amarela: 100
+    laranja: 200
+    vermelha: 400
+    roxa: 600
+  co_mgm3:
+    amarela: 9
+    laranja: 15
+    vermelha: 30
+    roxa: 40
+  peso_no_estagio: true
+  agravar_se_calor_e_ar_ruim: true
+  fonte_preferencial: cams_copernicus
+
+tempo_real:
+  intervalo_minutos: 60
+  rodar_ao_iniciar: true
+  salvar_historico_por_municipio: true
+
+municipalizacao:
+  chave_ibge: cod_ibge
+  chave_nome: municipio
+  exigir_cod_ibge: false
+  usar_shapefile_quando_disponivel: true
+  shapefile_mt: data/geo/municipios_mt/MT_Municipios_2025.shp
+

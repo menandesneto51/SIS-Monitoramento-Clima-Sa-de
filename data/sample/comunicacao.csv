@@ -1,0 +1,121 @@
+cod_ibge,municipio,hora_alerta_inmet,hora_boletim_municipal,canal,status
+5103403,Cuiabá,2026-06-09T08:00:00,2026-06-09T09:35:34,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-10T08:00:00,2026-06-10T09:32:32,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-11T08:00:00,2026-06-11T09:53:57,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-12T08:00:00,2026-06-12T09:25:23,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-13T08:00:00,2026-06-13T09:09:54,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-14T08:00:00,2026-06-14T09:24:29,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-15T08:00:00,2026-06-15T09:27:40,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-16T08:00:00,2026-06-16T10:48:00,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-17T08:00:00,2026-06-17T10:48:00,site/sms/telegram,publicado
+5103403,Cuiabá,2026-06-18T08:00:00,2026-06-18T10:48:00,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-09T08:00:00,2026-06-09T09:12:34,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-10T08:00:00,2026-06-10T09:11:04,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-11T08:00:00,2026-06-11T09:12:22,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-12T08:00:00,2026-06-12T09:06:28,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-13T08:00:00,2026-06-13T09:46:18,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-14T08:00:00,2026-06-14T09:37:30,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-15T08:00:00,2026-06-15T09:26:46,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-16T08:00:00,2026-06-16T10:48:00,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-17T08:00:00,2026-06-17T10:48:00,site/sms/telegram,publicado
+5108402,Várzea Grande,2026-06-18T08:00:00,2026-06-18T10:48:00,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-09T08:00:00,2026-06-09T09:16:13,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-10T08:00:00,2026-06-10T09:13:18,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-11T08:00:00,2026-06-11T09:33:36,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-12T08:00:00,2026-06-12T09:11:34,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-13T08:00:00,2026-06-13T09:39:24,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-14T08:00:00,2026-06-14T09:48:39,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-15T08:00:00,2026-06-15T09:21:58,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-16T08:00:00,2026-06-16T09:36:23,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-17T08:00:00,2026-06-17T09:10:49,site/sms/telegram,publicado
+5107602,Rondonópolis,2026-06-18T08:00:00,2026-06-18T09:17:30,site/sms/telegram,publicado
+5107909,Sinop,2026-06-09T08:00:00,2026-06-09T09:18:18,site/sms/telegram,publicado
+5107909,Sinop,2026-06-10T08:00:00,2026-06-10T09:35:04,site/sms/telegram,publicado
+5107909,Sinop,2026-06-11T08:00:00,2026-06-11T09:32:00,site/sms/telegram,publicado
+5107909,Sinop,2026-06-12T08:00:00,2026-06-12T09:39:03,site/sms/telegram,publicado
+5107909,Sinop,2026-06-13T08:00:00,2026-06-13T09:53:13,site/sms/telegram,publicado
+5107909,Sinop,2026-06-14T08:00:00,2026-06-14T09:45:22,site/sms/telegram,publicado
+5107909,Sinop,2026-06-15T08:00:00,2026-06-15T09:21:39,site/sms/telegram,publicado
+5107909,Sinop,2026-06-16T08:00:00,2026-06-16T09:34:18,site/sms/telegram,publicado
+5107909,Sinop,2026-06-17T08:00:00,2026-06-17T09:45:21,site/sms/telegram,publicado
+5107909,Sinop,2026-06-18T08:00:00,2026-06-18T09:09:57,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-09T08:00:00,2026-06-09T09:45:36,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-10T08:00:00,2026-06-10T09:19:41,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-11T08:00:00,2026-06-11T09:51:08,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-12T08:00:00,2026-06-12T09:50:39,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-13T08:00:00,2026-06-13T09:18:18,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-14T08:00:00,2026-06-14T09:19:02,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-15T08:00:00,2026-06-15T09:49:44,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-16T08:00:00,2026-06-16T09:34:01,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-17T08:00:00,2026-06-17T09:41:17,site/sms/telegram,publicado
+5107925,Sorriso,2026-06-18T08:00:00,2026-06-18T09:27:04,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-09T08:00:00,2026-06-09T09:22:53,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-10T08:00:00,2026-06-10T09:28:22,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-11T08:00:00,2026-06-11T09:13:02,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-12T08:00:00,2026-06-12T09:49:09,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-13T08:00:00,2026-06-13T09:08:38,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-14T08:00:00,2026-06-14T09:29:29,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-15T08:00:00,2026-06-15T09:43:46,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-16T08:00:00,2026-06-16T09:20:43,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-17T08:00:00,2026-06-17T09:12:01,site/sms/telegram,publicado
+5102504,Cáceres,2026-06-18T08:00:00,2026-06-18T09:11:10,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-09T08:00:00,2026-06-09T09:46:09,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-10T08:00:00,2026-06-10T09:25:46,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-11T08:00:00,2026-06-11T09:33:18,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-12T08:00:00,2026-06-12T09:34:09,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-13T08:00:00,2026-06-13T09:51:11,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-14T08:00:00,2026-06-14T09:45:02,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-15T08:00:00,2026-06-15T09:21:37,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-16T08:00:00,2026-06-16T09:47:54,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-17T08:00:00,2026-06-17T09:20:27,site/sms/telegram,publicado
+5107958,Tangará da Serra,2026-06-18T08:00:00,2026-06-18T09:20:38,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-09T08:00:00,2026-06-09T09:39:18,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-10T08:00:00,2026-06-10T09:23:25,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-11T08:00:00,2026-06-11T09:20:51,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-12T08:00:00,2026-06-12T09:09:16,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-13T08:00:00,2026-06-13T09:20:02,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-14T08:00:00,2026-06-14T09:21:16,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-15T08:00:00,2026-06-15T09:21:13,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-16T08:00:00,2026-06-16T09:39:45,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-17T08:00:00,2026-06-17T09:30:33,site/sms/telegram,publicado
+5101803,Barra do Garças,2026-06-18T08:00:00,2026-06-18T09:30:31,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-09T08:00:00,2026-06-09T09:37:59,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-10T08:00:00,2026-06-10T09:24:54,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-11T08:00:00,2026-06-11T09:24:11,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-12T08:00:00,2026-06-12T09:47:30,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-13T08:00:00,2026-06-13T09:48:28,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-14T08:00:00,2026-06-14T09:35:17,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-15T08:00:00,2026-06-15T09:48:57,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-16T08:00:00,2026-06-16T09:18:00,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-17T08:00:00,2026-06-17T09:53:05,site/sms/telegram,publicado
+5107040,Primavera do Leste,2026-06-18T08:00:00,2026-06-18T09:28:49,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-09T08:00:00,2026-06-09T09:32:47,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-10T08:00:00,2026-06-10T09:13:27,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-11T08:00:00,2026-06-11T09:17:24,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-12T08:00:00,2026-06-12T09:34:36,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-13T08:00:00,2026-06-13T09:16:44,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-14T08:00:00,2026-06-14T09:26:58,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-15T08:00:00,2026-06-15T09:35:14,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-16T08:00:00,2026-06-16T09:51:31,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-17T08:00:00,2026-06-17T09:22:19,site/sms/telegram,publicado
+5100250,Alta Floresta,2026-06-18T08:00:00,2026-06-18T09:31:17,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-09T08:00:00,2026-06-09T09:35:31,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-10T08:00:00,2026-06-10T09:29:24,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-11T08:00:00,2026-06-11T09:29:13,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-12T08:00:00,2026-06-12T09:53:58,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-13T08:00:00,2026-06-13T09:41:55,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-14T08:00:00,2026-06-14T09:53:49,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-15T08:00:00,2026-06-15T09:41:24,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-16T08:00:00,2026-06-16T09:53:56,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-17T08:00:00,2026-06-17T09:18:03,site/sms/telegram,publicado
+5105259,Lucas do Rio Verde,2026-06-18T08:00:00,2026-06-18T09:13:16,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-09T08:00:00,2026-06-09T09:18:21,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-10T08:00:00,2026-06-10T09:13:52,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-11T08:00:00,2026-06-11T09:21:13,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-12T08:00:00,2026-06-12T09:42:36,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-13T08:00:00,2026-06-13T09:44:11,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-14T08:00:00,2026-06-14T09:40:23,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-15T08:00:00,2026-06-15T09:46:53,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-16T08:00:00,2026-06-16T09:38:30,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-17T08:00:00,2026-06-17T09:19:12,site/sms/telegram,publicado
+5106224,Nova Mutum,2026-06-18T08:00:00,2026-06-18T09:10:42,site/sms/telegram,publicado

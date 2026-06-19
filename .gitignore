@@ -1,0 +1,46 @@
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Secrets
+.env
+*.env
+.streamlit/secrets.toml
+secrets.toml
+*senha*
+*token*
+*credential*
+*credentials*
+
+# Local runtime / raw data
+logs/
+data/local/
+data/input/
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+data/output/*
+!data/output/
+!data/output/sis_integrado.db
+
+# Temp/backups/installers
+*.bak*
+*.tmp
+*.temp
+*.crdownload
+*.zip
+*.bat
+*.cmd
+*.ps1
+Texto colado*.txt
+
+# Contacts
+contatos_alertas.csv
+contatos_alertas_modelo.csv
+_staged_files.txt

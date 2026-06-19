@@ -1,0 +1,2 @@
+﻿data_execucao,fonte,status,detalhe
+2026-06-19 10:30:32,indisponivel,insuficiente_dados_diarios,"Não foi encontrada tabela diária com exposição isHW e desfechos cardiorrespiratórios. Para RR GeoCalor/DLNM, criar geocalor_model_input_diario com cod_ibge, data, isHW, internacoes_cardio, internacoes_resp, obitos_cardio e obitos_resp."

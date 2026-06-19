@@ -1,0 +1,554 @@
+data_captura,cod_ibge,municipio,fonte,territorio,texto
+2026-04-29,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-04-29,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-04-29,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-04-30,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-05-02,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-05-03,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-05-04,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-05-04,5103403,Cuiabá,telegram/rede social,Cuiabá,ar seco e fumaça
+2026-05-05,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-05-06,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-05-06,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-05-06,5103403,Cuiabá,telegram/rede social,Cuiabá,ar seco e fumaça
+2026-05-07,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-05-07,5103403,Cuiabá,telegram/rede social,Cuiabá,ar seco e fumaça
+2026-05-07,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-05-09,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-05-09,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-05-10,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-05-11,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-05-11,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-05-11,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-05-12,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-05-12,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-05-13,5103403,Cuiabá,telegram/rede social,Cuiabá,ar seco e fumaça
+2026-05-13,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-05-14,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-05-17,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-05-17,5103403,Cuiabá,telegram/rede social,Cuiabá,ar seco e fumaça
+2026-05-18,5103403,Cuiabá,telegram/rede social,Cuiabá,ar seco e fumaça
+2026-05-18,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-05-18,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-05-19,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-05-23,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-05-25,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-05-27,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-05-27,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-05-27,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-05-27,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-05-28,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-05-28,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-05-30,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-05-31,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-06-02,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-06-03,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-06-05,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-06-05,5103403,Cuiabá,telegram/rede social,Cuiabá,ar seco e fumaça
+2026-06-06,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-06-09,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-06-09,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-06-10,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-06-11,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-06-11,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-06-12,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-06-12,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-06-12,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-06-13,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-06-13,5103403,Cuiabá,telegram/rede social,Cuiabá,sem água em comunidade
+2026-06-13,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-06-14,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-06-14,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-06-15,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-06-15,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-06-15,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-06-15,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-06-16,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-06-16,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-06-16,5103403,Cuiabá,telegram/rede social,Cuiabá,falta de energia em unidade
+2026-06-17,5103403,Cuiabá,telegram/rede social,Cuiabá,idoso passou mal por desidratação
+2026-06-18,5103403,Cuiabá,telegram/rede social,Cuiabá,calor forte no bairro
+2026-06-18,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-06-18,5103403,Cuiabá,telegram/rede social,Cuiabá,queimada e fumaça
+2026-06-18,5103403,Cuiabá,telegram/rede social,Cuiabá,UPA lotada por calor
+2026-04-30,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-04-30,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-04-30,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-05-01,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-05-02,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-05-02,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-05-02,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-05-03,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-05-04,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-05-04,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-05-05,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-05-05,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-05-05,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-05-05,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-05-06,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-08,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-08,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-05-09,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-10,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-05-10,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-05-11,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-05-12,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-12,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-05-12,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-05-13,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-05-13,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-05-13,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-05-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-05-16,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-16,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-21,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-21,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-05-22,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-05-22,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-05-23,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-05-24,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-05-26,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-05-26,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-05-26,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-05-27,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-05-27,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-05-28,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-05-29,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-05-30,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-05-30,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-05-31,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-05-31,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-06-01,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-06-01,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-06-02,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-06-04,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-06-05,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-06-05,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-06-05,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-06-06,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-06-06,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-06-07,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-06-09,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-06-09,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-06-10,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-06-10,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-06-10,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-06-12,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-06-12,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-06-13,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-06-13,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-06-13,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-06-13,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-06-14,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,sem água em comunidade
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,UPA lotada por calor
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-06-15,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-06-16,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-06-16,5108402,Várzea Grande,telegram/rede social,Várzea Grande,queimada e fumaça
+2026-06-16,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-06-16,5108402,Várzea Grande,telegram/rede social,Várzea Grande,falta de energia em unidade
+2026-06-17,5108402,Várzea Grande,telegram/rede social,Várzea Grande,idoso passou mal por desidratação
+2026-06-17,5108402,Várzea Grande,telegram/rede social,Várzea Grande,calor forte no bairro
+2026-06-18,5108402,Várzea Grande,telegram/rede social,Várzea Grande,ar seco e fumaça
+2026-04-28,5107602,Rondonópolis,telegram/rede social,Rondonópolis,idoso passou mal por desidratação
+2026-05-01,5107602,Rondonópolis,telegram/rede social,Rondonópolis,queimada e fumaça
+2026-05-02,5107602,Rondonópolis,telegram/rede social,Rondonópolis,calor forte no bairro
+2026-05-04,5107602,Rondonópolis,telegram/rede social,Rondonópolis,UPA lotada por calor
+2026-05-09,5107602,Rondonópolis,telegram/rede social,Rondonópolis,falta de energia em unidade
+2026-05-12,5107602,Rondonópolis,telegram/rede social,Rondonópolis,queimada e fumaça
+2026-05-12,5107602,Rondonópolis,telegram/rede social,Rondonópolis,idoso passou mal por desidratação
+2026-05-12,5107602,Rondonópolis,telegram/rede social,Rondonópolis,queimada e fumaça
+2026-05-13,5107602,Rondonópolis,telegram/rede social,Rondonópolis,falta de energia em unidade
+2026-05-18,5107602,Rondonópolis,telegram/rede social,Rondonópolis,ar seco e fumaça
+2026-05-31,5107602,Rondonópolis,telegram/rede social,Rondonópolis,calor forte no bairro
+2026-06-02,5107602,Rondonópolis,telegram/rede social,Rondonópolis,ar seco e fumaça
+2026-06-02,5107602,Rondonópolis,telegram/rede social,Rondonópolis,idoso passou mal por desidratação
+2026-06-02,5107602,Rondonópolis,telegram/rede social,Rondonópolis,falta de energia em unidade
+2026-06-05,5107602,Rondonópolis,telegram/rede social,Rondonópolis,ar seco e fumaça
+2026-06-05,5107602,Rondonópolis,telegram/rede social,Rondonópolis,queimada e fumaça
+2026-06-06,5107602,Rondonópolis,telegram/rede social,Rondonópolis,UPA lotada por calor
+2026-06-08,5107602,Rondonópolis,telegram/rede social,Rondonópolis,idoso passou mal por desidratação
+2026-06-08,5107602,Rondonópolis,telegram/rede social,Rondonópolis,falta de energia em unidade
+2026-06-08,5107602,Rondonópolis,telegram/rede social,Rondonópolis,queimada e fumaça
+2026-06-10,5107602,Rondonópolis,telegram/rede social,Rondonópolis,ar seco e fumaça
+2026-06-10,5107602,Rondonópolis,telegram/rede social,Rondonópolis,queimada e fumaça
+2026-06-12,5107602,Rondonópolis,telegram/rede social,Rondonópolis,ar seco e fumaça
+2026-06-14,5107602,Rondonópolis,telegram/rede social,Rondonópolis,idoso passou mal por desidratação
+2026-06-15,5107602,Rondonópolis,telegram/rede social,Rondonópolis,calor forte no bairro
+2026-06-15,5107602,Rondonópolis,telegram/rede social,Rondonópolis,UPA lotada por calor
+2026-06-15,5107602,Rondonópolis,telegram/rede social,Rondonópolis,sem água em comunidade
+2026-06-16,5107602,Rondonópolis,telegram/rede social,Rondonópolis,queimada e fumaça
+2026-06-16,5107602,Rondonópolis,telegram/rede social,Rondonópolis,idoso passou mal por desidratação
+2026-06-18,5107602,Rondonópolis,telegram/rede social,Rondonópolis,UPA lotada por calor
+2026-06-18,5107602,Rondonópolis,telegram/rede social,Rondonópolis,calor forte no bairro
+2026-06-18,5107602,Rondonópolis,telegram/rede social,Rondonópolis,idoso passou mal por desidratação
+2026-06-18,5107602,Rondonópolis,telegram/rede social,Rondonópolis,falta de energia em unidade
+2026-06-18,5107602,Rondonópolis,telegram/rede social,Rondonópolis,calor forte no bairro
+2026-06-18,5107602,Rondonópolis,telegram/rede social,Rondonópolis,falta de energia em unidade
+2026-05-06,5107909,Sinop,telegram/rede social,Sinop,idoso passou mal por desidratação
+2026-05-07,5107909,Sinop,telegram/rede social,Sinop,calor forte no bairro
+2026-05-07,5107909,Sinop,telegram/rede social,Sinop,ar seco e fumaça
+2026-05-08,5107909,Sinop,telegram/rede social,Sinop,falta de energia em unidade
+2026-05-12,5107909,Sinop,telegram/rede social,Sinop,sem água em comunidade
+2026-05-14,5107909,Sinop,telegram/rede social,Sinop,idoso passou mal por desidratação
+2026-05-17,5107909,Sinop,telegram/rede social,Sinop,queimada e fumaça
+2026-05-17,5107909,Sinop,telegram/rede social,Sinop,calor forte no bairro
+2026-05-21,5107909,Sinop,telegram/rede social,Sinop,ar seco e fumaça
+2026-05-23,5107909,Sinop,telegram/rede social,Sinop,queimada e fumaça
+2026-05-23,5107909,Sinop,telegram/rede social,Sinop,UPA lotada por calor
+2026-05-27,5107909,Sinop,telegram/rede social,Sinop,queimada e fumaça
+2026-05-28,5107909,Sinop,telegram/rede social,Sinop,idoso passou mal por desidratação
+2026-05-28,5107909,Sinop,telegram/rede social,Sinop,calor forte no bairro
+2026-05-30,5107909,Sinop,telegram/rede social,Sinop,falta de energia em unidade
+2026-05-30,5107909,Sinop,telegram/rede social,Sinop,queimada e fumaça
+2026-06-02,5107909,Sinop,telegram/rede social,Sinop,UPA lotada por calor
+2026-06-05,5107909,Sinop,telegram/rede social,Sinop,sem água em comunidade
+2026-06-06,5107909,Sinop,telegram/rede social,Sinop,queimada e fumaça
+2026-06-07,5107909,Sinop,telegram/rede social,Sinop,idoso passou mal por desidratação
+2026-06-09,5107909,Sinop,telegram/rede social,Sinop,ar seco e fumaça
+2026-06-10,5107909,Sinop,telegram/rede social,Sinop,falta de energia em unidade
+2026-06-11,5107909,Sinop,telegram/rede social,Sinop,ar seco e fumaça
+2026-06-11,5107909,Sinop,telegram/rede social,Sinop,ar seco e fumaça
+2026-06-12,5107909,Sinop,telegram/rede social,Sinop,queimada e fumaça
+2026-06-13,5107909,Sinop,telegram/rede social,Sinop,calor forte no bairro
+2026-06-14,5107909,Sinop,telegram/rede social,Sinop,falta de energia em unidade
+2026-06-15,5107909,Sinop,telegram/rede social,Sinop,falta de energia em unidade
+2026-06-15,5107909,Sinop,telegram/rede social,Sinop,idoso passou mal por desidratação
+2026-06-15,5107909,Sinop,telegram/rede social,Sinop,idoso passou mal por desidratação
+2026-06-16,5107909,Sinop,telegram/rede social,Sinop,queimada e fumaça
+2026-06-17,5107909,Sinop,telegram/rede social,Sinop,falta de energia em unidade
+2026-06-18,5107909,Sinop,telegram/rede social,Sinop,falta de energia em unidade
+2026-06-18,5107909,Sinop,telegram/rede social,Sinop,UPA lotada por calor
+2026-06-18,5107909,Sinop,telegram/rede social,Sinop,sem água em comunidade
+2026-04-29,5107925,Sorriso,telegram/rede social,Sorriso,falta de energia em unidade
+2026-04-30,5107925,Sorriso,telegram/rede social,Sorriso,calor forte no bairro
+2026-05-01,5107925,Sorriso,telegram/rede social,Sorriso,falta de energia em unidade
+2026-05-02,5107925,Sorriso,telegram/rede social,Sorriso,falta de energia em unidade
+2026-05-04,5107925,Sorriso,telegram/rede social,Sorriso,falta de energia em unidade
+2026-05-04,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-05-05,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-05-05,5107925,Sorriso,telegram/rede social,Sorriso,queimada e fumaça
+2026-05-09,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-05-11,5107925,Sorriso,telegram/rede social,Sorriso,falta de energia em unidade
+2026-05-12,5107925,Sorriso,telegram/rede social,Sorriso,ar seco e fumaça
+2026-05-12,5107925,Sorriso,telegram/rede social,Sorriso,idoso passou mal por desidratação
+2026-05-12,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-05-12,5107925,Sorriso,telegram/rede social,Sorriso,ar seco e fumaça
+2026-05-16,5107925,Sorriso,telegram/rede social,Sorriso,ar seco e fumaça
+2026-05-17,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-05-17,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-05-20,5107925,Sorriso,telegram/rede social,Sorriso,calor forte no bairro
+2026-05-20,5107925,Sorriso,telegram/rede social,Sorriso,ar seco e fumaça
+2026-05-23,5107925,Sorriso,telegram/rede social,Sorriso,calor forte no bairro
+2026-05-25,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-05-25,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-05-25,5107925,Sorriso,telegram/rede social,Sorriso,ar seco e fumaça
+2026-05-26,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-05-31,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-06-01,5107925,Sorriso,telegram/rede social,Sorriso,falta de energia em unidade
+2026-06-03,5107925,Sorriso,telegram/rede social,Sorriso,falta de energia em unidade
+2026-06-05,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-06-06,5107925,Sorriso,telegram/rede social,Sorriso,idoso passou mal por desidratação
+2026-06-07,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-06-08,5107925,Sorriso,telegram/rede social,Sorriso,calor forte no bairro
+2026-06-10,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-06-12,5107925,Sorriso,telegram/rede social,Sorriso,calor forte no bairro
+2026-06-14,5107925,Sorriso,telegram/rede social,Sorriso,idoso passou mal por desidratação
+2026-06-14,5107925,Sorriso,telegram/rede social,Sorriso,UPA lotada por calor
+2026-06-15,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-06-15,5107925,Sorriso,telegram/rede social,Sorriso,ar seco e fumaça
+2026-06-15,5107925,Sorriso,telegram/rede social,Sorriso,ar seco e fumaça
+2026-06-15,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-06-15,5107925,Sorriso,telegram/rede social,Sorriso,queimada e fumaça
+2026-06-15,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-06-16,5107925,Sorriso,telegram/rede social,Sorriso,queimada e fumaça
+2026-06-17,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-06-17,5107925,Sorriso,telegram/rede social,Sorriso,queimada e fumaça
+2026-06-18,5107925,Sorriso,telegram/rede social,Sorriso,queimada e fumaça
+2026-06-18,5107925,Sorriso,telegram/rede social,Sorriso,calor forte no bairro
+2026-06-18,5107925,Sorriso,telegram/rede social,Sorriso,calor forte no bairro
+2026-06-18,5107925,Sorriso,telegram/rede social,Sorriso,sem água em comunidade
+2026-06-18,5107925,Sorriso,telegram/rede social,Sorriso,queimada e fumaça
+2026-04-28,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-04-28,5102504,Cáceres,telegram/rede social,Cáceres,ar seco e fumaça
+2026-04-30,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-04-30,5102504,Cáceres,telegram/rede social,Cáceres,queimada e fumaça
+2026-05-04,5102504,Cáceres,telegram/rede social,Cáceres,falta de energia em unidade
+2026-05-05,5102504,Cáceres,telegram/rede social,Cáceres,idoso passou mal por desidratação
+2026-05-11,5102504,Cáceres,telegram/rede social,Cáceres,idoso passou mal por desidratação
+2026-05-12,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-05-12,5102504,Cáceres,telegram/rede social,Cáceres,falta de energia em unidade
+2026-05-13,5102504,Cáceres,telegram/rede social,Cáceres,queimada e fumaça
+2026-05-14,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-05-17,5102504,Cáceres,telegram/rede social,Cáceres,ar seco e fumaça
+2026-05-17,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-05-17,5102504,Cáceres,telegram/rede social,Cáceres,ar seco e fumaça
+2026-05-19,5102504,Cáceres,telegram/rede social,Cáceres,falta de energia em unidade
+2026-05-19,5102504,Cáceres,telegram/rede social,Cáceres,sem água em comunidade
+2026-05-19,5102504,Cáceres,telegram/rede social,Cáceres,idoso passou mal por desidratação
+2026-05-21,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-05-22,5102504,Cáceres,telegram/rede social,Cáceres,queimada e fumaça
+2026-05-23,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-05-24,5102504,Cáceres,telegram/rede social,Cáceres,idoso passou mal por desidratação
+2026-05-25,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-05-26,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-05-26,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-05-27,5102504,Cáceres,telegram/rede social,Cáceres,ar seco e fumaça
+2026-05-30,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-06-01,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-06-01,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-06-02,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-06-02,5102504,Cáceres,telegram/rede social,Cáceres,ar seco e fumaça
+2026-06-03,5102504,Cáceres,telegram/rede social,Cáceres,falta de energia em unidade
+2026-06-04,5102504,Cáceres,telegram/rede social,Cáceres,sem água em comunidade
+2026-06-05,5102504,Cáceres,telegram/rede social,Cáceres,ar seco e fumaça
+2026-06-06,5102504,Cáceres,telegram/rede social,Cáceres,UPA lotada por calor
+2026-06-09,5102504,Cáceres,telegram/rede social,Cáceres,queimada e fumaça
+2026-06-11,5102504,Cáceres,telegram/rede social,Cáceres,idoso passou mal por desidratação
+2026-06-12,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-06-12,5102504,Cáceres,telegram/rede social,Cáceres,falta de energia em unidade
+2026-06-14,5102504,Cáceres,telegram/rede social,Cáceres,falta de energia em unidade
+2026-06-14,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-06-16,5102504,Cáceres,telegram/rede social,Cáceres,queimada e fumaça
+2026-06-17,5102504,Cáceres,telegram/rede social,Cáceres,sem água em comunidade
+2026-06-17,5102504,Cáceres,telegram/rede social,Cáceres,calor forte no bairro
+2026-06-18,5102504,Cáceres,telegram/rede social,Cáceres,falta de energia em unidade
+2026-04-28,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,ar seco e fumaça
+2026-04-30,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-05-01,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,ar seco e fumaça
+2026-05-03,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-05-03,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-05-06,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-05-07,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-05-13,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-05-14,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-05-15,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,falta de energia em unidade
+2026-05-15,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,falta de energia em unidade
+2026-05-15,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-05-15,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,idoso passou mal por desidratação
+2026-05-16,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-05-16,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-05-23,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-05-24,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-05-31,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-06-02,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,falta de energia em unidade
+2026-06-09,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-06-11,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-06-11,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-06-12,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-06-12,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-06-13,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-06-13,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,ar seco e fumaça
+2026-06-13,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,ar seco e fumaça
+2026-06-13,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-06-14,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-06-15,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,queimada e fumaça
+2026-06-15,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,UPA lotada por calor
+2026-06-16,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,calor forte no bairro
+2026-06-17,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,sem água em comunidade
+2026-06-17,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,queimada e fumaça
+2026-06-17,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,queimada e fumaça
+2026-06-18,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,idoso passou mal por desidratação
+2026-06-18,5107958,Tangará da Serra,telegram/rede social,Tangará da Serra,idoso passou mal por desidratação
+2026-04-29,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-05-02,5101803,Barra do Garças,telegram/rede social,Barra do Garças,falta de energia em unidade
+2026-05-03,5101803,Barra do Garças,telegram/rede social,Barra do Garças,calor forte no bairro
+2026-05-07,5101803,Barra do Garças,telegram/rede social,Barra do Garças,falta de energia em unidade
+2026-05-08,5101803,Barra do Garças,telegram/rede social,Barra do Garças,ar seco e fumaça
+2026-05-11,5101803,Barra do Garças,telegram/rede social,Barra do Garças,queimada e fumaça
+2026-05-11,5101803,Barra do Garças,telegram/rede social,Barra do Garças,queimada e fumaça
+2026-05-13,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-05-14,5101803,Barra do Garças,telegram/rede social,Barra do Garças,calor forte no bairro
+2026-05-14,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-05-16,5101803,Barra do Garças,telegram/rede social,Barra do Garças,falta de energia em unidade
+2026-05-18,5101803,Barra do Garças,telegram/rede social,Barra do Garças,UPA lotada por calor
+2026-05-21,5101803,Barra do Garças,telegram/rede social,Barra do Garças,queimada e fumaça
+2026-05-25,5101803,Barra do Garças,telegram/rede social,Barra do Garças,ar seco e fumaça
+2026-05-26,5101803,Barra do Garças,telegram/rede social,Barra do Garças,UPA lotada por calor
+2026-05-26,5101803,Barra do Garças,telegram/rede social,Barra do Garças,queimada e fumaça
+2026-05-27,5101803,Barra do Garças,telegram/rede social,Barra do Garças,idoso passou mal por desidratação
+2026-05-27,5101803,Barra do Garças,telegram/rede social,Barra do Garças,UPA lotada por calor
+2026-05-28,5101803,Barra do Garças,telegram/rede social,Barra do Garças,falta de energia em unidade
+2026-05-31,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-05-31,5101803,Barra do Garças,telegram/rede social,Barra do Garças,UPA lotada por calor
+2026-06-03,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-06-04,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-06-07,5101803,Barra do Garças,telegram/rede social,Barra do Garças,ar seco e fumaça
+2026-06-08,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-06-11,5101803,Barra do Garças,telegram/rede social,Barra do Garças,ar seco e fumaça
+2026-06-11,5101803,Barra do Garças,telegram/rede social,Barra do Garças,queimada e fumaça
+2026-06-12,5101803,Barra do Garças,telegram/rede social,Barra do Garças,calor forte no bairro
+2026-06-12,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-06-14,5101803,Barra do Garças,telegram/rede social,Barra do Garças,idoso passou mal por desidratação
+2026-06-15,5101803,Barra do Garças,telegram/rede social,Barra do Garças,ar seco e fumaça
+2026-06-16,5101803,Barra do Garças,telegram/rede social,Barra do Garças,sem água em comunidade
+2026-06-18,5101803,Barra do Garças,telegram/rede social,Barra do Garças,falta de energia em unidade
+2026-06-18,5101803,Barra do Garças,telegram/rede social,Barra do Garças,idoso passou mal por desidratação
+2026-06-18,5101803,Barra do Garças,telegram/rede social,Barra do Garças,queimada e fumaça
+2026-04-30,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,idoso passou mal por desidratação
+2026-05-01,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,falta de energia em unidade
+2026-05-01,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-05-05,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,falta de energia em unidade
+2026-05-08,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,idoso passou mal por desidratação
+2026-05-13,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-05-14,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,idoso passou mal por desidratação
+2026-05-15,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-05-15,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-05-15,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-05-17,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-05-17,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,queimada e fumaça
+2026-05-19,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,sem água em comunidade
+2026-05-22,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,calor forte no bairro
+2026-05-24,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,falta de energia em unidade
+2026-05-25,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,calor forte no bairro
+2026-05-26,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,queimada e fumaça
+2026-05-29,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,sem água em comunidade
+2026-06-02,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,idoso passou mal por desidratação
+2026-06-02,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,idoso passou mal por desidratação
+2026-06-05,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-06-12,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,calor forte no bairro
+2026-06-12,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-06-13,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-06-13,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-06-13,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-06-14,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-06-15,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,sem água em comunidade
+2026-06-15,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,sem água em comunidade
+2026-06-15,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,idoso passou mal por desidratação
+2026-06-15,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-06-16,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,UPA lotada por calor
+2026-06-16,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,sem água em comunidade
+2026-06-16,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,sem água em comunidade
+2026-06-17,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-06-17,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,ar seco e fumaça
+2026-06-18,5107040,Primavera do Leste,telegram/rede social,Primavera do Leste,queimada e fumaça
+2026-04-28,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-04-29,5100250,Alta Floresta,telegram/rede social,Alta Floresta,ar seco e fumaça
+2026-04-30,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-04-30,5100250,Alta Floresta,telegram/rede social,Alta Floresta,falta de energia em unidade
+2026-05-03,5100250,Alta Floresta,telegram/rede social,Alta Floresta,falta de energia em unidade
+2026-05-06,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-05-12,5100250,Alta Floresta,telegram/rede social,Alta Floresta,idoso passou mal por desidratação
+2026-05-12,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-05-14,5100250,Alta Floresta,telegram/rede social,Alta Floresta,queimada e fumaça
+2026-05-16,5100250,Alta Floresta,telegram/rede social,Alta Floresta,calor forte no bairro
+2026-05-16,5100250,Alta Floresta,telegram/rede social,Alta Floresta,ar seco e fumaça
+2026-05-17,5100250,Alta Floresta,telegram/rede social,Alta Floresta,calor forte no bairro
+2026-05-17,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-05-18,5100250,Alta Floresta,telegram/rede social,Alta Floresta,calor forte no bairro
+2026-05-21,5100250,Alta Floresta,telegram/rede social,Alta Floresta,UPA lotada por calor
+2026-05-25,5100250,Alta Floresta,telegram/rede social,Alta Floresta,UPA lotada por calor
+2026-05-25,5100250,Alta Floresta,telegram/rede social,Alta Floresta,idoso passou mal por desidratação
+2026-05-26,5100250,Alta Floresta,telegram/rede social,Alta Floresta,queimada e fumaça
+2026-05-26,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-05-27,5100250,Alta Floresta,telegram/rede social,Alta Floresta,queimada e fumaça
+2026-05-30,5100250,Alta Floresta,telegram/rede social,Alta Floresta,calor forte no bairro
+2026-05-31,5100250,Alta Floresta,telegram/rede social,Alta Floresta,UPA lotada por calor
+2026-06-05,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-06-08,5100250,Alta Floresta,telegram/rede social,Alta Floresta,ar seco e fumaça
+2026-06-09,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-06-09,5100250,Alta Floresta,telegram/rede social,Alta Floresta,queimada e fumaça
+2026-06-11,5100250,Alta Floresta,telegram/rede social,Alta Floresta,ar seco e fumaça
+2026-06-11,5100250,Alta Floresta,telegram/rede social,Alta Floresta,ar seco e fumaça
+2026-06-14,5100250,Alta Floresta,telegram/rede social,Alta Floresta,queimada e fumaça
+2026-06-14,5100250,Alta Floresta,telegram/rede social,Alta Floresta,ar seco e fumaça
+2026-06-15,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-06-15,5100250,Alta Floresta,telegram/rede social,Alta Floresta,falta de energia em unidade
+2026-06-15,5100250,Alta Floresta,telegram/rede social,Alta Floresta,falta de energia em unidade
+2026-06-16,5100250,Alta Floresta,telegram/rede social,Alta Floresta,sem água em comunidade
+2026-06-16,5100250,Alta Floresta,telegram/rede social,Alta Floresta,idoso passou mal por desidratação
+2026-06-17,5100250,Alta Floresta,telegram/rede social,Alta Floresta,ar seco e fumaça
+2026-06-17,5100250,Alta Floresta,telegram/rede social,Alta Floresta,UPA lotada por calor
+2026-06-17,5100250,Alta Floresta,telegram/rede social,Alta Floresta,calor forte no bairro
+2026-06-17,5100250,Alta Floresta,telegram/rede social,Alta Floresta,UPA lotada por calor
+2026-06-18,5100250,Alta Floresta,telegram/rede social,Alta Floresta,calor forte no bairro
+2026-04-30,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,sem água em comunidade
+2026-05-01,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-05-02,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-05-03,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-05-07,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,sem água em comunidade
+2026-05-10,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-05-11,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-05-11,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-05-13,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-05-14,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-05-14,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-05-15,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,idoso passou mal por desidratação
+2026-05-18,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-05-18,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-05-18,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,ar seco e fumaça
+2026-05-20,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-05-21,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-05-25,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-05-27,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-05-29,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-05-30,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-06-03,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-06-03,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-06-08,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-06-10,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,idoso passou mal por desidratação
+2026-06-11,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-06-12,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,idoso passou mal por desidratação
+2026-06-13,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,ar seco e fumaça
+2026-06-14,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,sem água em comunidade
+2026-06-14,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-06-14,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,UPA lotada por calor
+2026-06-14,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-06-15,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-06-15,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-06-16,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,sem água em comunidade
+2026-06-17,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,idoso passou mal por desidratação
+2026-06-17,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,queimada e fumaça
+2026-06-17,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-06-17,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,UPA lotada por calor
+2026-06-17,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-06-17,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,calor forte no bairro
+2026-06-18,5105259,Lucas do Rio Verde,telegram/rede social,Lucas do Rio Verde,falta de energia em unidade
+2026-04-29,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-05-02,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-05-02,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-05-11,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-05-11,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-05-12,5106224,Nova Mutum,telegram/rede social,Nova Mutum,idoso passou mal por desidratação
+2026-05-13,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-05-14,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-05-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,idoso passou mal por desidratação
+2026-05-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,calor forte no bairro
+2026-05-16,5106224,Nova Mutum,telegram/rede social,Nova Mutum,idoso passou mal por desidratação
+2026-05-17,5106224,Nova Mutum,telegram/rede social,Nova Mutum,ar seco e fumaça
+2026-05-18,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-05-20,5106224,Nova Mutum,telegram/rede social,Nova Mutum,idoso passou mal por desidratação
+2026-05-21,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-05-22,5106224,Nova Mutum,telegram/rede social,Nova Mutum,calor forte no bairro
+2026-05-22,5106224,Nova Mutum,telegram/rede social,Nova Mutum,idoso passou mal por desidratação
+2026-05-25,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-06-01,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-06-02,5106224,Nova Mutum,telegram/rede social,Nova Mutum,queimada e fumaça
+2026-06-07,5106224,Nova Mutum,telegram/rede social,Nova Mutum,queimada e fumaça
+2026-06-08,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-06-11,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-06-12,5106224,Nova Mutum,telegram/rede social,Nova Mutum,idoso passou mal por desidratação
+2026-06-12,5106224,Nova Mutum,telegram/rede social,Nova Mutum,ar seco e fumaça
+2026-06-13,5106224,Nova Mutum,telegram/rede social,Nova Mutum,ar seco e fumaça
+2026-06-13,5106224,Nova Mutum,telegram/rede social,Nova Mutum,idoso passou mal por desidratação
+2026-06-13,5106224,Nova Mutum,telegram/rede social,Nova Mutum,ar seco e fumaça
+2026-06-14,5106224,Nova Mutum,telegram/rede social,Nova Mutum,ar seco e fumaça
+2026-06-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,queimada e fumaça
+2026-06-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-06-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-06-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,ar seco e fumaça
+2026-06-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,sem água em comunidade
+2026-06-15,5106224,Nova Mutum,telegram/rede social,Nova Mutum,sem água em comunidade
+2026-06-16,5106224,Nova Mutum,telegram/rede social,Nova Mutum,queimada e fumaça
+2026-06-16,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-06-17,5106224,Nova Mutum,telegram/rede social,Nova Mutum,falta de energia em unidade
+2026-06-17,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-06-18,5106224,Nova Mutum,telegram/rede social,Nova Mutum,UPA lotada por calor
+2026-06-18,5106224,Nova Mutum,telegram/rede social,Nova Mutum,calor forte no bairro
+2026-06-18,5106224,Nova Mutum,telegram/rede social,Nova Mutum,queimada e fumaça
+2026-06-18,5106224,Nova Mutum,telegram/rede social,Nova Mutum,calor forte no bairro

@@ -1,0 +1,2497 @@
+data,cod_ibge,municipio,grupo,cadastrados,contatados
+2026-04-28,5103403,Cuiabá,idosos_sozinhos,8302,1717
+2026-04-28,5103403,Cuiabá,acamados,2075,456
+2026-04-28,5103403,Cuiabá,gestantes_risco,1383,259
+2026-04-28,5103403,Cuiabá,pop_rua,420,79
+2026-04-29,5103403,Cuiabá,idosos_sozinhos,8302,1660
+2026-04-29,5103403,Cuiabá,acamados,2075,472
+2026-04-29,5103403,Cuiabá,gestantes_risco,1383,254
+2026-04-29,5103403,Cuiabá,pop_rua,420,77
+2026-04-30,5103403,Cuiabá,idosos_sozinhos,8302,1899
+2026-04-30,5103403,Cuiabá,acamados,2075,473
+2026-04-30,5103403,Cuiabá,gestantes_risco,1383,256
+2026-04-30,5103403,Cuiabá,pop_rua,420,92
+2026-05-01,5103403,Cuiabá,idosos_sozinhos,8302,1698
+2026-05-01,5103403,Cuiabá,acamados,2075,449
+2026-05-01,5103403,Cuiabá,gestantes_risco,1383,305
+2026-05-01,5103403,Cuiabá,pop_rua,420,95
+2026-05-02,5103403,Cuiabá,idosos_sozinhos,8302,1664
+2026-05-02,5103403,Cuiabá,acamados,2075,382
+2026-05-02,5103403,Cuiabá,gestantes_risco,1383,275
+2026-05-02,5103403,Cuiabá,pop_rua,420,94
+2026-05-03,5103403,Cuiabá,idosos_sozinhos,8302,1857
+2026-05-03,5103403,Cuiabá,acamados,2075,425
+2026-05-03,5103403,Cuiabá,gestantes_risco,1383,291
+2026-05-03,5103403,Cuiabá,pop_rua,420,86
+2026-05-04,5103403,Cuiabá,idosos_sozinhos,8302,1560
+2026-05-04,5103403,Cuiabá,acamados,2075,405
+2026-05-04,5103403,Cuiabá,gestantes_risco,1383,299
+2026-05-04,5103403,Cuiabá,pop_rua,420,93
+2026-05-05,5103403,Cuiabá,idosos_sozinhos,8302,1644
+2026-05-05,5103403,Cuiabá,acamados,2075,387
+2026-05-05,5103403,Cuiabá,gestantes_risco,1383,288
+2026-05-05,5103403,Cuiabá,pop_rua,420,87
+2026-05-06,5103403,Cuiabá,idosos_sozinhos,8302,1631
+2026-05-06,5103403,Cuiabá,acamados,2075,446
+2026-05-06,5103403,Cuiabá,gestantes_risco,1383,312
+2026-05-06,5103403,Cuiabá,pop_rua,420,88
+2026-05-07,5103403,Cuiabá,idosos_sozinhos,8302,1619
+2026-05-07,5103403,Cuiabá,acamados,2075,404
+2026-05-07,5103403,Cuiabá,gestantes_risco,1383,272
+2026-05-07,5103403,Cuiabá,pop_rua,420,90
+2026-05-08,5103403,Cuiabá,idosos_sozinhos,8302,1860
+2026-05-08,5103403,Cuiabá,acamados,2075,430
+2026-05-08,5103403,Cuiabá,gestantes_risco,1383,262
+2026-05-08,5103403,Cuiabá,pop_rua,420,94
+2026-05-09,5103403,Cuiabá,idosos_sozinhos,8302,1576
+2026-05-09,5103403,Cuiabá,acamados,2075,399
+2026-05-09,5103403,Cuiabá,gestantes_risco,1383,316
+2026-05-09,5103403,Cuiabá,pop_rua,420,96
+2026-05-10,5103403,Cuiabá,idosos_sozinhos,8302,1744
+2026-05-10,5103403,Cuiabá,acamados,2075,375
+2026-05-10,5103403,Cuiabá,gestantes_risco,1383,257
+2026-05-10,5103403,Cuiabá,pop_rua,420,81
+2026-05-11,5103403,Cuiabá,idosos_sozinhos,8302,1746
+2026-05-11,5103403,Cuiabá,acamados,2075,414
+2026-05-11,5103403,Cuiabá,gestantes_risco,1383,251
+2026-05-11,5103403,Cuiabá,pop_rua,420,88
+2026-05-12,5103403,Cuiabá,idosos_sozinhos,8302,1662
+2026-05-12,5103403,Cuiabá,acamados,2075,407
+2026-05-12,5103403,Cuiabá,gestantes_risco,1383,264
+2026-05-12,5103403,Cuiabá,pop_rua,420,90
+2026-05-13,5103403,Cuiabá,idosos_sozinhos,8302,1788
+2026-05-13,5103403,Cuiabá,acamados,2075,396
+2026-05-13,5103403,Cuiabá,gestantes_risco,1383,254
+2026-05-13,5103403,Cuiabá,pop_rua,420,89
+2026-05-14,5103403,Cuiabá,idosos_sozinhos,8302,1577
+2026-05-14,5103403,Cuiabá,acamados,2075,423
+2026-05-14,5103403,Cuiabá,gestantes_risco,1383,281
+2026-05-14,5103403,Cuiabá,pop_rua,420,88
+2026-05-15,5103403,Cuiabá,idosos_sozinhos,8302,1905
+2026-05-15,5103403,Cuiabá,acamados,2075,437
+2026-05-15,5103403,Cuiabá,gestantes_risco,1383,303
+2026-05-15,5103403,Cuiabá,pop_rua,420,90
+2026-05-16,5103403,Cuiabá,idosos_sozinhos,8302,1783
+2026-05-16,5103403,Cuiabá,acamados,2075,427
+2026-05-16,5103403,Cuiabá,gestantes_risco,1383,314
+2026-05-16,5103403,Cuiabá,pop_rua,420,77
+2026-05-17,5103403,Cuiabá,idosos_sozinhos,8302,1520
+2026-05-17,5103403,Cuiabá,acamados,2075,447
+2026-05-17,5103403,Cuiabá,gestantes_risco,1383,293
+2026-05-17,5103403,Cuiabá,pop_rua,420,80
+2026-05-18,5103403,Cuiabá,idosos_sozinhos,8302,1893
+2026-05-18,5103403,Cuiabá,acamados,2075,469
+2026-05-18,5103403,Cuiabá,gestantes_risco,1383,268
+2026-05-18,5103403,Cuiabá,pop_rua,420,82
+2026-05-19,5103403,Cuiabá,idosos_sozinhos,8302,1568
+2026-05-19,5103403,Cuiabá,acamados,2075,428
+2026-05-19,5103403,Cuiabá,gestantes_risco,1383,290
+2026-05-19,5103403,Cuiabá,pop_rua,420,89
+2026-05-20,5103403,Cuiabá,idosos_sozinhos,8302,1598
+2026-05-20,5103403,Cuiabá,acamados,2075,401
+2026-05-20,5103403,Cuiabá,gestantes_risco,1383,254
+2026-05-20,5103403,Cuiabá,pop_rua,420,79
+2026-05-21,5103403,Cuiabá,idosos_sozinhos,8302,1817
+2026-05-21,5103403,Cuiabá,acamados,2075,431
+2026-05-21,5103403,Cuiabá,gestantes_risco,1383,256
+2026-05-21,5103403,Cuiabá,pop_rua,420,89
+2026-05-22,5103403,Cuiabá,idosos_sozinhos,8302,1806
+2026-05-22,5103403,Cuiabá,acamados,2075,447
+2026-05-22,5103403,Cuiabá,gestantes_risco,1383,258
+2026-05-22,5103403,Cuiabá,pop_rua,420,82
+2026-05-23,5103403,Cuiabá,idosos_sozinhos,8302,1684
+2026-05-23,5103403,Cuiabá,acamados,2075,468
+2026-05-23,5103403,Cuiabá,gestantes_risco,1383,264
+2026-05-23,5103403,Cuiabá,pop_rua,420,93
+2026-05-24,5103403,Cuiabá,idosos_sozinhos,8302,1513
+2026-05-24,5103403,Cuiabá,acamados,2075,394
+2026-05-24,5103403,Cuiabá,gestantes_risco,1383,273
+2026-05-24,5103403,Cuiabá,pop_rua,420,89
+2026-05-25,5103403,Cuiabá,idosos_sozinhos,8302,1764
+2026-05-25,5103403,Cuiabá,acamados,2075,456
+2026-05-25,5103403,Cuiabá,gestantes_risco,1383,279
+2026-05-25,5103403,Cuiabá,pop_rua,420,84
+2026-05-26,5103403,Cuiabá,idosos_sozinhos,8302,1679
+2026-05-26,5103403,Cuiabá,acamados,2075,408
+2026-05-26,5103403,Cuiabá,gestantes_risco,1383,248
+2026-05-26,5103403,Cuiabá,pop_rua,420,91
+2026-05-27,5103403,Cuiabá,idosos_sozinhos,8302,1573
+2026-05-27,5103403,Cuiabá,acamados,2075,451
+2026-05-27,5103403,Cuiabá,gestantes_risco,1383,282
+2026-05-27,5103403,Cuiabá,pop_rua,420,94
+2026-05-28,5103403,Cuiabá,idosos_sozinhos,8302,1758
+2026-05-28,5103403,Cuiabá,acamados,2075,466
+2026-05-28,5103403,Cuiabá,gestantes_risco,1383,275
+2026-05-28,5103403,Cuiabá,pop_rua,420,76
+2026-05-29,5103403,Cuiabá,idosos_sozinhos,8302,1585
+2026-05-29,5103403,Cuiabá,acamados,2075,462
+2026-05-29,5103403,Cuiabá,gestantes_risco,1383,263
+2026-05-29,5103403,Cuiabá,pop_rua,420,96
+2026-05-30,5103403,Cuiabá,idosos_sozinhos,8302,1522
+2026-05-30,5103403,Cuiabá,acamados,2075,392
+2026-05-30,5103403,Cuiabá,gestantes_risco,1383,266
+2026-05-30,5103403,Cuiabá,pop_rua,420,81
+2026-05-31,5103403,Cuiabá,idosos_sozinhos,8302,1907
+2026-05-31,5103403,Cuiabá,acamados,2075,452
+2026-05-31,5103403,Cuiabá,gestantes_risco,1383,255
+2026-05-31,5103403,Cuiabá,pop_rua,420,84
+2026-06-01,5103403,Cuiabá,idosos_sozinhos,8302,1587
+2026-06-01,5103403,Cuiabá,acamados,2075,437
+2026-06-01,5103403,Cuiabá,gestantes_risco,1383,279
+2026-06-01,5103403,Cuiabá,pop_rua,420,90
+2026-06-02,5103403,Cuiabá,idosos_sozinhos,8302,1760
+2026-06-02,5103403,Cuiabá,acamados,2075,426
+2026-06-02,5103403,Cuiabá,gestantes_risco,1383,302
+2026-06-02,5103403,Cuiabá,pop_rua,420,92
+2026-06-03,5103403,Cuiabá,idosos_sozinhos,8302,1559
+2026-06-03,5103403,Cuiabá,acamados,2075,446
+2026-06-03,5103403,Cuiabá,gestantes_risco,1383,294
+2026-06-03,5103403,Cuiabá,pop_rua,420,84
+2026-06-04,5103403,Cuiabá,idosos_sozinhos,8302,1720
+2026-06-04,5103403,Cuiabá,acamados,2075,381
+2026-06-04,5103403,Cuiabá,gestantes_risco,1383,285
+2026-06-04,5103403,Cuiabá,pop_rua,420,90
+2026-06-05,5103403,Cuiabá,idosos_sozinhos,8302,1777
+2026-06-05,5103403,Cuiabá,acamados,2075,450
+2026-06-05,5103403,Cuiabá,gestantes_risco,1383,281
+2026-06-05,5103403,Cuiabá,pop_rua,420,76
+2026-06-06,5103403,Cuiabá,idosos_sozinhos,8302,1654
+2026-06-06,5103403,Cuiabá,acamados,2075,400
+2026-06-06,5103403,Cuiabá,gestantes_risco,1383,312
+2026-06-06,5103403,Cuiabá,pop_rua,420,76
+2026-06-07,5103403,Cuiabá,idosos_sozinhos,8302,1698
+2026-06-07,5103403,Cuiabá,acamados,2075,399
+2026-06-07,5103403,Cuiabá,gestantes_risco,1383,254
+2026-06-07,5103403,Cuiabá,pop_rua,420,83
+2026-06-08,5103403,Cuiabá,idosos_sozinhos,8302,1505
+2026-06-08,5103403,Cuiabá,acamados,2075,448
+2026-06-08,5103403,Cuiabá,gestantes_risco,1383,253
+2026-06-08,5103403,Cuiabá,pop_rua,420,90
+2026-06-09,5103403,Cuiabá,idosos_sozinhos,8302,1558
+2026-06-09,5103403,Cuiabá,acamados,2075,416
+2026-06-09,5103403,Cuiabá,gestantes_risco,1383,284
+2026-06-09,5103403,Cuiabá,pop_rua,420,79
+2026-06-10,5103403,Cuiabá,idosos_sozinhos,8302,2469
+2026-06-10,5103403,Cuiabá,acamados,2075,563
+2026-06-10,5103403,Cuiabá,gestantes_risco,1383,394
+2026-06-10,5103403,Cuiabá,pop_rua,420,126
+2026-06-11,5103403,Cuiabá,idosos_sozinhos,8302,3083
+2026-06-11,5103403,Cuiabá,acamados,2075,731
+2026-06-11,5103403,Cuiabá,gestantes_risco,1383,473
+2026-06-11,5103403,Cuiabá,pop_rua,420,155
+2026-06-12,5103403,Cuiabá,idosos_sozinhos,8302,3593
+2026-06-12,5103403,Cuiabá,acamados,2075,889
+2026-06-12,5103403,Cuiabá,gestantes_risco,1383,586
+2026-06-12,5103403,Cuiabá,pop_rua,420,175
+2026-06-13,5103403,Cuiabá,idosos_sozinhos,8302,4040
+2026-06-13,5103403,Cuiabá,acamados,2075,1026
+2026-06-13,5103403,Cuiabá,gestantes_risco,1383,732
+2026-06-13,5103403,Cuiabá,pop_rua,420,217
+2026-06-14,5103403,Cuiabá,idosos_sozinhos,8302,4725
+2026-06-14,5103403,Cuiabá,acamados,2075,1163
+2026-06-14,5103403,Cuiabá,gestantes_risco,1383,780
+2026-06-14,5103403,Cuiabá,pop_rua,420,238
+2026-06-15,5103403,Cuiabá,idosos_sozinhos,8302,5594
+2026-06-15,5103403,Cuiabá,acamados,2075,1388
+2026-06-15,5103403,Cuiabá,gestantes_risco,1383,908
+2026-06-15,5103403,Cuiabá,pop_rua,420,281
+2026-06-16,5103403,Cuiabá,idosos_sozinhos,8302,6026
+2026-06-16,5103403,Cuiabá,acamados,2075,1499
+2026-06-16,5103403,Cuiabá,gestantes_risco,1383,1031
+2026-06-16,5103403,Cuiabá,pop_rua,420,312
+2026-06-17,5103403,Cuiabá,idosos_sozinhos,8302,6875
+2026-06-17,5103403,Cuiabá,acamados,2075,1637
+2026-06-17,5103403,Cuiabá,gestantes_risco,1383,1094
+2026-06-17,5103403,Cuiabá,pop_rua,420,341
+2026-06-18,5103403,Cuiabá,idosos_sozinhos,8302,7296
+2026-06-18,5103403,Cuiabá,acamados,2075,1814
+2026-06-18,5103403,Cuiabá,gestantes_risco,1383,1213
+2026-06-18,5103403,Cuiabá,pop_rua,420,375
+2026-04-28,5108402,Várzea Grande,idosos_sozinhos,3600,709
+2026-04-28,5108402,Várzea Grande,acamados,900,199
+2026-04-28,5108402,Várzea Grande,gestantes_risco,600,108
+2026-04-28,5108402,Várzea Grande,pop_rua,220,48
+2026-04-29,5108402,Várzea Grande,idosos_sozinhos,3600,753
+2026-04-29,5108402,Várzea Grande,acamados,900,205
+2026-04-29,5108402,Várzea Grande,gestantes_risco,600,130
+2026-04-29,5108402,Várzea Grande,pop_rua,220,50
+2026-04-30,5108402,Várzea Grande,idosos_sozinhos,3600,692
+2026-04-30,5108402,Várzea Grande,acamados,900,182
+2026-04-30,5108402,Várzea Grande,gestantes_risco,600,126
+2026-04-30,5108402,Várzea Grande,pop_rua,220,43
+2026-05-01,5108402,Várzea Grande,idosos_sozinhos,3600,719
+2026-05-01,5108402,Várzea Grande,acamados,900,175
+2026-05-01,5108402,Várzea Grande,gestantes_risco,600,136
+2026-05-01,5108402,Várzea Grande,pop_rua,220,41
+2026-05-02,5108402,Várzea Grande,idosos_sozinhos,3600,656
+2026-05-02,5108402,Várzea Grande,acamados,900,188
+2026-05-02,5108402,Várzea Grande,gestantes_risco,600,121
+2026-05-02,5108402,Várzea Grande,pop_rua,220,43
+2026-05-03,5108402,Várzea Grande,idosos_sozinhos,3600,807
+2026-05-03,5108402,Várzea Grande,acamados,900,184
+2026-05-03,5108402,Várzea Grande,gestantes_risco,600,119
+2026-05-03,5108402,Várzea Grande,pop_rua,220,45
+2026-05-04,5108402,Várzea Grande,idosos_sozinhos,3600,775
+2026-05-04,5108402,Várzea Grande,acamados,900,171
+2026-05-04,5108402,Várzea Grande,gestantes_risco,600,127
+2026-05-04,5108402,Várzea Grande,pop_rua,220,48
+2026-05-05,5108402,Várzea Grande,idosos_sozinhos,3600,801
+2026-05-05,5108402,Várzea Grande,acamados,900,162
+2026-05-05,5108402,Várzea Grande,gestantes_risco,600,136
+2026-05-05,5108402,Várzea Grande,pop_rua,220,47
+2026-05-06,5108402,Várzea Grande,idosos_sozinhos,3600,732
+2026-05-06,5108402,Várzea Grande,acamados,900,196
+2026-05-06,5108402,Várzea Grande,gestantes_risco,600,134
+2026-05-06,5108402,Várzea Grande,pop_rua,220,41
+2026-05-07,5108402,Várzea Grande,idosos_sozinhos,3600,728
+2026-05-07,5108402,Várzea Grande,acamados,900,174
+2026-05-07,5108402,Várzea Grande,gestantes_risco,600,115
+2026-05-07,5108402,Várzea Grande,pop_rua,220,45
+2026-05-08,5108402,Várzea Grande,idosos_sozinhos,3600,810
+2026-05-08,5108402,Várzea Grande,acamados,900,168
+2026-05-08,5108402,Várzea Grande,gestantes_risco,600,134
+2026-05-08,5108402,Várzea Grande,pop_rua,220,44
+2026-05-09,5108402,Várzea Grande,idosos_sozinhos,3600,801
+2026-05-09,5108402,Várzea Grande,acamados,900,177
+2026-05-09,5108402,Várzea Grande,gestantes_risco,600,128
+2026-05-09,5108402,Várzea Grande,pop_rua,220,42
+2026-05-10,5108402,Várzea Grande,idosos_sozinhos,3600,765
+2026-05-10,5108402,Várzea Grande,acamados,900,191
+2026-05-10,5108402,Várzea Grande,gestantes_risco,600,115
+2026-05-10,5108402,Várzea Grande,pop_rua,220,39
+2026-05-11,5108402,Várzea Grande,idosos_sozinhos,3600,796
+2026-05-11,5108402,Várzea Grande,acamados,900,189
+2026-05-11,5108402,Várzea Grande,gestantes_risco,600,127
+2026-05-11,5108402,Várzea Grande,pop_rua,220,49
+2026-05-12,5108402,Várzea Grande,idosos_sozinhos,3600,691
+2026-05-12,5108402,Várzea Grande,acamados,900,176
+2026-05-12,5108402,Várzea Grande,gestantes_risco,600,116
+2026-05-12,5108402,Várzea Grande,pop_rua,220,48
+2026-05-13,5108402,Várzea Grande,idosos_sozinhos,3600,792
+2026-05-13,5108402,Várzea Grande,acamados,900,164
+2026-05-13,5108402,Várzea Grande,gestantes_risco,600,126
+2026-05-13,5108402,Várzea Grande,pop_rua,220,50
+2026-05-14,5108402,Várzea Grande,idosos_sozinhos,3600,694
+2026-05-14,5108402,Várzea Grande,acamados,900,201
+2026-05-14,5108402,Várzea Grande,gestantes_risco,600,130
+2026-05-14,5108402,Várzea Grande,pop_rua,220,42
+2026-05-15,5108402,Várzea Grande,idosos_sozinhos,3600,724
+2026-05-15,5108402,Várzea Grande,acamados,900,185
+2026-05-15,5108402,Várzea Grande,gestantes_risco,600,129
+2026-05-15,5108402,Várzea Grande,pop_rua,220,49
+2026-05-16,5108402,Várzea Grande,idosos_sozinhos,3600,759
+2026-05-16,5108402,Várzea Grande,acamados,900,205
+2026-05-16,5108402,Várzea Grande,gestantes_risco,600,127
+2026-05-16,5108402,Várzea Grande,pop_rua,220,40
+2026-05-17,5108402,Várzea Grande,idosos_sozinhos,3600,776
+2026-05-17,5108402,Várzea Grande,acamados,900,180
+2026-05-17,5108402,Várzea Grande,gestantes_risco,600,134
+2026-05-17,5108402,Várzea Grande,pop_rua,220,48
+2026-05-18,5108402,Várzea Grande,idosos_sozinhos,3600,816
+2026-05-18,5108402,Várzea Grande,acamados,900,169
+2026-05-18,5108402,Várzea Grande,gestantes_risco,600,112
+2026-05-18,5108402,Várzea Grande,pop_rua,220,44
+2026-05-19,5108402,Várzea Grande,idosos_sozinhos,3600,731
+2026-05-19,5108402,Várzea Grande,acamados,900,167
+2026-05-19,5108402,Várzea Grande,gestantes_risco,600,121
+2026-05-19,5108402,Várzea Grande,pop_rua,220,44
+2026-05-20,5108402,Várzea Grande,idosos_sozinhos,3600,734
+2026-05-20,5108402,Várzea Grande,acamados,900,204
+2026-05-20,5108402,Várzea Grande,gestantes_risco,600,110
+2026-05-20,5108402,Várzea Grande,pop_rua,220,49
+2026-05-21,5108402,Várzea Grande,idosos_sozinhos,3600,670
+2026-05-21,5108402,Várzea Grande,acamados,900,201
+2026-05-21,5108402,Várzea Grande,gestantes_risco,600,112
+2026-05-21,5108402,Várzea Grande,pop_rua,220,47
+2026-05-22,5108402,Várzea Grande,idosos_sozinhos,3600,686
+2026-05-22,5108402,Várzea Grande,acamados,900,203
+2026-05-22,5108402,Várzea Grande,gestantes_risco,600,133
+2026-05-22,5108402,Várzea Grande,pop_rua,220,42
+2026-05-23,5108402,Várzea Grande,idosos_sozinhos,3600,742
+2026-05-23,5108402,Várzea Grande,acamados,900,184
+2026-05-23,5108402,Várzea Grande,gestantes_risco,600,109
+2026-05-23,5108402,Várzea Grande,pop_rua,220,39
+2026-05-24,5108402,Várzea Grande,idosos_sozinhos,3600,763
+2026-05-24,5108402,Várzea Grande,acamados,900,171
+2026-05-24,5108402,Várzea Grande,gestantes_risco,600,110
+2026-05-24,5108402,Várzea Grande,pop_rua,220,47
+2026-05-25,5108402,Várzea Grande,idosos_sozinhos,3600,669
+2026-05-25,5108402,Várzea Grande,acamados,900,181
+2026-05-25,5108402,Várzea Grande,gestantes_risco,600,134
+2026-05-25,5108402,Várzea Grande,pop_rua,220,47
+2026-05-26,5108402,Várzea Grande,idosos_sozinhos,3600,724
+2026-05-26,5108402,Várzea Grande,acamados,900,175
+2026-05-26,5108402,Várzea Grande,gestantes_risco,600,128
+2026-05-26,5108402,Várzea Grande,pop_rua,220,43
+2026-05-27,5108402,Várzea Grande,idosos_sozinhos,3600,778
+2026-05-27,5108402,Várzea Grande,acamados,900,185
+2026-05-27,5108402,Várzea Grande,gestantes_risco,600,125
+2026-05-27,5108402,Várzea Grande,pop_rua,220,47
+2026-05-28,5108402,Várzea Grande,idosos_sozinhos,3600,734
+2026-05-28,5108402,Várzea Grande,acamados,900,203
+2026-05-28,5108402,Várzea Grande,gestantes_risco,600,113
+2026-05-28,5108402,Várzea Grande,pop_rua,220,47
+2026-05-29,5108402,Várzea Grande,idosos_sozinhos,3600,738
+2026-05-29,5108402,Várzea Grande,acamados,900,170
+2026-05-29,5108402,Várzea Grande,gestantes_risco,600,121
+2026-05-29,5108402,Várzea Grande,pop_rua,220,50
+2026-05-30,5108402,Várzea Grande,idosos_sozinhos,3600,761
+2026-05-30,5108402,Várzea Grande,acamados,900,167
+2026-05-30,5108402,Várzea Grande,gestantes_risco,600,122
+2026-05-30,5108402,Várzea Grande,pop_rua,220,46
+2026-05-31,5108402,Várzea Grande,idosos_sozinhos,3600,808
+2026-05-31,5108402,Várzea Grande,acamados,900,186
+2026-05-31,5108402,Várzea Grande,gestantes_risco,600,121
+2026-05-31,5108402,Várzea Grande,pop_rua,220,50
+2026-06-01,5108402,Várzea Grande,idosos_sozinhos,3600,730
+2026-06-01,5108402,Várzea Grande,acamados,900,179
+2026-06-01,5108402,Várzea Grande,gestantes_risco,600,121
+2026-06-01,5108402,Várzea Grande,pop_rua,220,46
+2026-06-02,5108402,Várzea Grande,idosos_sozinhos,3600,741
+2026-06-02,5108402,Várzea Grande,acamados,900,187
+2026-06-02,5108402,Várzea Grande,gestantes_risco,600,121
+2026-06-02,5108402,Várzea Grande,pop_rua,220,41
+2026-06-03,5108402,Várzea Grande,idosos_sozinhos,3600,730
+2026-06-03,5108402,Várzea Grande,acamados,900,178
+2026-06-03,5108402,Várzea Grande,gestantes_risco,600,113
+2026-06-03,5108402,Várzea Grande,pop_rua,220,50
+2026-06-04,5108402,Várzea Grande,idosos_sozinhos,3600,827
+2026-06-04,5108402,Várzea Grande,acamados,900,188
+2026-06-04,5108402,Várzea Grande,gestantes_risco,600,109
+2026-06-04,5108402,Várzea Grande,pop_rua,220,50
+2026-06-05,5108402,Várzea Grande,idosos_sozinhos,3600,789
+2026-06-05,5108402,Várzea Grande,acamados,900,170
+2026-06-05,5108402,Várzea Grande,gestantes_risco,600,130
+2026-06-05,5108402,Várzea Grande,pop_rua,220,42
+2026-06-06,5108402,Várzea Grande,idosos_sozinhos,3600,727
+2026-06-06,5108402,Várzea Grande,acamados,900,173
+2026-06-06,5108402,Várzea Grande,gestantes_risco,600,116
+2026-06-06,5108402,Várzea Grande,pop_rua,220,50
+2026-06-07,5108402,Várzea Grande,idosos_sozinhos,3600,734
+2026-06-07,5108402,Várzea Grande,acamados,900,201
+2026-06-07,5108402,Várzea Grande,gestantes_risco,600,130
+2026-06-07,5108402,Várzea Grande,pop_rua,220,50
+2026-06-08,5108402,Várzea Grande,idosos_sozinhos,3600,710
+2026-06-08,5108402,Várzea Grande,acamados,900,176
+2026-06-08,5108402,Várzea Grande,gestantes_risco,600,137
+2026-06-08,5108402,Várzea Grande,pop_rua,220,49
+2026-06-09,5108402,Várzea Grande,idosos_sozinhos,3600,818
+2026-06-09,5108402,Várzea Grande,acamados,900,187
+2026-06-09,5108402,Várzea Grande,gestantes_risco,600,132
+2026-06-09,5108402,Várzea Grande,pop_rua,220,43
+2026-06-10,5108402,Várzea Grande,idosos_sozinhos,3600,998
+2026-06-10,5108402,Várzea Grande,acamados,900,264
+2026-06-10,5108402,Várzea Grande,gestantes_risco,600,182
+2026-06-10,5108402,Várzea Grande,pop_rua,220,61
+2026-06-11,5108402,Várzea Grande,idosos_sozinhos,3600,1192
+2026-06-11,5108402,Várzea Grande,acamados,900,317
+2026-06-11,5108402,Várzea Grande,gestantes_risco,600,217
+2026-06-11,5108402,Várzea Grande,pop_rua,220,83
+2026-06-12,5108402,Várzea Grande,idosos_sozinhos,3600,1567
+2026-06-12,5108402,Várzea Grande,acamados,900,401
+2026-06-12,5108402,Várzea Grande,gestantes_risco,600,246
+2026-06-12,5108402,Várzea Grande,pop_rua,220,90
+2026-06-13,5108402,Várzea Grande,idosos_sozinhos,3600,1880
+2026-06-13,5108402,Várzea Grande,acamados,900,472
+2026-06-13,5108402,Várzea Grande,gestantes_risco,600,296
+2026-06-13,5108402,Várzea Grande,pop_rua,220,108
+2026-06-14,5108402,Várzea Grande,idosos_sozinhos,3600,2033
+2026-06-14,5108402,Várzea Grande,acamados,900,517
+2026-06-14,5108402,Várzea Grande,gestantes_risco,600,341
+2026-06-14,5108402,Várzea Grande,pop_rua,220,125
+2026-06-15,5108402,Várzea Grande,idosos_sozinhos,3600,2445
+2026-06-15,5108402,Várzea Grande,acamados,900,605
+2026-06-15,5108402,Várzea Grande,gestantes_risco,600,406
+2026-06-15,5108402,Várzea Grande,pop_rua,220,141
+2026-06-16,5108402,Várzea Grande,idosos_sozinhos,3600,2662
+2026-06-16,5108402,Várzea Grande,acamados,900,667
+2026-06-16,5108402,Várzea Grande,gestantes_risco,600,444
+2026-06-16,5108402,Várzea Grande,pop_rua,220,157
+2026-06-17,5108402,Várzea Grande,idosos_sozinhos,3600,2939
+2026-06-17,5108402,Várzea Grande,acamados,900,703
+2026-06-17,5108402,Várzea Grande,gestantes_risco,600,472
+2026-06-17,5108402,Várzea Grande,pop_rua,220,182
+2026-06-18,5108402,Várzea Grande,idosos_sozinhos,3600,3203
+2026-06-18,5108402,Várzea Grande,acamados,900,789
+2026-06-18,5108402,Várzea Grande,gestantes_risco,600,536
+2026-06-18,5108402,Várzea Grande,pop_rua,220,194
+2026-04-28,5107602,Rondonópolis,idosos_sozinhos,3110,605
+2026-04-28,5107602,Rondonópolis,acamados,777,162
+2026-04-28,5107602,Rondonópolis,gestantes_risco,518,108
+2026-04-28,5107602,Rondonópolis,pop_rua,180,40
+2026-04-29,5107602,Rondonópolis,idosos_sozinhos,3110,678
+2026-04-29,5107602,Rondonópolis,acamados,777,169
+2026-04-29,5107602,Rondonópolis,gestantes_risco,518,105
+2026-04-29,5107602,Rondonópolis,pop_rua,180,34
+2026-04-30,5107602,Rondonópolis,idosos_sozinhos,3110,669
+2026-04-30,5107602,Rondonópolis,acamados,777,158
+2026-04-30,5107602,Rondonópolis,gestantes_risco,518,102
+2026-04-30,5107602,Rondonópolis,pop_rua,180,37
+2026-05-01,5107602,Rondonópolis,idosos_sozinhos,3110,672
+2026-05-01,5107602,Rondonópolis,acamados,777,154
+2026-05-01,5107602,Rondonópolis,gestantes_risco,518,98
+2026-05-01,5107602,Rondonópolis,pop_rua,180,32
+2026-05-02,5107602,Rondonópolis,idosos_sozinhos,3110,699
+2026-05-02,5107602,Rondonópolis,acamados,777,171
+2026-05-02,5107602,Rondonópolis,gestantes_risco,518,98
+2026-05-02,5107602,Rondonópolis,pop_rua,180,35
+2026-05-03,5107602,Rondonópolis,idosos_sozinhos,3110,620
+2026-05-03,5107602,Rondonópolis,acamados,777,175
+2026-05-03,5107602,Rondonópolis,gestantes_risco,518,98
+2026-05-03,5107602,Rondonópolis,pop_rua,180,35
+2026-05-04,5107602,Rondonópolis,idosos_sozinhos,3110,633
+2026-05-04,5107602,Rondonópolis,acamados,777,159
+2026-05-04,5107602,Rondonópolis,gestantes_risco,518,111
+2026-05-04,5107602,Rondonópolis,pop_rua,180,41
+2026-05-05,5107602,Rondonópolis,idosos_sozinhos,3110,595
+2026-05-05,5107602,Rondonópolis,acamados,777,159
+2026-05-05,5107602,Rondonópolis,gestantes_risco,518,99
+2026-05-05,5107602,Rondonópolis,pop_rua,180,38
+2026-05-06,5107602,Rondonópolis,idosos_sozinhos,3110,689
+2026-05-06,5107602,Rondonópolis,acamados,777,178
+2026-05-06,5107602,Rondonópolis,gestantes_risco,518,101
+2026-05-06,5107602,Rondonópolis,pop_rua,180,35
+2026-05-07,5107602,Rondonópolis,idosos_sozinhos,3110,649
+2026-05-07,5107602,Rondonópolis,acamados,777,173
+2026-05-07,5107602,Rondonópolis,gestantes_risco,518,94
+2026-05-07,5107602,Rondonópolis,pop_rua,180,36
+2026-05-08,5107602,Rondonópolis,idosos_sozinhos,3110,708
+2026-05-08,5107602,Rondonópolis,acamados,777,169
+2026-05-08,5107602,Rondonópolis,gestantes_risco,518,113
+2026-05-08,5107602,Rondonópolis,pop_rua,180,40
+2026-05-09,5107602,Rondonópolis,idosos_sozinhos,3110,678
+2026-05-09,5107602,Rondonópolis,acamados,777,161
+2026-05-09,5107602,Rondonópolis,gestantes_risco,518,109
+2026-05-09,5107602,Rondonópolis,pop_rua,180,35
+2026-05-10,5107602,Rondonópolis,idosos_sozinhos,3110,670
+2026-05-10,5107602,Rondonópolis,acamados,777,140
+2026-05-10,5107602,Rondonópolis,gestantes_risco,518,96
+2026-05-10,5107602,Rondonópolis,pop_rua,180,41
+2026-05-11,5107602,Rondonópolis,idosos_sozinhos,3110,605
+2026-05-11,5107602,Rondonópolis,acamados,777,163
+2026-05-11,5107602,Rondonópolis,gestantes_risco,518,115
+2026-05-11,5107602,Rondonópolis,pop_rua,180,39
+2026-05-12,5107602,Rondonópolis,idosos_sozinhos,3110,573
+2026-05-12,5107602,Rondonópolis,acamados,777,172
+2026-05-12,5107602,Rondonópolis,gestantes_risco,518,100
+2026-05-12,5107602,Rondonópolis,pop_rua,180,34
+2026-05-13,5107602,Rondonópolis,idosos_sozinhos,3110,592
+2026-05-13,5107602,Rondonópolis,acamados,777,169
+2026-05-13,5107602,Rondonópolis,gestantes_risco,518,109
+2026-05-13,5107602,Rondonópolis,pop_rua,180,32
+2026-05-14,5107602,Rondonópolis,idosos_sozinhos,3110,653
+2026-05-14,5107602,Rondonópolis,acamados,777,158
+2026-05-14,5107602,Rondonópolis,gestantes_risco,518,116
+2026-05-14,5107602,Rondonópolis,pop_rua,180,32
+2026-05-15,5107602,Rondonópolis,idosos_sozinhos,3110,649
+2026-05-15,5107602,Rondonópolis,acamados,777,147
+2026-05-15,5107602,Rondonópolis,gestantes_risco,518,105
+2026-05-15,5107602,Rondonópolis,pop_rua,180,40
+2026-05-16,5107602,Rondonópolis,idosos_sozinhos,3110,574
+2026-05-16,5107602,Rondonópolis,acamados,777,176
+2026-05-16,5107602,Rondonópolis,gestantes_risco,518,98
+2026-05-16,5107602,Rondonópolis,pop_rua,180,33
+2026-05-17,5107602,Rondonópolis,idosos_sozinhos,3110,651
+2026-05-17,5107602,Rondonópolis,acamados,777,159
+2026-05-17,5107602,Rondonópolis,gestantes_risco,518,108
+2026-05-17,5107602,Rondonópolis,pop_rua,180,39
+2026-05-18,5107602,Rondonópolis,idosos_sozinhos,3110,652
+2026-05-18,5107602,Rondonópolis,acamados,777,172
+2026-05-18,5107602,Rondonópolis,gestantes_risco,518,94
+2026-05-18,5107602,Rondonópolis,pop_rua,180,35
+2026-05-19,5107602,Rondonópolis,idosos_sozinhos,3110,560
+2026-05-19,5107602,Rondonópolis,acamados,777,165
+2026-05-19,5107602,Rondonópolis,gestantes_risco,518,113
+2026-05-19,5107602,Rondonópolis,pop_rua,180,41
+2026-05-20,5107602,Rondonópolis,idosos_sozinhos,3110,656
+2026-05-20,5107602,Rondonópolis,acamados,777,176
+2026-05-20,5107602,Rondonópolis,gestantes_risco,518,105
+2026-05-20,5107602,Rondonópolis,pop_rua,180,36
+2026-05-21,5107602,Rondonópolis,idosos_sozinhos,3110,627
+2026-05-21,5107602,Rondonópolis,acamados,777,178
+2026-05-21,5107602,Rondonópolis,gestantes_risco,518,94
+2026-05-21,5107602,Rondonópolis,pop_rua,180,38
+2026-05-22,5107602,Rondonópolis,idosos_sozinhos,3110,620
+2026-05-22,5107602,Rondonópolis,acamados,777,141
+2026-05-22,5107602,Rondonópolis,gestantes_risco,518,99
+2026-05-22,5107602,Rondonópolis,pop_rua,180,35
+2026-05-23,5107602,Rondonópolis,idosos_sozinhos,3110,710
+2026-05-23,5107602,Rondonópolis,acamados,777,141
+2026-05-23,5107602,Rondonópolis,gestantes_risco,518,115
+2026-05-23,5107602,Rondonópolis,pop_rua,180,35
+2026-05-24,5107602,Rondonópolis,idosos_sozinhos,3110,712
+2026-05-24,5107602,Rondonópolis,acamados,777,150
+2026-05-24,5107602,Rondonópolis,gestantes_risco,518,104
+2026-05-24,5107602,Rondonópolis,pop_rua,180,32
+2026-05-25,5107602,Rondonópolis,idosos_sozinhos,3110,684
+2026-05-25,5107602,Rondonópolis,acamados,777,169
+2026-05-25,5107602,Rondonópolis,gestantes_risco,518,96
+2026-05-25,5107602,Rondonópolis,pop_rua,180,40
+2026-05-26,5107602,Rondonópolis,idosos_sozinhos,3110,602
+2026-05-26,5107602,Rondonópolis,acamados,777,175
+2026-05-26,5107602,Rondonópolis,gestantes_risco,518,104
+2026-05-26,5107602,Rondonópolis,pop_rua,180,40
+2026-05-27,5107602,Rondonópolis,idosos_sozinhos,3110,636
+2026-05-27,5107602,Rondonópolis,acamados,777,147
+2026-05-27,5107602,Rondonópolis,gestantes_risco,518,95
+2026-05-27,5107602,Rondonópolis,pop_rua,180,40
+2026-05-28,5107602,Rondonópolis,idosos_sozinhos,3110,578
+2026-05-28,5107602,Rondonópolis,acamados,777,178
+2026-05-28,5107602,Rondonópolis,gestantes_risco,518,100
+2026-05-28,5107602,Rondonópolis,pop_rua,180,35
+2026-05-29,5107602,Rondonópolis,idosos_sozinhos,3110,657
+2026-05-29,5107602,Rondonópolis,acamados,777,165
+2026-05-29,5107602,Rondonópolis,gestantes_risco,518,109
+2026-05-29,5107602,Rondonópolis,pop_rua,180,37
+2026-05-30,5107602,Rondonópolis,idosos_sozinhos,3110,677
+2026-05-30,5107602,Rondonópolis,acamados,777,158
+2026-05-30,5107602,Rondonópolis,gestantes_risco,518,112
+2026-05-30,5107602,Rondonópolis,pop_rua,180,33
+2026-05-31,5107602,Rondonópolis,idosos_sozinhos,3110,618
+2026-05-31,5107602,Rondonópolis,acamados,777,178
+2026-05-31,5107602,Rondonópolis,gestantes_risco,518,116
+2026-05-31,5107602,Rondonópolis,pop_rua,180,39
+2026-06-01,5107602,Rondonópolis,idosos_sozinhos,3110,567
+2026-06-01,5107602,Rondonópolis,acamados,777,173
+2026-06-01,5107602,Rondonópolis,gestantes_risco,518,99
+2026-06-01,5107602,Rondonópolis,pop_rua,180,35
+2026-06-02,5107602,Rondonópolis,idosos_sozinhos,3110,636
+2026-06-02,5107602,Rondonópolis,acamados,777,156
+2026-06-02,5107602,Rondonópolis,gestantes_risco,518,117
+2026-06-02,5107602,Rondonópolis,pop_rua,180,37
+2026-06-03,5107602,Rondonópolis,idosos_sozinhos,3110,562
+2026-06-03,5107602,Rondonópolis,acamados,777,172
+2026-06-03,5107602,Rondonópolis,gestantes_risco,518,102
+2026-06-03,5107602,Rondonópolis,pop_rua,180,37
+2026-06-04,5107602,Rondonópolis,idosos_sozinhos,3110,644
+2026-06-04,5107602,Rondonópolis,acamados,777,147
+2026-06-04,5107602,Rondonópolis,gestantes_risco,518,103
+2026-06-04,5107602,Rondonópolis,pop_rua,180,40
+2026-06-05,5107602,Rondonópolis,idosos_sozinhos,3110,713
+2026-06-05,5107602,Rondonópolis,acamados,777,174
+2026-06-05,5107602,Rondonópolis,gestantes_risco,518,118
+2026-06-05,5107602,Rondonópolis,pop_rua,180,36
+2026-06-06,5107602,Rondonópolis,idosos_sozinhos,3110,640
+2026-06-06,5107602,Rondonópolis,acamados,777,144
+2026-06-06,5107602,Rondonópolis,gestantes_risco,518,95
+2026-06-06,5107602,Rondonópolis,pop_rua,180,40
+2026-06-07,5107602,Rondonópolis,idosos_sozinhos,3110,687
+2026-06-07,5107602,Rondonópolis,acamados,777,148
+2026-06-07,5107602,Rondonópolis,gestantes_risco,518,112
+2026-06-07,5107602,Rondonópolis,pop_rua,180,32
+2026-06-08,5107602,Rondonópolis,idosos_sozinhos,3110,619
+2026-06-08,5107602,Rondonópolis,acamados,777,148
+2026-06-08,5107602,Rondonópolis,gestantes_risco,518,100
+2026-06-08,5107602,Rondonópolis,pop_rua,180,38
+2026-06-09,5107602,Rondonópolis,idosos_sozinhos,3110,712
+2026-06-09,5107602,Rondonópolis,acamados,777,165
+2026-06-09,5107602,Rondonópolis,gestantes_risco,518,116
+2026-06-09,5107602,Rondonópolis,pop_rua,180,36
+2026-06-10,5107602,Rondonópolis,idosos_sozinhos,3110,812
+2026-06-10,5107602,Rondonópolis,acamados,777,198
+2026-06-10,5107602,Rondonópolis,gestantes_risco,518,147
+2026-06-10,5107602,Rondonópolis,pop_rua,180,46
+2026-06-11,5107602,Rondonópolis,idosos_sozinhos,3110,1044
+2026-06-11,5107602,Rondonópolis,acamados,777,264
+2026-06-11,5107602,Rondonópolis,gestantes_risco,518,176
+2026-06-11,5107602,Rondonópolis,pop_rua,180,65
+2026-06-12,5107602,Rondonópolis,idosos_sozinhos,3110,1411
+2026-06-12,5107602,Rondonópolis,acamados,777,315
+2026-06-12,5107602,Rondonópolis,gestantes_risco,518,215
+2026-06-12,5107602,Rondonópolis,pop_rua,180,80
+2026-06-13,5107602,Rondonópolis,idosos_sozinhos,3110,1546
+2026-06-13,5107602,Rondonópolis,acamados,777,389
+2026-06-13,5107602,Rondonópolis,gestantes_risco,518,253
+2026-06-13,5107602,Rondonópolis,pop_rua,180,89
+2026-06-14,5107602,Rondonópolis,idosos_sozinhos,3110,1879
+2026-06-14,5107602,Rondonópolis,acamados,777,453
+2026-06-14,5107602,Rondonópolis,gestantes_risco,518,306
+2026-06-14,5107602,Rondonópolis,pop_rua,180,104
+2026-06-15,5107602,Rondonópolis,idosos_sozinhos,3110,2109
+2026-06-15,5107602,Rondonópolis,acamados,777,521
+2026-06-15,5107602,Rondonópolis,gestantes_risco,518,340
+2026-06-15,5107602,Rondonópolis,pop_rua,180,121
+2026-06-16,5107602,Rondonópolis,idosos_sozinhos,3110,2239
+2026-06-16,5107602,Rondonópolis,acamados,777,570
+2026-06-16,5107602,Rondonópolis,gestantes_risco,518,366
+2026-06-16,5107602,Rondonópolis,pop_rua,180,130
+2026-06-17,5107602,Rondonópolis,idosos_sozinhos,3110,2511
+2026-06-17,5107602,Rondonópolis,acamados,777,633
+2026-06-17,5107602,Rondonópolis,gestantes_risco,518,412
+2026-06-17,5107602,Rondonópolis,pop_rua,180,149
+2026-06-18,5107602,Rondonópolis,idosos_sozinhos,3110,2674
+2026-06-18,5107602,Rondonópolis,acamados,777,680
+2026-06-18,5107602,Rondonópolis,gestantes_risco,518,461
+2026-06-18,5107602,Rondonópolis,pop_rua,180,155
+2026-04-28,5107909,Sinop,idosos_sozinhos,2592,503
+2026-04-28,5107909,Sinop,acamados,648,143
+2026-04-28,5107909,Sinop,gestantes_risco,432,97
+2026-04-28,5107909,Sinop,pop_rua,90,19
+2026-04-29,5107909,Sinop,idosos_sozinhos,2592,524
+2026-04-29,5107909,Sinop,acamados,648,142
+2026-04-29,5107909,Sinop,gestantes_risco,432,98
+2026-04-29,5107909,Sinop,pop_rua,90,17
+2026-04-30,5107909,Sinop,idosos_sozinhos,2592,476
+2026-04-30,5107909,Sinop,acamados,648,137
+2026-04-30,5107909,Sinop,gestantes_risco,432,82
+2026-04-30,5107909,Sinop,pop_rua,90,17
+2026-05-01,5107909,Sinop,idosos_sozinhos,2592,479
+2026-05-01,5107909,Sinop,acamados,648,116
+2026-05-01,5107909,Sinop,gestantes_risco,432,88
+2026-05-01,5107909,Sinop,pop_rua,90,19
+2026-05-02,5107909,Sinop,idosos_sozinhos,2592,476
+2026-05-02,5107909,Sinop,acamados,648,129
+2026-05-02,5107909,Sinop,gestantes_risco,432,94
+2026-05-02,5107909,Sinop,pop_rua,90,18
+2026-05-03,5107909,Sinop,idosos_sozinhos,2592,555
+2026-05-03,5107909,Sinop,acamados,648,136
+2026-05-03,5107909,Sinop,gestantes_risco,432,92
+2026-05-03,5107909,Sinop,pop_rua,90,17
+2026-05-04,5107909,Sinop,idosos_sozinhos,2592,475
+2026-05-04,5107909,Sinop,acamados,648,133
+2026-05-04,5107909,Sinop,gestantes_risco,432,95
+2026-05-04,5107909,Sinop,pop_rua,90,19
+2026-05-05,5107909,Sinop,idosos_sozinhos,2592,576
+2026-05-05,5107909,Sinop,acamados,648,128
+2026-05-05,5107909,Sinop,gestantes_risco,432,96
+2026-05-05,5107909,Sinop,pop_rua,90,16
+2026-05-06,5107909,Sinop,idosos_sozinhos,2592,556
+2026-05-06,5107909,Sinop,acamados,648,122
+2026-05-06,5107909,Sinop,gestantes_risco,432,83
+2026-05-06,5107909,Sinop,pop_rua,90,18
+2026-05-07,5107909,Sinop,idosos_sozinhos,2592,470
+2026-05-07,5107909,Sinop,acamados,648,142
+2026-05-07,5107909,Sinop,gestantes_risco,432,92
+2026-05-07,5107909,Sinop,pop_rua,90,18
+2026-05-08,5107909,Sinop,idosos_sozinhos,2592,594
+2026-05-08,5107909,Sinop,acamados,648,127
+2026-05-08,5107909,Sinop,gestantes_risco,432,97
+2026-05-08,5107909,Sinop,pop_rua,90,18
+2026-05-09,5107909,Sinop,idosos_sozinhos,2592,548
+2026-05-09,5107909,Sinop,acamados,648,132
+2026-05-09,5107909,Sinop,gestantes_risco,432,94
+2026-05-09,5107909,Sinop,pop_rua,90,18
+2026-05-10,5107909,Sinop,idosos_sozinhos,2592,572
+2026-05-10,5107909,Sinop,acamados,648,134
+2026-05-10,5107909,Sinop,gestantes_risco,432,81
+2026-05-10,5107909,Sinop,pop_rua,90,16
+2026-05-11,5107909,Sinop,idosos_sozinhos,2592,525
+2026-05-11,5107909,Sinop,acamados,648,123
+2026-05-11,5107909,Sinop,gestantes_risco,432,79
+2026-05-11,5107909,Sinop,pop_rua,90,16
+2026-05-12,5107909,Sinop,idosos_sozinhos,2592,591
+2026-05-12,5107909,Sinop,acamados,648,142
+2026-05-12,5107909,Sinop,gestantes_risco,432,86
+2026-05-12,5107909,Sinop,pop_rua,90,19
+2026-05-13,5107909,Sinop,idosos_sozinhos,2592,506
+2026-05-13,5107909,Sinop,acamados,648,128
+2026-05-13,5107909,Sinop,gestantes_risco,432,92
+2026-05-13,5107909,Sinop,pop_rua,90,18
+2026-05-14,5107909,Sinop,idosos_sozinhos,2592,534
+2026-05-14,5107909,Sinop,acamados,648,147
+2026-05-14,5107909,Sinop,gestantes_risco,432,79
+2026-05-14,5107909,Sinop,pop_rua,90,17
+2026-05-15,5107909,Sinop,idosos_sozinhos,2592,592
+2026-05-15,5107909,Sinop,acamados,648,140
+2026-05-15,5107909,Sinop,gestantes_risco,432,85
+2026-05-15,5107909,Sinop,pop_rua,90,19
+2026-05-16,5107909,Sinop,idosos_sozinhos,2592,586
+2026-05-16,5107909,Sinop,acamados,648,117
+2026-05-16,5107909,Sinop,gestantes_risco,432,78
+2026-05-16,5107909,Sinop,pop_rua,90,16
+2026-05-17,5107909,Sinop,idosos_sozinhos,2592,479
+2026-05-17,5107909,Sinop,acamados,648,139
+2026-05-17,5107909,Sinop,gestantes_risco,432,93
+2026-05-17,5107909,Sinop,pop_rua,90,16
+2026-05-18,5107909,Sinop,idosos_sozinhos,2592,580
+2026-05-18,5107909,Sinop,acamados,648,116
+2026-05-18,5107909,Sinop,gestantes_risco,432,98
+2026-05-18,5107909,Sinop,pop_rua,90,18
+2026-05-19,5107909,Sinop,idosos_sozinhos,2592,512
+2026-05-19,5107909,Sinop,acamados,648,140
+2026-05-19,5107909,Sinop,gestantes_risco,432,80
+2026-05-19,5107909,Sinop,pop_rua,90,20
+2026-05-20,5107909,Sinop,idosos_sozinhos,2592,591
+2026-05-20,5107909,Sinop,acamados,648,121
+2026-05-20,5107909,Sinop,gestantes_risco,432,81
+2026-05-20,5107909,Sinop,pop_rua,90,17
+2026-05-21,5107909,Sinop,idosos_sozinhos,2592,586
+2026-05-21,5107909,Sinop,acamados,648,116
+2026-05-21,5107909,Sinop,gestantes_risco,432,93
+2026-05-21,5107909,Sinop,pop_rua,90,17
+2026-05-22,5107909,Sinop,idosos_sozinhos,2592,508
+2026-05-22,5107909,Sinop,acamados,648,126
+2026-05-22,5107909,Sinop,gestantes_risco,432,96
+2026-05-22,5107909,Sinop,pop_rua,90,19
+2026-05-23,5107909,Sinop,idosos_sozinhos,2592,516
+2026-05-23,5107909,Sinop,acamados,648,127
+2026-05-23,5107909,Sinop,gestantes_risco,432,85
+2026-05-23,5107909,Sinop,pop_rua,90,16
+2026-05-24,5107909,Sinop,idosos_sozinhos,2592,501
+2026-05-24,5107909,Sinop,acamados,648,146
+2026-05-24,5107909,Sinop,gestantes_risco,432,92
+2026-05-24,5107909,Sinop,pop_rua,90,19
+2026-05-25,5107909,Sinop,idosos_sozinhos,2592,556
+2026-05-25,5107909,Sinop,acamados,648,140
+2026-05-25,5107909,Sinop,gestantes_risco,432,89
+2026-05-25,5107909,Sinop,pop_rua,90,18
+2026-05-26,5107909,Sinop,idosos_sozinhos,2592,474
+2026-05-26,5107909,Sinop,acamados,648,143
+2026-05-26,5107909,Sinop,gestantes_risco,432,90
+2026-05-26,5107909,Sinop,pop_rua,90,19
+2026-05-27,5107909,Sinop,idosos_sozinhos,2592,482
+2026-05-27,5107909,Sinop,acamados,648,121
+2026-05-27,5107909,Sinop,gestantes_risco,432,83
+2026-05-27,5107909,Sinop,pop_rua,90,18
+2026-05-28,5107909,Sinop,idosos_sozinhos,2592,522
+2026-05-28,5107909,Sinop,acamados,648,120
+2026-05-28,5107909,Sinop,gestantes_risco,432,96
+2026-05-28,5107909,Sinop,pop_rua,90,17
+2026-05-29,5107909,Sinop,idosos_sozinhos,2592,592
+2026-05-29,5107909,Sinop,acamados,648,121
+2026-05-29,5107909,Sinop,gestantes_risco,432,93
+2026-05-29,5107909,Sinop,pop_rua,90,16
+2026-05-30,5107909,Sinop,idosos_sozinhos,2592,519
+2026-05-30,5107909,Sinop,acamados,648,127
+2026-05-30,5107909,Sinop,gestantes_risco,432,94
+2026-05-30,5107909,Sinop,pop_rua,90,20
+2026-05-31,5107909,Sinop,idosos_sozinhos,2592,519
+2026-05-31,5107909,Sinop,acamados,648,119
+2026-05-31,5107909,Sinop,gestantes_risco,432,80
+2026-05-31,5107909,Sinop,pop_rua,90,19
+2026-06-01,5107909,Sinop,idosos_sozinhos,2592,520
+2026-06-01,5107909,Sinop,acamados,648,139
+2026-06-01,5107909,Sinop,gestantes_risco,432,84
+2026-06-01,5107909,Sinop,pop_rua,90,16
+2026-06-02,5107909,Sinop,idosos_sozinhos,2592,557
+2026-06-02,5107909,Sinop,acamados,648,137
+2026-06-02,5107909,Sinop,gestantes_risco,432,77
+2026-06-02,5107909,Sinop,pop_rua,90,16
+2026-06-03,5107909,Sinop,idosos_sozinhos,2592,558
+2026-06-03,5107909,Sinop,acamados,648,123
+2026-06-03,5107909,Sinop,gestantes_risco,432,92
+2026-06-03,5107909,Sinop,pop_rua,90,16
+2026-06-04,5107909,Sinop,idosos_sozinhos,2592,525
+2026-06-04,5107909,Sinop,acamados,648,143
+2026-06-04,5107909,Sinop,gestantes_risco,432,85
+2026-06-04,5107909,Sinop,pop_rua,90,17
+2026-06-05,5107909,Sinop,idosos_sozinhos,2592,594
+2026-06-05,5107909,Sinop,acamados,648,137
+2026-06-05,5107909,Sinop,gestantes_risco,432,97
+2026-06-05,5107909,Sinop,pop_rua,90,17
+2026-06-06,5107909,Sinop,idosos_sozinhos,2592,537
+2026-06-06,5107909,Sinop,acamados,648,137
+2026-06-06,5107909,Sinop,gestantes_risco,432,99
+2026-06-06,5107909,Sinop,pop_rua,90,17
+2026-06-07,5107909,Sinop,idosos_sozinhos,2592,532
+2026-06-07,5107909,Sinop,acamados,648,119
+2026-06-07,5107909,Sinop,gestantes_risco,432,82
+2026-06-07,5107909,Sinop,pop_rua,90,17
+2026-06-08,5107909,Sinop,idosos_sozinhos,2592,582
+2026-06-08,5107909,Sinop,acamados,648,122
+2026-06-08,5107909,Sinop,gestantes_risco,432,88
+2026-06-08,5107909,Sinop,pop_rua,90,19
+2026-06-09,5107909,Sinop,idosos_sozinhos,2592,500
+2026-06-09,5107909,Sinop,acamados,648,136
+2026-06-09,5107909,Sinop,gestantes_risco,432,78
+2026-06-09,5107909,Sinop,pop_rua,90,20
+2026-06-10,5107909,Sinop,idosos_sozinhos,2592,727
+2026-06-10,5107909,Sinop,acamados,648,197
+2026-06-10,5107909,Sinop,gestantes_risco,432,125
+2026-06-10,5107909,Sinop,pop_rua,90,26
+2026-06-11,5107909,Sinop,idosos_sozinhos,2592,857
+2026-06-11,5107909,Sinop,acamados,648,237
+2026-06-11,5107909,Sinop,gestantes_risco,432,150
+2026-06-11,5107909,Sinop,pop_rua,90,32
+2026-06-12,5107909,Sinop,idosos_sozinhos,2592,1166
+2026-06-12,5107909,Sinop,acamados,648,286
+2026-06-12,5107909,Sinop,gestantes_risco,432,180
+2026-06-12,5107909,Sinop,pop_rua,90,38
+2026-06-13,5107909,Sinop,idosos_sozinhos,2592,1253
+2026-06-13,5107909,Sinop,acamados,648,328
+2026-06-13,5107909,Sinop,gestantes_risco,432,215
+2026-06-13,5107909,Sinop,pop_rua,90,44
+2026-06-14,5107909,Sinop,idosos_sozinhos,2592,1496
+2026-06-14,5107909,Sinop,acamados,648,365
+2026-06-14,5107909,Sinop,gestantes_risco,432,240
+2026-06-14,5107909,Sinop,pop_rua,90,52
+2026-06-15,5107909,Sinop,idosos_sozinhos,2592,1656
+2026-06-15,5107909,Sinop,acamados,648,417
+2026-06-15,5107909,Sinop,gestantes_risco,432,292
+2026-06-15,5107909,Sinop,pop_rua,90,60
+2026-06-16,5107909,Sinop,idosos_sozinhos,2592,1935
+2026-06-16,5107909,Sinop,acamados,648,468
+2026-06-16,5107909,Sinop,gestantes_risco,432,306
+2026-06-16,5107909,Sinop,pop_rua,90,67
+2026-06-17,5107909,Sinop,idosos_sozinhos,2592,2067
+2026-06-17,5107909,Sinop,acamados,648,520
+2026-06-17,5107909,Sinop,gestantes_risco,432,355
+2026-06-17,5107909,Sinop,pop_rua,90,72
+2026-06-18,5107909,Sinop,idosos_sozinhos,2592,2324
+2026-06-18,5107909,Sinop,acamados,648,582
+2026-06-18,5107909,Sinop,gestantes_risco,432,377
+2026-06-18,5107909,Sinop,pop_rua,90,78
+2026-04-28,5107925,Sorriso,idosos_sozinhos,1451,301
+2026-04-28,5107925,Sorriso,acamados,362,75
+2026-04-28,5107925,Sorriso,gestantes_risco,241,52
+2026-04-28,5107925,Sorriso,pop_rua,50,10
+2026-04-29,5107925,Sorriso,idosos_sozinhos,1451,273
+2026-04-29,5107925,Sorriso,acamados,362,72
+2026-04-29,5107925,Sorriso,gestantes_risco,241,46
+2026-04-29,5107925,Sorriso,pop_rua,50,9
+2026-04-30,5107925,Sorriso,idosos_sozinhos,1451,271
+2026-04-30,5107925,Sorriso,acamados,362,73
+2026-04-30,5107925,Sorriso,gestantes_risco,241,44
+2026-04-30,5107925,Sorriso,pop_rua,50,9
+2026-05-01,5107925,Sorriso,idosos_sozinhos,1451,280
+2026-05-01,5107925,Sorriso,acamados,362,74
+2026-05-01,5107925,Sorriso,gestantes_risco,241,54
+2026-05-01,5107925,Sorriso,pop_rua,50,10
+2026-05-02,5107925,Sorriso,idosos_sozinhos,1451,302
+2026-05-02,5107925,Sorriso,acamados,362,66
+2026-05-02,5107925,Sorriso,gestantes_risco,241,45
+2026-05-02,5107925,Sorriso,pop_rua,50,11
+2026-05-03,5107925,Sorriso,idosos_sozinhos,1451,305
+2026-05-03,5107925,Sorriso,acamados,362,76
+2026-05-03,5107925,Sorriso,gestantes_risco,241,48
+2026-05-03,5107925,Sorriso,pop_rua,50,9
+2026-05-04,5107925,Sorriso,idosos_sozinhos,1451,283
+2026-05-04,5107925,Sorriso,acamados,362,67
+2026-05-04,5107925,Sorriso,gestantes_risco,241,51
+2026-05-04,5107925,Sorriso,pop_rua,50,10
+2026-05-05,5107925,Sorriso,idosos_sozinhos,1451,271
+2026-05-05,5107925,Sorriso,acamados,362,70
+2026-05-05,5107925,Sorriso,gestantes_risco,241,47
+2026-05-05,5107925,Sorriso,pop_rua,50,10
+2026-05-06,5107925,Sorriso,idosos_sozinhos,1451,315
+2026-05-06,5107925,Sorriso,acamados,362,83
+2026-05-06,5107925,Sorriso,gestantes_risco,241,46
+2026-05-06,5107925,Sorriso,pop_rua,50,9
+2026-05-07,5107925,Sorriso,idosos_sozinhos,1451,330
+2026-05-07,5107925,Sorriso,acamados,362,80
+2026-05-07,5107925,Sorriso,gestantes_risco,241,45
+2026-05-07,5107925,Sorriso,pop_rua,50,9
+2026-05-08,5107925,Sorriso,idosos_sozinhos,1451,265
+2026-05-08,5107925,Sorriso,acamados,362,66
+2026-05-08,5107925,Sorriso,gestantes_risco,241,45
+2026-05-08,5107925,Sorriso,pop_rua,50,11
+2026-05-09,5107925,Sorriso,idosos_sozinhos,1451,277
+2026-05-09,5107925,Sorriso,acamados,362,65
+2026-05-09,5107925,Sorriso,gestantes_risco,241,44
+2026-05-09,5107925,Sorriso,pop_rua,50,9
+2026-05-10,5107925,Sorriso,idosos_sozinhos,1451,291
+2026-05-10,5107925,Sorriso,acamados,362,80
+2026-05-10,5107925,Sorriso,gestantes_risco,241,45
+2026-05-10,5107925,Sorriso,pop_rua,50,9
+2026-05-11,5107925,Sorriso,idosos_sozinhos,1451,294
+2026-05-11,5107925,Sorriso,acamados,362,73
+2026-05-11,5107925,Sorriso,gestantes_risco,241,51
+2026-05-11,5107925,Sorriso,pop_rua,50,10
+2026-05-12,5107925,Sorriso,idosos_sozinhos,1451,331
+2026-05-12,5107925,Sorriso,acamados,362,71
+2026-05-12,5107925,Sorriso,gestantes_risco,241,51
+2026-05-12,5107925,Sorriso,pop_rua,50,10
+2026-05-13,5107925,Sorriso,idosos_sozinhos,1451,314
+2026-05-13,5107925,Sorriso,acamados,362,81
+2026-05-13,5107925,Sorriso,gestantes_risco,241,55
+2026-05-13,5107925,Sorriso,pop_rua,50,9
+2026-05-14,5107925,Sorriso,idosos_sozinhos,1451,309
+2026-05-14,5107925,Sorriso,acamados,362,72
+2026-05-14,5107925,Sorriso,gestantes_risco,241,52
+2026-05-14,5107925,Sorriso,pop_rua,50,10
+2026-05-15,5107925,Sorriso,idosos_sozinhos,1451,290
+2026-05-15,5107925,Sorriso,acamados,362,82
+2026-05-15,5107925,Sorriso,gestantes_risco,241,49
+2026-05-15,5107925,Sorriso,pop_rua,50,10
+2026-05-16,5107925,Sorriso,idosos_sozinhos,1451,331
+2026-05-16,5107925,Sorriso,acamados,362,82
+2026-05-16,5107925,Sorriso,gestantes_risco,241,51
+2026-05-16,5107925,Sorriso,pop_rua,50,9
+2026-05-17,5107925,Sorriso,idosos_sozinhos,1451,309
+2026-05-17,5107925,Sorriso,acamados,362,73
+2026-05-17,5107925,Sorriso,gestantes_risco,241,52
+2026-05-17,5107925,Sorriso,pop_rua,50,9
+2026-05-18,5107925,Sorriso,idosos_sozinhos,1451,276
+2026-05-18,5107925,Sorriso,acamados,362,65
+2026-05-18,5107925,Sorriso,gestantes_risco,241,48
+2026-05-18,5107925,Sorriso,pop_rua,50,10
+2026-05-19,5107925,Sorriso,idosos_sozinhos,1451,282
+2026-05-19,5107925,Sorriso,acamados,362,76
+2026-05-19,5107925,Sorriso,gestantes_risco,241,48
+2026-05-19,5107925,Sorriso,pop_rua,50,10
+2026-05-20,5107925,Sorriso,idosos_sozinhos,1451,312
+2026-05-20,5107925,Sorriso,acamados,362,68
+2026-05-20,5107925,Sorriso,gestantes_risco,241,50
+2026-05-20,5107925,Sorriso,pop_rua,50,10
+2026-05-21,5107925,Sorriso,idosos_sozinhos,1451,329
+2026-05-21,5107925,Sorriso,acamados,362,73
+2026-05-21,5107925,Sorriso,gestantes_risco,241,54
+2026-05-21,5107925,Sorriso,pop_rua,50,10
+2026-05-22,5107925,Sorriso,idosos_sozinhos,1451,281
+2026-05-22,5107925,Sorriso,acamados,362,70
+2026-05-22,5107925,Sorriso,gestantes_risco,241,51
+2026-05-22,5107925,Sorriso,pop_rua,50,10
+2026-05-23,5107925,Sorriso,idosos_sozinhos,1451,307
+2026-05-23,5107925,Sorriso,acamados,362,67
+2026-05-23,5107925,Sorriso,gestantes_risco,241,44
+2026-05-23,5107925,Sorriso,pop_rua,50,9
+2026-05-24,5107925,Sorriso,idosos_sozinhos,1451,322
+2026-05-24,5107925,Sorriso,acamados,362,80
+2026-05-24,5107925,Sorriso,gestantes_risco,241,53
+2026-05-24,5107925,Sorriso,pop_rua,50,11
+2026-05-25,5107925,Sorriso,idosos_sozinhos,1451,314
+2026-05-25,5107925,Sorriso,acamados,362,67
+2026-05-25,5107925,Sorriso,gestantes_risco,241,54
+2026-05-25,5107925,Sorriso,pop_rua,50,9
+2026-05-26,5107925,Sorriso,idosos_sozinhos,1451,302
+2026-05-26,5107925,Sorriso,acamados,362,69
+2026-05-26,5107925,Sorriso,gestantes_risco,241,51
+2026-05-26,5107925,Sorriso,pop_rua,50,11
+2026-05-27,5107925,Sorriso,idosos_sozinhos,1451,276
+2026-05-27,5107925,Sorriso,acamados,362,75
+2026-05-27,5107925,Sorriso,gestantes_risco,241,53
+2026-05-27,5107925,Sorriso,pop_rua,50,9
+2026-05-28,5107925,Sorriso,idosos_sozinhos,1451,269
+2026-05-28,5107925,Sorriso,acamados,362,81
+2026-05-28,5107925,Sorriso,gestantes_risco,241,54
+2026-05-28,5107925,Sorriso,pop_rua,50,10
+2026-05-29,5107925,Sorriso,idosos_sozinhos,1451,290
+2026-05-29,5107925,Sorriso,acamados,362,80
+2026-05-29,5107925,Sorriso,gestantes_risco,241,53
+2026-05-29,5107925,Sorriso,pop_rua,50,10
+2026-05-30,5107925,Sorriso,idosos_sozinhos,1451,310
+2026-05-30,5107925,Sorriso,acamados,362,81
+2026-05-30,5107925,Sorriso,gestantes_risco,241,48
+2026-05-30,5107925,Sorriso,pop_rua,50,10
+2026-05-31,5107925,Sorriso,idosos_sozinhos,1451,296
+2026-05-31,5107925,Sorriso,acamados,362,67
+2026-05-31,5107925,Sorriso,gestantes_risco,241,55
+2026-05-31,5107925,Sorriso,pop_rua,50,11
+2026-06-01,5107925,Sorriso,idosos_sozinhos,1451,303
+2026-06-01,5107925,Sorriso,acamados,362,81
+2026-06-01,5107925,Sorriso,gestantes_risco,241,52
+2026-06-01,5107925,Sorriso,pop_rua,50,9
+2026-06-02,5107925,Sorriso,idosos_sozinhos,1451,297
+2026-06-02,5107925,Sorriso,acamados,362,81
+2026-06-02,5107925,Sorriso,gestantes_risco,241,44
+2026-06-02,5107925,Sorriso,pop_rua,50,10
+2026-06-03,5107925,Sorriso,idosos_sozinhos,1451,327
+2026-06-03,5107925,Sorriso,acamados,362,74
+2026-06-03,5107925,Sorriso,gestantes_risco,241,47
+2026-06-03,5107925,Sorriso,pop_rua,50,9
+2026-06-04,5107925,Sorriso,idosos_sozinhos,1451,328
+2026-06-04,5107925,Sorriso,acamados,362,72
+2026-06-04,5107925,Sorriso,gestantes_risco,241,45
+2026-06-04,5107925,Sorriso,pop_rua,50,9
+2026-06-05,5107925,Sorriso,idosos_sozinhos,1451,276
+2026-06-05,5107925,Sorriso,acamados,362,80
+2026-06-05,5107925,Sorriso,gestantes_risco,241,52
+2026-06-05,5107925,Sorriso,pop_rua,50,9
+2026-06-06,5107925,Sorriso,idosos_sozinhos,1451,319
+2026-06-06,5107925,Sorriso,acamados,362,74
+2026-06-06,5107925,Sorriso,gestantes_risco,241,55
+2026-06-06,5107925,Sorriso,pop_rua,50,10
+2026-06-07,5107925,Sorriso,idosos_sozinhos,1451,314
+2026-06-07,5107925,Sorriso,acamados,362,80
+2026-06-07,5107925,Sorriso,gestantes_risco,241,48
+2026-06-07,5107925,Sorriso,pop_rua,50,11
+2026-06-08,5107925,Sorriso,idosos_sozinhos,1451,294
+2026-06-08,5107925,Sorriso,acamados,362,75
+2026-06-08,5107925,Sorriso,gestantes_risco,241,47
+2026-06-08,5107925,Sorriso,pop_rua,50,9
+2026-06-09,5107925,Sorriso,idosos_sozinhos,1451,309
+2026-06-09,5107925,Sorriso,acamados,362,71
+2026-06-09,5107925,Sorriso,gestantes_risco,241,51
+2026-06-09,5107925,Sorriso,pop_rua,50,10
+2026-06-10,5107925,Sorriso,idosos_sozinhos,1451,374
+2026-06-10,5107925,Sorriso,acamados,362,109
+2026-06-10,5107925,Sorriso,gestantes_risco,241,71
+2026-06-10,5107925,Sorriso,pop_rua,50,14
+2026-06-11,5107925,Sorriso,idosos_sozinhos,1451,524
+2026-06-11,5107925,Sorriso,acamados,362,124
+2026-06-11,5107925,Sorriso,gestantes_risco,241,80
+2026-06-11,5107925,Sorriso,pop_rua,50,18
+2026-06-12,5107925,Sorriso,idosos_sozinhos,1451,647
+2026-06-12,5107925,Sorriso,acamados,362,160
+2026-06-12,5107925,Sorriso,gestantes_risco,241,104
+2026-06-12,5107925,Sorriso,pop_rua,50,20
+2026-06-13,5107925,Sorriso,idosos_sozinhos,1451,718
+2026-06-13,5107925,Sorriso,acamados,362,177
+2026-06-13,5107925,Sorriso,gestantes_risco,241,122
+2026-06-13,5107925,Sorriso,pop_rua,50,24
+2026-06-14,5107925,Sorriso,idosos_sozinhos,1451,833
+2026-06-14,5107925,Sorriso,acamados,362,218
+2026-06-14,5107925,Sorriso,gestantes_risco,241,137
+2026-06-14,5107925,Sorriso,pop_rua,50,29
+2026-06-15,5107925,Sorriso,idosos_sozinhos,1451,942
+2026-06-15,5107925,Sorriso,acamados,362,246
+2026-06-15,5107925,Sorriso,gestantes_risco,241,157
+2026-06-15,5107925,Sorriso,pop_rua,50,31
+2026-06-16,5107925,Sorriso,idosos_sozinhos,1451,1060
+2026-06-16,5107925,Sorriso,acamados,362,262
+2026-06-16,5107925,Sorriso,gestantes_risco,241,176
+2026-06-16,5107925,Sorriso,pop_rua,50,37
+2026-06-17,5107925,Sorriso,idosos_sozinhos,1451,1183
+2026-06-17,5107925,Sorriso,acamados,362,294
+2026-06-17,5107925,Sorriso,gestantes_risco,241,191
+2026-06-17,5107925,Sorriso,pop_rua,50,40
+2026-06-18,5107925,Sorriso,idosos_sozinhos,1451,1261
+2026-06-18,5107925,Sorriso,acamados,362,317
+2026-06-18,5107925,Sorriso,gestantes_risco,241,217
+2026-06-18,5107925,Sorriso,pop_rua,50,44
+2026-04-28,5102504,Cáceres,idosos_sozinhos,1238,246
+2026-04-28,5102504,Cáceres,acamados,309,57
+2026-04-28,5102504,Cáceres,gestantes_risco,206,46
+2026-04-28,5102504,Cáceres,pop_rua,70,15
+2026-04-29,5102504,Cáceres,idosos_sozinhos,1238,237
+2026-04-29,5102504,Cáceres,acamados,309,65
+2026-04-29,5102504,Cáceres,gestantes_risco,206,38
+2026-04-29,5102504,Cáceres,pop_rua,70,14
+2026-04-30,5102504,Cáceres,idosos_sozinhos,1238,272
+2026-04-30,5102504,Cáceres,acamados,309,63
+2026-04-30,5102504,Cáceres,gestantes_risco,206,40
+2026-04-30,5102504,Cáceres,pop_rua,70,14
+2026-05-01,5102504,Cáceres,idosos_sozinhos,1238,275
+2026-05-01,5102504,Cáceres,acamados,309,57
+2026-05-01,5102504,Cáceres,gestantes_risco,206,39
+2026-05-01,5102504,Cáceres,pop_rua,70,13
+2026-05-02,5102504,Cáceres,idosos_sozinhos,1238,261
+2026-05-02,5102504,Cáceres,acamados,309,69
+2026-05-02,5102504,Cáceres,gestantes_risco,206,40
+2026-05-02,5102504,Cáceres,pop_rua,70,14
+2026-05-03,5102504,Cáceres,idosos_sozinhos,1238,259
+2026-05-03,5102504,Cáceres,acamados,309,65
+2026-05-03,5102504,Cáceres,gestantes_risco,206,37
+2026-05-03,5102504,Cáceres,pop_rua,70,14
+2026-05-04,5102504,Cáceres,idosos_sozinhos,1238,271
+2026-05-04,5102504,Cáceres,acamados,309,56
+2026-05-04,5102504,Cáceres,gestantes_risco,206,46
+2026-05-04,5102504,Cáceres,pop_rua,70,14
+2026-05-05,5102504,Cáceres,idosos_sozinhos,1238,274
+2026-05-05,5102504,Cáceres,acamados,309,65
+2026-05-05,5102504,Cáceres,gestantes_risco,206,40
+2026-05-05,5102504,Cáceres,pop_rua,70,15
+2026-05-06,5102504,Cáceres,idosos_sozinhos,1238,224
+2026-05-06,5102504,Cáceres,acamados,309,55
+2026-05-06,5102504,Cáceres,gestantes_risco,206,42
+2026-05-06,5102504,Cáceres,pop_rua,70,12
+2026-05-07,5102504,Cáceres,idosos_sozinhos,1238,280
+2026-05-07,5102504,Cáceres,acamados,309,57
+2026-05-07,5102504,Cáceres,gestantes_risco,206,41
+2026-05-07,5102504,Cáceres,pop_rua,70,15
+2026-05-08,5102504,Cáceres,idosos_sozinhos,1238,259
+2026-05-08,5102504,Cáceres,acamados,309,57
+2026-05-08,5102504,Cáceres,gestantes_risco,206,38
+2026-05-08,5102504,Cáceres,pop_rua,70,14
+2026-05-09,5102504,Cáceres,idosos_sozinhos,1238,244
+2026-05-09,5102504,Cáceres,acamados,309,62
+2026-05-09,5102504,Cáceres,gestantes_risco,206,38
+2026-05-09,5102504,Cáceres,pop_rua,70,12
+2026-05-10,5102504,Cáceres,idosos_sozinhos,1238,245
+2026-05-10,5102504,Cáceres,acamados,309,67
+2026-05-10,5102504,Cáceres,gestantes_risco,206,46
+2026-05-10,5102504,Cáceres,pop_rua,70,13
+2026-05-11,5102504,Cáceres,idosos_sozinhos,1238,275
+2026-05-11,5102504,Cáceres,acamados,309,57
+2026-05-11,5102504,Cáceres,gestantes_risco,206,41
+2026-05-11,5102504,Cáceres,pop_rua,70,14
+2026-05-12,5102504,Cáceres,idosos_sozinhos,1238,244
+2026-05-12,5102504,Cáceres,acamados,309,60
+2026-05-12,5102504,Cáceres,gestantes_risco,206,46
+2026-05-12,5102504,Cáceres,pop_rua,70,14
+2026-05-13,5102504,Cáceres,idosos_sozinhos,1238,279
+2026-05-13,5102504,Cáceres,acamados,309,67
+2026-05-13,5102504,Cáceres,gestantes_risco,206,44
+2026-05-13,5102504,Cáceres,pop_rua,70,13
+2026-05-14,5102504,Cáceres,idosos_sozinhos,1238,241
+2026-05-14,5102504,Cáceres,acamados,309,63
+2026-05-14,5102504,Cáceres,gestantes_risco,206,38
+2026-05-14,5102504,Cáceres,pop_rua,70,13
+2026-05-15,5102504,Cáceres,idosos_sozinhos,1238,234
+2026-05-15,5102504,Cáceres,acamados,309,56
+2026-05-15,5102504,Cáceres,gestantes_risco,206,37
+2026-05-15,5102504,Cáceres,pop_rua,70,14
+2026-05-16,5102504,Cáceres,idosos_sozinhos,1238,278
+2026-05-16,5102504,Cáceres,acamados,309,61
+2026-05-16,5102504,Cáceres,gestantes_risco,206,41
+2026-05-16,5102504,Cáceres,pop_rua,70,13
+2026-05-17,5102504,Cáceres,idosos_sozinhos,1238,232
+2026-05-17,5102504,Cáceres,acamados,309,56
+2026-05-17,5102504,Cáceres,gestantes_risco,206,45
+2026-05-17,5102504,Cáceres,pop_rua,70,15
+2026-05-18,5102504,Cáceres,idosos_sozinhos,1238,267
+2026-05-18,5102504,Cáceres,acamados,309,63
+2026-05-18,5102504,Cáceres,gestantes_risco,206,41
+2026-05-18,5102504,Cáceres,pop_rua,70,14
+2026-05-19,5102504,Cáceres,idosos_sozinhos,1238,250
+2026-05-19,5102504,Cáceres,acamados,309,59
+2026-05-19,5102504,Cáceres,gestantes_risco,206,38
+2026-05-19,5102504,Cáceres,pop_rua,70,12
+2026-05-20,5102504,Cáceres,idosos_sozinhos,1238,258
+2026-05-20,5102504,Cáceres,acamados,309,70
+2026-05-20,5102504,Cáceres,gestantes_risco,206,47
+2026-05-20,5102504,Cáceres,pop_rua,70,15
+2026-05-21,5102504,Cáceres,idosos_sozinhos,1238,244
+2026-05-21,5102504,Cáceres,acamados,309,66
+2026-05-21,5102504,Cáceres,gestantes_risco,206,47
+2026-05-21,5102504,Cáceres,pop_rua,70,13
+2026-05-22,5102504,Cáceres,idosos_sozinhos,1238,233
+2026-05-22,5102504,Cáceres,acamados,309,61
+2026-05-22,5102504,Cáceres,gestantes_risco,206,37
+2026-05-22,5102504,Cáceres,pop_rua,70,15
+2026-05-23,5102504,Cáceres,idosos_sozinhos,1238,225
+2026-05-23,5102504,Cáceres,acamados,309,69
+2026-05-23,5102504,Cáceres,gestantes_risco,206,41
+2026-05-23,5102504,Cáceres,pop_rua,70,14
+2026-05-24,5102504,Cáceres,idosos_sozinhos,1238,264
+2026-05-24,5102504,Cáceres,acamados,309,67
+2026-05-24,5102504,Cáceres,gestantes_risco,206,40
+2026-05-24,5102504,Cáceres,pop_rua,70,14
+2026-05-25,5102504,Cáceres,idosos_sozinhos,1238,238
+2026-05-25,5102504,Cáceres,acamados,309,65
+2026-05-25,5102504,Cáceres,gestantes_risco,206,38
+2026-05-25,5102504,Cáceres,pop_rua,70,13
+2026-05-26,5102504,Cáceres,idosos_sozinhos,1238,258
+2026-05-26,5102504,Cáceres,acamados,309,59
+2026-05-26,5102504,Cáceres,gestantes_risco,206,38
+2026-05-26,5102504,Cáceres,pop_rua,70,15
+2026-05-27,5102504,Cáceres,idosos_sozinhos,1238,272
+2026-05-27,5102504,Cáceres,acamados,309,67
+2026-05-27,5102504,Cáceres,gestantes_risco,206,44
+2026-05-27,5102504,Cáceres,pop_rua,70,12
+2026-05-28,5102504,Cáceres,idosos_sozinhos,1238,258
+2026-05-28,5102504,Cáceres,acamados,309,63
+2026-05-28,5102504,Cáceres,gestantes_risco,206,44
+2026-05-28,5102504,Cáceres,pop_rua,70,13
+2026-05-29,5102504,Cáceres,idosos_sozinhos,1238,281
+2026-05-29,5102504,Cáceres,acamados,309,61
+2026-05-29,5102504,Cáceres,gestantes_risco,206,39
+2026-05-29,5102504,Cáceres,pop_rua,70,13
+2026-05-30,5102504,Cáceres,idosos_sozinhos,1238,274
+2026-05-30,5102504,Cáceres,acamados,309,57
+2026-05-30,5102504,Cáceres,gestantes_risco,206,47
+2026-05-30,5102504,Cáceres,pop_rua,70,14
+2026-05-31,5102504,Cáceres,idosos_sozinhos,1238,230
+2026-05-31,5102504,Cáceres,acamados,309,61
+2026-05-31,5102504,Cáceres,gestantes_risco,206,43
+2026-05-31,5102504,Cáceres,pop_rua,70,13
+2026-06-01,5102504,Cáceres,idosos_sozinhos,1238,258
+2026-06-01,5102504,Cáceres,acamados,309,56
+2026-06-01,5102504,Cáceres,gestantes_risco,206,42
+2026-06-01,5102504,Cáceres,pop_rua,70,13
+2026-06-02,5102504,Cáceres,idosos_sozinhos,1238,227
+2026-06-02,5102504,Cáceres,acamados,309,59
+2026-06-02,5102504,Cáceres,gestantes_risco,206,45
+2026-06-02,5102504,Cáceres,pop_rua,70,13
+2026-06-03,5102504,Cáceres,idosos_sozinhos,1238,233
+2026-06-03,5102504,Cáceres,acamados,309,56
+2026-06-03,5102504,Cáceres,gestantes_risco,206,45
+2026-06-03,5102504,Cáceres,pop_rua,70,15
+2026-06-04,5102504,Cáceres,idosos_sozinhos,1238,236
+2026-06-04,5102504,Cáceres,acamados,309,67
+2026-06-04,5102504,Cáceres,gestantes_risco,206,37
+2026-06-04,5102504,Cáceres,pop_rua,70,14
+2026-06-05,5102504,Cáceres,idosos_sozinhos,1238,233
+2026-06-05,5102504,Cáceres,acamados,309,57
+2026-06-05,5102504,Cáceres,gestantes_risco,206,41
+2026-06-05,5102504,Cáceres,pop_rua,70,14
+2026-06-06,5102504,Cáceres,idosos_sozinhos,1238,281
+2026-06-06,5102504,Cáceres,acamados,309,69
+2026-06-06,5102504,Cáceres,gestantes_risco,206,46
+2026-06-06,5102504,Cáceres,pop_rua,70,14
+2026-06-07,5102504,Cáceres,idosos_sozinhos,1238,268
+2026-06-07,5102504,Cáceres,acamados,309,63
+2026-06-07,5102504,Cáceres,gestantes_risco,206,40
+2026-06-07,5102504,Cáceres,pop_rua,70,14
+2026-06-08,5102504,Cáceres,idosos_sozinhos,1238,247
+2026-06-08,5102504,Cáceres,acamados,309,56
+2026-06-08,5102504,Cáceres,gestantes_risco,206,45
+2026-06-08,5102504,Cáceres,pop_rua,70,16
+2026-06-09,5102504,Cáceres,idosos_sozinhos,1238,265
+2026-06-09,5102504,Cáceres,acamados,309,62
+2026-06-09,5102504,Cáceres,gestantes_risco,206,46
+2026-06-09,5102504,Cáceres,pop_rua,70,14
+2026-06-10,5102504,Cáceres,idosos_sozinhos,1238,328
+2026-06-10,5102504,Cáceres,acamados,309,86
+2026-06-10,5102504,Cáceres,gestantes_risco,206,61
+2026-06-10,5102504,Cáceres,pop_rua,70,18
+2026-06-11,5102504,Cáceres,idosos_sozinhos,1238,414
+2026-06-11,5102504,Cáceres,acamados,309,114
+2026-06-11,5102504,Cáceres,gestantes_risco,206,68
+2026-06-11,5102504,Cáceres,pop_rua,70,24
+2026-06-12,5102504,Cáceres,idosos_sozinhos,1238,543
+2026-06-12,5102504,Cáceres,acamados,309,134
+2026-06-12,5102504,Cáceres,gestantes_risco,206,93
+2026-06-12,5102504,Cáceres,pop_rua,70,30
+2026-06-13,5102504,Cáceres,idosos_sozinhos,1238,616
+2026-06-13,5102504,Cáceres,acamados,309,163
+2026-06-13,5102504,Cáceres,gestantes_risco,206,100
+2026-06-13,5102504,Cáceres,pop_rua,70,35
+2026-06-14,5102504,Cáceres,idosos_sozinhos,1238,707
+2026-06-14,5102504,Cáceres,acamados,309,175
+2026-06-14,5102504,Cáceres,gestantes_risco,206,122
+2026-06-14,5102504,Cáceres,pop_rua,70,41
+2026-06-15,5102504,Cáceres,idosos_sozinhos,1238,804
+2026-06-15,5102504,Cáceres,acamados,309,198
+2026-06-15,5102504,Cáceres,gestantes_risco,206,131
+2026-06-15,5102504,Cáceres,pop_rua,70,45
+2026-06-16,5102504,Cáceres,idosos_sozinhos,1238,914
+2026-06-16,5102504,Cáceres,acamados,309,224
+2026-06-16,5102504,Cáceres,gestantes_risco,206,147
+2026-06-16,5102504,Cáceres,pop_rua,70,49
+2026-06-17,5102504,Cáceres,idosos_sozinhos,1238,1017
+2026-06-17,5102504,Cáceres,acamados,309,255
+2026-06-17,5102504,Cáceres,gestantes_risco,206,168
+2026-06-17,5102504,Cáceres,pop_rua,70,56
+2026-06-18,5102504,Cáceres,idosos_sozinhos,1238,1083
+2026-06-18,5102504,Cáceres,acamados,309,275
+2026-06-18,5102504,Cáceres,gestantes_risco,206,179
+2026-06-18,5102504,Cáceres,pop_rua,70,60
+2026-04-28,5107958,Tangará da Serra,idosos_sozinhos,1335,271
+2026-04-28,5107958,Tangará da Serra,acamados,333,64
+2026-04-28,5107958,Tangará da Serra,gestantes_risco,222,47
+2026-04-28,5107958,Tangará da Serra,pop_rua,55,11
+2026-04-29,5107958,Tangará da Serra,idosos_sozinhos,1335,244
+2026-04-29,5107958,Tangará da Serra,acamados,333,61
+2026-04-29,5107958,Tangará da Serra,gestantes_risco,222,49
+2026-04-29,5107958,Tangará da Serra,pop_rua,55,11
+2026-04-30,5107958,Tangará da Serra,idosos_sozinhos,1335,245
+2026-04-30,5107958,Tangará da Serra,acamados,333,66
+2026-04-30,5107958,Tangará da Serra,gestantes_risco,222,49
+2026-04-30,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-01,5107958,Tangará da Serra,idosos_sozinhos,1335,261
+2026-05-01,5107958,Tangará da Serra,acamados,333,71
+2026-05-01,5107958,Tangará da Serra,gestantes_risco,222,40
+2026-05-01,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-02,5107958,Tangará da Serra,idosos_sozinhos,1335,281
+2026-05-02,5107958,Tangará da Serra,acamados,333,67
+2026-05-02,5107958,Tangará da Serra,gestantes_risco,222,48
+2026-05-02,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-03,5107958,Tangará da Serra,idosos_sozinhos,1335,264
+2026-05-03,5107958,Tangará da Serra,acamados,333,64
+2026-05-03,5107958,Tangará da Serra,gestantes_risco,222,46
+2026-05-03,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-04,5107958,Tangará da Serra,idosos_sozinhos,1335,293
+2026-05-04,5107958,Tangará da Serra,acamados,333,63
+2026-05-04,5107958,Tangará da Serra,gestantes_risco,222,45
+2026-05-04,5107958,Tangará da Serra,pop_rua,55,9
+2026-05-05,5107958,Tangará da Serra,idosos_sozinhos,1335,281
+2026-05-05,5107958,Tangará da Serra,acamados,333,66
+2026-05-05,5107958,Tangará da Serra,gestantes_risco,222,50
+2026-05-05,5107958,Tangará da Serra,pop_rua,55,9
+2026-05-06,5107958,Tangará da Serra,idosos_sozinhos,1335,241
+2026-05-06,5107958,Tangará da Serra,acamados,333,65
+2026-05-06,5107958,Tangará da Serra,gestantes_risco,222,48
+2026-05-06,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-07,5107958,Tangará da Serra,idosos_sozinhos,1335,256
+2026-05-07,5107958,Tangará da Serra,acamados,333,67
+2026-05-07,5107958,Tangará da Serra,gestantes_risco,222,42
+2026-05-07,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-08,5107958,Tangará da Serra,idosos_sozinhos,1335,266
+2026-05-08,5107958,Tangará da Serra,acamados,333,64
+2026-05-08,5107958,Tangará da Serra,gestantes_risco,222,43
+2026-05-08,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-09,5107958,Tangará da Serra,idosos_sozinhos,1335,266
+2026-05-09,5107958,Tangará da Serra,acamados,333,64
+2026-05-09,5107958,Tangará da Serra,gestantes_risco,222,48
+2026-05-09,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-10,5107958,Tangará da Serra,idosos_sozinhos,1335,298
+2026-05-10,5107958,Tangará da Serra,acamados,333,61
+2026-05-10,5107958,Tangará da Serra,gestantes_risco,222,46
+2026-05-10,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-11,5107958,Tangará da Serra,idosos_sozinhos,1335,261
+2026-05-11,5107958,Tangará da Serra,acamados,333,66
+2026-05-11,5107958,Tangará da Serra,gestantes_risco,222,42
+2026-05-11,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-12,5107958,Tangará da Serra,idosos_sozinhos,1335,285
+2026-05-12,5107958,Tangará da Serra,acamados,333,68
+2026-05-12,5107958,Tangará da Serra,gestantes_risco,222,40
+2026-05-12,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-13,5107958,Tangará da Serra,idosos_sozinhos,1335,294
+2026-05-13,5107958,Tangará da Serra,acamados,333,68
+2026-05-13,5107958,Tangará da Serra,gestantes_risco,222,41
+2026-05-13,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-14,5107958,Tangará da Serra,idosos_sozinhos,1335,287
+2026-05-14,5107958,Tangará da Serra,acamados,333,71
+2026-05-14,5107958,Tangará da Serra,gestantes_risco,222,41
+2026-05-14,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-15,5107958,Tangará da Serra,idosos_sozinhos,1335,245
+2026-05-15,5107958,Tangará da Serra,acamados,333,69
+2026-05-15,5107958,Tangará da Serra,gestantes_risco,222,50
+2026-05-15,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-16,5107958,Tangará da Serra,idosos_sozinhos,1335,249
+2026-05-16,5107958,Tangará da Serra,acamados,333,74
+2026-05-16,5107958,Tangará da Serra,gestantes_risco,222,41
+2026-05-16,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-17,5107958,Tangará da Serra,idosos_sozinhos,1335,276
+2026-05-17,5107958,Tangará da Serra,acamados,333,61
+2026-05-17,5107958,Tangará da Serra,gestantes_risco,222,44
+2026-05-17,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-18,5107958,Tangará da Serra,idosos_sozinhos,1335,272
+2026-05-18,5107958,Tangará da Serra,acamados,333,75
+2026-05-18,5107958,Tangará da Serra,gestantes_risco,222,40
+2026-05-18,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-19,5107958,Tangará da Serra,idosos_sozinhos,1335,285
+2026-05-19,5107958,Tangará da Serra,acamados,333,62
+2026-05-19,5107958,Tangará da Serra,gestantes_risco,222,47
+2026-05-19,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-20,5107958,Tangará da Serra,idosos_sozinhos,1335,302
+2026-05-20,5107958,Tangará da Serra,acamados,333,73
+2026-05-20,5107958,Tangará da Serra,gestantes_risco,222,49
+2026-05-20,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-21,5107958,Tangará da Serra,idosos_sozinhos,1335,297
+2026-05-21,5107958,Tangará da Serra,acamados,333,63
+2026-05-21,5107958,Tangará da Serra,gestantes_risco,222,44
+2026-05-21,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-22,5107958,Tangará da Serra,idosos_sozinhos,1335,277
+2026-05-22,5107958,Tangará da Serra,acamados,333,63
+2026-05-22,5107958,Tangará da Serra,gestantes_risco,222,47
+2026-05-22,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-23,5107958,Tangará da Serra,idosos_sozinhos,1335,253
+2026-05-23,5107958,Tangará da Serra,acamados,333,73
+2026-05-23,5107958,Tangará da Serra,gestantes_risco,222,42
+2026-05-23,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-24,5107958,Tangará da Serra,idosos_sozinhos,1335,266
+2026-05-24,5107958,Tangará da Serra,acamados,333,70
+2026-05-24,5107958,Tangará da Serra,gestantes_risco,222,43
+2026-05-24,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-25,5107958,Tangará da Serra,idosos_sozinhos,1335,252
+2026-05-25,5107958,Tangará da Serra,acamados,333,66
+2026-05-25,5107958,Tangará da Serra,gestantes_risco,222,45
+2026-05-25,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-26,5107958,Tangará da Serra,idosos_sozinhos,1335,274
+2026-05-26,5107958,Tangará da Serra,acamados,333,68
+2026-05-26,5107958,Tangará da Serra,gestantes_risco,222,40
+2026-05-26,5107958,Tangará da Serra,pop_rua,55,11
+2026-05-27,5107958,Tangará da Serra,idosos_sozinhos,1335,268
+2026-05-27,5107958,Tangará da Serra,acamados,333,63
+2026-05-27,5107958,Tangará da Serra,gestantes_risco,222,40
+2026-05-27,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-28,5107958,Tangará da Serra,idosos_sozinhos,1335,249
+2026-05-28,5107958,Tangará da Serra,acamados,333,76
+2026-05-28,5107958,Tangará da Serra,gestantes_risco,222,40
+2026-05-28,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-29,5107958,Tangará da Serra,idosos_sozinhos,1335,267
+2026-05-29,5107958,Tangará da Serra,acamados,333,73
+2026-05-29,5107958,Tangará da Serra,gestantes_risco,222,43
+2026-05-29,5107958,Tangará da Serra,pop_rua,55,12
+2026-05-30,5107958,Tangará da Serra,idosos_sozinhos,1335,281
+2026-05-30,5107958,Tangará da Serra,acamados,333,69
+2026-05-30,5107958,Tangará da Serra,gestantes_risco,222,42
+2026-05-30,5107958,Tangará da Serra,pop_rua,55,10
+2026-05-31,5107958,Tangará da Serra,idosos_sozinhos,1335,293
+2026-05-31,5107958,Tangará da Serra,acamados,333,64
+2026-05-31,5107958,Tangará da Serra,gestantes_risco,222,47
+2026-05-31,5107958,Tangará da Serra,pop_rua,55,10
+2026-06-01,5107958,Tangará da Serra,idosos_sozinhos,1335,271
+2026-06-01,5107958,Tangará da Serra,acamados,333,67
+2026-06-01,5107958,Tangará da Serra,gestantes_risco,222,41
+2026-06-01,5107958,Tangará da Serra,pop_rua,55,12
+2026-06-02,5107958,Tangará da Serra,idosos_sozinhos,1335,255
+2026-06-02,5107958,Tangará da Serra,acamados,333,62
+2026-06-02,5107958,Tangará da Serra,gestantes_risco,222,41
+2026-06-02,5107958,Tangará da Serra,pop_rua,55,11
+2026-06-03,5107958,Tangará da Serra,idosos_sozinhos,1335,288
+2026-06-03,5107958,Tangará da Serra,acamados,333,68
+2026-06-03,5107958,Tangará da Serra,gestantes_risco,222,43
+2026-06-03,5107958,Tangará da Serra,pop_rua,55,11
+2026-06-04,5107958,Tangará da Serra,idosos_sozinhos,1335,257
+2026-06-04,5107958,Tangará da Serra,acamados,333,68
+2026-06-04,5107958,Tangará da Serra,gestantes_risco,222,44
+2026-06-04,5107958,Tangará da Serra,pop_rua,55,12
+2026-06-05,5107958,Tangará da Serra,idosos_sozinhos,1335,281
+2026-06-05,5107958,Tangará da Serra,acamados,333,72
+2026-06-05,5107958,Tangará da Serra,gestantes_risco,222,48
+2026-06-05,5107958,Tangará da Serra,pop_rua,55,12
+2026-06-06,5107958,Tangará da Serra,idosos_sozinhos,1335,289
+2026-06-06,5107958,Tangará da Serra,acamados,333,74
+2026-06-06,5107958,Tangará da Serra,gestantes_risco,222,45
+2026-06-06,5107958,Tangará da Serra,pop_rua,55,10
+2026-06-07,5107958,Tangará da Serra,idosos_sozinhos,1335,260
+2026-06-07,5107958,Tangará da Serra,acamados,333,71
+2026-06-07,5107958,Tangará da Serra,gestantes_risco,222,41
+2026-06-07,5107958,Tangará da Serra,pop_rua,55,12
+2026-06-08,5107958,Tangará da Serra,idosos_sozinhos,1335,246
+2026-06-08,5107958,Tangará da Serra,acamados,333,76
+2026-06-08,5107958,Tangará da Serra,gestantes_risco,222,49
+2026-06-08,5107958,Tangará da Serra,pop_rua,55,11
+2026-06-09,5107958,Tangará da Serra,idosos_sozinhos,1335,247
+2026-06-09,5107958,Tangará da Serra,acamados,333,75
+2026-06-09,5107958,Tangará da Serra,gestantes_risco,222,44
+2026-06-09,5107958,Tangará da Serra,pop_rua,55,10
+2026-06-10,5107958,Tangará da Serra,idosos_sozinhos,1335,373
+2026-06-10,5107958,Tangará da Serra,acamados,333,94
+2026-06-10,5107958,Tangará da Serra,gestantes_risco,222,62
+2026-06-10,5107958,Tangará da Serra,pop_rua,55,16
+2026-06-11,5107958,Tangará da Serra,idosos_sozinhos,1335,480
+2026-06-11,5107958,Tangará da Serra,acamados,333,119
+2026-06-11,5107958,Tangará da Serra,gestantes_risco,222,73
+2026-06-11,5107958,Tangará da Serra,pop_rua,55,18
+2026-06-12,5107958,Tangará da Serra,idosos_sozinhos,1335,554
+2026-06-12,5107958,Tangará da Serra,acamados,333,141
+2026-06-12,5107958,Tangará da Serra,gestantes_risco,222,91
+2026-06-12,5107958,Tangará da Serra,pop_rua,55,22
+2026-06-13,5107958,Tangará da Serra,idosos_sozinhos,1335,658
+2026-06-13,5107958,Tangará da Serra,acamados,333,164
+2026-06-13,5107958,Tangará da Serra,gestantes_risco,222,115
+2026-06-13,5107958,Tangará da Serra,pop_rua,55,26
+2026-06-14,5107958,Tangará da Serra,idosos_sozinhos,1335,764
+2026-06-14,5107958,Tangará da Serra,acamados,333,189
+2026-06-14,5107958,Tangará da Serra,gestantes_risco,222,127
+2026-06-14,5107958,Tangará da Serra,pop_rua,55,31
+2026-06-15,5107958,Tangará da Serra,idosos_sozinhos,1335,849
+2026-06-15,5107958,Tangará da Serra,acamados,333,221
+2026-06-15,5107958,Tangará da Serra,gestantes_risco,222,147
+2026-06-15,5107958,Tangará da Serra,pop_rua,55,35
+2026-06-16,5107958,Tangará da Serra,idosos_sozinhos,1335,1000
+2026-06-16,5107958,Tangará da Serra,acamados,333,236
+2026-06-16,5107958,Tangará da Serra,gestantes_risco,222,160
+2026-06-16,5107958,Tangará da Serra,pop_rua,55,39
+2026-06-17,5107958,Tangará da Serra,idosos_sozinhos,1335,1051
+2026-06-17,5107958,Tangará da Serra,acamados,333,260
+2026-06-17,5107958,Tangará da Serra,gestantes_risco,222,174
+2026-06-17,5107958,Tangará da Serra,pop_rua,55,44
+2026-06-18,5107958,Tangará da Serra,idosos_sozinhos,1335,1180
+2026-06-18,5107958,Tangará da Serra,acamados,333,297
+2026-06-18,5107958,Tangará da Serra,gestantes_risco,222,191
+2026-06-18,5107958,Tangará da Serra,pop_rua,55,49
+2026-04-28,5101803,Barra do Garças,idosos_sozinhos,857,173
+2026-04-28,5101803,Barra do Garças,acamados,214,42
+2026-04-28,5101803,Barra do Garças,gestantes_risco,142,26
+2026-04-28,5101803,Barra do Garças,pop_rua,45,9
+2026-04-29,5101803,Barra do Garças,idosos_sozinhos,857,168
+2026-04-29,5101803,Barra do Garças,acamados,214,46
+2026-04-29,5101803,Barra do Garças,gestantes_risco,142,31
+2026-04-29,5101803,Barra do Garças,pop_rua,45,8
+2026-04-30,5101803,Barra do Garças,idosos_sozinhos,857,154
+2026-04-30,5101803,Barra do Garças,acamados,214,42
+2026-04-30,5101803,Barra do Garças,gestantes_risco,142,31
+2026-04-30,5101803,Barra do Garças,pop_rua,45,8
+2026-05-01,5101803,Barra do Garças,idosos_sozinhos,857,179
+2026-05-01,5101803,Barra do Garças,acamados,214,41
+2026-05-01,5101803,Barra do Garças,gestantes_risco,142,26
+2026-05-01,5101803,Barra do Garças,pop_rua,45,8
+2026-05-02,5101803,Barra do Garças,idosos_sozinhos,857,172
+2026-05-02,5101803,Barra do Garças,acamados,214,47
+2026-05-02,5101803,Barra do Garças,gestantes_risco,142,25
+2026-05-02,5101803,Barra do Garças,pop_rua,45,9
+2026-05-03,5101803,Barra do Garças,idosos_sozinhos,857,168
+2026-05-03,5101803,Barra do Garças,acamados,214,43
+2026-05-03,5101803,Barra do Garças,gestantes_risco,142,31
+2026-05-03,5101803,Barra do Garças,pop_rua,45,9
+2026-05-04,5101803,Barra do Garças,idosos_sozinhos,857,171
+2026-05-04,5101803,Barra do Garças,acamados,214,46
+2026-05-04,5101803,Barra do Garças,gestantes_risco,142,31
+2026-05-04,5101803,Barra do Garças,pop_rua,45,9
+2026-05-05,5101803,Barra do Garças,idosos_sozinhos,857,196
+2026-05-05,5101803,Barra do Garças,acamados,214,39
+2026-05-05,5101803,Barra do Garças,gestantes_risco,142,26
+2026-05-05,5101803,Barra do Garças,pop_rua,45,10
+2026-05-06,5101803,Barra do Garças,idosos_sozinhos,857,160
+2026-05-06,5101803,Barra do Garças,acamados,214,38
+2026-05-06,5101803,Barra do Garças,gestantes_risco,142,26
+2026-05-06,5101803,Barra do Garças,pop_rua,45,9
+2026-05-07,5101803,Barra do Garças,idosos_sozinhos,857,159
+2026-05-07,5101803,Barra do Garças,acamados,214,46
+2026-05-07,5101803,Barra do Garças,gestantes_risco,142,29
+2026-05-07,5101803,Barra do Garças,pop_rua,45,10
+2026-05-08,5101803,Barra do Garças,idosos_sozinhos,857,168
+2026-05-08,5101803,Barra do Garças,acamados,214,42
+2026-05-08,5101803,Barra do Garças,gestantes_risco,142,25
+2026-05-08,5101803,Barra do Garças,pop_rua,45,9
+2026-05-09,5101803,Barra do Garças,idosos_sozinhos,857,163
+2026-05-09,5101803,Barra do Garças,acamados,214,44
+2026-05-09,5101803,Barra do Garças,gestantes_risco,142,30
+2026-05-09,5101803,Barra do Garças,pop_rua,45,9
+2026-05-10,5101803,Barra do Garças,idosos_sozinhos,857,196
+2026-05-10,5101803,Barra do Garças,acamados,214,46
+2026-05-10,5101803,Barra do Garças,gestantes_risco,142,32
+2026-05-10,5101803,Barra do Garças,pop_rua,45,9
+2026-05-11,5101803,Barra do Garças,idosos_sozinhos,857,185
+2026-05-11,5101803,Barra do Garças,acamados,214,43
+2026-05-11,5101803,Barra do Garças,gestantes_risco,142,31
+2026-05-11,5101803,Barra do Garças,pop_rua,45,8
+2026-05-12,5101803,Barra do Garças,idosos_sozinhos,857,180
+2026-05-12,5101803,Barra do Garças,acamados,214,46
+2026-05-12,5101803,Barra do Garças,gestantes_risco,142,26
+2026-05-12,5101803,Barra do Garças,pop_rua,45,10
+2026-05-13,5101803,Barra do Garças,idosos_sozinhos,857,170
+2026-05-13,5101803,Barra do Garças,acamados,214,47
+2026-05-13,5101803,Barra do Garças,gestantes_risco,142,29
+2026-05-13,5101803,Barra do Garças,pop_rua,45,9
+2026-05-14,5101803,Barra do Garças,idosos_sozinhos,857,185
+2026-05-14,5101803,Barra do Garças,acamados,214,39
+2026-05-14,5101803,Barra do Garças,gestantes_risco,142,28
+2026-05-14,5101803,Barra do Garças,pop_rua,45,10
+2026-05-15,5101803,Barra do Garças,idosos_sozinhos,857,178
+2026-05-15,5101803,Barra do Garças,acamados,214,44
+2026-05-15,5101803,Barra do Garças,gestantes_risco,142,31
+2026-05-15,5101803,Barra do Garças,pop_rua,45,9
+2026-05-16,5101803,Barra do Garças,idosos_sozinhos,857,190
+2026-05-16,5101803,Barra do Garças,acamados,214,41
+2026-05-16,5101803,Barra do Garças,gestantes_risco,142,30
+2026-05-16,5101803,Barra do Garças,pop_rua,45,9
+2026-05-17,5101803,Barra do Garças,idosos_sozinhos,857,162
+2026-05-17,5101803,Barra do Garças,acamados,214,45
+2026-05-17,5101803,Barra do Garças,gestantes_risco,142,32
+2026-05-17,5101803,Barra do Garças,pop_rua,45,8
+2026-05-18,5101803,Barra do Garças,idosos_sozinhos,857,158
+2026-05-18,5101803,Barra do Garças,acamados,214,42
+2026-05-18,5101803,Barra do Garças,gestantes_risco,142,28
+2026-05-18,5101803,Barra do Garças,pop_rua,45,8
+2026-05-19,5101803,Barra do Garças,idosos_sozinhos,857,174
+2026-05-19,5101803,Barra do Garças,acamados,214,46
+2026-05-19,5101803,Barra do Garças,gestantes_risco,142,30
+2026-05-19,5101803,Barra do Garças,pop_rua,45,8
+2026-05-20,5101803,Barra do Garças,idosos_sozinhos,857,162
+2026-05-20,5101803,Barra do Garças,acamados,214,39
+2026-05-20,5101803,Barra do Garças,gestantes_risco,142,26
+2026-05-20,5101803,Barra do Garças,pop_rua,45,8
+2026-05-21,5101803,Barra do Garças,idosos_sozinhos,857,195
+2026-05-21,5101803,Barra do Garças,acamados,214,39
+2026-05-21,5101803,Barra do Garças,gestantes_risco,142,30
+2026-05-21,5101803,Barra do Garças,pop_rua,45,9
+2026-05-22,5101803,Barra do Garças,idosos_sozinhos,857,174
+2026-05-22,5101803,Barra do Garças,acamados,214,48
+2026-05-22,5101803,Barra do Garças,gestantes_risco,142,26
+2026-05-22,5101803,Barra do Garças,pop_rua,45,9
+2026-05-23,5101803,Barra do Garças,idosos_sozinhos,857,188
+2026-05-23,5101803,Barra do Garças,acamados,214,44
+2026-05-23,5101803,Barra do Garças,gestantes_risco,142,32
+2026-05-23,5101803,Barra do Garças,pop_rua,45,8
+2026-05-24,5101803,Barra do Garças,idosos_sozinhos,857,163
+2026-05-24,5101803,Barra do Garças,acamados,214,43
+2026-05-24,5101803,Barra do Garças,gestantes_risco,142,26
+2026-05-24,5101803,Barra do Garças,pop_rua,45,9
+2026-05-25,5101803,Barra do Garças,idosos_sozinhos,857,179
+2026-05-25,5101803,Barra do Garças,acamados,214,42
+2026-05-25,5101803,Barra do Garças,gestantes_risco,142,27
+2026-05-25,5101803,Barra do Garças,pop_rua,45,9
+2026-05-26,5101803,Barra do Garças,idosos_sozinhos,857,154
+2026-05-26,5101803,Barra do Garças,acamados,214,46
+2026-05-26,5101803,Barra do Garças,gestantes_risco,142,27
+2026-05-26,5101803,Barra do Garças,pop_rua,45,9
+2026-05-27,5101803,Barra do Garças,idosos_sozinhos,857,155
+2026-05-27,5101803,Barra do Garças,acamados,214,41
+2026-05-27,5101803,Barra do Garças,gestantes_risco,142,30
+2026-05-27,5101803,Barra do Garças,pop_rua,45,8
+2026-05-28,5101803,Barra do Garças,idosos_sozinhos,857,195
+2026-05-28,5101803,Barra do Garças,acamados,214,41
+2026-05-28,5101803,Barra do Garças,gestantes_risco,142,28
+2026-05-28,5101803,Barra do Garças,pop_rua,45,8
+2026-05-29,5101803,Barra do Garças,idosos_sozinhos,857,183
+2026-05-29,5101803,Barra do Garças,acamados,214,41
+2026-05-29,5101803,Barra do Garças,gestantes_risco,142,27
+2026-05-29,5101803,Barra do Garças,pop_rua,45,9
+2026-05-30,5101803,Barra do Garças,idosos_sozinhos,857,195
+2026-05-30,5101803,Barra do Garças,acamados,214,44
+2026-05-30,5101803,Barra do Garças,gestantes_risco,142,32
+2026-05-30,5101803,Barra do Garças,pop_rua,45,10
+2026-05-31,5101803,Barra do Garças,idosos_sozinhos,857,192
+2026-05-31,5101803,Barra do Garças,acamados,214,42
+2026-05-31,5101803,Barra do Garças,gestantes_risco,142,32
+2026-05-31,5101803,Barra do Garças,pop_rua,45,8
+2026-06-01,5101803,Barra do Garças,idosos_sozinhos,857,169
+2026-06-01,5101803,Barra do Garças,acamados,214,43
+2026-06-01,5101803,Barra do Garças,gestantes_risco,142,26
+2026-06-01,5101803,Barra do Garças,pop_rua,45,8
+2026-06-02,5101803,Barra do Garças,idosos_sozinhos,857,165
+2026-06-02,5101803,Barra do Garças,acamados,214,49
+2026-06-02,5101803,Barra do Garças,gestantes_risco,142,27
+2026-06-02,5101803,Barra do Garças,pop_rua,45,9
+2026-06-03,5101803,Barra do Garças,idosos_sozinhos,857,175
+2026-06-03,5101803,Barra do Garças,acamados,214,48
+2026-06-03,5101803,Barra do Garças,gestantes_risco,142,27
+2026-06-03,5101803,Barra do Garças,pop_rua,45,8
+2026-06-04,5101803,Barra do Garças,idosos_sozinhos,857,188
+2026-06-04,5101803,Barra do Garças,acamados,214,44
+2026-06-04,5101803,Barra do Garças,gestantes_risco,142,32
+2026-06-04,5101803,Barra do Garças,pop_rua,45,9
+2026-06-05,5101803,Barra do Garças,idosos_sozinhos,857,160
+2026-06-05,5101803,Barra do Garças,acamados,214,42
+2026-06-05,5101803,Barra do Garças,gestantes_risco,142,29
+2026-06-05,5101803,Barra do Garças,pop_rua,45,9
+2026-06-06,5101803,Barra do Garças,idosos_sozinhos,857,181
+2026-06-06,5101803,Barra do Garças,acamados,214,48
+2026-06-06,5101803,Barra do Garças,gestantes_risco,142,27
+2026-06-06,5101803,Barra do Garças,pop_rua,45,9
+2026-06-07,5101803,Barra do Garças,idosos_sozinhos,857,183
+2026-06-07,5101803,Barra do Garças,acamados,214,40
+2026-06-07,5101803,Barra do Garças,gestantes_risco,142,29
+2026-06-07,5101803,Barra do Garças,pop_rua,45,8
+2026-06-08,5101803,Barra do Garças,idosos_sozinhos,857,174
+2026-06-08,5101803,Barra do Garças,acamados,214,45
+2026-06-08,5101803,Barra do Garças,gestantes_risco,142,28
+2026-06-08,5101803,Barra do Garças,pop_rua,45,10
+2026-06-09,5101803,Barra do Garças,idosos_sozinhos,857,196
+2026-06-09,5101803,Barra do Garças,acamados,214,46
+2026-06-09,5101803,Barra do Garças,gestantes_risco,142,30
+2026-06-09,5101803,Barra do Garças,pop_rua,45,9
+2026-06-10,5101803,Barra do Garças,idosos_sozinhos,857,222
+2026-06-10,5101803,Barra do Garças,acamados,214,62
+2026-06-10,5101803,Barra do Garças,gestantes_risco,142,38
+2026-06-10,5101803,Barra do Garças,pop_rua,45,12
+2026-06-11,5101803,Barra do Garças,idosos_sozinhos,857,308
+2026-06-11,5101803,Barra do Garças,acamados,214,71
+2026-06-11,5101803,Barra do Garças,gestantes_risco,142,49
+2026-06-11,5101803,Barra do Garças,pop_rua,45,15
+2026-06-12,5101803,Barra do Garças,idosos_sozinhos,857,365
+2026-06-12,5101803,Barra do Garças,acamados,214,87
+2026-06-12,5101803,Barra do Garças,gestantes_risco,142,59
+2026-06-12,5101803,Barra do Garças,pop_rua,45,19
+2026-06-13,5101803,Barra do Garças,idosos_sozinhos,857,429
+2026-06-13,5101803,Barra do Garças,acamados,214,111
+2026-06-13,5101803,Barra do Garças,gestantes_risco,142,71
+2026-06-13,5101803,Barra do Garças,pop_rua,45,23
+2026-06-14,5101803,Barra do Garças,idosos_sozinhos,857,512
+2026-06-14,5101803,Barra do Garças,acamados,214,119
+2026-06-14,5101803,Barra do Garças,gestantes_risco,142,79
+2026-06-14,5101803,Barra do Garças,pop_rua,45,26
+2026-06-15,5101803,Barra do Garças,idosos_sozinhos,857,553
+2026-06-15,5101803,Barra do Garças,acamados,214,137
+2026-06-15,5101803,Barra do Garças,gestantes_risco,142,92
+2026-06-15,5101803,Barra do Garças,pop_rua,45,28
+2026-06-16,5101803,Barra do Garças,idosos_sozinhos,857,636
+2026-06-16,5101803,Barra do Garças,acamados,214,159
+2026-06-16,5101803,Barra do Garças,gestantes_risco,142,106
+2026-06-16,5101803,Barra do Garças,pop_rua,45,32
+2026-06-17,5101803,Barra do Garças,idosos_sozinhos,857,671
+2026-06-17,5101803,Barra do Garças,acamados,214,172
+2026-06-17,5101803,Barra do Garças,gestantes_risco,142,112
+2026-06-17,5101803,Barra do Garças,pop_rua,45,35
+2026-06-18,5101803,Barra do Garças,idosos_sozinhos,857,758
+2026-06-18,5101803,Barra do Garças,acamados,214,192
+2026-06-18,5101803,Barra do Garças,gestantes_risco,142,124
+2026-06-18,5101803,Barra do Garças,pop_rua,45,39
+2026-04-28,5107040,Primavera do Leste,idosos_sozinhos,1178,216
+2026-04-28,5107040,Primavera do Leste,acamados,294,54
+2026-04-28,5107040,Primavera do Leste,gestantes_risco,196,43
+2026-04-28,5107040,Primavera do Leste,pop_rua,35,7
+2026-04-29,5107040,Primavera do Leste,idosos_sozinhos,1178,247
+2026-04-29,5107040,Primavera do Leste,acamados,294,65
+2026-04-29,5107040,Primavera do Leste,gestantes_risco,196,41
+2026-04-29,5107040,Primavera do Leste,pop_rua,35,6
+2026-04-30,5107040,Primavera do Leste,idosos_sozinhos,1178,257
+2026-04-30,5107040,Primavera do Leste,acamados,294,54
+2026-04-30,5107040,Primavera do Leste,gestantes_risco,196,41
+2026-04-30,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-01,5107040,Primavera do Leste,idosos_sozinhos,1178,220
+2026-05-01,5107040,Primavera do Leste,acamados,294,53
+2026-05-01,5107040,Primavera do Leste,gestantes_risco,196,36
+2026-05-01,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-02,5107040,Primavera do Leste,idosos_sozinhos,1178,248
+2026-05-02,5107040,Primavera do Leste,acamados,294,53
+2026-05-02,5107040,Primavera do Leste,gestantes_risco,196,42
+2026-05-02,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-03,5107040,Primavera do Leste,idosos_sozinhos,1178,234
+2026-05-03,5107040,Primavera do Leste,acamados,294,59
+2026-05-03,5107040,Primavera do Leste,gestantes_risco,196,44
+2026-05-03,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-04,5107040,Primavera do Leste,idosos_sozinhos,1178,230
+2026-05-04,5107040,Primavera do Leste,acamados,294,63
+2026-05-04,5107040,Primavera do Leste,gestantes_risco,196,40
+2026-05-04,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-05,5107040,Primavera do Leste,idosos_sozinhos,1178,240
+2026-05-05,5107040,Primavera do Leste,acamados,294,56
+2026-05-05,5107040,Primavera do Leste,gestantes_risco,196,43
+2026-05-05,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-06,5107040,Primavera do Leste,idosos_sozinhos,1178,247
+2026-05-06,5107040,Primavera do Leste,acamados,294,55
+2026-05-06,5107040,Primavera do Leste,gestantes_risco,196,38
+2026-05-06,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-07,5107040,Primavera do Leste,idosos_sozinhos,1178,219
+2026-05-07,5107040,Primavera do Leste,acamados,294,67
+2026-05-07,5107040,Primavera do Leste,gestantes_risco,196,38
+2026-05-07,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-08,5107040,Primavera do Leste,idosos_sozinhos,1178,235
+2026-05-08,5107040,Primavera do Leste,acamados,294,54
+2026-05-08,5107040,Primavera do Leste,gestantes_risco,196,36
+2026-05-08,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-09,5107040,Primavera do Leste,idosos_sozinhos,1178,243
+2026-05-09,5107040,Primavera do Leste,acamados,294,63
+2026-05-09,5107040,Primavera do Leste,gestantes_risco,196,44
+2026-05-09,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-10,5107040,Primavera do Leste,idosos_sozinhos,1178,247
+2026-05-10,5107040,Primavera do Leste,acamados,294,59
+2026-05-10,5107040,Primavera do Leste,gestantes_risco,196,43
+2026-05-10,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-11,5107040,Primavera do Leste,idosos_sozinhos,1178,228
+2026-05-11,5107040,Primavera do Leste,acamados,294,59
+2026-05-11,5107040,Primavera do Leste,gestantes_risco,196,43
+2026-05-11,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-12,5107040,Primavera do Leste,idosos_sozinhos,1178,246
+2026-05-12,5107040,Primavera do Leste,acamados,294,54
+2026-05-12,5107040,Primavera do Leste,gestantes_risco,196,36
+2026-05-12,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-13,5107040,Primavera do Leste,idosos_sozinhos,1178,256
+2026-05-13,5107040,Primavera do Leste,acamados,294,61
+2026-05-13,5107040,Primavera do Leste,gestantes_risco,196,39
+2026-05-13,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-14,5107040,Primavera do Leste,idosos_sozinhos,1178,255
+2026-05-14,5107040,Primavera do Leste,acamados,294,56
+2026-05-14,5107040,Primavera do Leste,gestantes_risco,196,38
+2026-05-14,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-15,5107040,Primavera do Leste,idosos_sozinhos,1178,241
+2026-05-15,5107040,Primavera do Leste,acamados,294,60
+2026-05-15,5107040,Primavera do Leste,gestantes_risco,196,37
+2026-05-15,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-16,5107040,Primavera do Leste,idosos_sozinhos,1178,220
+2026-05-16,5107040,Primavera do Leste,acamados,294,62
+2026-05-16,5107040,Primavera do Leste,gestantes_risco,196,39
+2026-05-16,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-17,5107040,Primavera do Leste,idosos_sozinhos,1178,264
+2026-05-17,5107040,Primavera do Leste,acamados,294,65
+2026-05-17,5107040,Primavera do Leste,gestantes_risco,196,37
+2026-05-17,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-18,5107040,Primavera do Leste,idosos_sozinhos,1178,253
+2026-05-18,5107040,Primavera do Leste,acamados,294,62
+2026-05-18,5107040,Primavera do Leste,gestantes_risco,196,41
+2026-05-18,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-19,5107040,Primavera do Leste,idosos_sozinhos,1178,247
+2026-05-19,5107040,Primavera do Leste,acamados,294,65
+2026-05-19,5107040,Primavera do Leste,gestantes_risco,196,39
+2026-05-19,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-20,5107040,Primavera do Leste,idosos_sozinhos,1178,233
+2026-05-20,5107040,Primavera do Leste,acamados,294,66
+2026-05-20,5107040,Primavera do Leste,gestantes_risco,196,42
+2026-05-20,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-21,5107040,Primavera do Leste,idosos_sozinhos,1178,220
+2026-05-21,5107040,Primavera do Leste,acamados,294,57
+2026-05-21,5107040,Primavera do Leste,gestantes_risco,196,41
+2026-05-21,5107040,Primavera do Leste,pop_rua,35,8
+2026-05-22,5107040,Primavera do Leste,idosos_sozinhos,1178,225
+2026-05-22,5107040,Primavera do Leste,acamados,294,63
+2026-05-22,5107040,Primavera do Leste,gestantes_risco,196,37
+2026-05-22,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-23,5107040,Primavera do Leste,idosos_sozinhos,1178,241
+2026-05-23,5107040,Primavera do Leste,acamados,294,54
+2026-05-23,5107040,Primavera do Leste,gestantes_risco,196,39
+2026-05-23,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-24,5107040,Primavera do Leste,idosos_sozinhos,1178,259
+2026-05-24,5107040,Primavera do Leste,acamados,294,58
+2026-05-24,5107040,Primavera do Leste,gestantes_risco,196,37
+2026-05-24,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-25,5107040,Primavera do Leste,idosos_sozinhos,1178,247
+2026-05-25,5107040,Primavera do Leste,acamados,294,57
+2026-05-25,5107040,Primavera do Leste,gestantes_risco,196,44
+2026-05-25,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-26,5107040,Primavera do Leste,idosos_sozinhos,1178,266
+2026-05-26,5107040,Primavera do Leste,acamados,294,64
+2026-05-26,5107040,Primavera do Leste,gestantes_risco,196,39
+2026-05-26,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-27,5107040,Primavera do Leste,idosos_sozinhos,1178,248
+2026-05-27,5107040,Primavera do Leste,acamados,294,60
+2026-05-27,5107040,Primavera do Leste,gestantes_risco,196,41
+2026-05-27,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-28,5107040,Primavera do Leste,idosos_sozinhos,1178,243
+2026-05-28,5107040,Primavera do Leste,acamados,294,56
+2026-05-28,5107040,Primavera do Leste,gestantes_risco,196,43
+2026-05-28,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-29,5107040,Primavera do Leste,idosos_sozinhos,1178,255
+2026-05-29,5107040,Primavera do Leste,acamados,294,63
+2026-05-29,5107040,Primavera do Leste,gestantes_risco,196,40
+2026-05-29,5107040,Primavera do Leste,pop_rua,35,6
+2026-05-30,5107040,Primavera do Leste,idosos_sozinhos,1178,249
+2026-05-30,5107040,Primavera do Leste,acamados,294,54
+2026-05-30,5107040,Primavera do Leste,gestantes_risco,196,40
+2026-05-30,5107040,Primavera do Leste,pop_rua,35,7
+2026-05-31,5107040,Primavera do Leste,idosos_sozinhos,1178,257
+2026-05-31,5107040,Primavera do Leste,acamados,294,57
+2026-05-31,5107040,Primavera do Leste,gestantes_risco,196,37
+2026-05-31,5107040,Primavera do Leste,pop_rua,35,6
+2026-06-01,5107040,Primavera do Leste,idosos_sozinhos,1178,245
+2026-06-01,5107040,Primavera do Leste,acamados,294,54
+2026-06-01,5107040,Primavera do Leste,gestantes_risco,196,36
+2026-06-01,5107040,Primavera do Leste,pop_rua,35,6
+2026-06-02,5107040,Primavera do Leste,idosos_sozinhos,1178,226
+2026-06-02,5107040,Primavera do Leste,acamados,294,63
+2026-06-02,5107040,Primavera do Leste,gestantes_risco,196,44
+2026-06-02,5107040,Primavera do Leste,pop_rua,35,6
+2026-06-03,5107040,Primavera do Leste,idosos_sozinhos,1178,235
+2026-06-03,5107040,Primavera do Leste,acamados,294,65
+2026-06-03,5107040,Primavera do Leste,gestantes_risco,196,36
+2026-06-03,5107040,Primavera do Leste,pop_rua,35,7
+2026-06-04,5107040,Primavera do Leste,idosos_sozinhos,1178,244
+2026-06-04,5107040,Primavera do Leste,acamados,294,66
+2026-06-04,5107040,Primavera do Leste,gestantes_risco,196,40
+2026-06-04,5107040,Primavera do Leste,pop_rua,35,6
+2026-06-05,5107040,Primavera do Leste,idosos_sozinhos,1178,213
+2026-06-05,5107040,Primavera do Leste,acamados,294,64
+2026-06-05,5107040,Primavera do Leste,gestantes_risco,196,36
+2026-06-05,5107040,Primavera do Leste,pop_rua,35,7
+2026-06-06,5107040,Primavera do Leste,idosos_sozinhos,1178,240
+2026-06-06,5107040,Primavera do Leste,acamados,294,63
+2026-06-06,5107040,Primavera do Leste,gestantes_risco,196,44
+2026-06-06,5107040,Primavera do Leste,pop_rua,35,7
+2026-06-07,5107040,Primavera do Leste,idosos_sozinhos,1178,223
+2026-06-07,5107040,Primavera do Leste,acamados,294,56
+2026-06-07,5107040,Primavera do Leste,gestantes_risco,196,39
+2026-06-07,5107040,Primavera do Leste,pop_rua,35,6
+2026-06-08,5107040,Primavera do Leste,idosos_sozinhos,1178,259
+2026-06-08,5107040,Primavera do Leste,acamados,294,64
+2026-06-08,5107040,Primavera do Leste,gestantes_risco,196,35
+2026-06-08,5107040,Primavera do Leste,pop_rua,35,7
+2026-06-09,5107040,Primavera do Leste,idosos_sozinhos,1178,268
+2026-06-09,5107040,Primavera do Leste,acamados,294,65
+2026-06-09,5107040,Primavera do Leste,gestantes_risco,196,40
+2026-06-09,5107040,Primavera do Leste,pop_rua,35,7
+2026-06-10,5107040,Primavera do Leste,idosos_sozinhos,1178,319
+2026-06-10,5107040,Primavera do Leste,acamados,294,84
+2026-06-10,5107040,Primavera do Leste,gestantes_risco,196,49
+2026-06-10,5107040,Primavera do Leste,pop_rua,35,8
+2026-06-11,5107040,Primavera do Leste,idosos_sozinhos,1178,430
+2026-06-11,5107040,Primavera do Leste,acamados,294,102
+2026-06-11,5107040,Primavera do Leste,gestantes_risco,196,72
+2026-06-11,5107040,Primavera do Leste,pop_rua,35,13
+2026-06-12,5107040,Primavera do Leste,idosos_sozinhos,1178,513
+2026-06-12,5107040,Primavera do Leste,acamados,294,123
+2026-06-12,5107040,Primavera do Leste,gestantes_risco,196,84
+2026-06-12,5107040,Primavera do Leste,pop_rua,35,15
+2026-06-13,5107040,Primavera do Leste,idosos_sozinhos,1178,622
+2026-06-13,5107040,Primavera do Leste,acamados,294,145
+2026-06-13,5107040,Primavera do Leste,gestantes_risco,196,101
+2026-06-13,5107040,Primavera do Leste,pop_rua,35,16
+2026-06-14,5107040,Primavera do Leste,idosos_sozinhos,1178,696
+2026-06-14,5107040,Primavera do Leste,acamados,294,167
+2026-06-14,5107040,Primavera do Leste,gestantes_risco,196,115
+2026-06-14,5107040,Primavera do Leste,pop_rua,35,19
+2026-06-15,5107040,Primavera do Leste,idosos_sozinhos,1178,745
+2026-06-15,5107040,Primavera do Leste,acamados,294,187
+2026-06-15,5107040,Primavera do Leste,gestantes_risco,196,124
+2026-06-15,5107040,Primavera do Leste,pop_rua,35,22
+2026-06-16,5107040,Primavera do Leste,idosos_sozinhos,1178,838
+2026-06-16,5107040,Primavera do Leste,acamados,294,211
+2026-06-16,5107040,Primavera do Leste,gestantes_risco,196,145
+2026-06-16,5107040,Primavera do Leste,pop_rua,35,25
+2026-06-17,5107040,Primavera do Leste,idosos_sozinhos,1178,920
+2026-06-17,5107040,Primavera do Leste,acamados,294,231
+2026-06-17,5107040,Primavera do Leste,gestantes_risco,196,159
+2026-06-17,5107040,Primavera do Leste,pop_rua,35,27
+2026-06-18,5107040,Primavera do Leste,idosos_sozinhos,1178,1053
+2026-06-18,5107040,Primavera do Leste,acamados,294,252
+2026-06-18,5107040,Primavera do Leste,gestantes_risco,196,171
+2026-06-18,5107040,Primavera do Leste,pop_rua,35,31
+2026-04-28,5100250,Alta Floresta,idosos_sozinhos,702,155
+2026-04-28,5100250,Alta Floresta,acamados,175,35
+2026-04-28,5100250,Alta Floresta,gestantes_risco,117,24
+2026-04-28,5100250,Alta Floresta,pop_rua,25,4
+2026-04-29,5100250,Alta Floresta,idosos_sozinhos,702,138
+2026-04-29,5100250,Alta Floresta,acamados,175,34
+2026-04-29,5100250,Alta Floresta,gestantes_risco,117,21
+2026-04-29,5100250,Alta Floresta,pop_rua,25,5
+2026-04-30,5100250,Alta Floresta,idosos_sozinhos,702,132
+2026-04-30,5100250,Alta Floresta,acamados,175,36
+2026-04-30,5100250,Alta Floresta,gestantes_risco,117,22
+2026-04-30,5100250,Alta Floresta,pop_rua,25,5
+2026-05-01,5100250,Alta Floresta,idosos_sozinhos,702,143
+2026-05-01,5100250,Alta Floresta,acamados,175,35
+2026-05-01,5100250,Alta Floresta,gestantes_risco,117,25
+2026-05-01,5100250,Alta Floresta,pop_rua,25,4
+2026-05-02,5100250,Alta Floresta,idosos_sozinhos,702,158
+2026-05-02,5100250,Alta Floresta,acamados,175,33
+2026-05-02,5100250,Alta Floresta,gestantes_risco,117,21
+2026-05-02,5100250,Alta Floresta,pop_rua,25,4
+2026-05-03,5100250,Alta Floresta,idosos_sozinhos,702,133
+2026-05-03,5100250,Alta Floresta,acamados,175,38
+2026-05-03,5100250,Alta Floresta,gestantes_risco,117,22
+2026-05-03,5100250,Alta Floresta,pop_rua,25,5
+2026-05-04,5100250,Alta Floresta,idosos_sozinhos,702,148
+2026-05-04,5100250,Alta Floresta,acamados,175,36
+2026-05-04,5100250,Alta Floresta,gestantes_risco,117,22
+2026-05-04,5100250,Alta Floresta,pop_rua,25,5
+2026-05-05,5100250,Alta Floresta,idosos_sozinhos,702,140
+2026-05-05,5100250,Alta Floresta,acamados,175,32
+2026-05-05,5100250,Alta Floresta,gestantes_risco,117,26
+2026-05-05,5100250,Alta Floresta,pop_rua,25,4
+2026-05-06,5100250,Alta Floresta,idosos_sozinhos,702,136
+2026-05-06,5100250,Alta Floresta,acamados,175,33
+2026-05-06,5100250,Alta Floresta,gestantes_risco,117,21
+2026-05-06,5100250,Alta Floresta,pop_rua,25,4
+2026-05-07,5100250,Alta Floresta,idosos_sozinhos,702,129
+2026-05-07,5100250,Alta Floresta,acamados,175,31
+2026-05-07,5100250,Alta Floresta,gestantes_risco,117,23
+2026-05-07,5100250,Alta Floresta,pop_rua,25,4
+2026-05-08,5100250,Alta Floresta,idosos_sozinhos,702,149
+2026-05-08,5100250,Alta Floresta,acamados,175,38
+2026-05-08,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-08,5100250,Alta Floresta,pop_rua,25,5
+2026-05-09,5100250,Alta Floresta,idosos_sozinhos,702,154
+2026-05-09,5100250,Alta Floresta,acamados,175,31
+2026-05-09,5100250,Alta Floresta,gestantes_risco,117,23
+2026-05-09,5100250,Alta Floresta,pop_rua,25,5
+2026-05-10,5100250,Alta Floresta,idosos_sozinhos,702,134
+2026-05-10,5100250,Alta Floresta,acamados,175,40
+2026-05-10,5100250,Alta Floresta,gestantes_risco,117,26
+2026-05-10,5100250,Alta Floresta,pop_rua,25,4
+2026-05-11,5100250,Alta Floresta,idosos_sozinhos,702,143
+2026-05-11,5100250,Alta Floresta,acamados,175,35
+2026-05-11,5100250,Alta Floresta,gestantes_risco,117,26
+2026-05-11,5100250,Alta Floresta,pop_rua,25,5
+2026-05-12,5100250,Alta Floresta,idosos_sozinhos,702,133
+2026-05-12,5100250,Alta Floresta,acamados,175,37
+2026-05-12,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-12,5100250,Alta Floresta,pop_rua,25,5
+2026-05-13,5100250,Alta Floresta,idosos_sozinhos,702,151
+2026-05-13,5100250,Alta Floresta,acamados,175,31
+2026-05-13,5100250,Alta Floresta,gestantes_risco,117,25
+2026-05-13,5100250,Alta Floresta,pop_rua,25,5
+2026-05-14,5100250,Alta Floresta,idosos_sozinhos,702,158
+2026-05-14,5100250,Alta Floresta,acamados,175,32
+2026-05-14,5100250,Alta Floresta,gestantes_risco,117,25
+2026-05-14,5100250,Alta Floresta,pop_rua,25,4
+2026-05-15,5100250,Alta Floresta,idosos_sozinhos,702,160
+2026-05-15,5100250,Alta Floresta,acamados,175,36
+2026-05-15,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-15,5100250,Alta Floresta,pop_rua,25,4
+2026-05-16,5100250,Alta Floresta,idosos_sozinhos,702,139
+2026-05-16,5100250,Alta Floresta,acamados,175,31
+2026-05-16,5100250,Alta Floresta,gestantes_risco,117,23
+2026-05-16,5100250,Alta Floresta,pop_rua,25,4
+2026-05-17,5100250,Alta Floresta,idosos_sozinhos,702,132
+2026-05-17,5100250,Alta Floresta,acamados,175,33
+2026-05-17,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-17,5100250,Alta Floresta,pop_rua,25,4
+2026-05-18,5100250,Alta Floresta,idosos_sozinhos,702,161
+2026-05-18,5100250,Alta Floresta,acamados,175,37
+2026-05-18,5100250,Alta Floresta,gestantes_risco,117,21
+2026-05-18,5100250,Alta Floresta,pop_rua,25,4
+2026-05-19,5100250,Alta Floresta,idosos_sozinhos,702,154
+2026-05-19,5100250,Alta Floresta,acamados,175,31
+2026-05-19,5100250,Alta Floresta,gestantes_risco,117,25
+2026-05-19,5100250,Alta Floresta,pop_rua,25,5
+2026-05-20,5100250,Alta Floresta,idosos_sozinhos,702,131
+2026-05-20,5100250,Alta Floresta,acamados,175,39
+2026-05-20,5100250,Alta Floresta,gestantes_risco,117,26
+2026-05-20,5100250,Alta Floresta,pop_rua,25,5
+2026-05-21,5100250,Alta Floresta,idosos_sozinhos,702,157
+2026-05-21,5100250,Alta Floresta,acamados,175,40
+2026-05-21,5100250,Alta Floresta,gestantes_risco,117,25
+2026-05-21,5100250,Alta Floresta,pop_rua,25,5
+2026-05-22,5100250,Alta Floresta,idosos_sozinhos,702,153
+2026-05-22,5100250,Alta Floresta,acamados,175,32
+2026-05-22,5100250,Alta Floresta,gestantes_risco,117,25
+2026-05-22,5100250,Alta Floresta,pop_rua,25,5
+2026-05-23,5100250,Alta Floresta,idosos_sozinhos,702,142
+2026-05-23,5100250,Alta Floresta,acamados,175,39
+2026-05-23,5100250,Alta Floresta,gestantes_risco,117,22
+2026-05-23,5100250,Alta Floresta,pop_rua,25,4
+2026-05-24,5100250,Alta Floresta,idosos_sozinhos,702,137
+2026-05-24,5100250,Alta Floresta,acamados,175,37
+2026-05-24,5100250,Alta Floresta,gestantes_risco,117,26
+2026-05-24,5100250,Alta Floresta,pop_rua,25,5
+2026-05-25,5100250,Alta Floresta,idosos_sozinhos,702,150
+2026-05-25,5100250,Alta Floresta,acamados,175,34
+2026-05-25,5100250,Alta Floresta,gestantes_risco,117,26
+2026-05-25,5100250,Alta Floresta,pop_rua,25,5
+2026-05-26,5100250,Alta Floresta,idosos_sozinhos,702,132
+2026-05-26,5100250,Alta Floresta,acamados,175,34
+2026-05-26,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-26,5100250,Alta Floresta,pop_rua,25,5
+2026-05-27,5100250,Alta Floresta,idosos_sozinhos,702,140
+2026-05-27,5100250,Alta Floresta,acamados,175,34
+2026-05-27,5100250,Alta Floresta,gestantes_risco,117,21
+2026-05-27,5100250,Alta Floresta,pop_rua,25,4
+2026-05-28,5100250,Alta Floresta,idosos_sozinhos,702,143
+2026-05-28,5100250,Alta Floresta,acamados,175,33
+2026-05-28,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-28,5100250,Alta Floresta,pop_rua,25,4
+2026-05-29,5100250,Alta Floresta,idosos_sozinhos,702,128
+2026-05-29,5100250,Alta Floresta,acamados,175,37
+2026-05-29,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-29,5100250,Alta Floresta,pop_rua,25,4
+2026-05-30,5100250,Alta Floresta,idosos_sozinhos,702,126
+2026-05-30,5100250,Alta Floresta,acamados,175,31
+2026-05-30,5100250,Alta Floresta,gestantes_risco,117,24
+2026-05-30,5100250,Alta Floresta,pop_rua,25,5
+2026-05-31,5100250,Alta Floresta,idosos_sozinhos,702,148
+2026-05-31,5100250,Alta Floresta,acamados,175,34
+2026-05-31,5100250,Alta Floresta,gestantes_risco,117,23
+2026-05-31,5100250,Alta Floresta,pop_rua,25,5
+2026-06-01,5100250,Alta Floresta,idosos_sozinhos,702,139
+2026-06-01,5100250,Alta Floresta,acamados,175,33
+2026-06-01,5100250,Alta Floresta,gestantes_risco,117,23
+2026-06-01,5100250,Alta Floresta,pop_rua,25,5
+2026-06-02,5100250,Alta Floresta,idosos_sozinhos,702,148
+2026-06-02,5100250,Alta Floresta,acamados,175,39
+2026-06-02,5100250,Alta Floresta,gestantes_risco,117,25
+2026-06-02,5100250,Alta Floresta,pop_rua,25,4
+2026-06-03,5100250,Alta Floresta,idosos_sozinhos,702,156
+2026-06-03,5100250,Alta Floresta,acamados,175,35
+2026-06-03,5100250,Alta Floresta,gestantes_risco,117,22
+2026-06-03,5100250,Alta Floresta,pop_rua,25,5
+2026-06-04,5100250,Alta Floresta,idosos_sozinhos,702,132
+2026-06-04,5100250,Alta Floresta,acamados,175,34
+2026-06-04,5100250,Alta Floresta,gestantes_risco,117,26
+2026-06-04,5100250,Alta Floresta,pop_rua,25,5
+2026-06-05,5100250,Alta Floresta,idosos_sozinhos,702,159
+2026-06-05,5100250,Alta Floresta,acamados,175,34
+2026-06-05,5100250,Alta Floresta,gestantes_risco,117,24
+2026-06-05,5100250,Alta Floresta,pop_rua,25,5
+2026-06-06,5100250,Alta Floresta,idosos_sozinhos,702,150
+2026-06-06,5100250,Alta Floresta,acamados,175,36
+2026-06-06,5100250,Alta Floresta,gestantes_risco,117,23
+2026-06-06,5100250,Alta Floresta,pop_rua,25,5
+2026-06-07,5100250,Alta Floresta,idosos_sozinhos,702,151
+2026-06-07,5100250,Alta Floresta,acamados,175,33
+2026-06-07,5100250,Alta Floresta,gestantes_risco,117,24
+2026-06-07,5100250,Alta Floresta,pop_rua,25,5
+2026-06-08,5100250,Alta Floresta,idosos_sozinhos,702,151
+2026-06-08,5100250,Alta Floresta,acamados,175,37
+2026-06-08,5100250,Alta Floresta,gestantes_risco,117,21
+2026-06-08,5100250,Alta Floresta,pop_rua,25,4
+2026-06-09,5100250,Alta Floresta,idosos_sozinhos,702,158
+2026-06-09,5100250,Alta Floresta,acamados,175,40
+2026-06-09,5100250,Alta Floresta,gestantes_risco,117,25
+2026-06-09,5100250,Alta Floresta,pop_rua,25,5
+2026-06-10,5100250,Alta Floresta,idosos_sozinhos,702,211
+2026-06-10,5100250,Alta Floresta,acamados,175,50
+2026-06-10,5100250,Alta Floresta,gestantes_risco,117,33
+2026-06-10,5100250,Alta Floresta,pop_rua,25,6
+2026-06-11,5100250,Alta Floresta,idosos_sozinhos,702,242
+2026-06-11,5100250,Alta Floresta,acamados,175,65
+2026-06-11,5100250,Alta Floresta,gestantes_risco,117,41
+2026-06-11,5100250,Alta Floresta,pop_rua,25,8
+2026-06-12,5100250,Alta Floresta,idosos_sozinhos,702,299
+2026-06-12,5100250,Alta Floresta,acamados,175,71
+2026-06-12,5100250,Alta Floresta,gestantes_risco,117,47
+2026-06-12,5100250,Alta Floresta,pop_rua,25,11
+2026-06-13,5100250,Alta Floresta,idosos_sozinhos,702,361
+2026-06-13,5100250,Alta Floresta,acamados,175,91
+2026-06-13,5100250,Alta Floresta,gestantes_risco,117,58
+2026-06-13,5100250,Alta Floresta,pop_rua,25,13
+2026-06-14,5100250,Alta Floresta,idosos_sozinhos,702,413
+2026-06-14,5100250,Alta Floresta,acamados,175,98
+2026-06-14,5100250,Alta Floresta,gestantes_risco,117,69
+2026-06-14,5100250,Alta Floresta,pop_rua,25,14
+2026-06-15,5100250,Alta Floresta,idosos_sozinhos,702,453
+2026-06-15,5100250,Alta Floresta,acamados,175,115
+2026-06-15,5100250,Alta Floresta,gestantes_risco,117,74
+2026-06-15,5100250,Alta Floresta,pop_rua,25,16
+2026-06-16,5100250,Alta Floresta,idosos_sozinhos,702,521
+2026-06-16,5100250,Alta Floresta,acamados,175,128
+2026-06-16,5100250,Alta Floresta,gestantes_risco,117,87
+2026-06-16,5100250,Alta Floresta,pop_rua,25,18
+2026-06-17,5100250,Alta Floresta,idosos_sozinhos,702,567
+2026-06-17,5100250,Alta Floresta,acamados,175,136
+2026-06-17,5100250,Alta Floresta,gestantes_risco,117,97
+2026-06-17,5100250,Alta Floresta,pop_rua,25,19
+2026-06-18,5100250,Alta Floresta,idosos_sozinhos,702,624
+2026-06-18,5100250,Alta Floresta,acamados,175,150
+2026-06-18,5100250,Alta Floresta,gestantes_risco,117,100
+2026-06-18,5100250,Alta Floresta,pop_rua,25,22
+2026-04-28,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,205
+2026-04-28,5105259,Lucas do Rio Verde,acamados,275,59
+2026-04-28,5105259,Lucas do Rio Verde,gestantes_risco,183,33
+2026-04-28,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-04-29,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,240
+2026-04-29,5105259,Lucas do Rio Verde,acamados,275,57
+2026-04-29,5105259,Lucas do Rio Verde,gestantes_risco,183,34
+2026-04-29,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-04-30,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,244
+2026-04-30,5105259,Lucas do Rio Verde,acamados,275,53
+2026-04-30,5105259,Lucas do Rio Verde,gestantes_risco,183,36
+2026-04-30,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-01,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,207
+2026-05-01,5105259,Lucas do Rio Verde,acamados,275,52
+2026-05-01,5105259,Lucas do Rio Verde,gestantes_risco,183,33
+2026-05-01,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-02,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,240
+2026-05-02,5105259,Lucas do Rio Verde,acamados,275,55
+2026-05-02,5105259,Lucas do Rio Verde,gestantes_risco,183,41
+2026-05-02,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-03,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,210
+2026-05-03,5105259,Lucas do Rio Verde,acamados,275,59
+2026-05-03,5105259,Lucas do Rio Verde,gestantes_risco,183,40
+2026-05-03,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-04,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,204
+2026-05-04,5105259,Lucas do Rio Verde,acamados,275,54
+2026-05-04,5105259,Lucas do Rio Verde,gestantes_risco,183,36
+2026-05-04,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-05,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,232
+2026-05-05,5105259,Lucas do Rio Verde,acamados,275,51
+2026-05-05,5105259,Lucas do Rio Verde,gestantes_risco,183,34
+2026-05-05,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-06,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,207
+2026-05-06,5105259,Lucas do Rio Verde,acamados,275,61
+2026-05-06,5105259,Lucas do Rio Verde,gestantes_risco,183,34
+2026-05-06,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-07,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,247
+2026-05-07,5105259,Lucas do Rio Verde,acamados,275,54
+2026-05-07,5105259,Lucas do Rio Verde,gestantes_risco,183,34
+2026-05-07,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-08,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,218
+2026-05-08,5105259,Lucas do Rio Verde,acamados,275,54
+2026-05-08,5105259,Lucas do Rio Verde,gestantes_risco,183,36
+2026-05-08,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-09,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,230
+2026-05-09,5105259,Lucas do Rio Verde,acamados,275,51
+2026-05-09,5105259,Lucas do Rio Verde,gestantes_risco,183,41
+2026-05-09,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-10,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,231
+2026-05-10,5105259,Lucas do Rio Verde,acamados,275,57
+2026-05-10,5105259,Lucas do Rio Verde,gestantes_risco,183,39
+2026-05-10,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-11,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,214
+2026-05-11,5105259,Lucas do Rio Verde,acamados,275,59
+2026-05-11,5105259,Lucas do Rio Verde,gestantes_risco,183,37
+2026-05-11,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-12,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,240
+2026-05-12,5105259,Lucas do Rio Verde,acamados,275,55
+2026-05-12,5105259,Lucas do Rio Verde,gestantes_risco,183,34
+2026-05-12,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-13,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,229
+2026-05-13,5105259,Lucas do Rio Verde,acamados,275,59
+2026-05-13,5105259,Lucas do Rio Verde,gestantes_risco,183,40
+2026-05-13,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-14,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,221
+2026-05-14,5105259,Lucas do Rio Verde,acamados,275,53
+2026-05-14,5105259,Lucas do Rio Verde,gestantes_risco,183,37
+2026-05-14,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-15,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,248
+2026-05-15,5105259,Lucas do Rio Verde,acamados,275,63
+2026-05-15,5105259,Lucas do Rio Verde,gestantes_risco,183,36
+2026-05-15,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-16,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,248
+2026-05-16,5105259,Lucas do Rio Verde,acamados,275,53
+2026-05-16,5105259,Lucas do Rio Verde,gestantes_risco,183,37
+2026-05-16,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-17,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,216
+2026-05-17,5105259,Lucas do Rio Verde,acamados,275,57
+2026-05-17,5105259,Lucas do Rio Verde,gestantes_risco,183,40
+2026-05-17,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-18,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,201
+2026-05-18,5105259,Lucas do Rio Verde,acamados,275,55
+2026-05-18,5105259,Lucas do Rio Verde,gestantes_risco,183,39
+2026-05-18,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-19,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,249
+2026-05-19,5105259,Lucas do Rio Verde,acamados,275,61
+2026-05-19,5105259,Lucas do Rio Verde,gestantes_risco,183,33
+2026-05-19,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-20,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,233
+2026-05-20,5105259,Lucas do Rio Verde,acamados,275,53
+2026-05-20,5105259,Lucas do Rio Verde,gestantes_risco,183,34
+2026-05-20,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-21,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,216
+2026-05-21,5105259,Lucas do Rio Verde,acamados,275,56
+2026-05-21,5105259,Lucas do Rio Verde,gestantes_risco,183,32
+2026-05-21,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-22,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,221
+2026-05-22,5105259,Lucas do Rio Verde,acamados,275,54
+2026-05-22,5105259,Lucas do Rio Verde,gestantes_risco,183,38
+2026-05-22,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-23,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,201
+2026-05-23,5105259,Lucas do Rio Verde,acamados,275,59
+2026-05-23,5105259,Lucas do Rio Verde,gestantes_risco,183,33
+2026-05-23,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-24,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,236
+2026-05-24,5105259,Lucas do Rio Verde,acamados,275,55
+2026-05-24,5105259,Lucas do Rio Verde,gestantes_risco,183,33
+2026-05-24,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-25,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,220
+2026-05-25,5105259,Lucas do Rio Verde,acamados,275,56
+2026-05-25,5105259,Lucas do Rio Verde,gestantes_risco,183,40
+2026-05-25,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-26,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,226
+2026-05-26,5105259,Lucas do Rio Verde,acamados,275,49
+2026-05-26,5105259,Lucas do Rio Verde,gestantes_risco,183,35
+2026-05-26,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-27,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,240
+2026-05-27,5105259,Lucas do Rio Verde,acamados,275,54
+2026-05-27,5105259,Lucas do Rio Verde,gestantes_risco,183,40
+2026-05-27,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-28,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,207
+2026-05-28,5105259,Lucas do Rio Verde,acamados,275,58
+2026-05-28,5105259,Lucas do Rio Verde,gestantes_risco,183,34
+2026-05-28,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-29,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,204
+2026-05-29,5105259,Lucas do Rio Verde,acamados,275,60
+2026-05-29,5105259,Lucas do Rio Verde,gestantes_risco,183,40
+2026-05-29,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-05-30,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,208
+2026-05-30,5105259,Lucas do Rio Verde,acamados,275,60
+2026-05-30,5105259,Lucas do Rio Verde,gestantes_risco,183,39
+2026-05-30,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-05-31,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,243
+2026-05-31,5105259,Lucas do Rio Verde,acamados,275,62
+2026-05-31,5105259,Lucas do Rio Verde,gestantes_risco,183,40
+2026-05-31,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-06-01,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,225
+2026-06-01,5105259,Lucas do Rio Verde,acamados,275,52
+2026-06-01,5105259,Lucas do Rio Verde,gestantes_risco,183,41
+2026-06-01,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-06-02,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,246
+2026-06-02,5105259,Lucas do Rio Verde,acamados,275,56
+2026-06-02,5105259,Lucas do Rio Verde,gestantes_risco,183,35
+2026-06-02,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-06-03,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,233
+2026-06-03,5105259,Lucas do Rio Verde,acamados,275,53
+2026-06-03,5105259,Lucas do Rio Verde,gestantes_risco,183,33
+2026-06-03,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-06-04,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,250
+2026-06-04,5105259,Lucas do Rio Verde,acamados,275,53
+2026-06-04,5105259,Lucas do Rio Verde,gestantes_risco,183,39
+2026-06-04,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-06-05,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,211
+2026-06-05,5105259,Lucas do Rio Verde,acamados,275,63
+2026-06-05,5105259,Lucas do Rio Verde,gestantes_risco,183,35
+2026-06-05,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-06-06,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,253
+2026-06-06,5105259,Lucas do Rio Verde,acamados,275,52
+2026-06-06,5105259,Lucas do Rio Verde,gestantes_risco,183,37
+2026-06-06,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-06-07,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,230
+2026-06-07,5105259,Lucas do Rio Verde,acamados,275,58
+2026-06-07,5105259,Lucas do Rio Verde,gestantes_risco,183,38
+2026-06-07,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-06-08,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,240
+2026-06-08,5105259,Lucas do Rio Verde,acamados,275,55
+2026-06-08,5105259,Lucas do Rio Verde,gestantes_risco,183,36
+2026-06-08,5105259,Lucas do Rio Verde,pop_rua,30,6
+2026-06-09,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,249
+2026-06-09,5105259,Lucas do Rio Verde,acamados,275,58
+2026-06-09,5105259,Lucas do Rio Verde,gestantes_risco,183,38
+2026-06-09,5105259,Lucas do Rio Verde,pop_rua,30,5
+2026-06-10,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,288
+2026-06-10,5105259,Lucas do Rio Verde,acamados,275,79
+2026-06-10,5105259,Lucas do Rio Verde,gestantes_risco,183,52
+2026-06-10,5105259,Lucas do Rio Verde,pop_rua,30,8
+2026-06-11,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,371
+2026-06-11,5105259,Lucas do Rio Verde,acamados,275,90
+2026-06-11,5105259,Lucas do Rio Verde,gestantes_risco,183,66
+2026-06-11,5105259,Lucas do Rio Verde,pop_rua,30,9
+2026-06-12,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,451
+2026-06-12,5105259,Lucas do Rio Verde,acamados,275,120
+2026-06-12,5105259,Lucas do Rio Verde,gestantes_risco,183,81
+2026-06-12,5105259,Lucas do Rio Verde,pop_rua,30,12
+2026-06-13,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,571
+2026-06-13,5105259,Lucas do Rio Verde,acamados,275,133
+2026-06-13,5105259,Lucas do Rio Verde,gestantes_risco,183,90
+2026-06-13,5105259,Lucas do Rio Verde,pop_rua,30,15
+2026-06-14,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,625
+2026-06-14,5105259,Lucas do Rio Verde,acamados,275,158
+2026-06-14,5105259,Lucas do Rio Verde,gestantes_risco,183,101
+2026-06-14,5105259,Lucas do Rio Verde,pop_rua,30,17
+2026-06-15,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,734
+2026-06-15,5105259,Lucas do Rio Verde,acamados,275,186
+2026-06-15,5105259,Lucas do Rio Verde,gestantes_risco,183,115
+2026-06-15,5105259,Lucas do Rio Verde,pop_rua,30,19
+2026-06-16,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,793
+2026-06-16,5105259,Lucas do Rio Verde,acamados,275,207
+2026-06-16,5105259,Lucas do Rio Verde,gestantes_risco,183,131
+2026-06-16,5105259,Lucas do Rio Verde,pop_rua,30,22
+2026-06-17,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,895
+2026-06-17,5105259,Lucas do Rio Verde,acamados,275,215
+2026-06-17,5105259,Lucas do Rio Verde,gestantes_risco,183,148
+2026-06-17,5105259,Lucas do Rio Verde,pop_rua,30,24
+2026-06-18,5105259,Lucas do Rio Verde,idosos_sozinhos,1103,996
+2026-06-18,5105259,Lucas do Rio Verde,acamados,275,235
+2026-06-18,5105259,Lucas do Rio Verde,gestantes_risco,183,164
+2026-06-18,5105259,Lucas do Rio Verde,pop_rua,30,26
+2026-04-28,5106224,Nova Mutum,idosos_sozinhos,702,143
+2026-04-28,5106224,Nova Mutum,acamados,175,38
+2026-04-28,5106224,Nova Mutum,gestantes_risco,117,22
+2026-04-28,5106224,Nova Mutum,pop_rua,18,4
+2026-04-29,5106224,Nova Mutum,idosos_sozinhos,702,161
+2026-04-29,5106224,Nova Mutum,acamados,175,34
+2026-04-29,5106224,Nova Mutum,gestantes_risco,117,25
+2026-04-29,5106224,Nova Mutum,pop_rua,18,3
+2026-04-30,5106224,Nova Mutum,idosos_sozinhos,702,126
+2026-04-30,5106224,Nova Mutum,acamados,175,34
+2026-04-30,5106224,Nova Mutum,gestantes_risco,117,21
+2026-04-30,5106224,Nova Mutum,pop_rua,18,3
+2026-05-01,5106224,Nova Mutum,idosos_sozinhos,702,136
+2026-05-01,5106224,Nova Mutum,acamados,175,32
+2026-05-01,5106224,Nova Mutum,gestantes_risco,117,24
+2026-05-01,5106224,Nova Mutum,pop_rua,18,3
+2026-05-02,5106224,Nova Mutum,idosos_sozinhos,702,158
+2026-05-02,5106224,Nova Mutum,acamados,175,35
+2026-05-02,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-02,5106224,Nova Mutum,pop_rua,18,3
+2026-05-03,5106224,Nova Mutum,idosos_sozinhos,702,142
+2026-05-03,5106224,Nova Mutum,acamados,175,35
+2026-05-03,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-03,5106224,Nova Mutum,pop_rua,18,3
+2026-05-04,5106224,Nova Mutum,idosos_sozinhos,702,139
+2026-05-04,5106224,Nova Mutum,acamados,175,32
+2026-05-04,5106224,Nova Mutum,gestantes_risco,117,26
+2026-05-04,5106224,Nova Mutum,pop_rua,18,3
+2026-05-05,5106224,Nova Mutum,idosos_sozinhos,702,128
+2026-05-05,5106224,Nova Mutum,acamados,175,33
+2026-05-05,5106224,Nova Mutum,gestantes_risco,117,23
+2026-05-05,5106224,Nova Mutum,pop_rua,18,3
+2026-05-06,5106224,Nova Mutum,idosos_sozinhos,702,142
+2026-05-06,5106224,Nova Mutum,acamados,175,31
+2026-05-06,5106224,Nova Mutum,gestantes_risco,117,25
+2026-05-06,5106224,Nova Mutum,pop_rua,18,3
+2026-05-07,5106224,Nova Mutum,idosos_sozinhos,702,153
+2026-05-07,5106224,Nova Mutum,acamados,175,40
+2026-05-07,5106224,Nova Mutum,gestantes_risco,117,24
+2026-05-07,5106224,Nova Mutum,pop_rua,18,3
+2026-05-08,5106224,Nova Mutum,idosos_sozinhos,702,156
+2026-05-08,5106224,Nova Mutum,acamados,175,35
+2026-05-08,5106224,Nova Mutum,gestantes_risco,117,26
+2026-05-08,5106224,Nova Mutum,pop_rua,18,3
+2026-05-09,5106224,Nova Mutum,idosos_sozinhos,702,136
+2026-05-09,5106224,Nova Mutum,acamados,175,33
+2026-05-09,5106224,Nova Mutum,gestantes_risco,117,23
+2026-05-09,5106224,Nova Mutum,pop_rua,18,3
+2026-05-10,5106224,Nova Mutum,idosos_sozinhos,702,155
+2026-05-10,5106224,Nova Mutum,acamados,175,33
+2026-05-10,5106224,Nova Mutum,gestantes_risco,117,26
+2026-05-10,5106224,Nova Mutum,pop_rua,18,3
+2026-05-11,5106224,Nova Mutum,idosos_sozinhos,702,156
+2026-05-11,5106224,Nova Mutum,acamados,175,34
+2026-05-11,5106224,Nova Mutum,gestantes_risco,117,25
+2026-05-11,5106224,Nova Mutum,pop_rua,18,3
+2026-05-12,5106224,Nova Mutum,idosos_sozinhos,702,155
+2026-05-12,5106224,Nova Mutum,acamados,175,36
+2026-05-12,5106224,Nova Mutum,gestantes_risco,117,21
+2026-05-12,5106224,Nova Mutum,pop_rua,18,3
+2026-05-13,5106224,Nova Mutum,idosos_sozinhos,702,128
+2026-05-13,5106224,Nova Mutum,acamados,175,35
+2026-05-13,5106224,Nova Mutum,gestantes_risco,117,24
+2026-05-13,5106224,Nova Mutum,pop_rua,18,3
+2026-05-14,5106224,Nova Mutum,idosos_sozinhos,702,131
+2026-05-14,5106224,Nova Mutum,acamados,175,36
+2026-05-14,5106224,Nova Mutum,gestantes_risco,117,24
+2026-05-14,5106224,Nova Mutum,pop_rua,18,3
+2026-05-15,5106224,Nova Mutum,idosos_sozinhos,702,140
+2026-05-15,5106224,Nova Mutum,acamados,175,37
+2026-05-15,5106224,Nova Mutum,gestantes_risco,117,26
+2026-05-15,5106224,Nova Mutum,pop_rua,18,3
+2026-05-16,5106224,Nova Mutum,idosos_sozinhos,702,141
+2026-05-16,5106224,Nova Mutum,acamados,175,31
+2026-05-16,5106224,Nova Mutum,gestantes_risco,117,24
+2026-05-16,5106224,Nova Mutum,pop_rua,18,3
+2026-05-17,5106224,Nova Mutum,idosos_sozinhos,702,141
+2026-05-17,5106224,Nova Mutum,acamados,175,31
+2026-05-17,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-17,5106224,Nova Mutum,pop_rua,18,3
+2026-05-18,5106224,Nova Mutum,idosos_sozinhos,702,154
+2026-05-18,5106224,Nova Mutum,acamados,175,37
+2026-05-18,5106224,Nova Mutum,gestantes_risco,117,21
+2026-05-18,5106224,Nova Mutum,pop_rua,18,3
+2026-05-19,5106224,Nova Mutum,idosos_sozinhos,702,156
+2026-05-19,5106224,Nova Mutum,acamados,175,34
+2026-05-19,5106224,Nova Mutum,gestantes_risco,117,24
+2026-05-19,5106224,Nova Mutum,pop_rua,18,3
+2026-05-20,5106224,Nova Mutum,idosos_sozinhos,702,146
+2026-05-20,5106224,Nova Mutum,acamados,175,34
+2026-05-20,5106224,Nova Mutum,gestantes_risco,117,25
+2026-05-20,5106224,Nova Mutum,pop_rua,18,3
+2026-05-21,5106224,Nova Mutum,idosos_sozinhos,702,135
+2026-05-21,5106224,Nova Mutum,acamados,175,33
+2026-05-21,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-21,5106224,Nova Mutum,pop_rua,18,3
+2026-05-22,5106224,Nova Mutum,idosos_sozinhos,702,148
+2026-05-22,5106224,Nova Mutum,acamados,175,35
+2026-05-22,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-22,5106224,Nova Mutum,pop_rua,18,3
+2026-05-23,5106224,Nova Mutum,idosos_sozinhos,702,156
+2026-05-23,5106224,Nova Mutum,acamados,175,37
+2026-05-23,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-23,5106224,Nova Mutum,pop_rua,18,3
+2026-05-24,5106224,Nova Mutum,idosos_sozinhos,702,134
+2026-05-24,5106224,Nova Mutum,acamados,175,36
+2026-05-24,5106224,Nova Mutum,gestantes_risco,117,23
+2026-05-24,5106224,Nova Mutum,pop_rua,18,3
+2026-05-25,5106224,Nova Mutum,idosos_sozinhos,702,143
+2026-05-25,5106224,Nova Mutum,acamados,175,31
+2026-05-25,5106224,Nova Mutum,gestantes_risco,117,24
+2026-05-25,5106224,Nova Mutum,pop_rua,18,3
+2026-05-26,5106224,Nova Mutum,idosos_sozinhos,702,153
+2026-05-26,5106224,Nova Mutum,acamados,175,37
+2026-05-26,5106224,Nova Mutum,gestantes_risco,117,25
+2026-05-26,5106224,Nova Mutum,pop_rua,18,3
+2026-05-27,5106224,Nova Mutum,idosos_sozinhos,702,151
+2026-05-27,5106224,Nova Mutum,acamados,175,33
+2026-05-27,5106224,Nova Mutum,gestantes_risco,117,23
+2026-05-27,5106224,Nova Mutum,pop_rua,18,3
+2026-05-28,5106224,Nova Mutum,idosos_sozinhos,702,149
+2026-05-28,5106224,Nova Mutum,acamados,175,32
+2026-05-28,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-28,5106224,Nova Mutum,pop_rua,18,3
+2026-05-29,5106224,Nova Mutum,idosos_sozinhos,702,132
+2026-05-29,5106224,Nova Mutum,acamados,175,32
+2026-05-29,5106224,Nova Mutum,gestantes_risco,117,26
+2026-05-29,5106224,Nova Mutum,pop_rua,18,3
+2026-05-30,5106224,Nova Mutum,idosos_sozinhos,702,142
+2026-05-30,5106224,Nova Mutum,acamados,175,38
+2026-05-30,5106224,Nova Mutum,gestantes_risco,117,21
+2026-05-30,5106224,Nova Mutum,pop_rua,18,3
+2026-05-31,5106224,Nova Mutum,idosos_sozinhos,702,143
+2026-05-31,5106224,Nova Mutum,acamados,175,36
+2026-05-31,5106224,Nova Mutum,gestantes_risco,117,22
+2026-05-31,5106224,Nova Mutum,pop_rua,18,3
+2026-06-01,5106224,Nova Mutum,idosos_sozinhos,702,143
+2026-06-01,5106224,Nova Mutum,acamados,175,38
+2026-06-01,5106224,Nova Mutum,gestantes_risco,117,24
+2026-06-01,5106224,Nova Mutum,pop_rua,18,3
+2026-06-02,5106224,Nova Mutum,idosos_sozinhos,702,151
+2026-06-02,5106224,Nova Mutum,acamados,175,33
+2026-06-02,5106224,Nova Mutum,gestantes_risco,117,26
+2026-06-02,5106224,Nova Mutum,pop_rua,18,3
+2026-06-03,5106224,Nova Mutum,idosos_sozinhos,702,128
+2026-06-03,5106224,Nova Mutum,acamados,175,35
+2026-06-03,5106224,Nova Mutum,gestantes_risco,117,21
+2026-06-03,5106224,Nova Mutum,pop_rua,18,4
+2026-06-04,5106224,Nova Mutum,idosos_sozinhos,702,137
+2026-06-04,5106224,Nova Mutum,acamados,175,36
+2026-06-04,5106224,Nova Mutum,gestantes_risco,117,24
+2026-06-04,5106224,Nova Mutum,pop_rua,18,3
+2026-06-05,5106224,Nova Mutum,idosos_sozinhos,702,156
+2026-06-05,5106224,Nova Mutum,acamados,175,32
+2026-06-05,5106224,Nova Mutum,gestantes_risco,117,23
+2026-06-05,5106224,Nova Mutum,pop_rua,18,3
+2026-06-06,5106224,Nova Mutum,idosos_sozinhos,702,153
+2026-06-06,5106224,Nova Mutum,acamados,175,32
+2026-06-06,5106224,Nova Mutum,gestantes_risco,117,26
+2026-06-06,5106224,Nova Mutum,pop_rua,18,3
+2026-06-07,5106224,Nova Mutum,idosos_sozinhos,702,143
+2026-06-07,5106224,Nova Mutum,acamados,175,38
+2026-06-07,5106224,Nova Mutum,gestantes_risco,117,21
+2026-06-07,5106224,Nova Mutum,pop_rua,18,3
+2026-06-08,5106224,Nova Mutum,idosos_sozinhos,702,131
+2026-06-08,5106224,Nova Mutum,acamados,175,39
+2026-06-08,5106224,Nova Mutum,gestantes_risco,117,26
+2026-06-08,5106224,Nova Mutum,pop_rua,18,3
+2026-06-09,5106224,Nova Mutum,idosos_sozinhos,702,126
+2026-06-09,5106224,Nova Mutum,acamados,175,38
+2026-06-09,5106224,Nova Mutum,gestantes_risco,117,24
+2026-06-09,5106224,Nova Mutum,pop_rua,18,3
+2026-06-10,5106224,Nova Mutum,idosos_sozinhos,702,184
+2026-06-10,5106224,Nova Mutum,acamados,175,47
+2026-06-10,5106224,Nova Mutum,gestantes_risco,117,30
+2026-06-10,5106224,Nova Mutum,pop_rua,18,4
+2026-06-11,5106224,Nova Mutum,idosos_sozinhos,702,236
+2026-06-11,5106224,Nova Mutum,acamados,175,64
+2026-06-11,5106224,Nova Mutum,gestantes_risco,117,42
+2026-06-11,5106224,Nova Mutum,pop_rua,18,6
+2026-06-12,5106224,Nova Mutum,idosos_sozinhos,702,292
+2026-06-12,5106224,Nova Mutum,acamados,175,76
+2026-06-12,5106224,Nova Mutum,gestantes_risco,117,47
+2026-06-12,5106224,Nova Mutum,pop_rua,18,7
+2026-06-13,5106224,Nova Mutum,idosos_sozinhos,702,360
+2026-06-13,5106224,Nova Mutum,acamados,175,85
+2026-06-13,5106224,Nova Mutum,gestantes_risco,117,56
+2026-06-13,5106224,Nova Mutum,pop_rua,18,9
+2026-06-14,5106224,Nova Mutum,idosos_sozinhos,702,421
+2026-06-14,5106224,Nova Mutum,acamados,175,104
+2026-06-14,5106224,Nova Mutum,gestantes_risco,117,69
+2026-06-14,5106224,Nova Mutum,pop_rua,18,10
+2026-06-15,5106224,Nova Mutum,idosos_sozinhos,702,448
+2026-06-15,5106224,Nova Mutum,acamados,175,116
+2026-06-15,5106224,Nova Mutum,gestantes_risco,117,77
+2026-06-15,5106224,Nova Mutum,pop_rua,18,11
+2026-06-16,5106224,Nova Mutum,idosos_sozinhos,702,502
+2026-06-16,5106224,Nova Mutum,acamados,175,131
+2026-06-16,5106224,Nova Mutum,gestantes_risco,117,85
+2026-06-16,5106224,Nova Mutum,pop_rua,18,12
+2026-06-17,5106224,Nova Mutum,idosos_sozinhos,702,565
+2026-06-17,5106224,Nova Mutum,acamados,175,143
+2026-06-17,5106224,Nova Mutum,gestantes_risco,117,91
+2026-06-17,5106224,Nova Mutum,pop_rua,18,14
+2026-06-18,5106224,Nova Mutum,idosos_sozinhos,702,611
+2026-06-18,5106224,Nova Mutum,acamados,175,150
+2026-06-18,5106224,Nova Mutum,gestantes_risco,117,105
+2026-06-18,5106224,Nova Mutum,pop_rua,18,16

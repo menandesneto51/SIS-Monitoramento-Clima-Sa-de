@@ -1,0 +1,143 @@
+﻿data,cod_ibge,municipio,pm25_ugm3,pm10_ugm3,o3_ugm3,no2_ugm3,co_mgm3,so2_ugm3,fonte,lat,lon,iq_ar_score,qualidade_ar_nivel,poluente_dominante,motivo_qualidade_ar,indice_qualidade_ar_operacional
+2026-06-18,5100102,Acorizal,4.027366316256325,4.150613153828514,,,,,copernicus_cams,-15.194419,-56.317774,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5100250,Alta Floresta,31.252266134462094,31.68805098057954,,,,,copernicus_cams,-10.041636,-56.401812,2,laranja,PM2.5,PM2.5 31.3 atingiu laranja,50.0
+2026-06-18,5100300,Alto Araguaia,1.8861368120942958,1.9482502294449902,,,,,copernicus_cams,-17.423637,-53.455879,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5100359,Alto Boa Vista,4.22318082465518,4.489938701880609,,,,,copernicus_cams,-11.788879,-51.693836,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5100409,Alto Garças,2.0230349911616186,2.0845832919313314,,,,,copernicus_cams,-16.842348,-53.65356,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5100508,Alto Paraguai,7.914675477096847,8.109398838714931,,,,,copernicus_cams,-14.768815,-56.622695,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5100607,Alto Taquari,2.5546666057095573,2.65195521914945,,,,,copernicus_cams,-17.772902,-53.373599,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5100805,Apiacás,8.33056423843459,8.422769514528655,,,,,copernicus_cams,-8.584873,-58.015049,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101001,Araguaiana,2.1496131639414986,2.2459573980027723,,,,,copernicus_cams,-15.102484,-51.798525,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101209,Araguainha,1.6684095894052973,1.7254217160426122,,,,,copernicus_cams,-16.726167,-53.1455,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101258,Araputanga,3.781893236484865,3.8263387882989597,,,,,copernicus_cams,-15.262616,-58.411897,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101308,Arenápolis,7.6349977059585274,7.829536352588207,,,,,copernicus_cams,-14.50479,-56.873836,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101407,Aripuanã,8.27167260176927,8.356477758130655,,,,,copernicus_cams,-10.103419,-59.717893,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101704,Barra do Bugres,6.577171121461213,6.722717924828919,,,,,copernicus_cams,-15.181086,-57.228979,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101803,Barra do Garças,1.6006371742744212,1.6601598306860013,,,,,copernicus_cams,-15.357301,-52.463972,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101605,Barão de Melgaço,2.615437862200675,2.6615939546291516,,,,,copernicus_cams,-16.741619,-56.019345,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101837,Boa Esperança do Norte,5.023142888566417,5.264869566456345,,,,,copernicus_cams,-13.479509,-55.018363,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101852,Bom Jesus do Araguaia,3.2663476719126363,3.4335470171721534,,,,,copernicus_cams,-12.202527,-51.777556,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5101902,Brasnorte,9.442883625359185,9.627602767302372,,,,,copernicus_cams,-12.110438,-58.180139,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102603,Campinápolis,1.9581396471610988,2.014893918378391,,,,,copernicus_cams,-14.257233,-53.187167,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102637,Campo Novo do Parecis,7.252716858458291,7.434823149289533,,,,,copernicus_cams,-13.658178,-57.886604,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102678,Campo Verde,4.131382210193588,4.247387187059898,,,,,copernicus_cams,-15.424947,-55.01538,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102686,Campos de Júlio,5.3517310452503235,5.409113039831101,,,,,copernicus_cams,-13.575484,-59.227259,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102694,Canabrava do Norte,4.507900941419507,4.817261733305061,,,,,copernicus_cams,-11.231803,-51.798795,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102702,Canarana,2.6371060882376463,2.732431328585981,,,,,copernicus_cams,-13.19294,-52.626255,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102793,Carlinda,7.698677747590503,7.80995210986395,,,,,copernicus_cams,-10.065037,-55.748575,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102850,Castanheira,7.834987247225827,7.937427055495886,,,,,copernicus_cams,-10.93426,-58.639923,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103007,Chapada dos Guimarães,3.335519220303742,3.4576105932630528,,,,,copernicus_cams,-15.100772,-55.502604,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103056,Cláudia,12.973987661979436,13.448416942154875,,,,,copernicus_cams,-11.479047,-55.067183,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103106,Cocalinho,2.875378010038526,3.0084962168556095,,,,,copernicus_cams,-13.845787,-51.227067,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103254,Colniza,7.595798944075059,7.671123631738777,,,,,copernicus_cams,-9.423026,-59.430077,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103205,Colíder,7.492671920814206,7.641548309155657,,,,,copernicus_cams,-10.571782,-55.436294,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103304,Comodoro,6.234735107276091,6.297595386349579,,,,,copernicus_cams,-13.194806,-59.843108,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103353,Confresa,5.558384471647608,5.8978157913003315,,,,,copernicus_cams,-10.408326,-51.73713,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103361,Conquista D'Oeste,4.686809959738645,4.741394544956446,,,,,copernicus_cams,-14.619747,-59.312838,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103379,Cotriguaçu,8.25520261299777,8.345221951386481,,,,,copernicus_cams,-9.465337,-58.627496,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103403,Cuiabá,4.885819637756583,5.006038890609896,,,,,copernicus_cams,-15.529879,-55.88641,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103437,Curvelândia,3.7164133927154976,3.794712981750212,,,,,copernicus_cams,-15.622625,-57.876116,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5102504,Cáceres,2.652949503869367,2.6829980230977544,,,,,copernicus_cams,-16.540866,-57.792111,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103452,Denise,7.914675477096847,8.109398838714931,,,,,copernicus_cams,-14.722221,-56.954459,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103502,Diamantino,5.15018959505486,5.294277055971761,,,,,copernicus_cams,-14.136012,-57.206328,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103601,Dom Aquino,2.4419594777652978,2.5087831991582275,,,,,copernicus_cams,-15.672554,-54.818673,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103700,Feliz Natal,14.077988213087753,14.728261002951077,,,,,copernicus_cams,-11.849333,-53.929974,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103809,Figueirópolis D'Oeste,3.24867709204401,3.2765214528479905,,,,,copernicus_cams,-15.493809,-58.724442,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103858,Gaúcha do Norte,8.470985752720264,8.803230464854755,,,,,copernicus_cams,-12.872582,-53.355287,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103908,General Carneiro,1.7427388249822413,1.7936898257536422,,,,,copernicus_cams,-15.548654,-53.493836,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5103957,Glória D'Oeste,2.4559116080660583,2.470653988585023,,,,,copernicus_cams,-15.870118,-58.27924,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104104,Guarantã do Norte,6.107386335225542,6.307290297889816,,,,,copernicus_cams,-9.780221,-54.575323,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104203,Guiratinga,2.1330834190483805,2.2007603615298623,,,,,copernicus_cams,-16.377467,-53.657527,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104500,Indiavaí,3.749070550739057,3.7821910962609246,,,,,copernicus_cams,-15.33262,-58.605357,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104526,Ipiranga do Norte,8.139766403386977,8.396796499939917,,,,,copernicus_cams,-11.944374,-56.054347,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104542,Itanhangá,10.506578456921249,10.771585427537435,,,,,copernicus_cams,-12.143452,-56.739634,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104559,Itaúba,9.839080922551387,10.13679488061277,,,,,copernicus_cams,-11.125087,-55.579226,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104609,Itiquira,1.8562835541567053,1.8989786752880466,,,,,copernicus_cams,-17.298017,-54.561162,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104807,Jaciara,4.893133982964524,5.018834916286858,,,,,copernicus_cams,-15.966897,-55.177772,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5104906,Jangada,4.027366316256325,4.150613153828514,,,,,copernicus_cams,-15.328601,-56.586054,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105002,Jauru,3.749070550739057,3.7821910962609246,,,,,copernicus_cams,-15.300119,-58.853833,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105101,Juara,10.913700165815499,11.095317396873671,,,,,copernicus_cams,-11.229416,-57.652577,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105176,Juruena,8.040310064797374,8.144224040260978,,,,,copernicus_cams,-10.459866,-58.617831,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105200,Juscimeira,2.9924330195147166,3.0664133470976607,,,,,copernicus_cams,-16.200133,-55.014262,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105150,Juína,7.765115583215648,7.844879464989711,,,,,copernicus_cams,-11.492327,-59.174631,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105234,Lambari D'Oeste,4.058451718482475,4.147175407009276,,,,,copernicus_cams,-15.452914,-57.718103,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105259,Lucas do Rio Verde,7.567322232889872,7.826868081755164,,,,,copernicus_cams,-13.047849,-56.183072,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105309,Luciara,5.611795165815683,5.99857412108453,,,,,copernicus_cams,-10.979749,-50.933428,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105580,Marcelândia,11.90720048051182,12.41230503999739,,,,,copernicus_cams,-10.922866,-54.074504,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105606,Matupá,5.951573508532286,6.195978514569714,,,,,copernicus_cams,-9.981211,-54.166947,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105622,Mirassol d'Oeste,3.7164133927154976,3.794712981750212,,,,,copernicus_cams,-15.583645,-58.050654,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105903,Nobres,4.191714426540597,4.356132415568184,,,,,copernicus_cams,-14.386947,-55.773505,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106000,Nortelândia,7.6349977059585274,7.829536352588207,,,,,copernicus_cams,-14.389835,-56.70363,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106109,Nossa Senhora do Livramento,3.2782891793360553,3.351996592058354,,,,,copernicus_cams,-15.933215,-56.326104,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106158,Nova Bandeirantes,9.179789895550611,9.290769565448981,,,,,copernicus_cams,-9.69717,-57.970153,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106208,Nova Brasilândia,2.623014762908833,2.720246374559816,,,,,copernicus_cams,-14.74322,-55.225403,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106216,Nova Canaã do Norte,8.41242813971335,8.611551994373285,,,,,copernicus_cams,-10.667893,-56.034181,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108808,Nova Guarita,7.130322136649672,7.309389799308305,,,,,copernicus_cams,-10.285246,-55.316903,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106182,Nova Lacerda,7.189037287038419,7.3032520423389675,,,,,copernicus_cams,-14.400854,-59.739685,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108857,Nova Marilândia,7.70896374186905,7.900103904390221,,,,,copernicus_cams,-14.294268,-57.285606,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108907,Nova Maringá,8.750243444854323,8.968955382304035,,,,,copernicus_cams,-12.75792,-57.104383,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108956,Nova Monte Verde,11.061265001982894,11.254440569028729,,,,,copernicus_cams,-9.927327,-57.285932,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106224,Nova Mutum,6.504975427593586,6.7575761065295215,,,,,copernicus_cams,-13.521903,-56.080832,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106174,Nova Nazaré,2.574811947803395,2.6785934973340337,,,,,copernicus_cams,-14.146385,-51.797613,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106232,Nova Olímpia,6.742835623185783,6.884588076098741,,,,,copernicus_cams,-14.782311,-57.400961,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106190,Nova Santa Helena,8.182887335048944,8.423513311709364,,,,,copernicus_cams,-10.911639,-55.069095,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106240,Nova Ubiratã,9.834225133577862,10.297566890696764,,,,,copernicus_cams,-12.685408,-54.622082,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106257,Nova Xavantina,2.0847869933661363,2.152419671418895,,,,,copernicus_cams,-14.677329,-52.444867,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106273,Novo Horizonte do Norte,13.523825614925045,13.837729498203878,,,,,copernicus_cams,-11.386616,-57.277481,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106265,Novo Mundo,6.851055644365461,6.97915461370592,,,,,copernicus_cams,-9.814052,-55.355573,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106315,Novo Santo Antônio,3.829499802233225,4.011098512159057,,,,,copernicus_cams,-12.307695,-50.975442,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106281,Novo São Joaquim,1.7773368365294488,1.828970362415707,,,,,copernicus_cams,-15.062753,-53.213598,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106307,Paranatinga,5.488414193709947,5.790863481546684,,,,,copernicus_cams,-13.340757,-54.284643,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106299,Paranaíta,10.201744573295707,10.362944802931024,,,,,copernicus_cams,-9.565282,-56.645747,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106372,Pedra Preta,2.2062245984359494,2.2671432639728217,,,,,copernicus_cams,-16.790123,-54.235251,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106422,Peixoto de Azevedo,6.560103205752993,6.850269044821791,,,,,copernicus_cams,-10.194253,-53.531827,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106455,Planalto da Serra,2.603344634637536,2.705150041879153,,,,,copernicus_cams,-14.540684,-54.662714,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106505,Poconé,2.5399213941218792,2.5660171912137364,,,,,copernicus_cams,-16.830475,-56.973054,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106653,Pontal do Araguaia,1.5499648321351371,1.5980951884532386,,,,,copernicus_cams,-15.916391,-52.664728,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106703,Ponte Branca,1.7310357812194046,1.7995129459259713,,,,,copernicus_cams,-16.669565,-52.92791,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106752,Pontes e Lacerda,3.6499352102794926,3.6910861622065654,,,,,copernicus_cams,-15.428494,-59.302717,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106778,Porto Alegre do Norte,7.326751702073446,7.682017871497452,,,,,copernicus_cams,-10.764946,-51.59194,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106828,Porto Esperidião,2.6770602989291974,2.6991628474787634,,,,,copernicus_cams,-15.893558,-58.850692,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106851,Porto Estrela,3.7287132793149254,3.8187046466141377,,,,,copernicus_cams,-15.530473,-57.219998,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5106802,Porto dos Gaúchos,13.297612318464257,13.616949398119553,,,,,copernicus_cams,-11.771799,-56.694247,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107008,Poxoréu,2.138950415479545,2.188509992510014,,,,,copernicus_cams,-15.808839,-54.254995,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107040,Primavera do Leste,2.7061658077819155,2.798757559041576,,,,,copernicus_cams,-15.140114,-54.214182,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107065,Querência,31.592149994081105,32.23436487666183,,,,,copernicus_cams,-12.225876,-52.716617,2,laranja,PM2.5,PM2.5 31.6 atingiu laranja,50.0
+2026-06-18,5107156,Reserva do Cabaçal,4.361417338394347,4.434802446841873,,,,,copernicus_cams,-14.934699,-58.500866,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107180,Ribeirão Cascalheira,3.155669146744334,3.308941423559276,,,,,copernicus_cams,-12.879602,-51.579287,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107198,Ribeirãozinho,1.5412510695804869,1.592696734506297,,,,,copernicus_cams,-16.459838,-52.730725,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107206,Rio Branco,4.622693286983255,4.724228459409955,,,,,copernicus_cams,-15.282071,-58.153259,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107578,Rondolândia,6.414926224205514,6.469625933020245,,,,,copernicus_cams,-10.314462,-61.087704,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107602,Rondonópolis,2.752149606250247,2.821278838000965,,,,,copernicus_cams,-16.584434,-54.750684,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107701,Rosário Oeste,4.537940167428106,4.689733255331168,,,,,copernicus_cams,-14.873286,-56.289048,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107750,Salto do Céu,4.622693286983255,4.724228459409955,,,,,copernicus_cams,-15.002408,-58.028891,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107248,Santa Carmem,17.208041762770296,17.77226305990479,,,,,copernicus_cams,-11.947414,-54.841376,1,amarela,PM2.5,PM2.5 17.2 atingiu amarela,25.0
+2026-06-18,5107743,Santa Cruz do Xingu,14.03246123220971,14.54553374478999,,,,,copernicus_cams,-10.041913,-52.552852,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107768,Santa Rita do Trivelato,5.023142888566417,5.264869566456345,,,,,copernicus_cams,-13.782965,-55.288968,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107776,Santa Terezinha,4.783540295897925,5.119850948427243,,,,,copernicus_cams,-10.288571,-50.987508,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107263,Santo Afonso,7.70896374186905,7.900103904390221,,,,,copernicus_cams,-14.44287,-57.211139,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107800,Santo Antônio de Leverger,2.9924330195147166,3.0664133470976607,,,,,copernicus_cams,-16.535084,-55.091484,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107792,Santo Antônio do Leste,2.4539624319514277,2.529144416772139,,,,,copernicus_cams,-14.768127,-53.661572,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107875,Sapezal,6.451731018711706,6.518426974659352,,,,,copernicus_cams,-12.958912,-58.602085,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107883,Serra Nova Dourada,3.6034577797151774,3.802409395517949,,,,,copernicus_cams,-12.070503,-51.330997,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107909,Sinop,10.911202790959566,11.295186642210892,,,,,copernicus_cams,-11.74259,-55.404353,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107925,Sorriso,7.688655568425501,7.906721173214618,,,,,copernicus_cams,-12.575976,-55.829881,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107859,São Félix do Araguaia,4.509643207881328,4.7350067918848575,,,,,copernicus_cams,-11.477706,-52.502745,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107297,São José do Povo,2.0116113448190145,2.058095321617473,,,,,copernicus_cams,-16.471319,-54.283767,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107305,São José do Rio Claro,4.366689558962963,4.483909309209199,,,,,copernicus_cams,-13.436403,-56.79353,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107354,São José do Xingu,6.506465849758356,6.870108678026052,,,,,copernicus_cams,-10.683285,-52.639753,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107107,São José dos Quatro Marcos,3.03200064401837,3.0557192527947517,,,,,copernicus_cams,-15.532128,-58.339015,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107404,São Pedro da Cipa,3.1554659930739772,3.2411527448855995,,,,,copernicus_cams,-15.968428,-54.749157,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107941,Tabaporã,10.617672440606812,10.875656035877643,,,,,copernicus_cams,-11.068612,-56.775797,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5107958,Tangará da Serra,4.733204011737471,4.817450007537866,,,,,copernicus_cams,-14.493348,-58.393898,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108006,Tapurah,6.163837518822474,6.3259456104786445,,,,,copernicus_cams,-12.574382,-56.486968,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108055,Terra Nova do Norte,7.277083693805133,7.535253989404361,,,,,copernicus_cams,-10.480903,-54.956214,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108105,Tesouro,1.5208474185895013,1.5656336129504462,,,,,copernicus_cams,-15.925182,-53.429303,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108204,Torixoréu,1.5412510695804869,1.592696734506297,,,,,copernicus_cams,-16.298721,-52.934506,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108303,União do Sul,13.05480468825321,13.590257416161515,,,,,copernicus_cams,-11.535488,-54.350296,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108352,Vale de São Domingos,3.749070550739057,3.7821910962609246,,,,,copernicus_cams,-15.026617,-58.95928,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108501,Vera,9.082216299289064,9.464892059649882,,,,,copernicus_cams,-12.472851,-55.3198,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5105507,Vila Bela da Santíssima Trindade,4.793664707011323,4.832541099312781,,,,,copernicus_cams,-15.135834,-60.018903,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108600,Vila Rica,4.260159538863541,4.557669914675825,,,,,copernicus_cams,-10.018108,-51.438338,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5108402,Várzea Grande,3.960821471458415,4.066159755305671,,,,,copernicus_cams,-15.558774,-56.291705,0,verde,—,qualidade do ar em normalidade operacional,0.0
+2026-06-18,5100201,Água Boa,2.573425135569717,2.6591735153716325,,,,,copernicus_cams,-14.088368,-52.438354,0,verde,—,qualidade do ar em normalidade operacional,0.0
