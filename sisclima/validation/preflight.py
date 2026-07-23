@@ -1,0 +1,157 @@
+from __future__ import annotations
+
+from pathlib import Path
+import socket
+from typing import Any
+
+import pandas as pd
+
+from sisclima.core.config import APP_CONFIG, env, as_bool, ROOT
+from sisclima.ingestion.sqlserver import build_sqlserver_conn, read_sqlserver
+from sisclima.validation.validate_sources import validate_sources
+
+
+def _bool_feature_enabled(name: str, default: bool = False) -> bool:
+    return as_bool(env(name, "true" if default else "false"), default)
+
+
+def _socket_check(host: str | None, port: str | int | None, timeout: float = 3.0) -> tuple[bool, str]:
+    if not host or not port:
+        return False, "host/porta ausentes"
+    try:
+        p = int(port)
+    except Exception:
+        return False, f"porta inválida: {port}"
+    try:
+        with socket.create_connection((str(host), p), timeout=timeout):
+            return True, "conectividade TCP OK"
+    except Exception as exc:
+        return False, f"falha TCP: {exc}"
+
+
+def _check_dw_runtime() -> dict[str, Any]:
+    enabled = _bool_feature_enabled("USE_SQLSERVER", False)
+    if not enabled:
+        return {"item": "DW runtime query", "ok": True, "required": False, "severity": "info", "detail": "USE_SQLSERVER=false"}
+
+    conn = build_sqlserver_conn("DW")
+    if not conn:
+        return {"item": "DW runtime query", "ok": False, "required": True, "severity": "critical", "detail": "string de conexão DW não montada"}
+
+    host = env("DW_SERVER") or env("DW_HOST")
+    port = env("DW_PORT", "1433")
+    tcp_ok, tcp_detail = _socket_check(host, port)
+    if not tcp_ok:
+        return {"item": "DW runtime query", "ok": False, "required": True, "severity": "critical", "detail": f"{tcp_detail} ({host}:{port})"}
+
+    try:
+        df = read_sqlserver("DW", "SELECT 1 AS ok")
+        ok = df is not None and not df.empty
+        return {
+            "item": "DW runtime query",
+            "ok": bool(ok),
+            "required": True,
+            "severity": "critical" if not ok else "info",
+            "detail": "SELECT 1 retornou linhas" if ok else "consulta vazia/falhou"
+        }
+    except Exception as exc:
+        return {"item": "DW runtime query", "ok": False, "required": True, "severity": "critical", "detail": f"erro query: {exc}"}
+
+
+def _check_copernicus_credential() -> dict[str, Any]:
+    enabled = _bool_feature_enabled("USE_COPERNICUS", False)
+    if not enabled:
+        return {"item": "Copernicus credencial", "ok": True, "required": False, "severity": "info", "detail": "USE_COPERNICUS=false"}
+
+    has_env_key = bool(env("COPERNICUS_KEY"))
+    has_dotfile = (ROOT / ".cdsapirc").exists() or (Path.home() / ".cdsapirc").exists()
+    ok = has_env_key or has_dotfile
+    detail = "COPERNICUS_KEY presente" if has_env_key else (".cdsapirc presente" if has_dotfile else "COPERNICUS_KEY/.cdsapirc ausentes")
+    return {"item": "Copernicus credencial", "ok": ok, "required": True, "severity": "critical" if not ok else "info", "detail": detail}
+
+
+def _check_inmet_url() -> dict[str, Any]:
+    enabled = _bool_feature_enabled("USE_INMET", False)
+    if not enabled:
+        return {"item": "INMET endpoint", "ok": True, "required": False, "severity": "info", "detail": "USE_INMET=false"}
+    url = env("INMET_ALERTS_URL")
+    ok = bool(url)
+    return {
+        "item": "INMET endpoint",
+        "ok": ok,
+        "required": True,
+        "severity": "warning" if not ok else "info",
+        "detail": url if ok else "INMET_ALERTS_URL ausente (ficará no fallback CSV)"
+    }
+
+
+def _check_core_files() -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    required_paths = [
+        ("Shapefile municipal", APP_CONFIG.shapefile_municipios),
+        ("CSV municípios", APP_CONFIG.municipios_csv),
+        ("População municipal", APP_CONFIG.populacao_path),
+    ]
+    for label, path in required_paths:
+        p = Path(path)
+        ok = p.exists()
+        checks.append({
+            "item": label,
+            "ok": ok,
+            "required": True,
+            "severity": "critical" if not ok else "info",
+            "detail": str(p) if ok else f"ausente: {p}"
+        })
+
+    sivep_enabled = _bool_feature_enabled("USE_SIVEP_LOCAL", True)
+    sivep_folder = APP_CONFIG.root / (env("SIVEP_UPDATE_FOLDER", "data/input/sivep_atualizacao") or "data/input/sivep_atualizacao")
+    folder_exists = sivep_folder.exists()
+    files_count = 0
+    if folder_exists:
+        files_count = len([p for p in sivep_folder.iterdir() if p.is_file()])
+    checks.append({
+        "item": "SIVEP pasta atualização",
+        "ok": folder_exists,
+        "required": sivep_enabled,
+        "severity": "critical" if sivep_enabled and not folder_exists else "info",
+        "detail": f"{sivep_folder} | arquivos={files_count}" if folder_exists else f"ausente: {sivep_folder}"
+    })
+    return checks
+
+
+def run_preflight() -> pd.DataFrame:
+    """Executa pré-flight operacional para ambiente de produção.
+
+    Combina validações estáticas (validate_sources) com checagens de conectividade
+    e disponibilidade de runtime para reduzir falhas durante o ciclo real.
+    """
+    base = validate_sources().copy()
+    base["severity"] = base.apply(
+        lambda r: "critical" if bool(r.get("required")) and not bool(r.get("ok")) else "info",
+        axis=1,
+    )
+
+    runtime_rows = [
+        _check_dw_runtime(),
+        _check_copernicus_credential(),
+        _check_inmet_url(),
+        *_check_core_files(),
+    ]
+    runtime_df = pd.DataFrame(runtime_rows)
+
+    out = pd.concat([base, runtime_df], ignore_index=True, sort=False)
+    out["required"] = out["required"].fillna(False).astype(bool)
+    out["ok"] = out["ok"].fillna(False).astype(bool)
+    out["severity"] = out["severity"].fillna("info")
+    out["detail"] = out["detail"].fillna("").astype(str)
+    return out[["item", "ok", "required", "severity", "detail"]]
+
+
+def summarize_preflight(df: pd.DataFrame) -> dict[str, int]:
+    return {
+        "total": int(len(df)),
+        "ok": int(df["ok"].sum()),
+        "fail": int((~df["ok"]).sum()),
+        "critical_fail": int(((~df["ok"]) & df["severity"].astype(str).str.lower().eq("critical")).sum()),
+        "required_fail": int(((~df["ok"]) & df["required"]).sum()),
+    }
