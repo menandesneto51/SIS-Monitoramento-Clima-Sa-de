@@ -91,6 +91,26 @@ def validate_sources() -> pd.DataFrame:
     rows.append({'item': 'SQL Server DW', 'ok': bool(conn), 'required': as_bool(env('USE_SQLSERVER', 'false')), 'detail': 'conexão configurada' if conn else 'servidor/base/usuário/senha ausentes ou incompletos'})
     for k in ['DW_SERVER', 'DW_DATABASE', 'DW_USER', 'DW_PASSWORD', 'DW_DRIVER']:
         rows.append(check_env(k, required=as_bool(env('USE_SQLSERVER', 'false')) and k != 'DW_DRIVER'))
+    # Diagnóstico de driver ODBC disponível no host.
+    try:
+        import pyodbc
+        drivers = [str(d) for d in pyodbc.drivers()]
+        wanted = (env('DW_DRIVER', 'ODBC Driver 17 for SQL Server') or 'ODBC Driver 17 for SQL Server').strip()
+        has_any_sql_driver = any('sql server' in d.lower() for d in drivers)
+        has_wanted = wanted in drivers
+        rows.append({
+            'item': 'ODBC SQL Server driver',
+            'ok': (has_wanted or has_any_sql_driver) or (not as_bool(env('USE_SQLSERVER', 'false'))),
+            'required': as_bool(env('USE_SQLSERVER', 'false')),
+            'detail': f"configurado='{wanted}' | instalados={drivers if drivers else 'nenhum'}"
+        })
+    except Exception as exc:
+        rows.append({
+            'item': 'ODBC SQL Server driver',
+            'ok': not as_bool(env('USE_SQLSERVER', 'false')),
+            'required': as_bool(env('USE_SQLSERVER', 'false')),
+            'detail': f'pyodbc/driver indisponível: {exc}'
+        })
 
     # SIVEP local.
     sivep_db = APP_CONFIG.root / (env('SIVEP_LOCAL_DB_PATH', 'data/local/sivep/sivep_srag_local.db') or 'data/local/sivep/sivep_srag_local.db')

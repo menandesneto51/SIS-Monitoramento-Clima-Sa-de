@@ -6,6 +6,33 @@ from sisclima.core.logging_utils import get_logger
 log = get_logger(__name__)
 
 
+def _available_pyodbc_drivers() -> list[str]:
+    try:
+        import pyodbc
+        return [str(d) for d in pyodbc.drivers()]
+    except Exception:
+        return []
+
+
+def _pick_sqlserver_driver(preferred: str | None) -> str:
+    """Seleciona o melhor driver SQL Server disponível.
+
+    Prioridade:
+    1) Driver preferido configurado no .env (se instalado)
+    2) ODBC Driver 18 for SQL Server
+    3) ODBC Driver 17 for SQL Server
+    4) SQL Server (driver legado)
+    5) Valor preferido mesmo não instalado (permite log explícito na conexão)
+    """
+    available = _available_pyodbc_drivers()
+    if preferred and preferred in available:
+        return preferred
+    for candidate in ['ODBC Driver 18 for SQL Server', 'ODBC Driver 17 for SQL Server', 'SQL Server']:
+        if candidate in available:
+            return candidate
+    return preferred or 'ODBC Driver 17 for SQL Server'
+
+
 def _conn_parts(prefix: str = 'DW') -> dict[str, str | None]:
     # Para fontes institucionais, se INDICASUS/SINAN/SIM/GAL não tiver prefixo próprio,
     # usa automaticamente o DW, conforme operação real SES/MT.
@@ -14,19 +41,47 @@ def _conn_parts(prefix: str = 'DW') -> dict[str, str | None]:
     database = env(f'{prefix}_DATABASE') or (env('DW_DATABASE') if fallback_to_dw else None)
     user = env(f'{prefix}_USER') or (env('DW_USER') if fallback_to_dw else None)
     password = env(f'{prefix}_PASSWORD') or (env('DW_PASSWORD') if fallback_to_dw else None)
-    driver = env(f'{prefix}_DRIVER') or (env('DW_DRIVER') if fallback_to_dw else None) or 'ODBC Driver 17 for SQL Server'
+    preferred_driver = env(f'{prefix}_DRIVER') or (env('DW_DRIVER') if fallback_to_dw else None) or 'ODBC Driver 17 for SQL Server'
+    driver = _pick_sqlserver_driver(preferred_driver)
+    port = env(f'{prefix}_PORT') or (env('DW_PORT') if fallback_to_dw else None)
+    encrypt = env(f'{prefix}_ENCRYPT') or (env('DW_ENCRYPT') if fallback_to_dw else None) or 'yes'
     trusted = env(f'{prefix}_TRUSTED_CONNECTION') or (env('DW_TRUSTED_CONNECTION') if fallback_to_dw else None) or 'false'
     trust_cert = env(f'{prefix}_TRUST_SERVER_CERTIFICATE') or (env('DW_TRUST_SERVER_CERTIFICATE') if fallback_to_dw else None) or 'true'
-    return {'server': server, 'database': database, 'user': user, 'password': password, 'driver': driver, 'trusted': trusted, 'trust_cert': trust_cert}
+    return {
+        'server': server,
+        'port': port,
+        'database': database,
+        'user': user,
+        'password': password,
+        'driver': driver,
+        'preferred_driver': preferred_driver,
+        'encrypt': encrypt,
+        'trusted': trusted,
+        'trust_cert': trust_cert
+    }
 
 
 def build_sqlserver_conn(prefix: str = 'DW') -> str | None:
     parts = _conn_parts(prefix)
     server = parts['server']; database = parts['database']; user = parts['user']; password = parts['password']
-    driver = parts['driver']; trusted = as_bool(parts['trusted'], False); trust_cert = parts['trust_cert']
+    port = parts.get('port')
+    driver = parts['driver']
+    preferred_driver = parts.get('preferred_driver')
+    encrypt = parts.get('encrypt', 'yes')
+    trusted = as_bool(parts['trusted'], False)
+    trust_cert = parts['trust_cert']
     if not server or not database:
         return None
-    base = f'DRIVER={{{driver}}};SERVER={server};DATABASE={database};TrustServerCertificate={trust_cert};'
+    server_target = f'{server},{port}' if port else str(server)
+    base = (
+        f'DRIVER={{{driver}}};'
+        f'SERVER={server_target};'
+        f'DATABASE={database};'
+        f'Encrypt={encrypt};'
+        f'TrustServerCertificate={trust_cert};'
+    )
+    if preferred_driver and preferred_driver != driver:
+        log.info('Driver SQL Server ajustado automaticamente: preferido=%s, usando=%s', preferred_driver, driver)
     if trusted and not user:
         return base + 'Trusted_Connection=yes;'
     if user and password:
