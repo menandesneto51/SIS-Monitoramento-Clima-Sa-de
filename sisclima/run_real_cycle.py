@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
 from sisclima.core.config import APP_CONFIG, env, as_bool
 from sisclima.core.logging_utils import get_logger
 from sisclima.ingestion.ibge_municipios import load_or_refresh_municipios
-from sisclima.ingestion.sqlserver import build_sqlserver_conn, read_sqlserver
+from sisclima.ingestion.sqlserver import build_sqlserver_conn, dw_configured, read_sqlserver, use_sqlserver
 from sisclima.ingestion.sivep_local import rebuild_sivep_local_db
 from sisclima.pipeline import run_pipeline
 from sisclima.validation.validate_sources import validate_sources
@@ -80,14 +80,18 @@ def prepare_populacao() -> Path:
 
 
 def test_dw_connection() -> bool:
-    if not as_bool(env("USE_SQLSERVER", "false")):
-        log.info("USE_SQLSERVER=false — DW desativado, usando CSV de fallback")
+    if not use_sqlserver():
+        if dw_configured():
+            log.warning("Credenciais DW incompletas — usando CSV de fallback")
+        else:
+            log.info("DW não configurado neste ambiente — usando CSV de fallback")
         return False
 
     conn = build_sqlserver_conn("DW")
     if not conn:
         log.error(
-            "DW não configurado. Preencha DW_SERVER, DW_DATABASE, DW_USER, DW_PASSWORD no .env"
+            "DW incompleto. Verifique DW_SERVER, DW_DATABASE, DW_USER e DW_PASSWORD "
+            "(ou aliases legados: INDICASUS_SERVER, SQLSERVER_HOST, SENHA_DW, etc.)"
         )
         return False
 
@@ -175,15 +179,13 @@ def main():
     if not args.skip_dw_test:
         print("\n=== TESTE DW ===")
         dw_ok = test_dw_connection()
-        if as_bool(env("USE_SQLSERVER", "false")) and not dw_ok:
-            print("\nERRO: USE_SQLSERVER=true mas DW inacessível.")
-            print("Verifique VPN e preencha no .env:")
-            print("  DW_SERVER, DW_DATABASE, DW_USER, DW_PASSWORD")
-            print("Depois rode novamente: python -m sisclima.run_real_cycle")
+        if use_sqlserver() and not dw_ok:
+            print("\nERRO: credenciais DW detectadas, mas conexão falhou.")
+            print("Verifique VPN e rode: python3 -m sisclima.validation.diagnose_env")
             sys.exit(1)
-        if not as_bool(env("USE_SQLSERVER", "false")):
-            print("  DW desativado — usando CSVs de data/input como fallback")
-            print("  Para ativar DW real: USE_SQLSERVER=true + credenciais no .env")
+        if not use_sqlserver():
+            print("  DW não detectado neste ambiente — usando CSVs de data/input como fallback")
+            print("  Diagnóstico: python3 -m sisclima.validation.diagnose_env")
 
     ok = print_validation_report()
     if not ok:

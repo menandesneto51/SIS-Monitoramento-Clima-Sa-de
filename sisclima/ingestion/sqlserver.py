@@ -20,6 +20,11 @@ def _conn_parts(prefix: str = 'DW') -> dict[str, str | None]:
     return {'server': server, 'database': database, 'user': user, 'password': password, 'driver': driver, 'trusted': trusted, 'trust_cert': trust_cert}
 
 
+def dw_configured(prefix: str = 'DW') -> bool:
+    """True quando servidor, base e credenciais mínimas estão disponíveis."""
+    return build_sqlserver_conn(prefix) is not None
+
+
 def build_sqlserver_conn(prefix: str = 'DW') -> str | None:
     parts = _conn_parts(prefix)
     server = parts['server']; database = parts['database']; user = parts['user']; password = parts['password']
@@ -57,7 +62,18 @@ def read_sqlserver(prefix: str, sql: str) -> pd.DataFrame:
 
 
 def use_sqlserver() -> bool:
-    return as_bool(env('USE_SQLSERVER', 'false'))
+    """Ativa DW quando USE_SQLSERVER=true ou quando credenciais completas existem no .env."""
+    configured = dw_configured('DW')
+    flag = env('USE_SQLSERVER')
+    if flag is not None and str(flag).strip() != '':
+        if as_bool(flag, False):
+            return True
+        # USE_SQLSERVER=false explícito, mas credenciais legadas presentes → respeita o .env de produção.
+        if configured:
+            log.info('USE_SQLSERVER=false, porém credenciais DW detectadas — usando Data Warehouse')
+            return True
+        return False
+    return configured
 
 
 def use_dw_source(name: str) -> bool:
