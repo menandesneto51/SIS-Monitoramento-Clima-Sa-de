@@ -37,12 +37,21 @@ def send_email(subject: str, body: str) -> bool:
     msg['From'] = env('SMTP_USER') or 'sisclima@local'
     msg['To'] = to
     msg.set_content(body)
+    host = env('SMTP_HOST', 'smtp.gmail.com') or 'smtp.gmail.com'
+    port = int(env('SMTP_PORT', '587') or 587)
+    use_ssl = as_bool(env('SMTP_SSL'), port == 465)
     try:
-        with smtplib.SMTP(env('SMTP_HOST','smtp.gmail.com'), int(env('SMTP_PORT','587') or 587), timeout=30) as s:
-            s.starttls()
-            if env('SMTP_USER') and env('SMTP_PASSWORD'):
-                s.login(env('SMTP_USER'), env('SMTP_PASSWORD'))
-            s.send_message(msg)
+        if use_ssl:
+            with smtplib.SMTP_SSL(host, port, timeout=30) as s:
+                if env('SMTP_USER') and env('SMTP_PASSWORD'):
+                    s.login(env('SMTP_USER'), env('SMTP_PASSWORD'))
+                s.send_message(msg)
+        else:
+            with smtplib.SMTP(host, port, timeout=30) as s:
+                s.starttls()
+                if env('SMTP_USER') and env('SMTP_PASSWORD'):
+                    s.login(env('SMTP_USER'), env('SMTP_PASSWORD'))
+                s.send_message(msg)
         return True
     except Exception as e:
         log.warning('Falha e-mail: %s', e)
