@@ -144,7 +144,15 @@ def run_preflight() -> pd.DataFrame:
     out["ok"] = out["ok"].fillna(False).astype(bool)
     out["severity"] = out["severity"].fillna("info")
     out["detail"] = out["detail"].fillna("").astype(str)
-    return out[["item", "ok", "required", "severity", "detail"]]
+
+    # Evita duplicidade de item no relatório final (usa o pior status encontrado).
+    sev_rank = {"info": 0, "warning": 1, "critical": 2}
+    out["_sev_rank"] = out["severity"].astype(str).str.lower().map(sev_rank).fillna(0)
+    out["_ok_rank"] = out["ok"].astype(int)  # 0 pior que 1
+    out = out.sort_values(["item", "_ok_rank", "_sev_rank"], ascending=[True, True, False])
+    out = out.drop_duplicates(subset=["item"], keep="first")
+    out = out.drop(columns=["_sev_rank", "_ok_rank"])
+    return out[["item", "ok", "required", "severity", "detail"]].reset_index(drop=True)
 
 
 def summarize_preflight(df: pd.DataFrame) -> dict[str, int]:
