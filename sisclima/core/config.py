@@ -8,7 +8,14 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parents[2]
 
 # Carrega SEM sobrescrever variáveis já existentes do ambiente.
-for _candidate in [ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env']:
+# Ordem: .env padrão → .env.local (produção local) → secrets.env
+for _candidate in [
+    ROOT / '.env',
+    ROOT / '.env.local',
+    ROOT / 'secrets.env',
+    ROOT.parent / '.env',
+    Path.cwd() / '.env',
+]:
     if _candidate.exists():
         load_dotenv(_candidate, override=False)
 

@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from sisclima.core.config import APP_CONFIG, env, as_bool, ROOT, env_name_used
-from sisclima.ingestion.sqlserver import build_sqlserver_conn
+from sisclima.ingestion.sqlserver import build_sqlserver_conn, use_sqlserver
 
 SECRET_WORDS = ('PASSWORD', 'SENHA', 'TOKEN', 'KEY', 'PWD', 'PASS')
 
@@ -87,10 +87,11 @@ def validate_sources() -> pd.DataFrame:
     rows.append(check_env('COPERNICUS_URL', required=False))
 
     # SQL Server DW — fonte institucional para IndicaSUS/CNES/SINAN/SIM/GAL.
+    dw_active = use_sqlserver()
     conn = build_sqlserver_conn('DW')
-    rows.append({'item': 'SQL Server DW', 'ok': bool(conn), 'required': as_bool(env('USE_SQLSERVER', 'false')), 'detail': 'conexão configurada' if conn else 'servidor/base/usuário/senha ausentes ou incompletos'})
+    rows.append({'item': 'SQL Server DW', 'ok': bool(conn), 'required': dw_active, 'detail': 'conexão configurada' if conn else 'servidor/base/usuário/senha ausentes ou incompletos'})
     for k in ['DW_SERVER', 'DW_DATABASE', 'DW_USER', 'DW_PASSWORD', 'DW_DRIVER']:
-        rows.append(check_env(k, required=as_bool(env('USE_SQLSERVER', 'false')) and k != 'DW_DRIVER'))
+        rows.append(check_env(k, required=dw_active and k != 'DW_DRIVER'))
 
     # SIVEP local.
     sivep_db = APP_CONFIG.root / (env('SIVEP_LOCAL_DB_PATH', 'data/local/sivep/sivep_srag_local.db') or 'data/local/sivep/sivep_srag_local.db')
