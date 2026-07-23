@@ -261,6 +261,7 @@ def pressure_assistencial(df: pd.DataFrame) -> pd.DataFrame:
         "atendimentos_total",
         "atendimentos_calor",
         "pressao_calor_pct",
+        "fonte_pressao",
         "zscore_pressao",
         "ewma_pressao",
         "cusum_pressao",
@@ -308,6 +309,11 @@ def pressure_assistencial(df: pd.DataFrame) -> pd.DataFrame:
         atendimentos_calor=("atendimentos_calor", "sum"),
     )
     g["pressao_calor_pct"] = np.where(g["atendimentos_total"] > 0, g["atendimentos_calor"] / g["atendimentos_total"] * 100, 0)
+    g["fonte_pressao"] = np.where(
+        g["atendimentos_total"] > 0,
+        "INDICASUS_ATENDIMENTOS",
+        "INDICASUS_SEM_ATENDIMENTOS",
+    )
     g = _apply_by_municipio(g, "pressao_calor_pct", prefix="pressao")
 
     for c in columns:

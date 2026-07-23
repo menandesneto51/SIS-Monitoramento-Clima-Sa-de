@@ -222,14 +222,26 @@ def classify_stage(latest: dict, settings: dict) -> StageResult:
     # --------------------------------------------------------
     # Bloco assistencial
     # --------------------------------------------------------
-    s, m = stage_from_value(
-        latest.get("pressao_calor_pct"),
-        lim_assist.get("pressao_calor_pct", {}),
-        True,
-        "pressão assistencial",
+    fonte_pressao = str(latest.get("fonte_pressao") or latest.get("fonte_pressao_press") or "")
+    pressao_usavel = (
+        "PROXY" not in fonte_pressao.upper()
+        and _is_valid_number(latest.get("pressao_calor_pct"))
     )
-    candidates.append(s)
-    motivos.append(m)
+    if pressao_usavel:
+        s, m = stage_from_value(
+            latest.get("pressao_calor_pct"),
+            lim_assist.get("pressao_calor_pct", {}),
+            True,
+            "pressão assistencial",
+        )
+        candidates.append(s)
+        motivos.append(m)
+    else:
+        candidates.append(0)
+        if fonte_pressao and "PROXY" in fonte_pressao.upper():
+            motivos.append("pressão assistencial proxy ignorada na classificação")
+        else:
+            motivos.append("pressão assistencial indisponível")
 
     s, m = stage_from_value(
         latest.get("ocupacao_leitos_pct"),

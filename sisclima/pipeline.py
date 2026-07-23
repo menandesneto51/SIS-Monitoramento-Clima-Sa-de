@@ -237,6 +237,58 @@ def _get_ocupacao_estado_fallback() -> float | None:
     return float(valor.iloc[0])
 
 
+def _first_present(d: dict, keys: list[str]):
+    for k in keys:
+        if k in d and pd.notna(d.get(k)):
+            return d.get(k)
+    return None
+
+
+def _prepare_latest_for_stage(latest: dict) -> dict:
+    """Normaliza campos usados pelo classificador e remove proxies indevidos."""
+    prepared = dict(latest or {})
+
+    alias_pairs = [
+        ("pressao_calor_pct", ["pressao_calor_pct", "pressao_calor_pct_press"]),
+        ("fonte_pressao", ["fonte_pressao", "fonte_pressao_press"]),
+        ("ocupacao_leitos_pct", ["ocupacao_leitos_pct", "ocupacao_pct", "ocupacao_pct_cap"]),
+        ("utci_proxy", ["utci_proxy", "utci_proxy_met"]),
+        ("tmax", ["tmax", "tmax_met"]),
+        ("risco_cumulativo_3d", ["risco_cumulativo_3d", "risco_cumulativo_3d_met"]),
+        ("latencia_horas", ["latencia_horas", "latencia_horas_com"]),
+    ]
+    for target, sources in alias_pairs:
+        val = _first_present(prepared, sources)
+        if val is not None:
+            prepared[target] = val
+
+    fonte_pressao = str(prepared.get("fonte_pressao") or "")
+    if "PROXY" in fonte_pressao.upper():
+        prepared["pressao_calor_pct"] = np.nan
+        prepared["pressao_assistencial_pct"] = np.nan
+    # Pressão assistencial real deve vir de atendimentos IndicaSUS.
+    elif prepared.get("fonte_pressao") not in (None, "", "INDICASUS_ATENDIMENTOS"):
+        if not _is_valid_number(prepared.get("atendimentos_total")) and not _is_valid_number(
+            prepared.get("atendimentos_calor")
+        ):
+            prepared["pressao_calor_pct"] = np.nan
+
+    if _is_valid_number(prepared.get("pressao_calor_pct")):
+        prepared["pressao_assistencial_pct"] = prepared.get("pressao_calor_pct")
+
+    return prepared
+
+
+def _is_valid_number(v) -> bool:
+    try:
+        if v is None or pd.isna(v):
+            return False
+        float(v)
+        return True
+    except Exception:
+        return False
+
+
 
 def _inject_ocupacao_into_summary(summary: pd.DataFrame) -> pd.DataFrame:
     # Injeta ocupação real do IndicaSUS no resumo_municipal_atual antes da gravação.
@@ -372,7 +424,7 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
 
     rows = []
     for _, r in merged.iterrows():
-        latest = r.to_dict()
+        latest = _prepare_latest_for_stage(r.to_dict())
         # Normalizações esperadas pelo classificador
         latest['latencia_comunicacao_horas'] = _safe_float(latest.get('latencia_horas'))
         latest['casos_srag'] = _safe_float(latest.get('casos_srag'), 0)

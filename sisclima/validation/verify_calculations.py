@@ -175,6 +175,14 @@ def verify_stages(report: VerificationReport):
     }, SETTINGS)
     report.add(mod, "Ocupação 96% → vermelha+", r.score >= 3, ">=3", f"{r.score} ({r.nivel})")
 
+    r_proxy = classify_stage({
+        "utci_proxy": 28.0, "tmax": 35.0,
+        "pressao_calor_pct": 35.0,
+        "fonte_pressao": "PROXY_OCUPACAO_INDICASUS_CLIMA",
+        "ocupacao_leitos_pct": 50.0,
+    }, SETTINGS)
+    report.add(mod, "Proxy pressao ignorado na classificação", r_proxy.score < 3, "<3", f"{r_proxy.score} ({r_proxy.nivel})")
+
 
 def verify_air_quality(report: VerificationReport):
     mod = "air_quality"
@@ -337,52 +345,35 @@ def verify_public_csv_stage_recalc(report: VerificationReport):
 
     df = pd.read_csv(public)
     nivel_map = {"cinza": 0, "verde": 0, "amarela": 1, "laranja": 2, "vermelha": 3, "roxa": 4}
-    # CSV V11.25 foi classificado sem peso de pressao_calor_pct (ou com proxy incorreto).
-    # Divergências são esperadas quando pressao_calor_pct está presente mas não foi usado no scoring.
-    divergencias_pressao = 0
-    for _, row in df.iterrows():
-        latest = row.to_dict()
-        with_pressao = classify_stage(latest, SETTINGS)
-        without = dict(latest)
-        without["pressao_calor_pct"] = None
-        without["pressao_assistencial_pct"] = None
-        without_pressao = classify_stage(without, SETTINGS)
-        stored_score = int(row.get("score", -1))
-        stored_nivel = str(row.get("nivel", ""))
-        if with_pressao.score != stored_score:
-            if without_pressao.nivel == stored_nivel and without_pressao.score == stored_score:
-                divergencias_pressao += 1
-
-    report.add(
-        mod,
-        "níveis CSV batem sem pressao_calor_pct",
-        divergencias_pressao >= len(df) * 0.9,
-        f">={int(len(df)*0.9)}",
-        divergencias_pressao,
-        note="CSV publicado classificado sem pressão assistencial; campo pressao_calor_pct parece proxy (~33% médio, corr 0.9 com ocupação)",
-    )
-
     mismatches = []
+
     for _, row in df.iterrows():
-        latest = row.to_dict()
-        latest["pressao_calor_pct"] = None
-        latest["pressao_assistencial_pct"] = None
+        from sisclima.pipeline import _prepare_latest_for_stage
+        latest = _prepare_latest_for_stage(row.to_dict())
         recalc = classify_stage(latest, SETTINGS)
         stored_score = int(row.get("score", -1))
         stored_nivel = str(row.get("nivel", ""))
         if nivel_map.get(stored_nivel, -1) != recalc.score:
-            mismatches.append({
-                "municipio": row.get("municipio"),
-                "stored": f"{stored_nivel}/{stored_score}",
-                "recalc": f"{recalc.nivel}/{recalc.score}",
-            })
+            mismatches.append(row.get("municipio"))
 
     report.add(
         mod,
-        "estágios recalculados batem com CSV (excl. pressao)",
+        "estágios recalculados batem com CSV publicado",
         len(mismatches) <= 5,
         f"<=5 divergências",
         f"{len(mismatches)} divergências",
+        note=f"Exemplos: {mismatches[:3]}" if mismatches else "consistente",
+    )
+
+    proxy_count = 0
+    if "fonte_pressao" in df.columns:
+        proxy_count = df["fonte_pressao"].astype(str).str.contains("PROXY", case=False, na=False).sum()
+    report.add(
+        mod,
+        "sem fonte_pressao proxy ativa",
+        proxy_count == 0,
+        0,
+        proxy_count,
     )
 
 
