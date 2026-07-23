@@ -13,13 +13,28 @@ def normalize_positive(value, min_v=0, max_v=100):
     return max(0, min(1, (v - min_v) / (max_v - min_v)))
 
 
+def _num(value, default: float) -> float:
+    """Converte para float preservando zero (evita `0 or default`)."""
+    if value is None:
+        return default
+    try:
+        if pd.isna(value):
+            return default
+    except (TypeError, ValueError):
+        pass
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def resilience_index(latest: dict, weights: dict) -> dict:
     """Índice 0-100. Quanto maior, maior resiliência operacional."""
-    leitos_livres = 100 - float(latest.get('ocupacao_leitos_pct', 100) or 100)
-    estoque = min(100, float(latest.get('autonomia_min_dias', 0) or 0) / 14 * 100)
-    infra = 100 - float(latest.get('falhas_infra_pct', 100) or 100)
-    busca = float(latest.get('cobertura_busca_pct', 0) or 0)
-    lat = float(latest.get('latencia_comunicacao_horas', 99) or 99)
+    leitos_livres = 100 - _num(latest.get('ocupacao_leitos_pct'), 100)
+    estoque = min(100, _num(latest.get('autonomia_min_dias'), 0) / 14 * 100)
+    infra = 100 - _num(latest.get('falhas_infra_pct'), 100)
+    busca = _num(latest.get('cobertura_busca_pct'), 0)
+    lat = _num(latest.get('latencia_comunicacao_horas'), 99)
     comunicacao = 100 if lat <= 2 else max(0, 100 - (lat-2)*25)
     comps = {
         'capacidade_leitos': max(0, leitos_livres),

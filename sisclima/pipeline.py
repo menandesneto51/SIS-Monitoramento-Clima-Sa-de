@@ -3,7 +3,7 @@ import uuid
 import pandas as pd
 import numpy as np
 from sisclima.core.config import SETTINGS, APP_CONFIG, env, as_bool
-from sisclima.core.db import write_df, sqlite_conn
+from sisclima.core.db import write_df, sqlite_conn, init_db
 from sisclima.core.logging_utils import get_logger
 from sisclima.utils.dates import now_iso
 from sisclima.utils.municipios import ensure_municipality, municipality_cols, latest_by_municipio
@@ -419,6 +419,7 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
 
 
 def run_pipeline(send_alerts: bool = True) -> dict:
+    init_db()
     run_id = str(uuid.uuid4())
     with sqlite_conn() as conn:
         conn.execute('INSERT INTO pipeline_runs (run_id, started_at, status, message) VALUES (?, ?, ?, ?)', (run_id, now_iso(), 'running', 'Início'))
