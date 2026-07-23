@@ -119,6 +119,28 @@ def _check_core_files() -> list[dict[str, Any]]:
     return checks
 
 
+def _canonical_item_name(item: str) -> str:
+    """Normaliza nomes equivalentes para consolidar o relatório operacional."""
+    key = str(item or "").strip().lower()
+    aliases = {
+        "shapefile municipal mt": "Shapefile municipal",
+        "shapefile municipal": "Shapefile municipal",
+        "csv municípios mt": "CSV municípios",
+        "csv municipios mt": "CSV municípios",
+        "csv municípios": "CSV municípios",
+        "csv municipios": "CSV municípios",
+        "população municipal": "População municipal",
+        "populacao municipal": "População municipal",
+        "copernicus cds/ads credencial": "Copernicus credencial",
+        "copernicus credencial": "Copernicus credencial",
+        "pasta atualização sivep": "SIVEP pasta atualização",
+        "pasta atualizacao sivep": "SIVEP pasta atualização",
+        "sivep pasta atualização": "SIVEP pasta atualização",
+        "sivep pasta atualizacao": "SIVEP pasta atualização",
+    }
+    return aliases.get(key, str(item))
+
+
 def run_preflight() -> pd.DataFrame:
     """Executa pré-flight operacional para ambiente de produção.
 
@@ -144,6 +166,7 @@ def run_preflight() -> pd.DataFrame:
     out["ok"] = out["ok"].fillna(False).astype(bool)
     out["severity"] = out["severity"].fillna("info")
     out["detail"] = out["detail"].fillna("").astype(str)
+    out["item"] = out["item"].map(_canonical_item_name)
 
     # Evita duplicidade de item no relatório final (usa o pior status encontrado).
     sev_rank = {"info": 0, "warning": 1, "critical": 2}
