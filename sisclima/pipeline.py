@@ -26,6 +26,7 @@ from sisclima.engines.stages import classify_stage
 from sisclima.engines.recommendations import recommendations_for_stage
 from sisclima.alerts.change_detector import get_previous_level, update_current_level, maybe_send_level_change
 from sisclima.public.exporter import export_public_data
+from sisclima.validation.preflight import run_preflight, summarize_preflight
 
 log = get_logger(__name__)
 
@@ -37,6 +38,26 @@ def _safe_float(x, default=np.nan):
         return float(x)
     except Exception:
         return default
+
+
+def _enforce_preflight_gate() -> None:
+    """Bloqueia execução quando o preflight crítico falhar e o gate estiver ativo."""
+    if not as_bool(env('RUN_PREFLIGHT', 'false')):
+        return
+
+    report = run_preflight()
+    summary = summarize_preflight(report)
+    critical = report[(~report['ok']) & report['severity'].astype(str).str.lower().eq('critical')]
+    if summary.get('critical_fail', 0) > 0:
+        # Inclui apenas os principais itens para manter a mensagem objetiva.
+        itens = '; '.join(
+            f"{row['item']}: {row['detail']}"
+            for _, row in critical.head(10).iterrows()
+        )
+        raise RuntimeError(
+            f"Preflight bloqueou a execução (critical_fail={summary.get('critical_fail', 0)}). "
+            f"Pendências: {itens}"
+        )
 
 
 def _ensure_all(df: pd.DataFrame) -> pd.DataFrame:
@@ -424,6 +445,7 @@ def run_pipeline(send_alerts: bool = True) -> dict:
     with sqlite_conn() as conn:
         conn.execute('INSERT INTO pipeline_runs (run_id, started_at, status, message) VALUES (?, ?, ?, ?)', (run_id, now_iso(), 'running', 'Início'))
     try:
+        _enforce_preflight_gate()
         inputs = load_all_inputs()
         municipios = ensure_municipality(inputs.get('municipios', pd.DataFrame()))
         populacao = inputs.get('populacao', pd.DataFrame())
