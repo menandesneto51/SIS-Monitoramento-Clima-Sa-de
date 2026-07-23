@@ -116,7 +116,9 @@ def export_public_tables(resumo: pd.DataFrame) -> dict[str, int]:
         if "cod_ibge" in ops.columns and "cod_ibge" in resumo.columns:
             cols_fix = ["nivel", "score", "motivo", "pressao_calor_pct", "pressao_assistencial_pct", "fonte_pressao", "indice_resiliencia"]
             cols_fix = [c for c in cols_fix if c in resumo.columns]
-            patch = resumo[["cod_ibge"] + cols_fix].drop_duplicates("cod_ibge")
+            patch = resumo[["cod_ibge"] + cols_fix].drop_duplicates("cod_ibge").copy()
+            patch["cod_ibge"] = patch["cod_ibge"].astype(str).str.extract(r"(\d{6,7})", expand=False)
+            ops["cod_ibge"] = ops["cod_ibge"].astype(str).str.extract(r"(\d{6,7})", expand=False)
             ops = ops.drop(columns=[c for c in cols_fix if c in ops.columns], errors="ignore")
             ops = ops.merge(patch, on="cod_ibge", how="left")
         else:
