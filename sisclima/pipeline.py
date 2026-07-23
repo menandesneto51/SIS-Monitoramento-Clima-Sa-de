@@ -25,6 +25,7 @@ from sisclima.engines.resilience import resilience_index, vulnerability_index
 from sisclima.engines.stages import classify_stage
 from sisclima.engines.recommendations import recommendations_for_stage
 from sisclima.alerts.change_detector import get_previous_level, update_current_level, maybe_send_level_change
+from sisclima.public.exporter import export_public_data
 
 log = get_logger(__name__)
 
@@ -560,6 +561,14 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         if send_alerts:
             motivos = str(indicador_row.get('motivo','')).split('; ')
             maybe_send_level_change(indicador_row.get('data_referencia'), old, indicador_row.get('nivel'), motivos, indicador_row)
+
+        # Mantém o dashboard público sincronizado com o último ciclo do pipeline.
+        # O app principal cloud lê data/public em vez de consultar SQLite diretamente.
+        try:
+            export_stats = export_public_data()
+            log.info('Exportação pública concluída: %s', export_stats)
+        except Exception as export_exc:
+            log.warning('Falha na exportação pública pós-pipeline: %s', export_exc)
 
         with sqlite_conn() as conn:
             conn.execute('UPDATE pipeline_runs SET finished_at=?, status=?, message=? WHERE run_id=?', (now_iso(), 'success', f'Nível {indicador_row.get("nivel")}', run_id))
