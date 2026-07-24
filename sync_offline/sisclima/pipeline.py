@@ -1,0 +1,864 @@
+from __future__ import annotations
+import uuid
+import pandas as pd
+import numpy as np
+from sisclima.core.config import SETTINGS, APP_CONFIG, env, as_bool
+from sisclima.core.db import write_df, sqlite_conn
+from sisclima.core.logging_utils import get_logger
+from sisclima.utils.dates import now_iso
+from sisclima.utils.municipios import ensure_municipality, municipality_cols, latest_by_municipio
+from sisclima.ingestion.local_csv import load_all_inputs, load_csv
+from sisclima.ingestion.openmeteo import fetch_openmeteo_for_municipios
+from sisclima.ingestion.inmet import fetch_inmet_alerts, normalize_inmet_alerts
+from sisclima.ingestion.indicasus import load_indicasus_leitos
+from sisclima.ingestion.dw_sources import (
+    load_dw_sinan_agravos,
+    load_dw_sim_obitos,
+    load_dw_gal_lacen,
+    load_dw_cnes_estabelecimentos,
+    load_dw_cnes_leitos,
+    load_dw_cnes_equipamentos,
+    load_dw_cnes_equipes,
+    load_dw_cnes_profissionais,
+)
+from sisclima.ingestion.sivep_local import load_sivep_local
+from sisclima.ingestion.copernicus_air_quality import fetch_cams_air_quality_municipal
+from sisclima.ingestion.ibge_municipios import get_municipios_operacionais
+from sisclima.ingestion.pressao_sources import load_pressao_assistencial_raw
+from sisclima.ingestion.indicasus_ocupacao import atualizar_ocupacao_indicasus
+from sisclima.engines.biometeo import add_biometeo_indicators
+from sisclima.engines.air_quality import add_air_quality_indicators
+from sisclima.engines.epidemiology import pressure_assistencial, sivep_summary, lacen_summary, sinan_summary, sim_heat_deaths
+from sisclima.engines.hospital import hospital_capacity, aggregate_capacity
+from sisclima.engines.cnes_ops import aggregate_cnes_municipal
+from sisclima.engines.operations import stock_autonomy, infrastructure_status, active_search, communication_latency
+from sisclima.engines.sentinel import score_rumors
+from sisclima.engines.resilience import resilience_index, vulnerability_index
+from sisclima.engines.stages import classify_stage
+from sisclima.engines.recommendations import recommendations_for_stage
+from sisclima.alerts.change_detector import get_previous_level, update_current_level, maybe_send_level_change
+from sisclima.public.exporter import export_public_data
+from sisclima.validation.preflight import run_preflight, summarize_preflight
+
+log = get_logger(__name__)
+
+
+def _safe_float(x, default=np.nan):
+    try:
+        if pd.isna(x):
+            return default
+        return float(x)
+    except Exception:
+        return default
+
+
+def _enforce_preflight_gate() -> None:
+    """Bloqueia execução quando o preflight crítico falhar e o gate estiver ativo."""
+    if not as_bool(env('RUN_PREFLIGHT', 'false')):
+        return
+
+    report = run_preflight()
+    summary = summarize_preflight(report)
+    critical = report[(~report['ok']) & report['severity'].astype(str).str.lower().eq('critical')]
+    if summary.get('critical_fail', 0) > 0:
+        # Inclui apenas os principais itens para manter a mensagem objetiva.
+        itens = '; '.join(
+            f"{row['item']}: {row['detail']}"
+            for _, row in critical.head(10).iterrows()
+        )
+        raise RuntimeError(
+            f"Preflight bloqueou a execução (critical_fail={summary.get('critical_fail', 0)}). "
+            f"Pendências: {itens}"
+        )
+
+
+def _ensure_all(df: pd.DataFrame) -> pd.DataFrame:
+    return ensure_municipality(df) if df is not None and not df.empty else pd.DataFrame()
+
+
+def _epi_lookback_days() -> int:
+    try:
+        return max(7, int(env('EPI_LOOKBACK_DAYS', '90') or 90))
+    except Exception:
+        return 90
+
+
+def _latest_value_by_mun(df: pd.DataFrame, value_cols: list[str], how: str = 'last') -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    out = _ensure_all(df)
+    if 'data' in out.columns:
+        out['data'] = pd.to_datetime(out['data'], errors='coerce')
+    keys = municipality_cols(out)
+    if not keys:
+        if 'data' in out.columns:
+            out = out.sort_values('data').tail(1)
+        return out[[c for c in ['data'] + value_cols if c in out.columns]]
+    if how == 'min':
+        # pega último dia por município e mínimo dos indicadores no dia
+        last_dates = out.groupby(keys, dropna=False)['data'].max().reset_index().rename(columns={'data':'_last_data'})
+        tmp = out.merge(last_dates, on=keys, how='inner')
+        tmp = tmp[tmp['data'].eq(tmp['_last_data'])]
+        agg = {c:'min' for c in value_cols if c in tmp.columns}
+        res = tmp.groupby(keys, dropna=False, as_index=False).agg(**{c:(c,'min') for c in agg})
+        res['data'] = tmp.groupby(keys, dropna=False)['data'].max().values
+        return res
+    if how == 'max':
+        last_dates = out.groupby(keys, dropna=False)['data'].max().reset_index().rename(columns={'data':'_last_data'})
+        tmp = out.merge(last_dates, on=keys, how='inner')
+        tmp = tmp[tmp['data'].eq(tmp['_last_data'])]
+        agg = {c:'max' for c in value_cols if c in tmp.columns}
+        res = tmp.groupby(keys, dropna=False, as_index=False).agg(**{c:(c,'max') for c in agg})
+        res['data'] = tmp.groupby(keys, dropna=False)['data'].max().values
+        return res
+    return latest_by_municipio(out)
+
+
+def _sum_recent_by_mun(df: pd.DataFrame, value_cols: list[str], days: int | None = None) -> pd.DataFrame:
+    """Soma indicadores epidemiológicos na janela recente por município.
+
+    SIM/SINAN/SRAG são esparsos: pegar só o último dia mascara o total da onda.
+    """
+    if df is None or df.empty:
+        return pd.DataFrame()
+    out = _ensure_all(df)
+    lookback = days if days is not None else _epi_lookback_days()
+    if 'data' in out.columns:
+        out['data'] = pd.to_datetime(out['data'], errors='coerce')
+        cutoff = pd.Timestamp.today().normalize() - pd.Timedelta(days=lookback)
+        # Mantém linhas sem data (não perder registro) e as recentes.
+        out = out[out['data'].isna() | (out['data'] >= cutoff)].copy()
+    keys = municipality_cols(out)
+    usable = [c for c in value_cols if c in out.columns]
+    if not usable:
+        return pd.DataFrame()
+    if not keys:
+        row = {c: pd.to_numeric(out[c], errors='coerce').sum() for c in usable}
+        if 'data' in out.columns and out['data'].notna().any():
+            row['data'] = out['data'].max()
+        return pd.DataFrame([row])
+    for c in usable:
+        out[c] = pd.to_numeric(out[c], errors='coerce').fillna(0)
+    res = out.groupby(keys, dropna=False, as_index=False).agg(**{c: (c, 'sum') for c in usable})
+    if 'data' in out.columns:
+        res['data'] = out.groupby(keys, dropna=False)['data'].max().values
+    return res
+
+
+def _sinan_recent_by_mun(sinan: pd.DataFrame, days: int | None = None) -> pd.DataFrame:
+    """Agrega notificações SINAN (todos os agravos) por município na janela recente."""
+    if sinan is None or sinan.empty:
+        return pd.DataFrame()
+    out = sinan.copy()
+    if 'notificacoes' not in out.columns:
+        return pd.DataFrame()
+    summed = _sum_recent_by_mun(out, ['notificacoes'], days=days)
+    if summed.empty:
+        return summed
+    return summed.rename(columns={'notificacoes': 'notificacoes_sinan'})
+
+
+def _merge(base: pd.DataFrame, other: pd.DataFrame, suffix: str = "") -> pd.DataFrame:
+    if other is None or other.empty:
+        return base
+
+    if base is None or base.empty:
+        return other
+
+    base = base.copy()
+    other = other.copy()
+
+    for _df in (base, other):
+        if "cod_ibge" in _df.columns:
+            _df["cod_ibge"] = (
+                _df["cod_ibge"]
+                .astype(str)
+                .str.replace(r"\.0$", "", regex=True)
+                .str.strip()
+            )
+            _df.loc[_df["cod_ibge"].isin(["nan", "None", "NaT", "<NA>"]), "cod_ibge"] = ""
+
+        if "data" in _df.columns:
+            _df["data"] = pd.to_datetime(_df["data"], errors="coerce").dt.date.astype(str)
+            _df.loc[_df["data"].isin(["NaT", "nan", "None", "<NA>"]), "data"] = ""
+
+    if "data" in base.columns and "data" in other.columns and "cod_ibge" in base.columns and "cod_ibge" in other.columns:
+        keys = ["data", "cod_ibge"]
+    elif "cod_ibge" in base.columns and "cod_ibge" in other.columns:
+        keys = ["cod_ibge"]
+    elif "data" in base.columns and "data" in other.columns:
+        keys = ["data"]
+    else:
+        return base
+
+    return base.merge(other, on=keys, how="left", suffixes=("", suffix or "_y"))
+
+
+def _merge_latest_by_municipio(base: pd.DataFrame, other: pd.DataFrame, suffix: str = "") -> pd.DataFrame:
+    """Une snapshots 'latest' por município, sem exigir a mesma data do clima.
+
+    Evita o caso em que met=2026-07-30 e SIVEP/LACEN/SIM=2026-06-17 zeram o join.
+    """
+    if other is None or other.empty:
+        return base
+    if base is None or base.empty:
+        return other
+
+    base = base.copy()
+    other = other.copy()
+    suf = suffix or "_y"
+
+    if "cod_ibge" in base.columns and "cod_ibge" in other.columns:
+        for _df in (base, other):
+            _df["cod_ibge"] = (
+                _df["cod_ibge"]
+                .astype(str)
+                .str.replace(r"\.0$", "", regex=True)
+                .str.extract(r"(\d+)", expand=False)
+                .fillna("")
+                .str.zfill(7)
+            )
+        if "data" in other.columns:
+            other = other.rename(columns={"data": f"data{suf}"})
+        # Evita colisão de municipio/lat/lon já presentes na base
+        drop_overlap = [c for c in ("municipio", "lat", "lon") if c in base.columns and c in other.columns]
+        other = other.drop(columns=drop_overlap, errors="ignore")
+        return base.merge(other, on="cod_ibge", how="left", suffixes=("", suf))
+
+    if "municipio" in base.columns and "municipio" in other.columns:
+        base["_mun_key"] = base["municipio"].astype(str).str.lower().str.strip()
+        other["_mun_key"] = other["municipio"].astype(str).str.lower().str.strip()
+        if "data" in other.columns:
+            other = other.rename(columns={"data": f"data{suf}"})
+        drop_overlap = [c for c in ("cod_ibge", "lat", "lon") if c in base.columns and c in other.columns]
+        other = other.drop(columns=drop_overlap, errors="ignore")
+        out = base.merge(other, on="_mun_key", how="left", suffixes=("", suf))
+        return out.drop(columns=["_mun_key"], errors="ignore")
+
+    return base
+
+def _inmet_municipio_has_alert(alerts: pd.DataFrame, municipio: str | None) -> str | None:
+    if alerts is None or alerts.empty:
+        return None
+    txtdf = alerts.copy()
+    if municipio and 'municipio' in txtdf.columns:
+        mask = txtdf['municipio'].astype(str).str.lower().eq(str(municipio).lower())
+        # alertas sem município explícito valem para o estado/área
+        if mask.any():
+            txt = ' '.join(txtdf.loc[mask].astype(str).tail(5).values.ravel()).lower()
+        else:
+            txt = ' '.join(txtdf.astype(str).tail(5).values.ravel()).lower()
+    else:
+        txt = ' '.join(txtdf.astype(str).tail(5).values.ravel()).lower()
+    if 'vermelho' in txt or 'grande perigo' in txt:
+        return 'Alerta INMET vermelho/grande perigo detectado'
+    if 'laranja' in txt or 'perigo' in txt:
+        return 'Alerta INMET laranja/perigo detectado'
+    if 'amarelo' in txt or 'perigo potencial' in txt:
+        return 'Alerta INMET amarelo/perigo potencial detectado'
+    return None
+
+
+
+def _read_sqlite_table_safe(table_name: str) -> pd.DataFrame:
+    try:
+        import sqlite3
+        from pathlib import Path
+        db_path = Path("data/output/sis_integrado.db")
+        if not db_path.exists():
+            return pd.DataFrame()
+        with sqlite3.connect(db_path) as con:
+            exists = pd.read_sql(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                con,
+                params=(table_name,),
+            )
+            if exists.empty:
+                return pd.DataFrame()
+            return pd.read_sql(f"SELECT * FROM {table_name}", con)
+    except Exception as exc:
+        print(f"[AVISO] Não foi possível ler {table_name} do SQLite: {exc}")
+        return pd.DataFrame()
+
+
+def _run_indicasus_occupancy_update() -> None:
+    """Atualiza ocupação via IndicaSUS BdSES (usuário Roney).
+
+    Ordem:
+    1) Módulo nativo sisclima.ingestion.indicasus_ocupacao
+    2) Script legado atualizar_ocupacao_indicasus.py (se existir e nativo falhar)
+    """
+    try:
+        if not as_bool(env('USE_INDICASUS_OCCUPANCY_SCRIPT', 'true'), True):
+            print('[INFO] atualização IndicaSUS desativada (USE_INDICASUS_OCCUPANCY_SCRIPT=false).')
+            return
+
+        # Preferência: loader nativo (não depende de script externo).
+        try:
+            result = atualizar_ocupacao_indicasus()
+            print(f"[IndicaSUS] {result}")
+            if result.get('ok'):
+                return
+        except Exception as native_exc:
+            print(f"[AVISO] IndicaSUS nativo falhou: {native_exc}")
+
+        import os
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        script = Path("atualizar_ocupacao_indicasus.py")
+        if not script.exists():
+            print("[AVISO] atualizar_ocupacao_indicasus.py não encontrado; ocupação real será ignorada nesta rodada.")
+            return
+
+        # Validação SES/MT: usuário Roney no BdSES — NÃO reutilizar senha do DW.
+        child_env = os.environ.copy()
+        dw_host = env('DW_SERVER') or env('DW_HOST')
+        dw_user = env('DW_USER')
+        dw_pwd = env('DW_PASSWORD')
+        use_dw_creds = as_bool(env('INDICASUS_USE_DW_CREDENTIALS', 'false'), False)
+        if use_dw_creds:
+            ind_user = dw_user
+            ind_pwd = dw_pwd
+        else:
+            ind_user = env('INDICASUS_USER')
+            ind_pwd = env('INDICASUS_PASSWORD')
+            if not ind_user or not ind_pwd or 'COLE_AQUI' in str(ind_pwd).upper():
+                print(
+                    '[AVISO] IndicaSUS: preencha INDICASUS_USER/INDICASUS_PASSWORD '
+                    '(senha do Roney). Não usar DW_PASSWORD. '
+                    'Script de ocupação será pulado nesta rodada.'
+                )
+                return
+        fallbacks = {
+            'INDICASUS_HOST': env('INDICASUS_HOST') or env('INDICASUS_SERVER') or dw_host,
+            'INDICASUS_SERVER': env('INDICASUS_SERVER') or env('INDICASUS_HOST') or dw_host,
+            'INDICASUS_DATABASE': env('INDICASUS_DATABASE') or env('INDICASUS_DB') or 'BdSES',
+            'INDICASUS_USER': ind_user,
+            'INDICASUS_PASSWORD': ind_pwd,
+            'INDICASUS_PORT': env('INDICASUS_PORT') or env('DW_PORT') or '1433',
+            'INDICASUS_ENCRYPT': env('INDICASUS_ENCRYPT') or env('DW_ENCRYPT') or 'no',
+            'INDICASUS_TRUST_SERVER_CERTIFICATE': (
+                env('INDICASUS_TRUST_SERVER_CERTIFICATE')
+                or env('DW_TRUST_SERVER_CERTIFICATE')
+                or 'yes'
+            ),
+            'Encrypt': env('INDICASUS_ENCRYPT') or env('DW_ENCRYPT') or 'no',
+            'TrustServerCertificate': (
+                env('INDICASUS_TRUST_SERVER_CERTIFICATE')
+                or env('DW_TRUST_SERVER_CERTIFICATE')
+                or 'yes'
+            ),
+        }
+        for key, value in fallbacks.items():
+            if value:
+                child_env[key] = str(value)
+
+        proc = subprocess.run(
+            [sys.executable, str(script)],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=child_env,
+        )
+
+        if proc.stdout:
+            print(proc.stdout)
+        if proc.stderr:
+            print(proc.stderr)
+
+        if proc.returncode != 0:
+            print(f"[AVISO] atualizar_ocupacao_indicasus.py retornou código {proc.returncode}.")
+    except Exception as exc:
+        print(f"[AVISO] Falha ao executar atualizador de ocupação IndicaSUS: {exc}")
+
+
+def _prepare_ocupacao_cap_agg(cap_agg_fallback: pd.DataFrame) -> pd.DataFrame:
+    occ = _read_sqlite_table_safe("hospital_ocupacao_municipio")
+    if occ.empty:
+        return cap_agg_fallback
+
+    out = occ.copy()
+
+    if "municipio" not in out.columns:
+        if "municipio_base" in out.columns:
+            out = out.rename(columns={"municipio_base": "municipio"})
+        elif "municipio_indicasus" in out.columns:
+            out = out.rename(columns={"municipio_indicasus": "municipio"})
+
+    if "leitos_total" not in out.columns and "leitos_existentes" in out.columns:
+        out["leitos_total"] = pd.to_numeric(out["leitos_existentes"], errors="coerce")
+
+    if "leitos_livres" not in out.columns:
+        total = pd.to_numeric(out.get("leitos_total"), errors="coerce")
+        ocup = pd.to_numeric(out.get("leitos_ocupados"), errors="coerce")
+        out["leitos_livres"] = (total - ocup).clip(lower=0)
+
+    if "ocupacao_pct" in out.columns:
+        out["ocupacao_pct"] = pd.to_numeric(out["ocupacao_pct"], errors="coerce").clip(lower=0, upper=100)
+
+    keep = [
+        "cod_ibge",
+        "municipio",
+        "ocupacao_pct",
+        "leitos_total",
+        "leitos_ocupados",
+        "leitos_livres",
+        "ultima_movimentacao",
+        "fonte",
+    ]
+    keep = [c for c in keep if c in out.columns]
+    out = out[keep].copy()
+
+    if "data" not in out.columns:
+        if "ultima_movimentacao" in out.columns:
+            out["data"] = out["ultima_movimentacao"]
+        else:
+            out["data"] = pd.Timestamp.now().strftime("%Y-%m-%d")
+
+    return out
+
+
+def _get_ocupacao_estado_fallback() -> float | None:
+    estado = _read_sqlite_table_safe("hospital_ocupacao_estado")
+    if estado.empty or "ocupacao_pct" not in estado.columns:
+        return None
+    valor = pd.to_numeric(estado["ocupacao_pct"], errors="coerce").dropna()
+    if valor.empty:
+        return None
+    return float(valor.iloc[0])
+
+
+
+def _inject_ocupacao_into_summary(summary: pd.DataFrame) -> pd.DataFrame:
+    # Injeta ocupação real do IndicaSUS no resumo_municipal_atual antes da gravação.
+    # Prioridade: município por cod_ibge; fallback estadual quando município não tiver dado.
+    if summary is None or summary.empty:
+        return summary
+
+    out = summary.copy()
+
+    cols_ocup = [
+        "ocupacao_leitos_pct",
+        "leitos_total",
+        "leitos_ocupados",
+        "leitos_livres",
+        "leitos_sus",
+        "ultima_movimentacao_ocupacao",
+        "fonte_ocupacao",
+        "leitos_bloqueados_movimento",
+        "leitos_higienizacao",
+        "leitos_reservados",
+    ]
+    for col in cols_ocup:
+        if col in out.columns:
+            out = out.drop(columns=[col])
+
+    occ = _read_sqlite_table_safe("hospital_ocupacao_municipio")
+
+    if not occ.empty and "cod_ibge" in occ.columns:
+        occ = occ.copy()
+        occ["cod_ibge"] = occ["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+
+        rename_map = {
+            "ocupacao_pct": "ocupacao_leitos_pct",
+            "leitos_existentes": "leitos_total",
+            "ultima_movimentacao": "ultima_movimentacao_ocupacao",
+            "fonte": "fonte_ocupacao",
+        }
+        occ = occ.rename(columns={k: v for k, v in rename_map.items() if k in occ.columns})
+
+        keep = [
+            "cod_ibge",
+            "ocupacao_leitos_pct",
+            "leitos_total",
+            "leitos_sus",
+            "leitos_ocupados",
+            "leitos_bloqueados_movimento",
+            "leitos_higienizacao",
+            "leitos_reservados",
+            "ultima_movimentacao_ocupacao",
+            "fonte_ocupacao",
+        ]
+        keep = [c for c in keep if c in occ.columns]
+        occ = occ[keep].drop_duplicates("cod_ibge")
+
+        if "leitos_total" in occ.columns and "leitos_ocupados" in occ.columns:
+            total = pd.to_numeric(occ["leitos_total"], errors="coerce")
+            ocup = pd.to_numeric(occ["leitos_ocupados"], errors="coerce")
+            occ["leitos_livres"] = (total - ocup).clip(lower=0)
+
+        if "ocupacao_leitos_pct" in occ.columns:
+            occ["ocupacao_leitos_pct"] = pd.to_numeric(
+                occ["ocupacao_leitos_pct"],
+                errors="coerce"
+            ).clip(lower=0, upper=100)
+
+        if "cod_ibge" in out.columns:
+            out["cod_ibge"] = out["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+            out = out.merge(occ, on="cod_ibge", how="left")
+
+    estado = _read_sqlite_table_safe("hospital_ocupacao_estado")
+    if not estado.empty and "ocupacao_pct" in estado.columns:
+        valor_estado = pd.to_numeric(estado["ocupacao_pct"], errors="coerce").dropna()
+        if not valor_estado.empty:
+            if "ocupacao_leitos_pct" not in out.columns:
+                out["ocupacao_leitos_pct"] = pd.NA
+            out["ocupacao_leitos_pct"] = pd.to_numeric(
+                out["ocupacao_leitos_pct"],
+                errors="coerce"
+            ).fillna(float(valor_estado.iloc[0])).clip(lower=0, upper=100)
+            if "fonte_ocupacao" not in out.columns:
+                out["fonte_ocupacao"] = pd.NA
+            out["fonte_ocupacao"] = out["fonte_ocupacao"].fillna("INDICASUS_TEMPO_REAL_ESTADUAL_FALLBACK")
+
+    return out
+
+
+def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, sinan=None, cnes=None) -> pd.DataFrame:
+    # Base municipal preferencial: vulnerabilidade/metadata; se não houver, usa bases com dados.
+    base_candidates = [vuln, met_ind, press, cap_agg, aq]
+    base = pd.DataFrame()
+    for b in base_candidates:
+        if b is not None and not b.empty and 'municipio' in b.columns:
+            cols = [c for c in ['cod_ibge','municipio','lat','lon','indice_vulnerabilidade_calor','populacao'] if c in b.columns]
+            base = b[cols].drop_duplicates(subset=[c for c in ['cod_ibge','municipio'] if c in cols]).copy()
+            if not base.empty:
+                break
+    if base.empty:
+        base = pd.DataFrame([{'cod_ibge': None, 'municipio': APP_CONFIG.municipio, 'lat': APP_CONFIG.lat, 'lon': APP_CONFIG.lon}])
+
+    latest_met = latest_by_municipio(met_ind) if not met_ind.empty else pd.DataFrame()
+    latest_press = latest_by_municipio(press) if not press.empty else pd.DataFrame()
+    latest_cap = _latest_value_by_mun(cap_agg, ['ocupacao_pct','leitos_total','leitos_ocupados','leitos_livres'], how='max') if not cap_agg.empty else pd.DataFrame()
+    latest_cap = latest_cap.rename(columns={'ocupacao_pct':'ocupacao_leitos_pct'}) if not latest_cap.empty else latest_cap
+    latest_stock = _latest_value_by_mun(stock, ['autonomia_dias'], how='min') if not stock.empty else pd.DataFrame()
+    latest_stock = latest_stock.rename(columns={'autonomia_dias':'autonomia_min_dias'}) if not latest_stock.empty else latest_stock
+    latest_infra = latest_by_municipio(infra) if not infra.empty else pd.DataFrame()
+    latest_busca = _latest_value_by_mun(busca, ['cobertura_pct'], how='min') if not busca.empty else pd.DataFrame()
+    latest_busca = latest_busca.rename(columns={'cobertura_pct':'cobertura_busca_pct'}) if not latest_busca.empty else latest_busca
+    latest_com = latest_by_municipio(com) if not com.empty else pd.DataFrame()
+    # Epi: janela recente (não só o último dia) — SIM/SINAN/SRAG do DW/local.
+    latest_sivep = _sum_recent_by_mun(sivep, ['casos_srag', 'uti', 'obitos']) if not sivep.empty else pd.DataFrame()
+    latest_lacen = latest_by_municipio(lacen) if not lacen.empty else pd.DataFrame()
+    latest_sim = _sum_recent_by_mun(sim, ['obitos_total', 'obitos_calor_suspeitos']) if not sim.empty else pd.DataFrame()
+    latest_sinan = _sinan_recent_by_mun(sinan) if sinan is not None and not sinan.empty else pd.DataFrame()
+    latest_cnes = cnes.copy() if cnes is not None and not cnes.empty else pd.DataFrame()
+    latest_rumors = latest_by_municipio(rumors) if not rumors.empty else pd.DataFrame()
+    latest_aq = latest_by_municipio(aq) if not aq.empty else pd.DataFrame()
+
+    merged = base.copy()
+    # met traz a série climática (pode manter join por data+ibge); demais blocos são
+    # snapshots "latest" e devem colar só por município.
+    merged = _merge(merged, latest_met, suffix="_met")
+    for d, suf in [
+        (latest_press, "_press"),
+        (latest_cap, "_cap"),
+        (latest_stock, "_stock"),
+        (latest_infra, "_infra"),
+        (latest_busca, "_busca"),
+        (latest_com, "_com"),
+        (latest_sivep, "_sivep"),
+        (latest_lacen, "_lacen"),
+        (latest_sim, "_sim"),
+        (latest_sinan, "_sinan"),
+        (latest_cnes, "_cnes"),
+        (latest_rumors, "_rum"),
+        (latest_aq, "_ar"),
+    ]:
+        merged = _merge_latest_by_municipio(merged, d, suffix=suf)
+
+    # Ocupação real IndicaSUS: usa município quando houver e estado como fallback.
+    ocup_estado_fallback = _get_ocupacao_estado_fallback()
+    if ocup_estado_fallback is not None:
+        if 'ocupacao_leitos_pct' not in merged.columns:
+            merged['ocupacao_leitos_pct'] = np.nan
+        merged['ocupacao_leitos_pct'] = pd.to_numeric(
+            merged['ocupacao_leitos_pct'],
+            errors='coerce'
+        ).fillna(ocup_estado_fallback)
+
+    rows = []
+    for _, r in merged.iterrows():
+        latest = r.to_dict()
+        # Normalizações esperadas pelo classificador
+        latest['latencia_comunicacao_horas'] = _safe_float(latest.get('latencia_horas'))
+        # Não forçar 0 quando a fonte não veio: 0 fake mascara "indisponível" no alerta.
+        latest['casos_srag'] = _safe_float(latest.get('casos_srag'), np.nan)
+        latest['positividade_lacen_pct'] = _safe_float(
+            latest.get('positividade_lacen_pct', latest.get('positividade_pct')),
+            np.nan,
+        )
+        latest['obitos_total'] = _safe_float(latest.get('obitos_total'), np.nan)
+        latest['obitos_calor_suspeitos'] = _safe_float(latest.get('obitos_calor_suspeitos'), np.nan)
+        latest['notificacoes_sinan'] = _safe_float(latest.get('notificacoes_sinan'), np.nan)
+        latest['indice_capacidade_cnes'] = _safe_float(latest.get('indice_capacidade_cnes'), np.nan)
+        latest['pressao_calor_pct'] = _safe_float(latest.get('pressao_calor_pct'), np.nan)
+        latest['score_sentinela'] = _safe_float(latest.get('score_sentinela'), np.nan)
+        latest['iq_ar_score'] = _safe_float(
+            latest.get('iq_ar_score', latest.get('indice_qualidade_ar_operacional')),
+            np.nan,
+        )
+        stage = classify_stage(latest, SETTINGS)
+        extra_motivos = []
+        if latest.get('obitos_calor_suspeitos', 0) and latest.get('obitos_calor_suspeitos', 0) >= 1:
+            if stage.score < 3:
+                stage.score = 3; stage.nivel = 'vermelha'
+            extra_motivos.append('Óbito suspeito relacionado ao calor registrado no SIM/proxy')
+        if latest.get('score_sentinela', 0) and latest.get('score_sentinela', 0) >= 10 and stage.score < 2:
+            stage.score = 2; stage.nivel = 'laranja'
+            extra_motivos.append('SENTINELA detectou concentração de rumores críticos')
+        motivo_inmet = _inmet_municipio_has_alert(inmet_alerts, latest.get('municipio'))
+        if motivo_inmet:
+            if 'vermelho' in motivo_inmet and stage.score < 3:
+                stage.score = 3; stage.nivel = 'vermelha'
+            elif 'laranja' in motivo_inmet and stage.score < 2:
+                stage.score = 2; stage.nivel = 'laranja'
+            elif 'amarelo' in motivo_inmet and stage.score < 1:
+                stage.score = 1; stage.nivel = 'amarela'
+            extra_motivos.append(motivo_inmet)
+        if latest.get('motivo_qualidade_ar') and pd.notna(latest.get('motivo_qualidade_ar')):
+            extra_motivos.append(str(latest.get('motivo_qualidade_ar')))
+        stage.motivos.extend(extra_motivos)
+        resil = resilience_index(latest, SETTINGS.get('pesos_resiliencia', {}))
+        datas = [latest.get(c) for c in latest if str(c).startswith('data') and pd.notna(latest.get(c))]
+        data_ref = None
+        if datas:
+            try:
+                data_ref = max(pd.to_datetime(datas, errors='coerce')).date().isoformat()
+            except Exception:
+                data_ref = pd.Timestamp.today().date().isoformat()
+        else:
+            data_ref = pd.Timestamp.today().date().isoformat()
+        row = {**latest, **resil, 'nivel': stage.nivel, 'score': stage.score, 'motivo': '; '.join(stage.motivos[:14]), 'data_referencia': data_ref}
+        rows.append(row)
+    out = pd.DataFrame(rows)
+    # Limpa colunas auxiliares excessivas para painel/CSV
+    return out
+
+
+def run_pipeline(send_alerts: bool = True) -> dict:
+    run_id = str(uuid.uuid4())
+    with sqlite_conn() as conn:
+        conn.execute('INSERT INTO pipeline_runs (run_id, started_at, status, message) VALUES (?, ?, ?, ?)', (run_id, now_iso(), 'running', 'Início'))
+    try:
+        _enforce_preflight_gate()
+        inputs = load_all_inputs()
+        municipios = ensure_municipality(inputs.get('municipios', pd.DataFrame()))
+        populacao = inputs.get('populacao', pd.DataFrame())
+        # Em produção real, municipaliza automaticamente por IBGE quando o CSV local não existir.
+        if municipios.empty or str(env('MUNICIPIOS_SOURCE', 'ibge')).lower() == 'ibge':
+            ibge_mun = ensure_municipality(get_municipios_operacionais())
+            if not ibge_mun.empty:
+                municipios = ibge_mun
+        if municipios.empty:
+            municipios = pd.DataFrame([{'cod_ibge': None, 'municipio': APP_CONFIG.municipio, 'lat': APP_CONFIG.lat, 'lon': APP_CONFIG.lon}])
+
+        # Meteorologia municipal: CSV + previsão em tempo real por município quando habilitada.
+        met = ensure_municipality(inputs['meteorologia']) if not inputs['meteorologia'].empty else pd.DataFrame()
+        om = pd.DataFrame()
+        # Em produção, ligue REFRESH_OPENMETEO=true para complementar CSV com previsão municipal em tempo real.
+        # Se houver CSV local e REFRESH_OPENMETEO=false, evita demora por indisponibilidade de rede/API.
+        if as_bool(env('USE_OPENMETEO', 'false')) and (met.empty or as_bool(env('REFRESH_OPENMETEO', 'false'))):
+            om = fetch_openmeteo_for_municipios(municipios)
+        if met.empty and not om.empty:
+            met = om
+        elif not met.empty and not om.empty:
+            met['data'] = pd.to_datetime(met['data'], errors='coerce').dt.date.astype(str)
+            om['data'] = pd.to_datetime(om['data'], errors='coerce').dt.date.astype(str)
+            keys = ['data','municipio'] + (['cod_ibge'] if 'cod_ibge' in met.columns and 'cod_ibge' in om.columns else [])
+            existing = set(map(tuple, met[keys].astype(str).values))
+            add = om[~om[keys].astype(str).apply(tuple, axis=1).isin(existing)]
+            met = pd.concat([met, add], ignore_index=True)
+        met_ind = add_biometeo_indicators(met, SETTINGS)
+        write_df(met_ind, 'met_biometeo')
+
+        inmet_alerts = normalize_inmet_alerts(fetch_inmet_alerts())
+        if inmet_alerts.empty:
+            inmet_alerts = inputs['inmet_alertas']
+        inmet_alerts = ensure_municipality(inmet_alerts) if not inmet_alerts.empty else inmet_alerts
+        write_df(inmet_alerts, 'inmet_alertas')
+
+        # Qualidade do ar: Copernicus/CAMS em tempo real; fallback CSV local.
+        aq_raw = fetch_cams_air_quality_municipal(municipios)
+        if aq_raw.empty:
+            aq_raw = inputs.get('qualidade_ar', pd.DataFrame())
+        aq = add_air_quality_indicators(aq_raw, SETTINGS)
+        write_df(aq_raw if aq_raw is not None else pd.DataFrame(), 'raw_qualidade_ar_copernicus')
+        write_df(aq, 'qualidade_ar_municipal')
+
+        # Capacidade instalada CNES (DW) → resiliência / ops_cnes_municipio
+        # Ocupação real = IndicaSUS BdSES (Roney); pressão = SISREG ou VW_INTERNACAO (DW)
+        leitos_raw = load_indicasus_leitos()  # na prática CNES_LEITOS via DW (capacidade)
+        if leitos_raw.empty:
+            leitos_raw = load_dw_cnes_leitos()
+        leitos_raw = ensure_municipality(leitos_raw) if not leitos_raw.empty else inputs['indicasus_leitos']
+        cap = hospital_capacity(leitos_raw)
+        cap_agg = aggregate_capacity(cap)
+        write_df(leitos_raw, 'raw_indicasus_leitos')
+        write_df(cap, 'hospital_capacidade_unidade')
+        write_df(cap_agg, 'hospital_capacidade_agregada')
+
+        cnes_est = load_dw_cnes_estabelecimentos()
+        cnes_lei = load_dw_cnes_leitos()
+        if cnes_lei.empty and not leitos_raw.empty:
+            cnes_lei = leitos_raw
+        cnes_eqp = load_dw_cnes_equipamentos()
+        cnes_eqp_ab = load_dw_cnes_equipes()
+        cnes_prof = load_dw_cnes_profissionais()
+        ops_cnes = aggregate_cnes_municipal(
+            estabelecimentos=cnes_est,
+            leitos=cnes_lei,
+            equipamentos=cnes_eqp,
+            equipes=cnes_eqp_ab,
+            profissionais=cnes_prof,
+        )
+        write_df(ops_cnes, 'ops_cnes_municipio')
+        if not ops_cnes.empty:
+            log.info('CNES operacional: %s municípios', len(ops_cnes))
+        else:
+            log.warning('CNES operacional: sem dados (confira USE_DW_CNES e tabelas CNES_* no DW)')
+
+        # Ocupação real IndicaSUS/BdSES (Roney) em tempo quase real.
+        _run_indicasus_occupancy_update()
+        cap_agg = _prepare_ocupacao_cap_agg(cap_agg)
+
+        # Pressão: SISREG → fallback VW_INTERNACAO (DW) → fallback leitos (legado)
+        press_raw = load_pressao_assistencial_raw()
+        if press_raw.empty:
+            log.warning('Pressão: SISREG/SIH vazios — usando proxy a partir da capacidade (legado)')
+            press_raw = leitos_raw
+        press = pressure_assistencial(press_raw)
+        if 'fonte_pressao' in press_raw.columns and not press.empty:
+            fonte = str(press_raw['fonte_pressao'].dropna().astype(str).head(1).tolist()[0] if press_raw['fonte_pressao'].notna().any() else '')
+            if fonte:
+                press['fonte_pressao'] = fonte
+        write_df(press, 'epi_pressao_assistencial')
+
+        # V4: SIVEP/SRAG vem do banco local; SINAN, SIM e GAL/LACEN vêm preferencialmente do DW.
+        sivep_raw = load_sivep_local()
+        if sivep_raw.empty:
+            sivep_raw = inputs['sivep_srag']
+            if not sivep_raw.empty:
+                log.info('SRAG: fallback CSV local (%s linhas)', len(sivep_raw))
+        else:
+            log.info('SRAG: SIVEP local (%s linhas)', len(sivep_raw))
+
+        lacen_raw = load_dw_gal_lacen()
+        if lacen_raw.empty:
+            lacen_raw = inputs['lacen_gal']
+            if not lacen_raw.empty:
+                log.info('GAL/LACEN: fallback CSV (%s linhas)', len(lacen_raw))
+        sinan_raw = load_dw_sinan_agravos()
+        if sinan_raw.empty:
+            sinan_raw = inputs['sinan_agravos']
+            if not sinan_raw.empty:
+                log.info('SINAN: fallback CSV (%s linhas)', len(sinan_raw))
+        sim_raw = load_dw_sim_obitos()
+        if sim_raw.empty:
+            sim_raw = inputs['sim_obitos']
+            if not sim_raw.empty:
+                log.info('SIM: fallback CSV (%s linhas)', len(sim_raw))
+
+        sivep = sivep_summary(sivep_raw)
+        lacen = lacen_summary(lacen_raw)
+        sinan = sinan_summary(sinan_raw)
+        sim = sim_heat_deaths(sim_raw)
+        rumors = score_rumors(inputs['sentinela_rumores'])
+        write_df(sivep, 'epi_sivep_srag')
+        write_df(lacen, 'lab_lacen_gal')
+        write_df(sinan, 'epi_sinan_agravos')
+        write_df(sim, 'epi_sim_obitos_calor')
+        write_df(rumors, 'sentinela_rumores_score')
+
+        stock = stock_autonomy(inputs['estoque'])
+        infra_unit, infra = infrastructure_status(inputs['infraestrutura'])
+        busca = active_search(inputs['busca_ativa'])
+        com = communication_latency(inputs.get('comunicacao', pd.DataFrame()))
+        if com.empty:
+            try:
+                com = communication_latency(load_csv('comunicacao_csv', []))
+            except Exception:
+                pass
+        write_df(stock, 'ops_estoque_autonomia')
+        write_df(infra_unit, 'ops_infraestrutura_unidade')
+        write_df(infra, 'ops_infraestrutura_resumo')
+        write_df(busca, 'ops_busca_ativa')
+        write_df(com, 'ops_comunicacao')
+
+        vuln = vulnerability_index(municipios, populacao)
+        write_df(vuln, 'geo_vulnerabilidade_municipal')
+
+        resumo_mun = _build_municipal_summary(
+            met_ind, press, cap_agg, stock, infra, busca, com,
+            sivep, lacen, sim, rumors, aq, vuln, inmet_alerts,
+            sinan=sinan,
+            cnes=ops_cnes,
+        )
+        resumo_mun = _inject_ocupacao_into_summary(resumo_mun)
+        # Consolida resumo operacional CNES para o painel (app_v6/v8/v9)
+        if not ops_cnes.empty and not resumo_mun.empty:
+            cnes_cols = ops_cnes.drop(
+                columns=[c for c in ('municipio',) if c in ops_cnes.columns and c in resumo_mun.columns],
+                errors='ignore',
+            )
+            ops_resumo = resumo_mun.merge(cnes_cols, on='cod_ibge', how='left', suffixes=('', '_cnesops'))
+            ops_resumo['status_infraestrutura'] = 'CNES DW integrado'
+            write_df(ops_resumo, 'ops_resumo_operacional_cnes')
+        write_df(resumo_mun, 'resumo_municipal_atual')
+        if not resumo_mun.empty:
+            resumo_estado = resumo_mun.sort_values(['score','indice_vulnerabilidade_calor'] if 'indice_vulnerabilidade_calor' in resumo_mun.columns else ['score'], ascending=False).head(1).copy()
+            resumo_estado['municipios_monitorados'] = resumo_mun['municipio'].nunique() if 'municipio' in resumo_mun.columns else len(resumo_mun)
+            resumo_estado['municipios_laranja_ou_mais'] = int((resumo_mun['score'] >= 2).sum()) if 'score' in resumo_mun.columns else 0
+        else:
+            resumo_estado = pd.DataFrame([{'municipio': APP_CONFIG.municipio, 'nivel':'verde', 'score':0, 'motivo':'sem dados municipais', 'data_referencia': pd.Timestamp.today().date().isoformat()}])
+        write_df(resumo_estado, 'resumo_situacao_atual')
+
+        indicador_row = resumo_estado.tail(1).iloc[0].to_dict()
+        # Auditoria dos indicadores municipais principais
+        with sqlite_conn() as conn:
+            for _, mr in resumo_mun.iterrows():
+                for k, v in mr.to_dict().items():
+                    if k in ['nivel','motivo','data_referencia','municipio','cod_ibge'] or str(k).startswith('data'):
+                        continue
+                    try:
+                        val = float(v)
+                    except Exception:
+                        continue
+                    conn.execute('INSERT INTO auditoria_indicadores (data_referencia, indicador, valor, nivel, fonte, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                                 (mr.get('data_referencia'), f'{mr.get("municipio","NA")}.{k}', val, mr.get('nivel'), 'pipeline_municipal_integrado', now_iso()))
+            for eixo, rec in recommendations_for_stage(str(indicador_row.get('nivel','verde'))):
+                conn.execute('INSERT INTO recomendacoes_operacionais (data_referencia, nivel, eixo, recomendacao, created_at) VALUES (?, ?, ?, ?, ?)',
+                             (indicador_row.get('data_referencia'), indicador_row.get('nivel'), eixo, rec, now_iso()))
+
+        old = get_previous_level()
+        update_current_level(indicador_row.get('data_referencia'), indicador_row.get('nivel'), int(indicador_row.get('score', 0)), indicador_row.get('motivo',''))
+        if send_alerts:
+            motivos = str(indicador_row.get('motivo','')).split('; ')
+            maybe_send_level_change(
+                indicador_row.get('data_referencia'),
+                old,
+                indicador_row.get('nivel'),
+                motivos,
+                indicador_row,
+                resumo_mun=resumo_mun,
+            )
+
+        # Mantém o dashboard público sincronizado com o último ciclo do pipeline.
+        # O app principal cloud lê data/public em vez de consultar SQLite diretamente.
+        try:
+            export_stats = export_public_data()
+            log.info('Exportação pública concluída: %s', export_stats)
+        except Exception as export_exc:
+            log.warning('Falha na exportação pública pós-pipeline: %s', export_exc)
+
+        with sqlite_conn() as conn:
+            conn.execute('UPDATE pipeline_runs SET finished_at=?, status=?, message=? WHERE run_id=?', (now_iso(), 'success', f'Nível {indicador_row.get("nivel")}', run_id))
+        log.info('Pipeline finalizado. Nível: %s', indicador_row.get('nivel'))
+        return {'run_id': run_id, 'status': 'success', 'nivel': indicador_row.get('nivel'), 'score': int(indicador_row.get('score', 0)), 'motivos': str(indicador_row.get('motivo','')).split('; '), 'indicadores': indicador_row}
+    except Exception as e:
+        log.exception('Erro no pipeline')
+        with sqlite_conn() as conn:
+            conn.execute('UPDATE pipeline_runs SET finished_at=?, status=?, message=? WHERE run_id=?', (now_iso(), 'error', str(e), run_id))
+        raise
