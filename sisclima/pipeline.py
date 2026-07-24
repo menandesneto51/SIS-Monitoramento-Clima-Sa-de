@@ -196,12 +196,15 @@ def _run_indicasus_occupancy_update() -> None:
         dw_db = env('DW_DATABASE')
         dw_user = env('DW_USER')
         dw_pwd = env('DW_PASSWORD')
+        use_dw_creds = as_bool(env('INDICASUS_USE_DW_CREDENTIALS', 'false'), False)
+        ind_user = dw_user if use_dw_creds else (env('INDICASUS_USER') or dw_user)
+        ind_pwd = dw_pwd if use_dw_creds else (env('INDICASUS_PASSWORD') or dw_pwd)
         fallbacks = {
             'INDICASUS_HOST': env('INDICASUS_HOST') or env('INDICASUS_SERVER') or dw_host,
             'INDICASUS_SERVER': env('INDICASUS_SERVER') or env('INDICASUS_HOST') or dw_host,
             'INDICASUS_DATABASE': env('INDICASUS_DATABASE') or env('INDICASUS_DB') or dw_db,
-            'INDICASUS_USER': env('INDICASUS_USER') or dw_user,
-            'INDICASUS_PASSWORD': env('INDICASUS_PASSWORD') or dw_pwd,
+            'INDICASUS_USER': ind_user,
+            'INDICASUS_PASSWORD': ind_pwd,
             'INDICASUS_PORT': env('INDICASUS_PORT') or env('DW_PORT') or '1433',
             # ODBC 18 exige yes/no
             'INDICASUS_ENCRYPT': env('INDICASUS_ENCRYPT') or env('DW_ENCRYPT') or 'no',
@@ -210,7 +213,12 @@ def _run_indicasus_occupancy_update() -> None:
             'TrustServerCertificate': env('DW_TRUST_SERVER_CERTIFICATE') or 'yes',
         }
         for key, value in fallbacks.items():
-            if value and not child_env.get(key):
+            if not value:
+                continue
+            # Credenciais: sobrescreve quando INDICASUS_USE_DW_CREDENTIALS=true
+            if use_dw_creds and key in {'INDICASUS_USER', 'INDICASUS_PASSWORD'}:
+                child_env[key] = str(value)
+            elif not child_env.get(key):
                 child_env[key] = str(value)
 
         proc = subprocess.run(
