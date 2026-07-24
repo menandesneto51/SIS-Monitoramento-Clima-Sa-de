@@ -66,7 +66,13 @@ def send_telegram(text: str) -> bool:
     if not token or not chat_id:
         return False
     try:
-        r = requests.post(f'https://api.telegram.org/bot{token}/sendMessage', data={'chat_id': chat_id, 'text': text}, timeout=30)
+        verify = as_bool(env('ALERT_SSL_VERIFY', 'true'), True)
+        r = requests.post(
+            f'https://api.telegram.org/bot{token}/sendMessage',
+            data={'chat_id': chat_id, 'text': text},
+            timeout=30,
+            verify=verify,
+        )
         return r.ok
     except Exception as e:
         detail = str(e)

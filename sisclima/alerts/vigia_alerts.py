@@ -30,8 +30,96 @@ ALERT_TYPES = (
 )
 
 
+def _redact_secrets(text: str) -> str:
+    out = str(text)
+    for key_name in ("GEMINI_API_KEY", "LLM_API_KEY", "TELEGRAM_BOT_TOKEN", "SMTP_PASSWORD", "DW_PASSWORD"):
+        val = env(key_name)
+        if val:
+            out = out.replace(str(val), "***")
+    # padrões comuns de chave Google
+    import re
+    out = re.sub(r"AIza[0-9A-Za-z\-_]{20,}", "AIza***", out)
+    out = re.sub(r"key=[^&\s]+", "key=***", out)
+    return out
+
+
+def _requests_verify() -> bool:
+    """Em rede corporativa com proxy SSL, use ALERT_SSL_VERIFY=false."""
+    return as_bool(env("ALERT_SSL_VERIFY", "true"), True)
+
+
 def _nivel_label(nivel: str | None) -> str:
     return str(nivel or "indisponível").strip().upper()
+
+
+def _enrich_regional(resumo_mun: pd.DataFrame) -> pd.DataFrame:
+    """Garante coluna regional_saude no resumo, buscando em CSVs públicos se necessário."""
+    if resumo_mun is None or resumo_mun.empty:
+        return pd.DataFrame()
+    out = resumo_mun.copy()
+    has_reg = "regional_saude" in out.columns and out["regional_saude"].notna().any()
+    if has_reg:
+        bad = out["regional_saude"].astype(str).str.strip().str.lower().isin(
+            {"", "nan", "none", "sem regional informada", "regional não informada"}
+        )
+        if (~bad).any():
+            return out
+
+    from sisclima.core.config import ROOT
+
+    candidates = [
+        ROOT / "data" / "public" / "ops_resumo_operacional_cnes.csv",
+        ROOT / "data" / "public" / "geocalor_cardioresp_rr_municipal_v11_12.csv",
+        ROOT / "data" / "public" / "geocalor_cuiaba_cardioresp_v11_12.csv",
+    ]
+    ref = pd.DataFrame()
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            tmp = pd.read_csv(path, dtype=str)
+        except Exception:
+            continue
+        cols = {c.lower(): c for c in tmp.columns}
+        reg_c = cols.get("regional_saude") or cols.get("regional") or cols.get("regiao_saude")
+        ibge_c = cols.get("cod_ibge")
+        mun_c = cols.get("municipio")
+        if not reg_c:
+            continue
+        keep = [c for c in [ibge_c, mun_c, reg_c] if c]
+        ref = tmp[keep].drop_duplicates()
+        ref = ref.rename(columns={reg_c: "regional_saude"})
+        if ibge_c:
+            ref = ref.rename(columns={ibge_c: "cod_ibge"})
+        if mun_c:
+            ref = ref.rename(columns={mun_c: "municipio"})
+        if not ref.empty:
+            break
+    if ref.empty:
+        if "regional_saude" not in out.columns:
+            out["regional_saude"] = "Sem regional informada"
+        return out
+
+    if "cod_ibge" in out.columns and "cod_ibge" in ref.columns:
+        out["cod_ibge"] = out["cod_ibge"].astype(str).str.extract(r"(\d+)")[0].str.zfill(7)
+        ref["cod_ibge"] = ref["cod_ibge"].astype(str).str.extract(r"(\d+)")[0].str.zfill(7)
+        out = out.drop(columns=["regional_saude"], errors="ignore").merge(
+            ref[["cod_ibge", "regional_saude"]].drop_duplicates("cod_ibge"),
+            on="cod_ibge",
+            how="left",
+        )
+    elif "municipio" in out.columns and "municipio" in ref.columns:
+        out["_mun_key"] = out["municipio"].astype(str).str.lower().str.strip()
+        ref["_mun_key"] = ref["municipio"].astype(str).str.lower().str.strip()
+        out = out.drop(columns=["regional_saude"], errors="ignore").merge(
+            ref[["_mun_key", "regional_saude"]].drop_duplicates("_mun_key"),
+            on="_mun_key",
+            how="left",
+        )
+        out = out.drop(columns=["_mun_key"], errors="ignore")
+
+    out["regional_saude"] = out["regional_saude"].fillna("Sem regional informada")
+    return out
 
 
 def _fmt_num(value: Any, digits: int = 1, suffix: str = "") -> str:
@@ -168,9 +256,15 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                     params={"key": gemini_key},
                     json={"contents": [{"parts": [{"text": prompt}]}]},
                     timeout=60,
+                    verify=_requests_verify(),
                 )
                 if r.status_code >= 400:
-                    log.warning("Gemini modelo=%s status=%s body=%s", model, r.status_code, r.text[:240])
+                    log.warning(
+                        "Gemini modelo=%s status=%s body=%s",
+                        model,
+                        r.status_code,
+                        _redact_secrets(r.text[:240]),
+                    )
                     continue
                 data = r.json()
                 text = (
@@ -190,7 +284,7 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                         log.info("Orientações IA geradas via Gemini (%s)", model)
                         return bullets[:7], f"gemini:{model}"
             except Exception as exc:
-                log.warning("Falha Gemini (%s): %s", model, exc)
+                log.warning("Falha Gemini (%s): %s", model, _redact_secrets(str(exc)))
 
     api_url = env("LLM_API_URL")
     api_key = env("LLM_API_KEY")
@@ -204,7 +298,7 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                 "temperature": 0.2,
             }
             headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-            r = requests.post(api_url, headers=headers, json=payload, timeout=60)
+            r = requests.post(api_url, headers=headers, json=payload, timeout=60, verify=_requests_verify())
             r.raise_for_status()
             data = r.json()
             text = data.get("choices", [{}])[0].get("message", {}).get("content") or data.get("text")
@@ -214,7 +308,7 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                 log.info("Orientações IA geradas via LLM genérico")
                 return bullets, "llm_generico"
         except Exception as exc:
-            log.warning("Falha LLM genérico no alerta: %s", exc)
+            log.warning("Falha LLM genérico no alerta: %s", _redact_secrets(str(exc)))
 
     log.info("Usando orientações determinísticas (Gemini/LLM indisponível ou bloqueado por rede/SSL)")
     return base, "deterministico"
@@ -227,6 +321,7 @@ def _clip(text: str, limit: int = 3800) -> str:
 
 
 def _build_contexto(resumo_mun: pd.DataFrame, nivel: str, motivos: list[str]) -> dict[str, Any]:
+    resumo_mun = _enrich_regional(resumo_mun)
     status, estado, regionais, cuiaba = _build_status_alertas(resumo_mun)
     nivel_estadual = nivel
     municipios_alerta = 0
