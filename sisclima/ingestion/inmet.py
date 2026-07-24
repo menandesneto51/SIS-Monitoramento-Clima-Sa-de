@@ -1,8 +1,9 @@
 from __future__ import annotations
 import pandas as pd
 import requests
-from sisclima.core.config import env
+from sisclima.core.config import env, as_bool
 from sisclima.core.logging_utils import get_logger
+from sisclima.validation.validate_sources import looks_like_placeholder
 
 log = get_logger(__name__)
 
@@ -10,10 +11,17 @@ log = get_logger(__name__)
 def fetch_inmet_alerts() -> pd.DataFrame:
     """Conector genérico para alertas INMET.
 
-    Se INMET_ALERTS_URL estiver vazio, retorna DataFrame vazio e o pipeline usa CSV.
+    Se USE_INMET=false, URL vazia ou placeholder, retorna DataFrame vazio
+    e o pipeline usa CSV local.
     """
+    if not as_bool(env('USE_INMET', 'false'), False):
+        log.info('INMET desativado (USE_INMET=false)')
+        return pd.DataFrame()
+
     url = env('INMET_ALERTS_URL')
-    if not url:
+    if not url or looks_like_placeholder(url):
+        if url and looks_like_placeholder(url):
+            log.warning('INMET_ALERTS_URL ainda é placeholder; usando fallback CSV')
         return pd.DataFrame()
     try:
         r = requests.get(url, timeout=30)
