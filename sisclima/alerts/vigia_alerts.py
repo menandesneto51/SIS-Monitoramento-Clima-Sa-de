@@ -187,33 +187,36 @@ def _epidemiology_block(indicadores: dict[str, Any] | None, resumo_mun: pd.DataF
 
 def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], indicadores: dict[str, Any] | None) -> tuple[list[str], str]:
     """Retorna (bullets, fonte). Fonte: gemini | llm | deterministico."""
-    base = [
-        f"- Priorizar resposta compatível com nível {_nivel_label(nivel)} nas regionais com maior concentração de municípios em alerta.",
-        "- Ativar comunicação de risco para população vulnerável (idosos, gestantes, crianças, pessoas em situação de rua).",
-        "- Validar ocupação de leitos, insumos de hidratação/SRO e pontos de resfriamento nas portas de urgência.",
-        "- Intensificar busca ativa e monitoramento de SRAG/óbitos suspeitos associados ao calor nas regionais críticas.",
-        "- Emitir boletim operacional diário enquanto o nível permanecer laranja ou superior.",
-    ]
+    # Fallback rico = próprio playbook (não só "acionar COE").
+    base = [f"- [{eixo}] {acao}" for eixo, acao in recommendations_for_stage(str(nivel or "verde"))]
 
     use_ai = as_bool(env("USE_AI_ALERT_TEXT", "true"), True)
     if not use_ai:
-        return base, "deterministico_desligado"
+        return base, "playbook_deterministico"
 
+    ind = indicadores or {}
     prompt = (
-        "Você é assessoria técnica do CIEVS/SES-MT para ondas de calor. "
-        "Em no máximo 6 bullets curtos, dê orientações operacionais práticas "
-        "sem inventar números ausentes. Cite ações de vigilância, assistência, "
-        "comunicação e epidemiologia. Use apenas o JSON a seguir.\n\n"
+        "Você é assessoria técnica sênior do CIEVS/SES-MT para ondas de calor.\n"
+        "Gere um PLAYBOOK OPERACIONAL em até 10 bullets curtos e acionáveis.\n"
+        "NÃO diga apenas 'acionar o COE'. Detalhe O QUE fazer em:\n"
+        "1) Vigilância epidemiológica (SRAG/SIM/DARC/busca ativa)\n"
+        "2) APS e território (idosos, rua, ILPI, hidratação)\n"
+        "3) Urgência/hospital e regulação de leitos\n"
+        "4) Logística de água/SRO/transporte por regionais críticas\n"
+        "5) Comunicação de risco à população\n"
+        "6) Saúde do trabalhador e pontos de resfriamento\n"
+        "Use somente números presentes no JSON. Se um indicador estiver ausente/NaN, diga 'dado indisponível' e proponha como obter.\n"
+        "Formato: cada linha começando com '- [Eixo] ação...'\n\n"
         + json.dumps(
             {
                 "nivel": nivel,
-                "motivos": motivos[:8],
+                "motivos": motivos[:10],
                 "municipios_alerta": contexto.get("municipios_alerta"),
                 "nivel_estadual": contexto.get("nivel_estadual"),
-                "regionais": contexto.get("regionais_resumo"),
+                "regionais_prioritarias": contexto.get("regionais_resumo"),
                 "cuiaba": contexto.get("cuiaba_resumo"),
                 "indicadores": {
-                    k: indicadores.get(k)
+                    k: ind.get(k)
                     for k in [
                         "municipio",
                         "utci_proxy",
@@ -221,12 +224,16 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                         "risco_cumulativo_3d",
                         "casos_srag",
                         "positividade_lacen_pct",
+                        "obitos_total",
                         "obitos_calor_suspeitos",
                         "ocupacao_leitos_pct",
+                        "leitos_livres",
                         "municipios_laranja_ou_mais",
                         "municipios_monitorados",
+                        "iq_ar_score",
+                        "score_sentinela",
+                        "indice_resiliencia",
                     ]
-                    if indicadores
                 },
             },
             ensure_ascii=False,
@@ -236,13 +243,11 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
 
     gemini_key = env("GEMINI_API_KEY")
     if gemini_key and not str(gemini_key).upper().startswith(("COLE_AQUI", "AI***")):
-        models = [
-            env("GEMINI_MODEL", "gemini-2.5-flash") or "gemini-2.5-flash",
-            "gemini-2.5-flash",
-            "gemini-2.5-flash-lite",
-            "gemini-flash-latest",
-            "gemini-2.5-pro",
-        ]
+        preferred = env("GEMINI_MODEL", "gemini-2.5-flash") or "gemini-2.5-flash"
+        # Modelos descontinuados são ignorados mesmo se ainda estiverem no .env.
+        deprecated = {"gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro"}
+        models = [preferred, "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest", "gemini-2.5-pro"]
+        models = [m for m in models if m and m not in deprecated]
         seen: set[str] = set()
         for model in models:
             if model in seen:
@@ -283,7 +288,7 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                         bullets.append(ln)
                     if bullets:
                         log.info("Orientações IA geradas via Gemini (%s)", model)
-                        return bullets[:7], f"gemini:{model}"
+                        return bullets[:10], f"gemini:{model}"
             except Exception as exc:
                 log.warning("Falha Gemini (%s): %s", model, _redact_secrets(str(exc)))
 
@@ -305,14 +310,14 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
             text = data.get("choices", [{}])[0].get("message", {}).get("content") or data.get("text")
             if text:
                 lines = [ln.strip() for ln in str(text).splitlines() if ln.strip()]
-                bullets = [ln if ln.startswith("-") else f"- {ln}" for ln in lines][:7]
+                bullets = [ln if ln.startswith("-") else f"- {ln}" for ln in lines][:10]
                 log.info("Orientações IA geradas via LLM genérico")
                 return bullets, "llm_generico"
         except Exception as exc:
             log.warning("Falha LLM genérico no alerta: %s", _redact_secrets(str(exc)))
 
-    log.info("Usando orientações determinísticas (Gemini/LLM indisponível ou bloqueado por rede/SSL)")
-    return base, "deterministico"
+    log.info("Usando playbook determinístico rico (Gemini/LLM indisponível)")
+    return base, "playbook_deterministico"
 
 
 def _clip(text: str, limit: int = 3800) -> str:
