@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """Auditoria operacional do .env (sem imprimir segredos).
 
 Uso:
@@ -9,7 +7,6 @@ Uso:
 from __future__ import annotations
 
 import importlib.util
-import sys
 from pathlib import Path
 
 from sisclima.core.config import ROOT, env, as_bool, env_name_used
