@@ -69,7 +69,10 @@ def send_telegram(text: str) -> bool:
         r = requests.post(f'https://api.telegram.org/bot{token}/sendMessage', data={'chat_id': chat_id, 'text': text}, timeout=30)
         return r.ok
     except Exception as e:
-        log.warning('Falha Telegram: %s', e)
+        detail = str(e)
+        if token:
+            detail = detail.replace(token, '***')
+        log.warning('Falha Telegram: %s', detail)
         return False
 
 
