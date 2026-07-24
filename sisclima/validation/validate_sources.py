@@ -7,11 +7,36 @@ from sisclima.core.config import APP_CONFIG, env, as_bool, ROOT, env_name_used
 from sisclima.ingestion.sqlserver import build_sqlserver_conn
 
 SECRET_WORDS = ('PASSWORD', 'SENHA', 'TOKEN', 'KEY', 'PWD', 'PASS')
+PLACEHOLDER_MARKERS = (
+    'COLE_AQUI',
+    'SENHA_REAL',
+    'SEU_',
+    'SUA_',
+    'CHANGEME',
+    'TODO',
+    'PLACEHOLDER',
+    '***',
+)
+
+
+def looks_like_placeholder(value: str | None) -> bool:
+    """True se o valor estiver vazio ou ainda for um placeholder do template .env."""
+    if value is None:
+        return True
+    text = str(value).strip()
+    if not text:
+        return True
+    upper = text.upper()
+    return any(marker in upper for marker in PLACEHOLDER_MARKERS)
 
 
 def _redact(name: str | None, value: str | None) -> str:
     if not value:
         return ''
+    if looks_like_placeholder(value):
+        if name and any(w in name.upper() for w in SECRET_WORDS):
+            return '***placeholder***'
+        return str(value)
     if name and any(w in name.upper() for w in SECRET_WORDS):
         return '***configurado***'
     if any(w in str(value).upper() for w in SECRET_WORDS):
@@ -31,11 +56,18 @@ def check_file(path: Path, required: bool = False, label: str | None = None) -> 
 def check_env(key: str, required: bool = False) -> dict:
     used = env_name_used(key)
     value = env(key)
+    placeholder = looks_like_placeholder(value)
+    present = bool(value) and not placeholder
     return {
         'item': key,
-        'ok': bool(value) or not required,
+        'ok': present or not required,
         'required': required,
-        'detail': f'{used}={_redact(used, value)}' if used else 'não informado',
+        'detail': (
+            f'{used}={_redact(used, value)}'
+            + (' (ainda é placeholder do .env.example — substitua pelo valor real)' if used and placeholder else '')
+            if used
+            else 'não informado'
+        ),
     }
 
 
@@ -47,7 +79,9 @@ def _env_exists(key: str) -> bool:
 
 
 def _has_copernicus_credential() -> bool:
-    return bool(env('COPERNICUS_KEY')) or (ROOT / '.cdsapirc').exists() or (Path.home() / '.cdsapirc').exists()
+    key = env('COPERNICUS_KEY')
+    has_key = bool(key) and not looks_like_placeholder(key)
+    return has_key or (ROOT / '.cdsapirc').exists() or (Path.home() / '.cdsapirc').exists()
 
 
 def copernicus_enabled_for_validation() -> bool:
@@ -60,13 +94,21 @@ def copernicus_enabled_for_validation() -> bool:
 def telegram_enabled_for_validation() -> bool:
     if _env_exists('ALERT_TELEGRAM_ENABLED'):
         return as_bool(env('ALERT_TELEGRAM_ENABLED'), False)
-    return bool(env('TELEGRAM_BOT_TOKEN') and env('TELEGRAM_CHAT_ID'))
+    token = env('TELEGRAM_BOT_TOKEN')
+    chat = env('TELEGRAM_CHAT_ID')
+    return bool(token and chat and not looks_like_placeholder(token) and not looks_like_placeholder(chat))
 
 
 def email_enabled_for_validation() -> bool:
     if _env_exists('ALERT_EMAIL_ENABLED'):
         return as_bool(env('ALERT_EMAIL_ENABLED'), False)
-    return bool(env('SMTP_HOST') and env('SMTP_USER') and env('SMTP_PASSWORD') and env('ALERT_EMAIL_TO'))
+    return bool(
+        env('SMTP_HOST')
+        and env('SMTP_USER')
+        and env('SMTP_PASSWORD')
+        and env('ALERT_EMAIL_TO')
+        and not looks_like_placeholder(env('SMTP_PASSWORD'))
+    )
 
 def validate_sources() -> pd.DataFrame:
     rows = []
@@ -88,9 +130,25 @@ def validate_sources() -> pd.DataFrame:
 
     # SQL Server DW — fonte institucional para IndicaSUS/CNES/SINAN/SIM/GAL.
     conn = build_sqlserver_conn('DW')
-    rows.append({'item': 'SQL Server DW', 'ok': bool(conn), 'required': as_bool(env('USE_SQLSERVER', 'false')), 'detail': 'conexão configurada' if conn else 'servidor/base/usuário/senha ausentes ou incompletos'})
+    dw_password = env('DW_PASSWORD')
+    dw_password_placeholder = looks_like_placeholder(dw_password)
+    sqlserver_on = as_bool(env('USE_SQLSERVER', 'false'))
+    if conn and dw_password_placeholder:
+        rows.append({
+            'item': 'SQL Server DW',
+            'ok': not sqlserver_on,
+            'required': sqlserver_on,
+            'detail': 'DW_PASSWORD ainda é placeholder (COLE_AQUI_...); substitua pela senha real no .env',
+        })
+    else:
+        rows.append({
+            'item': 'SQL Server DW',
+            'ok': bool(conn) or not sqlserver_on,
+            'required': sqlserver_on,
+            'detail': 'conexão configurada' if conn else 'servidor/base/usuário/senha ausentes ou incompletos',
+        })
     for k in ['DW_SERVER', 'DW_DATABASE', 'DW_USER', 'DW_PASSWORD', 'DW_DRIVER']:
-        rows.append(check_env(k, required=as_bool(env('USE_SQLSERVER', 'false')) and k != 'DW_DRIVER'))
+        rows.append(check_env(k, required=sqlserver_on and k != 'DW_DRIVER'))
     # Diagnóstico de driver ODBC disponível no host.
     try:
         import pyodbc

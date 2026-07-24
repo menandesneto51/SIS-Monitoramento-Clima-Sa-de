@@ -89,11 +89,84 @@ def build_sqlserver_conn(prefix: str = 'DW') -> str | None:
     return None
 
 
+def _is_placeholder_password(password: str | None) -> bool:
+    if password is None:
+        return True
+    text = str(password).strip()
+    if not text:
+        return True
+    upper = text.upper()
+    return (
+        'COLE_AQUI' in upper
+        or 'SENHA_REAL' in upper
+        or 'PLACEHOLDER' in upper
+        or 'CHANGEME' in upper
+        or text.strip() in {'***', 'changeme'}
+    )
+
+
+def probe_sqlserver(prefix: str = 'DW') -> dict[str, str | bool]:
+    """Testa a conexão SQL Server e devolve status/detalhe sem vazar a senha."""
+    try:
+        import pyodbc
+    except Exception as e:
+        return {'ok': False, 'detail': f'pyodbc indisponível: {e}'}
+
+    parts = _conn_parts(prefix)
+    password = str(parts.get('password') or '')
+    user = parts.get('user') or '?'
+    if _is_placeholder_password(password):
+        return {
+            'ok': False,
+            'detail': (
+                f'{prefix}_PASSWORD ainda está com placeholder '
+                f'(ex.: COLE_AQUI_A_SENHA_DW); substitua pela senha real no .env'
+            ),
+        }
+
+    conn_str = build_sqlserver_conn(prefix)
+    if not conn_str:
+        return {'ok': False, 'detail': f'conexão SQL Server não configurada para prefixo {prefix}'}
+
+    try:
+        with pyodbc.connect(conn_str, timeout=30) as conn:
+            cur = conn.cursor()
+            cur.execute('SELECT SYSTEM_USER AS usuario, DB_NAME() AS banco')
+            row = cur.fetchone()
+            usuario = row[0] if row else '?'
+            banco = row[1] if row else '?'
+            return {'ok': True, 'detail': f'conectado como {usuario} no banco {banco}'}
+    except Exception as e:
+        detail = str(e)
+        # Evita vazamento acidental de senha no log/diagnóstico.
+        if password:
+            detail = detail.replace(password, '***')
+        lower = detail.lower()
+        if '18456' in detail or 'login failed' in lower:
+            return {
+                'ok': False,
+                'detail': (
+                    f"Login failed (18456) para usuário '{user}'. "
+                    f"Confirme a senha em {prefix}_PASSWORD no .env (sem placeholder), "
+                    f"SQL Authentication habilitado e conta ativa no SQL Server."
+                ),
+            }
+        return {'ok': False, 'detail': detail}
+
+
 def read_sqlserver(prefix: str, sql: str) -> pd.DataFrame:
     try:
         import pyodbc
     except Exception as e:
         log.warning('pyodbc indisponível: %s', e)
+        return pd.DataFrame()
+    parts = _conn_parts(prefix)
+    if _is_placeholder_password(parts.get('password')):
+        log.warning(
+            'Falha SQL Server %s: %s_PASSWORD ainda está com placeholder; não tentando conexão',
+            prefix,
+            prefix,
+        )
         return pd.DataFrame()
     conn_str = build_sqlserver_conn(prefix)
     if not conn_str:

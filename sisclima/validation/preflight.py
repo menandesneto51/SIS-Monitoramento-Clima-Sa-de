@@ -7,8 +7,8 @@ from typing import Any
 import pandas as pd
 
 from sisclima.core.config import APP_CONFIG, env, as_bool, ROOT
-from sisclima.ingestion.sqlserver import build_sqlserver_conn, read_sqlserver
-from sisclima.validation.validate_sources import validate_sources
+from sisclima.ingestion.sqlserver import probe_sqlserver
+from sisclima.validation.validate_sources import looks_like_placeholder, validate_sources
 
 
 def _bool_feature_enabled(name: str, default: bool = False) -> bool:
@@ -32,60 +32,114 @@ def _socket_check(host: str | None, port: str | int | None, timeout: float = 3.0
 def _check_dw_runtime() -> dict[str, Any]:
     enabled = _bool_feature_enabled("USE_SQLSERVER", False)
     if not enabled:
-        return {"item": "DW runtime query", "ok": True, "required": False, "severity": "info", "detail": "USE_SQLSERVER=false"}
+        return {
+            "item": "DW runtime query",
+            "ok": True,
+            "required": False,
+            "severity": "info",
+            "detail": "USE_SQLSERVER=false",
+        }
 
-    conn = build_sqlserver_conn("DW")
-    if not conn:
-        return {"item": "DW runtime query", "ok": False, "required": True, "severity": "critical", "detail": "string de conexão DW não montada"}
+    if looks_like_placeholder(env("DW_PASSWORD")):
+        return {
+            "item": "DW runtime query",
+            "ok": False,
+            "required": True,
+            "severity": "critical",
+            "detail": "DW_PASSWORD ainda é placeholder (ex.: COLE_AQUI_A_SENHA_DW). Coloque a senha real no .env e salve o arquivo.",
+        }
 
     host = env("DW_SERVER") or env("DW_HOST")
     port = env("DW_PORT", "1433")
     tcp_ok, tcp_detail = _socket_check(host, port)
     if not tcp_ok:
-        return {"item": "DW runtime query", "ok": False, "required": True, "severity": "critical", "detail": f"{tcp_detail} ({host}:{port})"}
-
-    try:
-        df = read_sqlserver("DW", "SELECT 1 AS ok")
-        ok = df is not None and not df.empty
         return {
             "item": "DW runtime query",
-            "ok": bool(ok),
+            "ok": False,
             "required": True,
-            "severity": "critical" if not ok else "info",
-            "detail": "SELECT 1 retornou linhas" if ok else "consulta vazia/falhou"
+            "severity": "critical",
+            "detail": f"{tcp_detail} ({host}:{port})",
         }
-    except Exception as exc:
-        return {"item": "DW runtime query", "ok": False, "required": True, "severity": "critical", "detail": f"erro query: {exc}"}
+
+    probe = probe_sqlserver("DW")
+    return {
+        "item": "DW runtime query",
+        "ok": bool(probe.get("ok")),
+        "required": True,
+        "severity": "critical" if not probe.get("ok") else "info",
+        "detail": str(probe.get("detail") or ""),
+    }
 
 
 def _check_copernicus_credential() -> dict[str, Any]:
     enabled = _bool_feature_enabled("USE_COPERNICUS", False)
     if not enabled:
-        return {"item": "Copernicus credencial", "ok": True, "required": False, "severity": "info", "detail": "USE_COPERNICUS=false"}
+        return {
+            "item": "Copernicus credencial",
+            "ok": True,
+            "required": False,
+            "severity": "info",
+            "detail": "USE_COPERNICUS=false",
+        }
 
-    has_env_key = bool(env("COPERNICUS_KEY"))
+    key = env("COPERNICUS_KEY")
     has_dotfile = (ROOT / ".cdsapirc").exists() or (Path.home() / ".cdsapirc").exists()
-    ok = has_env_key or has_dotfile
-    detail = "COPERNICUS_KEY presente" if has_env_key else (".cdsapirc presente" if has_dotfile else "COPERNICUS_KEY/.cdsapirc ausentes")
-    return {"item": "Copernicus credencial", "ok": ok, "required": True, "severity": "critical" if not ok else "info", "detail": detail}
+    if looks_like_placeholder(key) and not has_dotfile:
+        return {
+            "item": "Copernicus credencial",
+            "ok": False,
+            "required": True,
+            "severity": "critical",
+            "detail": "COPERNICUS_KEY ainda está com placeholder e .cdsapirc não foi encontrado",
+        }
+
+    ok = (not looks_like_placeholder(key)) or has_dotfile
+    detail = (
+        "COPERNICUS_KEY presente"
+        if not looks_like_placeholder(key)
+        else (".cdsapirc presente" if has_dotfile else "COPERNICUS_KEY/.cdsapirc ausentes")
+    )
+    return {
+        "item": "Copernicus credencial",
+        "ok": ok,
+        "required": True,
+        "severity": "critical" if not ok else "info",
+        "detail": detail,
+    }
 
 
 def _check_inmet_url() -> dict[str, Any]:
     enabled = _bool_feature_enabled("USE_INMET", False)
     if not enabled:
-        return {"item": "INMET endpoint", "ok": True, "required": False, "severity": "info", "detail": "USE_INMET=false"}
+        return {
+            "item": "INMET endpoint",
+            "ok": True,
+            "required": False,
+            "severity": "info",
+            "detail": "USE_INMET=false",
+        }
     url = env("INMET_ALERTS_URL")
+    if looks_like_placeholder(url):
+        return {
+            "item": "INMET endpoint",
+            "ok": False,
+            "required": True,
+            "severity": "warning",
+            "detail": "INMET_ALERTS_URL ainda está com placeholder; pipeline usará CSV local",
+        }
     ok = bool(url)
     return {
         "item": "INMET endpoint",
         "ok": ok,
         "required": True,
         "severity": "warning" if not ok else "info",
-        "detail": url if ok else "INMET_ALERTS_URL ausente (ficará no fallback CSV)"
+        "detail": url if ok else "INMET_ALERTS_URL ausente (ficará no fallback CSV)",
     }
 
 
 def _check_core_files() -> list[dict[str, Any]]:
+    # Mantido apenas no run_preflight via validate_sources + checagens runtime.
+    # Esta função cobre os caminhos canônicos usados pelo app.
     checks: list[dict[str, Any]] = []
     required_paths = [
         ("Shapefile municipal", APP_CONFIG.shapefile_municipios),
@@ -100,11 +154,13 @@ def _check_core_files() -> list[dict[str, Any]]:
             "ok": ok,
             "required": True,
             "severity": "critical" if not ok else "info",
-            "detail": str(p) if ok else f"ausente: {p}"
+            "detail": str(p) if ok else f"ausente: {p}",
         })
 
     sivep_enabled = _bool_feature_enabled("USE_SIVEP_LOCAL", True)
-    sivep_folder = APP_CONFIG.root / (env("SIVEP_UPDATE_FOLDER", "data/input/sivep_atualizacao") or "data/input/sivep_atualizacao")
+    sivep_folder = APP_CONFIG.root / (
+        env("SIVEP_UPDATE_FOLDER", "data/input/sivep_atualizacao") or "data/input/sivep_atualizacao"
+    )
     folder_exists = sivep_folder.exists()
     files_count = 0
     if folder_exists:
@@ -114,7 +170,7 @@ def _check_core_files() -> list[dict[str, Any]]:
         "ok": folder_exists,
         "required": sivep_enabled,
         "severity": "critical" if sivep_enabled and not folder_exists else "info",
-        "detail": f"{sivep_folder} | arquivos={files_count}" if folder_exists else f"ausente: {sivep_folder}"
+        "detail": f"{sivep_folder} | arquivos={files_count}" if folder_exists else f"ausente: {sivep_folder}",
     })
     return checks
 
