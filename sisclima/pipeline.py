@@ -619,7 +619,14 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         update_current_level(indicador_row.get('data_referencia'), indicador_row.get('nivel'), int(indicador_row.get('score', 0)), indicador_row.get('motivo',''))
         if send_alerts:
             motivos = str(indicador_row.get('motivo','')).split('; ')
-            maybe_send_level_change(indicador_row.get('data_referencia'), old, indicador_row.get('nivel'), motivos, indicador_row)
+            maybe_send_level_change(
+                indicador_row.get('data_referencia'),
+                old,
+                indicador_row.get('nivel'),
+                motivos,
+                indicador_row,
+                resumo_mun=resumo_mun,
+            )
 
         # Mantém o dashboard público sincronizado com o último ciclo do pipeline.
         # O app principal cloud lê data/public em vez de consultar SQLite diretamente.

@@ -1,10 +1,9 @@
 from __future__ import annotations
-import json
-from sisclima.core.db import sqlite_conn
 from sisclima.core.config import env, as_bool
-from sisclima.utils.dates import now_iso
-from sisclima.alerts.notifier import dispatch_alert
 from sisclima.core.logging_utils import get_logger
+from sisclima.alerts.vigia_alerts import dispatch_vigia_alerts
+from sisclima.core.db import sqlite_conn
+from sisclima.utils.dates import now_iso
 
 log = get_logger(__name__)
 
@@ -24,53 +23,37 @@ def update_current_level(data_referencia: str, nivel: str, score: int, motivo: s
         ''', (data_referencia, nivel, score, motivo, now_iso()))
 
 
-def maybe_send_level_change(data_referencia: str, old: str | None, new: str, motivos: list[str], indicadores: dict) -> bool:
+def maybe_send_level_change(
+    data_referencia: str,
+    old: str | None,
+    new: str,
+    motivos: list[str],
+    indicadores: dict,
+    resumo_mun=None,
+) -> bool:
+    """Dispara os 3 alertas VIGIA (Estado, Regionais, Cuiabá) com orientações.
+
+    - SEND_ALERT_ON_LEVEL_CHANGE=true: só envia se o nível mudou
+    - FORCE_ALERT_SEND=true: força envio mesmo sem mudança
+    """
     force = as_bool(env('FORCE_ALERT_SEND', 'false'), False)
     only_on_change = as_bool(env('SEND_ALERT_ON_LEVEL_CHANGE', 'true'), True)
 
     if only_on_change and not force and old == new:
-        log.info('Sem mudança de nível (%s); alerta não enviado. Use FORCE_ALERT_SEND=true para forçar.', new)
+        log.info(
+            'Sem mudança de nível (%s); alerta VIGIA não enviado. Use FORCE_ALERT_SEND=true para forçar.',
+            new,
+        )
         return False
 
-    if force and old == new:
-        subject = f'[SIS Clima-Saúde] Alerta forçado — nível atual: {new}'
-        message = (
-            f'Data de referência: {data_referencia}\n'
-            f'Nível atual: {new} (sem mudança; envio forçado por FORCE_ALERT_SEND)\n\n'
-            f'Motivos principais:\n- ' + '\n- '.join(motivos[:8])
-        )
-    else:
-        subject = f'[SIS Clima-Saúde] Mudança de nível: {old or "sem registro"} -> {new}'
-        message = (
-            f'Data de referência: {data_referencia}\n'
-            f'Nível anterior: {old or "sem registro"}\n'
-            f'Novo nível: {new}\n\n'
-            f'Motivos principais:\n- ' + '\n- '.join(motivos[:8])
-        )
-
-    results = dispatch_alert(
-        subject,
-        message,
-        {
-            'data_referencia': data_referencia,
-            'nivel_anterior': old,
-            'nivel_novo': new,
-            'indicadores': indicadores,
-            'force': force,
-        },
+    result = dispatch_vigia_alerts(
+        data_referencia=data_referencia,
+        old=old,
+        new=new,
+        motivos=motivos,
+        indicadores=indicadores,
+        resumo_mun=resumo_mun,
+        force=force,
     )
-    with sqlite_conn() as conn:
-        conn.execute(
-            '''INSERT INTO alertas_enviados (created_at, nivel_anterior, nivel_novo, titulo, mensagem, canais, status)
-               VALUES (?, ?, ?, ?, ?, ?, ?)''',
-            (
-                now_iso(),
-                old,
-                new,
-                subject,
-                message,
-                json.dumps(results, ensure_ascii=False),
-                'enviado' if any(results.values()) else 'registrado_sem_canal',
-            ),
-        )
+    log.info('Pacote VIGIA processado: %s', result)
     return True
