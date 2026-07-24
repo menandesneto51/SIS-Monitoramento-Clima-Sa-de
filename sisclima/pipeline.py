@@ -130,6 +130,50 @@ def _merge(base: pd.DataFrame, other: pd.DataFrame, suffix: str = "") -> pd.Data
 
     return base.merge(other, on=keys, how="left", suffixes=("", suffix or "_y"))
 
+
+def _merge_latest_by_municipio(base: pd.DataFrame, other: pd.DataFrame, suffix: str = "") -> pd.DataFrame:
+    """Une snapshots 'latest' por município, sem exigir a mesma data do clima.
+
+    Evita o caso em que met=2026-07-30 e SIVEP/LACEN/SIM=2026-06-17 zeram o join.
+    """
+    if other is None or other.empty:
+        return base
+    if base is None or base.empty:
+        return other
+
+    base = base.copy()
+    other = other.copy()
+    suf = suffix or "_y"
+
+    if "cod_ibge" in base.columns and "cod_ibge" in other.columns:
+        for _df in (base, other):
+            _df["cod_ibge"] = (
+                _df["cod_ibge"]
+                .astype(str)
+                .str.replace(r"\.0$", "", regex=True)
+                .str.extract(r"(\d+)", expand=False)
+                .fillna("")
+                .str.zfill(7)
+            )
+        if "data" in other.columns:
+            other = other.rename(columns={"data": f"data{suf}"})
+        # Evita colisão de municipio/lat/lon já presentes na base
+        drop_overlap = [c for c in ("municipio", "lat", "lon") if c in base.columns and c in other.columns]
+        other = other.drop(columns=drop_overlap, errors="ignore")
+        return base.merge(other, on="cod_ibge", how="left", suffixes=("", suf))
+
+    if "municipio" in base.columns and "municipio" in other.columns:
+        base["_mun_key"] = base["municipio"].astype(str).str.lower().str.strip()
+        other["_mun_key"] = other["municipio"].astype(str).str.lower().str.strip()
+        if "data" in other.columns:
+            other = other.rename(columns={"data": f"data{suf}"})
+        drop_overlap = [c for c in ("cod_ibge", "lat", "lon") if c in base.columns and c in other.columns]
+        other = other.drop(columns=drop_overlap, errors="ignore")
+        out = base.merge(other, on="_mun_key", how="left", suffixes=("", suf))
+        return out.drop(columns=["_mun_key"], errors="ignore")
+
+    return base
+
 def _inmet_municipio_has_alert(alerts: pd.DataFrame, municipio: str | None) -> str | None:
     if alerts is None or alerts.empty:
         return None
@@ -412,12 +456,23 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
     latest_aq = latest_by_municipio(aq) if not aq.empty else pd.DataFrame()
 
     merged = base.copy()
+    # met traz a série climática (pode manter join por data+ibge); demais blocos são
+    # snapshots "latest" e devem colar só por município.
+    merged = _merge(merged, latest_met, suffix="_met")
     for d, suf in [
-        (latest_met, '_met'), (latest_press, '_press'), (latest_cap, '_cap'), (latest_stock, '_stock'),
-        (latest_infra, '_infra'), (latest_busca, '_busca'), (latest_com, '_com'), (latest_sivep, '_sivep'),
-        (latest_lacen, '_lacen'), (latest_sim, '_sim'), (latest_rumors, '_rum'), (latest_aq, '_ar')
+        (latest_press, "_press"),
+        (latest_cap, "_cap"),
+        (latest_stock, "_stock"),
+        (latest_infra, "_infra"),
+        (latest_busca, "_busca"),
+        (latest_com, "_com"),
+        (latest_sivep, "_sivep"),
+        (latest_lacen, "_lacen"),
+        (latest_sim, "_sim"),
+        (latest_rumors, "_rum"),
+        (latest_aq, "_ar"),
     ]:
-        merged = _merge(merged, d, suffix=suf)
+        merged = _merge_latest_by_municipio(merged, d, suffix=suf)
 
     # Ocupação real IndicaSUS: usa município quando houver e estado como fallback.
     ocup_estado_fallback = _get_ocupacao_estado_fallback()
@@ -434,11 +489,19 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
         latest = r.to_dict()
         # Normalizações esperadas pelo classificador
         latest['latencia_comunicacao_horas'] = _safe_float(latest.get('latencia_horas'))
-        latest['casos_srag'] = _safe_float(latest.get('casos_srag'), 0)
-        latest['positividade_lacen_pct'] = _safe_float(latest.get('positividade_pct'), 0)
-        latest['obitos_calor_suspeitos'] = _safe_float(latest.get('obitos_calor_suspeitos'), 0)
-        latest['score_sentinela'] = _safe_float(latest.get('score_sentinela'), 0)
-        latest['iq_ar_score'] = _safe_float(latest.get('iq_ar_score'), np.nan)
+        # Não forçar 0 quando a fonte não veio: 0 fake mascara "indisponível" no alerta.
+        latest['casos_srag'] = _safe_float(latest.get('casos_srag'), np.nan)
+        latest['positividade_lacen_pct'] = _safe_float(
+            latest.get('positividade_lacen_pct', latest.get('positividade_pct')),
+            np.nan,
+        )
+        latest['obitos_total'] = _safe_float(latest.get('obitos_total'), np.nan)
+        latest['obitos_calor_suspeitos'] = _safe_float(latest.get('obitos_calor_suspeitos'), np.nan)
+        latest['score_sentinela'] = _safe_float(latest.get('score_sentinela'), np.nan)
+        latest['iq_ar_score'] = _safe_float(
+            latest.get('iq_ar_score', latest.get('indice_qualidade_ar_operacional')),
+            np.nan,
+        )
         stage = classify_stage(latest, SETTINGS)
         extra_motivos = []
         if latest.get('obitos_calor_suspeitos', 0) and latest.get('obitos_calor_suspeitos', 0) >= 1:
