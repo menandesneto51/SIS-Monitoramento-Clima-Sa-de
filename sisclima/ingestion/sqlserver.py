@@ -33,6 +33,24 @@ def _pick_sqlserver_driver(preferred: str | None) -> str:
     return preferred or 'ODBC Driver 17 for SQL Server'
 
 
+def _odbc_yes_no(value: str | None, default: bool = True) -> str:
+    """Normaliza atributos ODBC que exigem yes/no (Driver 17/18).
+
+    Aceita true/false/1/0/yes/no e rejeita valores ambíguos caindo no default.
+    """
+    if value is None or str(value).strip() == '':
+        return 'yes' if default else 'no'
+    text = str(value).strip().lower()
+    if text in {'yes', 'y', 'true', 't', '1', 'on'}:
+        return 'yes'
+    if text in {'no', 'n', 'false', 'f', '0', 'off'}:
+        return 'no'
+    # Valores especiais do Encrypt no Driver 18.
+    if text in {'optional', 'mandatory', 'strict'}:
+        return text
+    return 'yes' if default else 'no'
+
+
 def _conn_parts(prefix: str = 'DW') -> dict[str, str | None]:
     # Para fontes institucionais, se INDICASUS/SINAN/SIM/GAL não tiver prefixo próprio,
     # usa automaticamente o DW, conforme operação real SES/MT.
@@ -44,9 +62,9 @@ def _conn_parts(prefix: str = 'DW') -> dict[str, str | None]:
     preferred_driver = env(f'{prefix}_DRIVER') or (env('DW_DRIVER') if fallback_to_dw else None) or 'ODBC Driver 17 for SQL Server'
     driver = _pick_sqlserver_driver(preferred_driver)
     port = env(f'{prefix}_PORT') or (env('DW_PORT') if fallback_to_dw else None)
-    encrypt = env(f'{prefix}_ENCRYPT') or (env('DW_ENCRYPT') if fallback_to_dw else None) or 'yes'
+    encrypt = env(f'{prefix}_ENCRYPT') or (env('DW_ENCRYPT') if fallback_to_dw else None) or 'no'
     trusted = env(f'{prefix}_TRUSTED_CONNECTION') or (env('DW_TRUSTED_CONNECTION') if fallback_to_dw else None) or 'false'
-    trust_cert = env(f'{prefix}_TRUST_SERVER_CERTIFICATE') or (env('DW_TRUST_SERVER_CERTIFICATE') if fallback_to_dw else None) or 'true'
+    trust_cert = env(f'{prefix}_TRUST_SERVER_CERTIFICATE') or (env('DW_TRUST_SERVER_CERTIFICATE') if fallback_to_dw else None) or 'yes'
     return {
         'server': server,
         'port': port,
@@ -67,9 +85,13 @@ def build_sqlserver_conn(prefix: str = 'DW') -> str | None:
     port = parts.get('port')
     driver = parts['driver']
     preferred_driver = parts.get('preferred_driver')
-    encrypt = parts.get('encrypt', 'yes')
+    # ODBC Driver 17/18 exige yes/no (não true/false/0/1) em TrustServerCertificate.
+    encrypt_raw = str(parts.get('encrypt') or 'no')
+    encrypt = _odbc_yes_no(encrypt_raw, default=False)
+    if encrypt_raw.strip().lower() in {'optional', 'mandatory', 'strict'}:
+        encrypt = encrypt_raw.strip().lower()
     trusted = as_bool(parts['trusted'], False)
-    trust_cert = parts['trust_cert']
+    trust_cert = _odbc_yes_no(parts.get('trust_cert'), default=True)
     if not server or not database:
         return None
     server_target = f'{server},{port}' if port else str(server)
@@ -149,6 +171,14 @@ def probe_sqlserver(prefix: str = 'DW') -> dict[str, str | bool]:
                     f"Login failed (18456) para usuário '{user}'. "
                     f"Confirme a senha em {prefix}_PASSWORD no .env (sem placeholder), "
                     f"SQL Authentication habilitado e conta ativa no SQL Server."
+                ),
+            }
+        if 'trustservercertificate' in lower.replace(' ', ''):
+            return {
+                'ok': False,
+                'detail': (
+                    "TrustServerCertificate inválido para ODBC Driver 18. "
+                    f"Use {prefix}_TRUST_SERVER_CERTIFICATE=yes (ou no) no .env — não use true/false/0/1."
                 ),
             }
         return {'ok': False, 'detail': detail}
