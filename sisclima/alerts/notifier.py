@@ -78,21 +78,60 @@ def send_telegram(text: str) -> bool:
     chat_id = env('TELEGRAM_CHAT_ID')
     if not token or not chat_id:
         return False
+
+    chunks = _split_telegram_chunks(text, limit=3500)
+
     try:
         verify = as_bool(env('ALERT_SSL_VERIFY', 'true'), True)
-        r = requests.post(
-            f'https://api.telegram.org/bot{token}/sendMessage',
-            data={'chat_id': chat_id, 'text': text},
-            timeout=30,
-            verify=verify,
-        )
-        return r.ok
+        ok_any = False
+        for i, chunk in enumerate(chunks):
+            r = requests.post(
+                f'https://api.telegram.org/bot{token}/sendMessage',
+                data={'chat_id': chat_id, 'text': chunk},
+                timeout=30,
+                verify=verify,
+            )
+            ok_any = ok_any or r.ok
+            if not r.ok:
+                log.warning('Telegram parte %s/%s falhou: %s', i + 1, len(chunks), r.text[:200])
+            elif i < len(chunks) - 1:
+                import time
+                time.sleep(0.35)
+        return ok_any
     except Exception as e:
         detail = str(e)
         if token:
             detail = detail.replace(token, '***')
         log.warning('Falha Telegram: %s', detail)
         return False
+
+
+def _split_telegram_chunks(text: str, limit: int = 3500) -> list[str]:
+    """Parte o texto em blocos seguros para o Telegram (limite ~4096)."""
+    text = str(text or "")
+    if len(text) <= limit:
+        return [text]
+
+    chunks: list[str] = []
+    remaining = text
+    while remaining:
+        if len(remaining) <= limit:
+            chunks.append(remaining)
+            break
+        window = remaining[:limit]
+        cut = window.rfind("\n\n")
+        if cut < limit // 3:
+            cut = window.rfind("\n")
+        if cut < limit // 3:
+            cut = limit
+        piece = remaining[:cut].rstrip()
+        remaining = remaining[cut:].lstrip("\n")
+        chunks.append(piece)
+
+    total = len(chunks)
+    if total <= 1:
+        return chunks
+    return [f"📨 Parte {i}/{total}\n\n{ch}" for i, ch in enumerate(chunks, start=1)]
 
 
 def send_webhook(payload: dict) -> bool:
@@ -110,11 +149,18 @@ def send_webhook(payload: dict) -> bool:
 
 
 def dispatch_alert(subject: str, message: str, payload: dict | None = None) -> dict:
+    """Envia alerta completo no e-mail; Telegram é fatiado se passar de ~3500 chars."""
     payload = payload or {}
+    full = f'{subject}\n\n{message}'
     results = {
-        'email': send_email(subject, message),
-        'telegram': send_telegram(f'{subject}\n\n{message}'),
-        'webhook': send_webhook({'subject': subject, 'message': message, **payload})
+        'email': send_email(subject, message),  # e-mail SEM truncar
+        'telegram': send_telegram(full),        # Telegram em partes
+        'webhook': send_webhook({'subject': subject, 'message': message, **payload}),
     }
-    log.info('Resultado envio alertas: %s', results)
+    log.info(
+        'Resultado envio alertas: %s | chars_email=%s | chars_telegram_total=%s',
+        results,
+        len(message),
+        len(full),
+    )
     return results

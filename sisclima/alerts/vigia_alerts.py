@@ -379,7 +379,7 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                         bullets.append(_bullet("▶️", clean if clean.startswith("[") else clean))
                     if bullets:
                         log.info("Orientações IA geradas via Gemini (%s)", model)
-                        return bullets[:10], f"gemini:{model}"
+                        return bullets[:8], f"gemini:{model}"
             except Exception as exc:
                 log.warning("Falha Gemini (%s): %s", model, _redact_secrets(str(exc)))
 
@@ -416,9 +416,49 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
 
 
 def _clip(text: str, limit: int = 3900) -> str:
+    """Corta texto apenas quando necessário (ex.: um único bloco Telegram)."""
     if len(text) <= limit:
         return text
-    return text[: limit - 60].rstrip() + "\n\n[...texto truncado para limite do canal]"
+    return text[: limit - 80].rstrip() + "\n\n[...continuação no próximo bloco do Telegram]"
+
+
+def _split_telegram_chunks(text: str, limit: int = 3500) -> list[str]:
+    """Parte o texto em blocos seguros para o Telegram (limite ~4096).
+
+    Prefere quebras em linhas em branco / fim de linha para não cortar no meio
+    de uma orientação da IA.
+    """
+    text = str(text or "")
+    if len(text) <= limit:
+        return [text]
+
+    chunks: list[str] = []
+    remaining = text
+    part = 1
+    while remaining:
+        if len(remaining) <= limit:
+            chunks.append(remaining)
+            break
+        window = remaining[:limit]
+        # tenta quebrar em parágrafo, senão em linha, senão no limite
+        cut = window.rfind("\n\n")
+        if cut < limit // 3:
+            cut = window.rfind("\n")
+        if cut < limit // 3:
+            cut = limit
+        piece = remaining[:cut].rstrip()
+        remaining = remaining[cut:].lstrip("\n")
+        total_hint = ""  # preenchido depois
+        chunks.append(piece)
+        part += 1
+
+    total = len(chunks)
+    out = []
+    for i, ch in enumerate(chunks, start=1):
+        prefix = f"📨 Parte {i}/{total}\n\n" if total > 1 else ""
+        out.append(prefix + ch)
+    return out
+
 
 
 def _build_contexto(resumo_mun: pd.DataFrame, nivel: str, motivos: list[str]) -> dict[str, Any]:
@@ -574,7 +614,7 @@ def compose_vigia_messages(
                 f"{TIPO_ICONS['estado']} [VIGIA][{_nivel_label(ctx['nivel_estadual'])}] "
                 f"{ALERT_TYPES['estado']} — {data_referencia}"
             ),
-            "message": _clip(body_estado),
+            "message": body_estado,
             "ai_fonte": ai_fonte,
         })
 
@@ -623,7 +663,7 @@ def compose_vigia_messages(
                     f"{TIPO_ICONS['regional']} [VIGIA][{_nivel_label(nivel_ers)}] "
                     f"ERS — {ers} — {data_referencia}"
                 ),
-                "message": _clip(body_reg),
+                "message": body_reg,
                 "ai_fonte": "playbook_regional",
             })
 
@@ -683,7 +723,7 @@ def compose_vigia_messages(
                     f"{TIPO_ICONS['municipal']} [VIGIA][{_nivel_label(niv)}] "
                     f"{mun} — {data_referencia}"
                 ),
-                "message": _clip(body_mun),
+                "message": body_mun,
                 "ai_fonte": "playbook_municipal",
             })
 
@@ -729,7 +769,7 @@ def compose_vigia_messages(
                 f"{TIPO_ICONS['cuiaba']} [VIGIA][{_nivel_label(niv_c)}] "
                 f"{ALERT_TYPES['cuiaba']} — {data_referencia}"
             ),
-            "message": _clip(body_cuiaba),
+            "message": body_cuiaba,
             "ai_fonte": ai_fonte,
         })
 
