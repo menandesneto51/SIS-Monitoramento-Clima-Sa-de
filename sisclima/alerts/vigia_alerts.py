@@ -38,12 +38,14 @@ def _fmt_num(value: Any, digits: int = 1, suffix: str = "") -> str:
     try:
         if value is None or (isinstance(value, float) and pd.isna(value)):
             return "indisponível"
+        text = str(value).strip()
+        if not text or text.lower() in {"nan", "none"}:
+            return "indisponível"
         if isinstance(value, (int,)) or (isinstance(value, float) and float(value).is_integer()):
             return f"{int(value)}{suffix}"
         return f"{float(value):.{digits}f}{suffix}"
     except Exception:
-        text = str(value).strip()
-        return text if text and text.lower() not in {"nan", "none"} else "indisponível"
+        return "indisponível"
 
 
 def _format_recs(nivel: str) -> list[str]:
@@ -78,13 +80,13 @@ def _epidemiology_block(indicadores: dict[str, Any] | None, resumo_mun: pd.DataF
         f"- Nível/score sentinela: {_nivel_label(ind.get('nivel'))} / {_fmt_num(ind.get('score'), 0)}",
         f"- Data referência: {ind.get('data_referencia', ind.get('data', 'n/d'))}",
         f"- UTCI/proxy: {_fmt_num(ind.get('utci_proxy'))} | Heat index: {_fmt_num(ind.get('heat_index'))}",
-        f"- Tmax: {_fmt_num(ind.get('tmax'))}°C | Tmin: {_fmt_num(ind.get('tmin'))}°C | Umidade: {_fmt_num(ind.get('umidade_media'))}%",
+        f"- Tmax: {_fmt_num(ind.get('tmax'), suffix='°C')} | Tmin: {_fmt_num(ind.get('tmin'), suffix='°C')} | Umidade: {_fmt_num(ind.get('umidade_media'), suffix='%')}",
         f"- Risco calor diário: {_fmt_num(ind.get('risco_calor_diario'))} | Risco cumulativo 3d: {_fmt_num(ind.get('risco_cumulativo_3d'))}",
         f"- Onda de calor P95 (2d): {_fmt_num(ind.get('onda_calor_p95_2d'), 0)} | Duração: {_fmt_num(ind.get('duracao_onda_calor_dias'), 0)} dia(s)",
-        f"- Casos SRAG: {_fmt_num(ind.get('casos_srag'), 0)} | Positividade LACEN: {_fmt_num(ind.get('positividade_lacen_pct'))}%",
+        f"- Casos SRAG: {_fmt_num(ind.get('casos_srag'), 0)} | Positividade LACEN: {_fmt_num(ind.get('positividade_lacen_pct'), suffix='%')}",
         f"- Óbitos totais (SIM): {_fmt_num(ind.get('obitos_total'), 0)} | Suspeitos calor: {_fmt_num(ind.get('obitos_calor_suspeitos'), 0)}",
         f"- Score sentinela: {_fmt_num(ind.get('score_sentinela'), 0)} | IQ ar: {_fmt_num(ind.get('iq_ar_score'))}",
-        f"- Ocupação leitos: {_fmt_num(ind.get('ocupacao_leitos_pct'))}% | Leitos totais: {_fmt_num(ind.get('leitos_total'), 0)} | Livres: {_fmt_num(ind.get('leitos_livres'), 0)}",
+        f"- Ocupação leitos: {_fmt_num(ind.get('ocupacao_leitos_pct'), suffix='%')} | Leitos totais: {_fmt_num(ind.get('leitos_total'), 0)} | Livres: {_fmt_num(ind.get('leitos_livres'), 0)}",
         f"- Fonte ocupação: {ind.get('fonte_ocupacao', 'n/d')}",
         f"- Índice resiliência: {_fmt_num(ind.get('indice_resiliencia'))}",
         f"- Municípios monitorados: {_fmt_num(monitorados, 0)} | Em alerta (laranja+): {_fmt_num(laranja, 0)}",
