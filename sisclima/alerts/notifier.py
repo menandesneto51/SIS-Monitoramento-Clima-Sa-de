@@ -36,7 +36,20 @@ def send_email(subject: str, body: str) -> bool:
     msg['Subject'] = subject
     msg['From'] = env('SMTP_FROM') or env('SMTP_USER') or 'sisclima@local'
     msg['To'] = to
+    # Texto puro (compatível) + HTML leve com tipografia monoespaçada preservando ícones.
     msg.set_content(body)
+    html_body = (
+        "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f4f6f8;\">"
+        "<div style=\"max-width:720px;margin:16px auto;padding:20px 22px;"
+        "background:#ffffff;border:1px solid #d9dee5;border-radius:10px;"
+        "font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2933;"
+        "line-height:1.45;font-size:14px;\">"
+        "<pre style=\"white-space:pre-wrap;word-wrap:break-word;margin:0;"
+        "font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;\">"
+        + body.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        + "</pre></div></body></html>"
+    )
+    msg.add_alternative(html_body, subtype="html")
     host = env('SMTP_HOST', 'smtp.gmail.com') or 'smtp.gmail.com'
     port = int(env('SMTP_PORT', '587') or 587)
     use_ssl = as_bool(env('SMTP_SSL'), port == 465)
