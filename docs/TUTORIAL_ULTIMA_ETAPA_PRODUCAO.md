@@ -58,13 +58,57 @@ Substitua apenas os placeholders:
 
 | Campo | O que colocar |
 |---|---|
-| `DW_PASSWORD` | senha real do DW |
-| `INDICASUS_PASSWORD` | senha real IndicaSUS |
+| `DW_PASSWORD` | senha real do DW (`menandes_cievs`) |
+| `INDICASUS_PASSWORD` | senha real do **Roney** (`roneydamaceno`) no BdSES — **não** use a senha do DW |
 | `SISREG_PASSWORD` | senha real SISREG (se usar) |
 | `COPERNICUS_KEY` | `UID:TOKEN` do ADS/CDS |
 | `SMTP_PASSWORD` | senha/app password do e-mail |
 | `TELEGRAM_BOT_TOKEN` | token real do bot |
 | `INMET_ALERTS_URL` | URL real de alertas (se tiver) |
+
+### 3.2.1 Agregar SIM / SINAN / GAL (DW) + IndicaSUS (Roney)
+
+No `.env` deixe assim (SRAG continua local):
+
+```env
+USE_SQLSERVER=true
+USE_DW_SIM=true
+USE_DW_SINAN=true
+USE_DW_GAL=true
+USE_DW_INDICASUS=true
+USE_DW_CNES=true
+EPI_LOOKBACK_DAYS=90
+
+# DW = SIM/SINAN/GAL/CNES
+DW_HOST=10.15.1.50
+DW_DATABASE=Datawarehouse
+DW_USER=menandes_cievs
+DW_PASSWORD=<senha_dw>
+DW_ENCRYPT=no
+DW_TRUST_SERVER_CERTIFICATE=yes
+
+# IndicaSUS tempo real = usuário Roney (não herdar DW)
+INDICASUS_HOST=10.15.0.222
+INDICASUS_SERVER=10.15.0.222
+INDICASUS_DATABASE=BdSES
+INDICASUS_USER=roneydamaceno
+INDICASUS_PASSWORD=<senha_roney>
+INDICASUS_ENCRYPT=no
+INDICASUS_TRUST_SERVER_CERTIFICATE=yes
+INDICASUS_USE_DW_CREDENTIALS=false
+USE_INDICASUS_OCCUPANCY_SCRIPT=true
+
+# SRAG fora do DW neste fluxo
+USE_SIVEP_LOCAL=true
+```
+
+Validar conexões e extratores:
+
+```powershell
+.\.venv\Scripts\python.exe validar_fontes_dw.py
+```
+
+Esperado: `[OK]` em SIM, SINAN e/ou GAL; probe IndicaSUS `conectado como roneydamaceno no banco BdSES`.
 
 ### 3.3 Confirmar chaves essenciais já no modelo
 

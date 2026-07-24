@@ -11,7 +11,15 @@ def _load_dw_query(sql_filename: str, fonte: str) -> pd.DataFrame:
     path = ROOT / 'sql' / sql_filename
     if not path.exists():
         return pd.DataFrame()
-    return normalize_cols(read_sqlserver('DW', path.read_text(encoding='utf-8')))
+    from sisclima.core.logging_utils import get_logger
+    log = get_logger(__name__)
+    sql = path.read_text(encoding='utf-8')
+    df = normalize_cols(read_sqlserver('DW', sql))
+    if df is None or df.empty:
+        log.warning('DW %s (%s): consulta sem linhas', fonte, sql_filename)
+    else:
+        log.info('DW %s (%s): %s linhas', fonte, sql_filename, len(df))
+    return df if df is not None else pd.DataFrame()
 
 
 def load_dw_indicasus_leitos() -> pd.DataFrame:

@@ -54,11 +54,22 @@ def _odbc_yes_no(value: str | None, default: bool = True) -> str:
 def _conn_parts(prefix: str = 'DW') -> dict[str, str | None]:
     # Para fontes institucionais, se INDICASUS/SINAN/SIM/GAL não tiver prefixo próprio,
     # usa automaticamente o DW, conforme operação real SES/MT.
-    fallback_to_dw = prefix.upper() != 'DW'
+    # Exceção: IndicaSUS BdSES — credenciais do usuário Roney NÃO herdam DW
+    # a menos que INDICASUS_USE_DW_CREDENTIALS=true.
+    pfx = prefix.upper()
+    fallback_to_dw = pfx != 'DW'
+    allow_dw_creds = True
+    if pfx == 'INDICASUS':
+        allow_dw_creds = as_bool(env('INDICASUS_USE_DW_CREDENTIALS', 'false'), False)
+
     server = env(f'{prefix}_SERVER') or (env('DW_SERVER') if fallback_to_dw else None)
     database = env(f'{prefix}_DATABASE') or (env('DW_DATABASE') if fallback_to_dw else None)
-    user = env(f'{prefix}_USER') or (env('DW_USER') if fallback_to_dw else None)
-    password = env(f'{prefix}_PASSWORD') or (env('DW_PASSWORD') if fallback_to_dw else None)
+    if allow_dw_creds:
+        user = env(f'{prefix}_USER') or (env('DW_USER') if fallback_to_dw else None)
+        password = env(f'{prefix}_PASSWORD') or (env('DW_PASSWORD') if fallback_to_dw else None)
+    else:
+        user = env(f'{prefix}_USER')
+        password = env(f'{prefix}_PASSWORD')
     preferred_driver = env(f'{prefix}_DRIVER') or (env('DW_DRIVER') if fallback_to_dw else None) or 'ODBC Driver 17 for SQL Server'
     driver = _pick_sqlserver_driver(preferred_driver)
     port = env(f'{prefix}_PORT') or (env('DW_PORT') if fallback_to_dw else None)

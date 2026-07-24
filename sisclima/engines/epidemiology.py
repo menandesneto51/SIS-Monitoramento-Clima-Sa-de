@@ -439,11 +439,15 @@ def sinan_summary(df: pd.DataFrame) -> pd.DataFrame:
 
     agravo = _as_series(out, ["agravo", "Agravo", "fonte_sinan"], "SINAN")
     agravo = _to_text(agravo).replace({"": "SINAN", "nan": "SINAN", "None": "SINAN", "NaT": "SINAN"})
+    numero_casos = _to_number(_as_series(out, ["numero_casos", "NumeroCasos", "notificacoes"], 1), 1)
 
     clean = keys.copy()
     clean["agravo"] = agravo.loc[clean.index].values
+    clean["numero_casos"] = numero_casos.loc[clean.index].values
 
-    g = clean.groupby(_group_keys(clean, extras=["agravo"]), as_index=False).size().rename(columns={"size": "notificacoes"})
+    g = clean.groupby(_group_keys(clean, extras=["agravo"]), as_index=False).agg(
+        notificacoes=("numero_casos", "sum"),
+    )
     for c in columns:
         if c not in g.columns:
             g[c] = 0 if c == "notificacoes" else ""

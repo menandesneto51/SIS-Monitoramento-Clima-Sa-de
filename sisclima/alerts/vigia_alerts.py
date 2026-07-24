@@ -171,8 +171,9 @@ def _epidemiology_block(indicadores: dict[str, Any] | None, resumo_mun: pd.DataF
         f"- Tmax: {_fmt_num(ind.get('tmax'), suffix='°C')} | Tmin: {_fmt_num(ind.get('tmin'), suffix='°C')} | Umidade: {_fmt_num(ind.get('umidade_media'), suffix='%')}",
         f"- Risco calor diário: {_fmt_num(ind.get('risco_calor_diario'))} | Risco cumulativo 3d: {_fmt_num(ind.get('risco_cumulativo_3d'))}",
         f"- Onda de calor P95 (2d): {_fmt_num(ind.get('onda_calor_p95_2d'), 0)} | Duração: {_fmt_num(ind.get('duracao_onda_calor_dias'), 0)} dia(s)",
-        f"- Casos SRAG: {_fmt_num(ind.get('casos_srag'), 0)} | Positividade LACEN: {_fmt_num(ind.get('positividade_lacen_pct'), suffix='%')}",
-        f"- Óbitos totais (SIM): {_fmt_num(ind.get('obitos_total'), 0)} | Suspeitos calor: {_fmt_num(ind.get('obitos_calor_suspeitos'), 0)}",
+        f"- Casos SRAG (local): {_fmt_num(ind.get('casos_srag'), 0)} | Positividade LACEN/GAL: {_fmt_num(ind.get('positividade_lacen_pct'), suffix='%')}",
+        f"- Notificações SINAN (DW): {_fmt_num(ind.get('notificacoes_sinan'), 0)}",
+        f"- Óbitos totais (SIM/DW): {_fmt_num(ind.get('obitos_total'), 0)} | Suspeitos calor: {_fmt_num(ind.get('obitos_calor_suspeitos'), 0)}",
         f"- Score sentinela: {_fmt_num(ind.get('score_sentinela'), 0)} | IQ ar: {_fmt_num(ind.get('iq_ar_score'))}",
         f"- Ocupação leitos: {_fmt_num(ind.get('ocupacao_leitos_pct'), suffix='%')} | Leitos totais: {_fmt_num(ind.get('leitos_total'), 0)} | Livres: {_fmt_num(ind.get('leitos_livres'), 0)}",
         f"- Fonte ocupação: {ind.get('fonte_ocupacao', 'n/d')}",
@@ -224,6 +225,7 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
                         "risco_cumulativo_3d",
                         "casos_srag",
                         "positividade_lacen_pct",
+                        "notificacoes_sinan",
                         "obitos_total",
                         "obitos_calor_suspeitos",
                         "ocupacao_leitos_pct",
@@ -398,9 +400,9 @@ def compose_vigia_messages(
         f"Municípios em alerta (laranja+): {ctx['municipios_alerta']}\n\n"
         f"{epi_txt}\n\n"
         f"GATILHOS / MOTIVOS\n{motivos_txt}\n\n"
-        f"ORIENTAÇÕES OPERACIONAIS (matriz por nível)\n{recs_txt}\n\n"
+        f"PLAYBOOK OPERACIONAL (matriz por nível — além do COE)\n{recs_txt}\n\n"
         f"ORIENTAÇÕES IA / ASSESSORIA TÉCNICA (fonte: {ai_fonte})\n{ai_txt}\n\n"
-        f"Encaminhamento: acionar Sala de Situação/COE conforme o nível e monitorar regionais prioritárias."
+        f"Encaminhamento: executar o playbook por eixo nas ERS prioritárias; revisitar indicadores epi (SRAG/LACEN/SIM) assim que as fontes forem atualizadas."
     )
     messages.append({
         "tipo": "estado",
@@ -420,9 +422,9 @@ def compose_vigia_messages(
         + "\n".join(f"- {x}" for x in reg_lines)
         + "\n\n"
         f"{epi_txt}\n\n"
-        f"ORIENTAÇÕES OPERACIONAIS (matriz por nível)\n{recs_txt}\n\n"
+        f"PLAYBOOK OPERACIONAL (matriz por nível — além do COE)\n{recs_txt}\n\n"
         f"ORIENTAÇÕES IA / ASSESSORIA TÉCNICA (fonte: {ai_fonte})\n{ai_txt}\n\n"
-        f"Encaminhamento: cada regional priorize busca ativa, pontos de resfriamento e comunicação local."
+        f"Encaminhamento: cada ERS execute busca ativa, pontos de resfriamento, regulação e comunicação local conforme o playbook."
     )
     messages.append({
         "tipo": "regionais",
@@ -440,9 +442,9 @@ def compose_vigia_messages(
         f"SITUAÇÃO DE CUIABÁ\n- {ctx['cuiaba_resumo']}\n\n"
         f"{epi_txt}\n\n"
         f"GATILHOS / MOTIVOS (ciclo estadual sentinela)\n{motivos_txt}\n\n"
-        f"ORIENTAÇÕES OPERACIONAIS (matriz por nível)\n{recs_txt}\n\n"
+        f"PLAYBOOK OPERACIONAL (matriz por nível — além do COE)\n{recs_txt}\n\n"
         f"ORIENTAÇÕES IA / ASSESSORIA TÉCNICA (fonte: {ai_fonte})\n{ai_txt}\n\n"
-        f"Encaminhamento: reforçar APS/UPA, comunicação urbana e monitoramento de ocupação hospitalar na capital."
+        f"Encaminhamento: reforçar APS/UPA, abrigos/resfriamento urbano e monitoramento de ocupação hospitalar na capital."
     )
     messages.append({
         "tipo": "cuiaba",

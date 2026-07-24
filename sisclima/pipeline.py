@@ -64,6 +64,13 @@ def _ensure_all(df: pd.DataFrame) -> pd.DataFrame:
     return ensure_municipality(df) if df is not None and not df.empty else pd.DataFrame()
 
 
+def _epi_lookback_days() -> int:
+    try:
+        return max(7, int(env('EPI_LOOKBACK_DAYS', '90') or 90))
+    except Exception:
+        return 90
+
+
 def _latest_value_by_mun(df: pd.DataFrame, value_cols: list[str], how: str = 'last') -> pd.DataFrame:
     if df is None or df.empty:
         return pd.DataFrame()
@@ -93,6 +100,50 @@ def _latest_value_by_mun(df: pd.DataFrame, value_cols: list[str], how: str = 'la
         res['data'] = tmp.groupby(keys, dropna=False)['data'].max().values
         return res
     return latest_by_municipio(out)
+
+
+def _sum_recent_by_mun(df: pd.DataFrame, value_cols: list[str], days: int | None = None) -> pd.DataFrame:
+    """Soma indicadores epidemiológicos na janela recente por município.
+
+    SIM/SINAN/SRAG são esparsos: pegar só o último dia mascara o total da onda.
+    """
+    if df is None or df.empty:
+        return pd.DataFrame()
+    out = _ensure_all(df)
+    lookback = days if days is not None else _epi_lookback_days()
+    if 'data' in out.columns:
+        out['data'] = pd.to_datetime(out['data'], errors='coerce')
+        cutoff = pd.Timestamp.today().normalize() - pd.Timedelta(days=lookback)
+        # Mantém linhas sem data (não perder registro) e as recentes.
+        out = out[out['data'].isna() | (out['data'] >= cutoff)].copy()
+    keys = municipality_cols(out)
+    usable = [c for c in value_cols if c in out.columns]
+    if not usable:
+        return pd.DataFrame()
+    if not keys:
+        row = {c: pd.to_numeric(out[c], errors='coerce').sum() for c in usable}
+        if 'data' in out.columns and out['data'].notna().any():
+            row['data'] = out['data'].max()
+        return pd.DataFrame([row])
+    for c in usable:
+        out[c] = pd.to_numeric(out[c], errors='coerce').fillna(0)
+    res = out.groupby(keys, dropna=False, as_index=False).agg(**{c: (c, 'sum') for c in usable})
+    if 'data' in out.columns:
+        res['data'] = out.groupby(keys, dropna=False)['data'].max().values
+    return res
+
+
+def _sinan_recent_by_mun(sinan: pd.DataFrame, days: int | None = None) -> pd.DataFrame:
+    """Agrega notificações SINAN (todos os agravos) por município na janela recente."""
+    if sinan is None or sinan.empty:
+        return pd.DataFrame()
+    out = sinan.copy()
+    if 'notificacoes' not in out.columns:
+        return pd.DataFrame()
+    summed = _sum_recent_by_mun(out, ['notificacoes'], days=days)
+    if summed.empty:
+        return summed
+    return summed.rename(columns={'notificacoes': 'notificacoes_sinan'})
 
 
 def _merge(base: pd.DataFrame, other: pd.DataFrame, suffix: str = "") -> pd.DataFrame:
@@ -234,35 +285,50 @@ def _run_indicasus_occupancy_update() -> None:
             print("[AVISO] atualizar_ocupacao_indicasus.py não encontrado; ocupação real será ignorada nesta rodada.")
             return
 
-        # Garante variáveis que o script legado espera, com fallback para o DW.
+        # Garante variáveis que o script legado espera.
+        # Validação SES/MT: usuário Roney no BdSES — NÃO reutilizar senha do DW.
         child_env = os.environ.copy()
         dw_host = env('DW_SERVER') or env('DW_HOST')
-        dw_db = env('DW_DATABASE')
         dw_user = env('DW_USER')
         dw_pwd = env('DW_PASSWORD')
         use_dw_creds = as_bool(env('INDICASUS_USE_DW_CREDENTIALS', 'false'), False)
-        ind_user = dw_user if use_dw_creds else (env('INDICASUS_USER') or dw_user)
-        ind_pwd = dw_pwd if use_dw_creds else (env('INDICASUS_PASSWORD') or dw_pwd)
+        if use_dw_creds:
+            ind_user = dw_user
+            ind_pwd = dw_pwd
+        else:
+            ind_user = env('INDICASUS_USER')
+            ind_pwd = env('INDICASUS_PASSWORD')
+            if not ind_user or not ind_pwd or 'COLE_AQUI' in str(ind_pwd).upper():
+                print(
+                    '[AVISO] IndicaSUS: preencha INDICASUS_USER/INDICASUS_PASSWORD '
+                    '(senha do Roney). Não usar DW_PASSWORD. '
+                    'Script de ocupação será pulado nesta rodada.'
+                )
+                return
         fallbacks = {
             'INDICASUS_HOST': env('INDICASUS_HOST') or env('INDICASUS_SERVER') or dw_host,
             'INDICASUS_SERVER': env('INDICASUS_SERVER') or env('INDICASUS_HOST') or dw_host,
-            'INDICASUS_DATABASE': env('INDICASUS_DATABASE') or env('INDICASUS_DB') or dw_db,
+            'INDICASUS_DATABASE': env('INDICASUS_DATABASE') or env('INDICASUS_DB') or 'BdSES',
             'INDICASUS_USER': ind_user,
             'INDICASUS_PASSWORD': ind_pwd,
             'INDICASUS_PORT': env('INDICASUS_PORT') or env('DW_PORT') or '1433',
             # ODBC 18 exige yes/no
             'INDICASUS_ENCRYPT': env('INDICASUS_ENCRYPT') or env('DW_ENCRYPT') or 'no',
-            'INDICASUS_TRUST_SERVER_CERTIFICATE': env('INDICASUS_TRUST_SERVER_CERTIFICATE') or env('DW_TRUST_SERVER_CERTIFICATE') or 'yes',
-            'Encrypt': env('DW_ENCRYPT') or 'no',
-            'TrustServerCertificate': env('DW_TRUST_SERVER_CERTIFICATE') or 'yes',
+            'INDICASUS_TRUST_SERVER_CERTIFICATE': (
+                env('INDICASUS_TRUST_SERVER_CERTIFICATE')
+                or env('DW_TRUST_SERVER_CERTIFICATE')
+                or 'yes'
+            ),
+            'Encrypt': env('INDICASUS_ENCRYPT') or env('DW_ENCRYPT') or 'no',
+            'TrustServerCertificate': (
+                env('INDICASUS_TRUST_SERVER_CERTIFICATE')
+                or env('DW_TRUST_SERVER_CERTIFICATE')
+                or 'yes'
+            ),
         }
+        # Sempre injeta os valores resolvidos (evita env residual com senha errada).
         for key, value in fallbacks.items():
-            if not value:
-                continue
-            # Credenciais: sobrescreve quando INDICASUS_USE_DW_CREDENTIALS=true
-            if use_dw_creds and key in {'INDICASUS_USER', 'INDICASUS_PASSWORD'}:
-                child_env[key] = str(value)
-            elif not child_env.get(key):
+            if value:
                 child_env[key] = str(value)
 
         proc = subprocess.run(
@@ -426,7 +492,7 @@ def _inject_ocupacao_into_summary(summary: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts) -> pd.DataFrame:
+def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, sinan=None) -> pd.DataFrame:
     # Base municipal preferencial: vulnerabilidade/metadata; se não houver, usa bases com dados.
     base_candidates = [vuln, met_ind, press, cap_agg, aq]
     base = pd.DataFrame()
@@ -449,9 +515,11 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
     latest_busca = _latest_value_by_mun(busca, ['cobertura_pct'], how='min') if not busca.empty else pd.DataFrame()
     latest_busca = latest_busca.rename(columns={'cobertura_pct':'cobertura_busca_pct'}) if not latest_busca.empty else latest_busca
     latest_com = latest_by_municipio(com) if not com.empty else pd.DataFrame()
-    latest_sivep = latest_by_municipio(sivep) if not sivep.empty else pd.DataFrame()
+    # Epi: janela recente (não só o último dia) — SIM/SINAN/SRAG do DW/local.
+    latest_sivep = _sum_recent_by_mun(sivep, ['casos_srag', 'uti', 'obitos']) if not sivep.empty else pd.DataFrame()
     latest_lacen = latest_by_municipio(lacen) if not lacen.empty else pd.DataFrame()
-    latest_sim = latest_by_municipio(sim) if not sim.empty else pd.DataFrame()
+    latest_sim = _sum_recent_by_mun(sim, ['obitos_total', 'obitos_calor_suspeitos']) if not sim.empty else pd.DataFrame()
+    latest_sinan = _sinan_recent_by_mun(sinan) if sinan is not None and not sinan.empty else pd.DataFrame()
     latest_rumors = latest_by_municipio(rumors) if not rumors.empty else pd.DataFrame()
     latest_aq = latest_by_municipio(aq) if not aq.empty else pd.DataFrame()
 
@@ -469,6 +537,7 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
         (latest_sivep, "_sivep"),
         (latest_lacen, "_lacen"),
         (latest_sim, "_sim"),
+        (latest_sinan, "_sinan"),
         (latest_rumors, "_rum"),
         (latest_aq, "_ar"),
     ]:
@@ -497,6 +566,7 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
         )
         latest['obitos_total'] = _safe_float(latest.get('obitos_total'), np.nan)
         latest['obitos_calor_suspeitos'] = _safe_float(latest.get('obitos_calor_suspeitos'), np.nan)
+        latest['notificacoes_sinan'] = _safe_float(latest.get('notificacoes_sinan'), np.nan)
         latest['score_sentinela'] = _safe_float(latest.get('score_sentinela'), np.nan)
         latest['iq_ar_score'] = _safe_float(
             latest.get('iq_ar_score', latest.get('indice_qualidade_ar_operacional')),
@@ -611,15 +681,26 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         sivep_raw = load_sivep_local()
         if sivep_raw.empty:
             sivep_raw = inputs['sivep_srag']
+            if not sivep_raw.empty:
+                log.info('SRAG: fallback CSV local (%s linhas)', len(sivep_raw))
+        else:
+            log.info('SRAG: SIVEP local (%s linhas)', len(sivep_raw))
+
         lacen_raw = load_dw_gal_lacen()
         if lacen_raw.empty:
             lacen_raw = inputs['lacen_gal']
+            if not lacen_raw.empty:
+                log.info('GAL/LACEN: fallback CSV (%s linhas)', len(lacen_raw))
         sinan_raw = load_dw_sinan_agravos()
         if sinan_raw.empty:
             sinan_raw = inputs['sinan_agravos']
+            if not sinan_raw.empty:
+                log.info('SINAN: fallback CSV (%s linhas)', len(sinan_raw))
         sim_raw = load_dw_sim_obitos()
         if sim_raw.empty:
             sim_raw = inputs['sim_obitos']
+            if not sim_raw.empty:
+                log.info('SIM: fallback CSV (%s linhas)', len(sim_raw))
 
         sivep = sivep_summary(sivep_raw)
         lacen = lacen_summary(lacen_raw)
@@ -650,7 +731,11 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         vuln = vulnerability_index(municipios, populacao)
         write_df(vuln, 'geo_vulnerabilidade_municipal')
 
-        resumo_mun = _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts)
+        resumo_mun = _build_municipal_summary(
+            met_ind, press, cap_agg, stock, infra, busca, com,
+            sivep, lacen, sim, rumors, aq, vuln, inmet_alerts,
+            sinan=sinan,
+        )
         resumo_mun = _inject_ocupacao_into_summary(resumo_mun)
         write_df(resumo_mun, 'resumo_municipal_atual')
         if not resumo_mun.empty:

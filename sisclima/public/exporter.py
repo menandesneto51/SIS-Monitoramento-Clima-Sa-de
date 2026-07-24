@@ -93,6 +93,8 @@ def _build_priorizacao_epidemiologica(resumo: pd.DataFrame) -> pd.DataFrame:
         "pressao_calor_pct",
         "casos_srag",
         "positividade_lacen_pct",
+        "notificacoes_sinan",
+        "obitos_total",
         "obitos_calor_suspeitos",
         "indice_vulnerabilidade_calor",
         "indice_resiliencia",
