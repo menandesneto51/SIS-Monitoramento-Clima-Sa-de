@@ -31,10 +31,16 @@ def maybe_send_level_change(
     indicadores: dict,
     resumo_mun=None,
 ) -> bool:
-    """Dispara os 3 alertas VIGIA (Estado, Regionais, Cuiabá) com orientações.
+    """Dispara o pacote VIGIA em 4 categorias.
+
+    1) ESTADO — panorama SES/CIEVS
+    2) REGIONAL — um alerta por ERS (16)
+    3) MUNICIPAL — um alerta por município (exceto Cuiabá)
+    4) CUIABÁ — capital
 
     - SEND_ALERT_ON_LEVEL_CHANGE=true: só envia se o nível mudou
     - FORCE_ALERT_SEND=true: força envio mesmo sem mudança
+    - ALERT_VIGIA_CATEGORIAS=estado,regional,municipal,cuiaba
     """
     force = as_bool(env('FORCE_ALERT_SEND', 'false'), False)
     only_on_change = as_bool(env('SEND_ALERT_ON_LEVEL_CHANGE', 'true'), True)

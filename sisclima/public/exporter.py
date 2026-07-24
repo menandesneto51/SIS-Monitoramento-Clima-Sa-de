@@ -138,10 +138,10 @@ def _build_ops_resumo(resumo: pd.DataFrame, ops_raw: pd.DataFrame) -> pd.DataFra
     return resumo.copy() if resumo is not None else pd.DataFrame()
 
 
-def _build_status_alertas(resumo: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def _build_status_alertas(resumo: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     if resumo is None or resumo.empty:
         empty = pd.DataFrame()
-        return empty, empty, empty, empty
+        return empty, empty, empty, empty, empty
 
     out = resumo.copy()
     municipio_col = _prefer_column(out, ["municipio"])
@@ -149,10 +149,6 @@ def _build_status_alertas(resumo: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
     score_col = _prefer_column(out, ["score"])
     reg_col = _prefer_column(out, ["regional_saude", "regional", "regiao_saude"])
     data_col = _prefer_column(out, ["data_referencia", "data"])
-
-    for col in [municipio_col, nivel_col, score_col, reg_col, data_col]:
-        if col and col not in out.columns:
-            col = None
 
     if score_col is None and nivel_col:
         score_map = {"verde": 0, "amarela": 1, "laranja": 2, "vermelha": 3, "roxa": 4}
@@ -177,34 +173,56 @@ def _build_status_alertas(resumo: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
         "nivel_estadual": nivel_estado,
         "municipios_monitorados": int(len(out)),
         "municipios_alerta": int(len(alerta_df)),
+        "regionais_monitoradas": int(out[reg_col].nunique()) if reg_col else 0,
         "email_enviado": False,
         "telegram_enviado": False,
         "webhook_enviado": False,
         "origem": "pipeline_sqlite_export",
+        "categorias_vigia": "estado,regional,municipal,cuiaba",
     }])
 
     estado = pd.DataFrame([{
         "data_referencia": data_ref,
         "nivel_estadual": nivel_estado,
         "municipios_em_alerta": int(len(alerta_df)),
+        "publico_alvo": "Gestores SES/MT e CIEVS",
     }])
 
-    if alerta_df.empty:
-        regionais = pd.DataFrame(columns=["data_referencia", "regional_saude", "municipios_em_alerta"])
-    else:
-        regionais = (
-            alerta_df.groupby(reg_col, dropna=False)[reg_col]
-            .count()
-            .reset_index(name="municipios_em_alerta")
-            .rename(columns={reg_col: "regional_saude"})
+    # Todas as ERS (não só as com alerta), para o tipo 2/4.
+    regionais = (
+        out.groupby(reg_col, dropna=False)
+        .agg(
+            municipios_total=(municipio_col, "count") if municipio_col else (reg_col, "size"),
+            municipios_em_alerta=(score_col, lambda s: int((pd.to_numeric(s, errors="coerce").fillna(0) >= 2).sum())),
+            nivel_max=(nivel_col, lambda s: max(s.astype(str).str.lower().tolist(), key=lambda x: {"verde":0,"amarela":1,"laranja":2,"vermelha":3,"roxa":4}.get(x,0)) if nivel_col else "n/d"),
         )
-        regionais["data_referencia"] = data_ref
+        .reset_index()
+        .rename(columns={reg_col: "regional_saude"})
+    )
+    regionais["data_referencia"] = data_ref
+    regionais["publico_alvo"] = "Escritório Regional de Saúde (ERS)"
 
-    cuiaba = pd.DataFrame(columns=list(alerta_df.columns))
-    if municipio_col and not alerta_df.empty:
-        cuiaba = alerta_df[alerta_df[municipio_col].astype(str).str.lower().eq("cuiabá") | alerta_df[municipio_col].astype(str).str.lower().eq("cuiaba")].copy()
+    keep_mun = [c for c in [
+        "cod_ibge", "municipio", "regional_saude", "nivel", "score",
+        "utci_proxy", "tmax", "risco_cumulativo_3d", "ocupacao_leitos_pct",
+        "pressao_calor_pct", "indice_resiliencia", "motivo", "data_referencia",
+    ] if c in out.columns]
+    municipais = out[keep_mun].copy() if keep_mun else out.copy()
+    if municipio_col and municipio_col in municipais.columns:
+        municipais = municipais[
+            ~municipais[municipio_col].astype(str).str.lower().isin(["cuiabá", "cuiaba"])
+        ].copy()
+    municipais["publico_alvo"] = "Gestão municipal de saúde"
 
-    return status, estado, regionais, cuiaba
+    cuiaba = pd.DataFrame(columns=list(out.columns))
+    if municipio_col:
+        cuiaba = out[
+            out[municipio_col].astype(str).str.lower().isin(["cuiabá", "cuiaba"])
+        ].copy()
+    if not cuiaba.empty:
+        cuiaba["publico_alvo"] = "Gestão municipal de Cuiabá (capital)"
+
+    return status, estado, regionais, municipais, cuiaba
 
 
 def export_public_data() -> dict[str, int]:
@@ -223,7 +241,7 @@ def export_public_data() -> dict[str, int]:
     prior = _build_priorizacao_epidemiologica(resumo)
     ocup_out = _build_ocupacao_hospitalar(resumo, ocup)
     ops_out = _build_ops_resumo(resumo, ops)
-    status, estado, regionais, cuiaba = _build_status_alertas(resumo)
+    status, estado, regionais, municipais, cuiaba = _build_status_alertas(resumo)
 
     exports: dict[str, pd.DataFrame] = {
         "resumo_municipal_atual.csv": resumo,
@@ -236,6 +254,7 @@ def export_public_data() -> dict[str, int]:
         "status_alertas_vigia.csv": status,
         "alertas_estado_vigia.csv": estado,
         "alertas_regionais_vigia.csv": regionais,
+        "alertas_municipais_vigia.csv": municipais,
         "alerta_cuiaba_vigia.csv": cuiaba,
     }
 

@@ -23,11 +23,12 @@ from sisclima.utils.dates import now_iso
 
 log = get_logger(__name__)
 
-ALERT_TYPES = (
-    ("estado", "TIPO 1/3 — ESTADO"),
-    ("regionais", "TIPO 2/3 — REGIONAIS"),
-    ("cuiaba", "TIPO 3/3 — CUIABÁ"),
-)
+ALERT_TYPES = {
+    "estado": "TIPO 1/4 — ESTADO (SES/CIEVS)",
+    "regional": "TIPO 2/4 — REGIONAL (ERS)",
+    "municipal": "TIPO 3/4 — MUNICIPAL",
+    "cuiaba": "TIPO 4/4 — CUIABÁ (capital)",
+}
 
 # Ícones Unicode (Telegram/e-mail texto). Mantém leitura operacional CIEVS/SES-MT.
 NIVEL_ICONS = {
@@ -39,8 +40,17 @@ NIVEL_ICONS = {
 }
 TIPO_ICONS = {
     "estado": "🗺️",
-    "regionais": "🏥",
+    "regional": "🏥",
+    "municipal": "📍",
     "cuiaba": "🏙️",
+}
+
+SCORE_BY_NIVEL = {
+    "verde": 0,
+    "amarela": 1,
+    "laranja": 2,
+    "vermelha": 3,
+    "roxa": 4,
 }
 
 
@@ -413,7 +423,7 @@ def _clip(text: str, limit: int = 3900) -> str:
 
 def _build_contexto(resumo_mun: pd.DataFrame, nivel: str, motivos: list[str]) -> dict[str, Any]:
     resumo_mun = _enrich_regional(resumo_mun)
-    status, estado, regionais, cuiaba = _build_status_alertas(resumo_mun)
+    status, estado, regionais, _municipais, cuiaba = _build_status_alertas(resumo_mun)
     nivel_estadual = nivel
     municipios_alerta = 0
     if not estado.empty:
@@ -450,6 +460,60 @@ def _build_contexto(resumo_mun: pd.DataFrame, nivel: str, motivos: list[str]) ->
     }
 
 
+def _score_of(row: dict[str, Any] | pd.Series) -> int:
+    try:
+        if "score" in row and pd.notna(row.get("score")):
+            return int(float(row.get("score")))
+    except Exception:
+        pass
+    return SCORE_BY_NIVEL.get(str(row.get("nivel", "")).strip().lower(), 0)
+
+
+def _is_cuiaba(nome: str | None) -> bool:
+    return str(nome or "").strip().lower() in {"cuiabá", "cuiaba"}
+
+
+def _mun_block(row: pd.Series) -> str:
+    return (
+        f"{_nivel_icon(row.get('nivel'))} {row.get('municipio')}: {_nivel_label(row.get('nivel'))} | "
+        f"score {_fmt_num(row.get('score'), 0)} | "
+        f"🌡️ UTCI {_fmt_num(row.get('utci_proxy'))} | Tmax {_fmt_num(row.get('tmax'))}°C | "
+        f"🛏️ ocupação {_fmt_num(row.get('ocupacao_leitos_pct'))}% | "
+        f"🛡️ resiliência {_fmt_num(row.get('indice_resiliencia'))}"
+    )
+
+
+def _playbook_for_nivel(nivel: str) -> str:
+    return "\n".join(_format_recs(nivel))
+
+
+def _categorias_ativas() -> set[str]:
+    raw = env("ALERT_VIGIA_CATEGORIAS", "estado,regional,municipal,cuiaba") or "estado,regional,municipal,cuiaba"
+    return {x.strip().lower() for x in raw.split(",") if x.strip()}
+
+
+def _min_score_municipais() -> int:
+    # 0 = todos os municípios; 1 = amarela+; 2 = laranja+ (padrão operacional)
+    try:
+        return int(env("ALERT_VIGIA_MUNICIPIOS_MIN_SCORE", "0") or 0)
+    except Exception:
+        return 0
+
+
+def _max_municipais() -> int:
+    try:
+        return max(1, int(env("ALERT_VIGIA_MAX_MUNICIPIOS", "160") or 160))
+    except Exception:
+        return 160
+
+
+def _send_delay_seconds() -> float:
+    try:
+        return max(0.0, float(env("ALERT_VIGIA_SEND_DELAY_SECONDS", "0.35") or 0.35))
+    except Exception:
+        return 0.35
+
+
 def compose_vigia_messages(
     data_referencia: str,
     nivel: str,
@@ -459,10 +523,18 @@ def compose_vigia_messages(
     force: bool = False,
     indicadores: dict[str, Any] | None = None,
 ) -> list[dict[str, str]]:
-    """Monta os 3 alertas VIGIA completos."""
+    """Monta o pacote VIGIA em 4 categorias com objetivos distintos.
+
+    1) ESTADO — panorama completo para gestores SES/CIEVS
+    2) REGIONAL — um alerta por ERS (16) com municípios da jurisdição
+    3) MUNICIPAL — um alerta por município (exceto Cuiabá) com orientações locais
+    4) CUIABÁ — alerta dedicado à capital
+    """
+    cats = _categorias_ativas()
     ctx = _build_contexto(resumo_mun, nivel, motivos)
+    df = _enrich_regional(resumo_mun)
     ai_lines, ai_fonte = _ai_orientacoes(ctx["nivel_estadual"], motivos, ctx, indicadores)
-    epi_txt = _epidemiology_block(indicadores, resumo_mun, ctx)
+    epi_txt = _epidemiology_block(indicadores, df, ctx)
     motivos_txt = "\n".join(_bullet("⚠️", m) for m in (motivos or [])[:10]) or _bullet("⚠️", "Sem motivos registrados")
     recs_txt = "\n".join(ctx["recs"])
     ai_txt = "\n".join(ai_lines)
@@ -473,73 +545,193 @@ def compose_vigia_messages(
         + (" (envio forçado)" if force else "")
     )
     header = "🚨 VIGIA Clima-Saúde MT"
-
     messages: list[dict[str, str]] = []
 
-    body_estado = (
-        f"{header} | {TIPO_ICONS['estado']} ALERTA {ALERT_TYPES[0][1]}\n"
-        f"🆔 Identificação: alerta estadual consolidado\n"
-        f"📅 Data de referência: {data_referencia}\n"
-        f"{mudanca}\n"
-        f"🏘️ Municípios em alerta (laranja+): {ctx['municipios_alerta']}\n\n"
-        f"{epi_txt}\n\n"
-        f"{_section('GATILHOS / MOTIVOS', '⚡')}\n{motivos_txt}\n\n"
-        f"{_section('PLAYBOOK OPERACIONAL (matriz por nível — além do COE)', '📘')}\n{recs_txt}\n\n"
-        f"{_section(f'ORIENTAÇÕES IA / ASSESSORIA TÉCNICA (fonte: {ai_fonte})', '🤖')}\n{ai_txt}\n\n"
-        f"📤 Encaminhamento: executar o playbook por eixo nas ERS prioritárias; "
-        f"revisitar indicadores epi (SRAG/LACEN/SIM) assim que as fontes forem atualizadas."
-    )
-    messages.append({
-        "tipo": "estado",
-        "titulo_tipo": ALERT_TYPES[0][1],
-        "subject": f"{TIPO_ICONS['estado']} [VIGIA][{_nivel_label(ctx['nivel_estadual'])}] {ALERT_TYPES[0][1]} — {data_referencia}",
-        "message": _clip(body_estado),
-        "ai_fonte": ai_fonte,
-    })
+    # ---- 1) ESTADO (SES / CIEVS) ----
+    if "estado" in cats:
+        reg_lines = ctx["regionais_resumo"] or ["Nenhuma regional com município em alerta (score ≥ 2)."]
+        body_estado = (
+            f"{header} | {TIPO_ICONS['estado']} {ALERT_TYPES['estado']}\n"
+            f"🎯 Público-alvo: gestores SES/MT e CIEVS (panorama estadual completo)\n"
+            f"📅 Data de referência: {data_referencia}\n"
+            f"{mudanca}\n"
+            f"🏘️ Municípios em alerta (laranja+): {ctx['municipios_alerta']}\n\n"
+            f"{_section('PANORAMA DAS 16 ERS', '🏥')}\n"
+            + "\n".join(_bullet("📍", x) for x in reg_lines)
+            + "\n\n"
+            f"{epi_txt}\n\n"
+            f"{_section('GATILHOS / MOTIVOS ESTADUAIS', '⚡')}\n{motivos_txt}\n\n"
+            f"{_section('PLAYBOOK ESTADUAL (além do COE)', '📘')}\n{recs_txt}\n\n"
+            f"{_section(f'ORIENTAÇÕES IA / ASSESSORIA TÉCNICA (fonte: {ai_fonte})', '🤖')}\n{ai_txt}\n\n"
+            f"📤 Encaminhamento SES/CIEVS: coordenar ERS prioritárias, regulação inter-regional, "
+            f"comunicação estadual e revisão das fontes epi (SRAG/SINAN/SIM/GAL/CNES/IndicaSUS)."
+        )
+        messages.append({
+            "tipo": "estado",
+            "destino": "SES/CIEVS",
+            "titulo_tipo": ALERT_TYPES["estado"],
+            "subject": (
+                f"{TIPO_ICONS['estado']} [VIGIA][{_nivel_label(ctx['nivel_estadual'])}] "
+                f"{ALERT_TYPES['estado']} — {data_referencia}"
+            ),
+            "message": _clip(body_estado),
+            "ai_fonte": ai_fonte,
+        })
 
-    reg_lines = ctx["regionais_resumo"] or ["Nenhuma regional com município em alerta (score ≥ 2)."]
-    body_reg = (
-        f"{header} | {TIPO_ICONS['regionais']} ALERTA {ALERT_TYPES[1][1]}\n"
-        f"🆔 Identificação: alerta por regionais de saúde\n"
-        f"📅 Data de referência: {data_referencia}\n"
-        f"🚦 Nível estadual de referência: {_nivel_label(ctx['nivel_estadual'])}\n\n"
-        f"{_section('REGIONAIS COM MUNICÍPIOS EM ALERTA', '🏥')}\n"
-        + "\n".join(_bullet("📍", x) for x in reg_lines)
-        + "\n\n"
-        f"{epi_txt}\n\n"
-        f"{_section('PLAYBOOK OPERACIONAL (matriz por nível — além do COE)', '📘')}\n{recs_txt}\n\n"
-        f"{_section(f'ORIENTAÇÕES IA / ASSESSORIA TÉCNICA (fonte: {ai_fonte})', '🤖')}\n{ai_txt}\n\n"
-        f"📤 Encaminhamento: cada ERS execute busca ativa, pontos de resfriamento, "
-        f"regulação e comunicação local conforme o playbook."
-    )
-    messages.append({
-        "tipo": "regionais",
-        "titulo_tipo": ALERT_TYPES[1][1],
-        "subject": f"{TIPO_ICONS['regionais']} [VIGIA][{_nivel_label(ctx['nivel_estadual'])}] {ALERT_TYPES[1][1]} — {data_referencia}",
-        "message": _clip(body_reg),
-        "ai_fonte": ai_fonte,
-    })
+    # ---- 2) REGIONAL (um por ERS) ----
+    if "regional" in cats and not df.empty and "regional_saude" in df.columns:
+        regionais = (
+            df["regional_saude"]
+            .fillna("Sem regional informada")
+            .astype(str)
+            .replace({"": "Sem regional informada"})
+        )
+        for ers in sorted(regionais.unique()):
+            if str(ers).strip().lower() in {"nan", "none"}:
+                continue
+            sub = df[df["regional_saude"].astype(str) == str(ers)].copy()
+            if sub.empty:
+                continue
+            if "score" in sub.columns:
+                sub = sub.sort_values("score", ascending=False)
+            nivel_ers = str(sub.iloc[0].get("nivel") or ctx["nivel_estadual"])
+            score_ers = _score_of(sub.iloc[0])
+            n_alerta = int((sub["score"] >= 2).sum()) if "score" in sub.columns else 0
+            mun_lines = [_bullet("•", _mun_block(r)) for _, r in sub.head(40).iterrows()]
+            if len(sub) > 40:
+                mun_lines.append(_bullet("•", f"... +{len(sub) - 40} município(s) nesta ERS"))
+            playbook_ers = _playbook_for_nivel(nivel_ers)
+            body_reg = (
+                f"{header} | {TIPO_ICONS['regional']} {ALERT_TYPES['regional']}\n"
+                f"🎯 Público-alvo: Escritório Regional de Saúde — {ers}\n"
+                f"📅 Data de referência: {data_referencia}\n"
+                f"🚦 Nível máximo na ERS: {_nivel_label(nivel_ers)} (score {_fmt_num(score_ers, 0)})\n"
+                f"🗺️ Nível estadual de referência: {_nivel_label(ctx['nivel_estadual'])}\n"
+                f"🏘️ Municípios da ERS: {len(sub)} | Em alerta (laranja+): {n_alerta}\n\n"
+                f"{_section(f'MUNICÍPIOS SOB JURISDIÇÃO — {ers}', '📍')}\n"
+                + "\n".join(mun_lines)
+                + "\n\n"
+                f"{_section('PLAYBOOK OPERACIONAL DA ERS', '📘')}\n{playbook_ers}\n\n"
+                f"📤 Encaminhamento ERS: acionar municípios prioritários da lista, "
+                f"pontos de resfriamento, busca ativa, regulação local e retorno ao CIEVS/SES."
+            )
+            messages.append({
+                "tipo": "regional",
+                "destino": str(ers),
+                "titulo_tipo": f"{ALERT_TYPES['regional']} — {ers}",
+                "subject": (
+                    f"{TIPO_ICONS['regional']} [VIGIA][{_nivel_label(nivel_ers)}] "
+                    f"ERS — {ers} — {data_referencia}"
+                ),
+                "message": _clip(body_reg),
+                "ai_fonte": "playbook_regional",
+            })
 
-    body_cuiaba = (
-        f"{header} | {TIPO_ICONS['cuiaba']} ALERTA {ALERT_TYPES[2][1]}\n"
-        f"🆔 Identificação: alerta municipal focado em Cuiabá\n"
-        f"📅 Data de referência: {data_referencia}\n"
-        f"🚦 Nível estadual de referência: {_nivel_label(ctx['nivel_estadual'])}\n\n"
-        f"{_section('SITUAÇÃO DE CUIABÁ', '🏙️')}\n{_bullet('📌', ctx['cuiaba_resumo'])}\n\n"
-        f"{epi_txt}\n\n"
-        f"{_section('GATILHOS / MOTIVOS (ciclo estadual sentinela)', '⚡')}\n{motivos_txt}\n\n"
-        f"{_section('PLAYBOOK OPERACIONAL (matriz por nível — além do COE)', '📘')}\n{recs_txt}\n\n"
-        f"{_section(f'ORIENTAÇÕES IA / ASSESSORIA TÉCNICA (fonte: {ai_fonte})', '🤖')}\n{ai_txt}\n\n"
-        f"📤 Encaminhamento: reforçar APS/UPA, abrigos/resfriamento urbano e "
-        f"monitoramento de ocupação hospitalar na capital."
-    )
-    messages.append({
-        "tipo": "cuiaba",
-        "titulo_tipo": ALERT_TYPES[2][1],
-        "subject": f"{TIPO_ICONS['cuiaba']} [VIGIA][{_nivel_label(ctx['nivel_estadual'])}] {ALERT_TYPES[2][1]} — {data_referencia}",
-        "message": _clip(body_cuiaba),
-        "ai_fonte": ai_fonte,
-    })
+    # ---- 3) MUNICIPAL (um por município, exceto Cuiabá) ----
+    if "municipal" in cats and not df.empty:
+        min_score = _min_score_municipais()
+        max_mun = _max_municipais()
+        mun_df = df.copy()
+        if "municipio" in mun_df.columns:
+            mun_df = mun_df[~mun_df["municipio"].map(_is_cuiaba)]
+        if "score" in mun_df.columns:
+            mun_df = mun_df[pd.to_numeric(mun_df["score"], errors="coerce").fillna(0) >= min_score]
+            mun_df = mun_df.sort_values("score", ascending=False)
+        mun_df = mun_df.head(max_mun)
+        for _, row in mun_df.iterrows():
+            mun = str(row.get("municipio") or "Município")
+            ers = str(row.get("regional_saude") or "Sem regional informada")
+            niv = str(row.get("nivel") or "verde")
+            motivo_local = str(row.get("motivo") or "Sem motivos registrados")
+            motivos_loc = "\n".join(
+                _bullet("⚠️", m.strip()) for m in motivo_local.split(";") if m.strip()
+            ) or _bullet("⚠️", "Sem motivos registrados")
+            playbook = _playbook_for_nivel(niv)
+            ind_lines = [
+                _bullet("🌡️", f"UTCI/proxy: {_fmt_num(row.get('utci_proxy'))} | Tmax: {_fmt_num(row.get('tmax'), suffix='°C')}"),
+                _bullet("🔥", f"Risco cumulativo 3d: {_fmt_num(row.get('risco_cumulativo_3d'))}"),
+                _bullet("🛏️", f"Ocupação leitos: {_fmt_num(row.get('ocupacao_leitos_pct'), suffix='%')} | Livres: {_fmt_num(row.get('leitos_livres'), 0)}"),
+                _bullet("🚑", f"Pressão assistencial: {_fmt_num(row.get('pressao_calor_pct'), suffix='%')}"),
+                _bullet("🛡️", f"Resiliência: {_fmt_num(row.get('indice_resiliencia'))} | CNES: {_fmt_num(row.get('indice_capacidade_cnes'))}"),
+                _bullet(
+                    "🫁",
+                    f"SRAG: {_fmt_num(row.get('casos_srag'), 0)} | "
+                    f"SINAN: {_fmt_num(row.get('notificacoes_sinan'), 0)} | "
+                    f"Óbitos SIM: {_fmt_num(row.get('obitos_total'), 0)}",
+                ),
+            ]
+            body_mun = (
+                f"{header} | {TIPO_ICONS['municipal']} {ALERT_TYPES['municipal']}\n"
+                f"🎯 Público-alvo: gestão municipal de saúde — {mun}\n"
+                f"🏥 ERS de vinculação: {ers}\n"
+                f"📅 Data de referência: {data_referencia}\n"
+                f"🚦 Nível municipal: {_nivel_label(niv)} | score {_fmt_num(row.get('score'), 0)}\n"
+                f"🗺️ Nível estadual de referência: {_nivel_label(ctx['nivel_estadual'])}\n\n"
+                f"{_section('INDICADORES LOCAIS', '📊')}\n"
+                + "\n".join(ind_lines)
+                + "\n\n"
+                f"{_section('GATILHOS / MOTIVOS LOCAIS', '⚡')}\n{motivos_loc}\n\n"
+                f"{_section('ORIENTAÇÕES OPERACIONAIS DO MUNICÍPIO', '📘')}\n{playbook}\n\n"
+                f"📤 Encaminhamento municipal: executar o playbook na rede local (APS/UPA/abrigos), "
+                f"informar a {ers} e manter boletim diário enquanto o nível permanecer elevado."
+            )
+            messages.append({
+                "tipo": "municipal",
+                "destino": mun,
+                "titulo_tipo": f"{ALERT_TYPES['municipal']} — {mun}",
+                "subject": (
+                    f"{TIPO_ICONS['municipal']} [VIGIA][{_nivel_label(niv)}] "
+                    f"{mun} — {data_referencia}"
+                ),
+                "message": _clip(body_mun),
+                "ai_fonte": "playbook_municipal",
+            })
+
+    # ---- 4) CUIABÁ (capital) ----
+    if "cuiaba" in cats:
+        cuiaba_rows = df[df["municipio"].map(_is_cuiaba)] if (not df.empty and "municipio" in df.columns) else pd.DataFrame()
+        if not cuiaba_rows.empty:
+            row = cuiaba_rows.sort_values("score", ascending=False).iloc[0] if "score" in cuiaba_rows.columns else cuiaba_rows.iloc[0]
+            niv_c = str(row.get("nivel") or ctx["nivel_estadual"])
+            motivo_c = str(row.get("motivo") or "")
+            motivos_c = "\n".join(_bullet("⚠️", m.strip()) for m in motivo_c.split(";") if m.strip()) or motivos_txt
+            sit = (
+                f"{row.get('municipio')}: {_nivel_label(niv_c)} | score {_fmt_num(row.get('score'), 0)} | "
+                f"UTCI {_fmt_num(row.get('utci_proxy'))} | Tmax {_fmt_num(row.get('tmax'))}°C | "
+                f"ocupação {_fmt_num(row.get('ocupacao_leitos_pct'))}%"
+            )
+            playbook_c = _playbook_for_nivel(niv_c)
+        else:
+            niv_c = str(ctx["nivel_estadual"])
+            sit = ctx["cuiaba_resumo"]
+            motivos_c = motivos_txt
+            playbook_c = recs_txt
+
+        body_cuiaba = (
+            f"{header} | {TIPO_ICONS['cuiaba']} {ALERT_TYPES['cuiaba']}\n"
+            f"🎯 Público-alvo: gestão municipal de Cuiabá (capital) e ERS Cuiabá\n"
+            f"📅 Data de referência: {data_referencia}\n"
+            f"🚦 Nível Cuiabá: {_nivel_label(niv_c)}\n"
+            f"🗺️ Nível estadual de referência: {_nivel_label(ctx['nivel_estadual'])}\n\n"
+            f"{_section('SITUAÇÃO DE CUIABÁ', '🏙️')}\n{_bullet('📌', sit)}\n\n"
+            f"{epi_txt}\n\n"
+            f"{_section('GATILHOS / MOTIVOS', '⚡')}\n{motivos_c}\n\n"
+            f"{_section('PLAYBOOK OPERACIONAL — CAPITAL', '📘')}\n{playbook_c}\n\n"
+            f"{_section(f'ORIENTAÇÕES IA (fonte: {ai_fonte})', '🤖')}\n{ai_txt}\n\n"
+            f"📤 Encaminhamento Cuiabá: reforçar APS/UPA, abrigos/resfriamento urbano, "
+            f"população de rua/ILPI e monitoramento de ocupação hospitalar na capital."
+        )
+        messages.append({
+            "tipo": "cuiaba",
+            "destino": "Cuiabá",
+            "titulo_tipo": ALERT_TYPES["cuiaba"],
+            "subject": (
+                f"{TIPO_ICONS['cuiaba']} [VIGIA][{_nivel_label(niv_c)}] "
+                f"{ALERT_TYPES['cuiaba']} — {data_referencia}"
+            ),
+            "message": _clip(body_cuiaba),
+            "ai_fonte": ai_fonte,
+        })
 
     return messages
 
@@ -553,7 +745,7 @@ def dispatch_vigia_alerts(
     resumo_mun: pd.DataFrame | None = None,
     force: bool = False,
 ) -> dict[str, Any]:
-    """Envia os 3 alertas VIGIA e registra auditoria."""
+    """Envia o pacote VIGIA (4 categorias) e registra auditoria."""
     df = resumo_mun if resumo_mun is not None else pd.DataFrame()
     messages = compose_vigia_messages(
         data_referencia=str(data_referencia),
@@ -567,15 +759,20 @@ def dispatch_vigia_alerts(
 
     channel_any = {"email": False, "telegram": False, "webhook": False}
     per_type: dict[str, Any] = {}
+    contagem = {"estado": 0, "regional": 0, "municipal": 0, "cuiaba": 0}
 
     log.info(
-        "Preparando pacote VIGIA com %s alertas | ai_fonte=%s | resumo_mun_linhas=%s",
+        "Preparando pacote VIGIA com %s alertas | categorias=%s | ai_fonte=%s | resumo_mun_linhas=%s",
         len(messages),
+        sorted(_categorias_ativas()),
         messages[0].get("ai_fonte") if messages else "n/d",
         len(df),
     )
 
-    for item in messages:
+    for idx, item in enumerate(messages):
+        tipo = item["tipo"]
+        contagem[tipo] = contagem.get(tipo, 0) + 1
+        key = f"{tipo}:{item.get('destino') or tipo}"
         results = dispatch_alert(
             item["subject"],
             item["message"],
@@ -583,14 +780,15 @@ def dispatch_vigia_alerts(
                 "data_referencia": data_referencia,
                 "nivel_anterior": old,
                 "nivel_novo": new,
-                "tipo_alerta_vigia": item["tipo"],
+                "tipo_alerta_vigia": tipo,
+                "destino": item.get("destino"),
                 "titulo_tipo": item["titulo_tipo"],
                 "indicadores": indicadores,
                 "force": force,
                 "ai_fonte": item.get("ai_fonte"),
             },
         )
-        per_type[item["tipo"]] = results
+        per_type[key] = results
         for k in channel_any:
             channel_any[k] = channel_any[k] or bool(results.get(k))
 
@@ -605,10 +803,34 @@ def dispatch_vigia_alerts(
                     new,
                     item["subject"],
                     item["message"],
-                    json.dumps({"tipo": item["tipo"], "ai_fonte": item.get("ai_fonte"), **results}, ensure_ascii=False),
+                    json.dumps(
+                        {
+                            "tipo": tipo,
+                            "destino": item.get("destino"),
+                            "ai_fonte": item.get("ai_fonte"),
+                            **results,
+                        },
+                        ensure_ascii=False,
+                    ),
                     "enviado" if any(results.values()) else "registrado_sem_canal",
                 ),
             )
+        delay = _send_delay_seconds()
+        if delay and idx < len(messages) - 1:
+            import time
 
-    log.info("Alertas VIGIA enviados: %s | canais=%s", list(per_type.keys()), channel_any)
-    return {"tipos": per_type, "canais": channel_any, "qtd": len(messages), "ai_fonte": messages[0].get("ai_fonte") if messages else None}
+            time.sleep(delay)
+
+    log.info(
+        "Alertas VIGIA enviados: contagem=%s | canais=%s | total=%s",
+        contagem,
+        channel_any,
+        len(messages),
+    )
+    return {
+        "tipos": per_type,
+        "contagem": contagem,
+        "canais": channel_any,
+        "qtd": len(messages),
+        "ai_fonte": next((m.get("ai_fonte") for m in messages if m.get("tipo") == "estado"), None),
+    }
