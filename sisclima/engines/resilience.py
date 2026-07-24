@@ -14,23 +14,53 @@ def normalize_positive(value, min_v=0, max_v=100):
 
 
 def resilience_index(latest: dict, weights: dict) -> dict:
-    """Índice 0-100. Quanto maior, maior resiliência operacional."""
-    leitos_livres = 100 - float(latest.get('ocupacao_leitos_pct', 100) or 100)
+    """Índice 0-100. Quanto maior, maior resiliência operacional.
+
+    Capacidade de leitos: prioriza ocupação IndicaSUS (livres%).
+    Infraestrutura: prioriza índice CNES (capacidade instalada); senão CSV de falhas.
+    """
+    ocup = latest.get('ocupacao_leitos_pct', None)
+    try:
+        ocup_f = float(ocup) if ocup is not None and str(ocup) not in {'', 'nan', 'None'} else float('nan')
+    except Exception:
+        ocup_f = float('nan')
+    if ocup_f == ocup_f:  # not NaN
+        leitos_livres = max(0.0, 100.0 - ocup_f)
+    else:
+        # Sem ocupação real: usa capacidade CNES como proxy de folga operacional.
+        try:
+            leitos_livres = float(latest.get('indice_capacidade_cnes', 50) or 50)
+        except Exception:
+            leitos_livres = 50.0
+
     estoque = min(100, float(latest.get('autonomia_min_dias', 0) or 0) / 14 * 100)
-    infra = 100 - float(latest.get('falhas_infra_pct', 100) or 100)
+
+    falhas = latest.get('falhas_infra_pct', None)
+    try:
+        falhas_f = float(falhas) if falhas is not None and str(falhas) not in {'', 'nan', 'None'} else float('nan')
+    except Exception:
+        falhas_f = float('nan')
+    if falhas_f == falhas_f:
+        infra = max(0.0, 100.0 - falhas_f)
+    else:
+        try:
+            infra = float(latest.get('indice_capacidade_cnes', 50) or 50)
+        except Exception:
+            infra = 50.0
+
     busca = float(latest.get('cobertura_busca_pct', 0) or 0)
     lat = float(latest.get('latencia_comunicacao_horas', 99) or 99)
-    comunicacao = 100 if lat <= 2 else max(0, 100 - (lat-2)*25)
+    comunicacao = 100 if lat <= 2 else max(0, 100 - (lat - 2) * 25)
     comps = {
         'capacidade_leitos': max(0, leitos_livres),
         'estoque': max(0, estoque),
-        'infraestrutura': max(0, infra),
+        'infraestrutura': max(0, min(100, infra)),
         'busca_ativa': max(0, min(100, busca)),
-        'comunicacao': max(0, min(100, comunicacao))
+        'comunicacao': max(0, min(100, comunicacao)),
     }
     total_w = sum(weights.values()) or 1
-    score = sum(comps[k] * weights.get(k,0) for k in comps) / total_w
-    return {'indice_resiliencia': round(score, 1), **{f'resil_{k}': round(v,1) for k,v in comps.items()}}
+    score = sum(comps[k] * weights.get(k, 0) for k in comps) / total_w
+    return {'indice_resiliencia': round(score, 1), **{f'resil_{k}': round(v, 1) for k, v in comps.items()}}
 
 
 def vulnerability_index(municipios: pd.DataFrame, populacao: pd.DataFrame | None = None) -> pd.DataFrame:

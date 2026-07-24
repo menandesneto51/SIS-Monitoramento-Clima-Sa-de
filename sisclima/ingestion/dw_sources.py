@@ -34,6 +34,18 @@ def load_dw_cnes_leitos() -> pd.DataFrame:
     return _load_dw_query('dw_cnes_leitos.sql', 'CNES')
 
 
+def load_dw_cnes_equipamentos() -> pd.DataFrame:
+    return _load_dw_query('dw_cnes_equipamentos.sql', 'CNES')
+
+
+def load_dw_cnes_equipes() -> pd.DataFrame:
+    return _load_dw_query('dw_cnes_equipes.sql', 'CNES')
+
+
+def load_dw_cnes_profissionais() -> pd.DataFrame:
+    return _load_dw_query('dw_cnes_profissionais.sql', 'CNES')
+
+
 def load_dw_sinan_agravos() -> pd.DataFrame:
     return _load_dw_query('dw_sinan_agravos_calor.sql', 'SINAN')
 

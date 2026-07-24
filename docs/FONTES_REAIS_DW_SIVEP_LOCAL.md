@@ -1,74 +1,43 @@
-# SIS-MT Clima-Saúde V4 — regra de fontes reais
+# FONTES_REAIS_DW_SIVEP_LOCAL.md — mapa de senhas e papéis
 
-Esta versão incorpora a regra operacional definida pela SES/MT:
+Esta versão incorpora a regra operacional SES/MT:
 
-1. **IndicaSUS, CNES, SINAN, SIM e GAL/LACEN** serão acessados pelo **Data Warehouse** com o login e senha configurados no `.env` pelo prefixo `DW_`.
-2. **SIVEP/SRAG** será mantido em **banco local atualizado** dentro da pasta do sistema, junto da base territorial e dos shapefiles.
-3. O cruzamento territorial usa `cod_ibge` como chave única municipal.
-4. Os shapefiles municipais 2025 e a população 2020–2025 já estão incorporados ao pacote.
+| Fonte | Servidor / objeto | Senha | Uso no SIS |
+|-------|-------------------|-------|------------|
+| SIM, SINAN, GAL, CNES_*, VW_INTERNACAO | DW `10.15.1.50` / `Datawarehouse` | **sua** (`DW_PASSWORD`) | óbitos, agravos, lab, resiliência CNES, pressão fallback |
+| SISREG | `10.15.1.71` / `SES` | `SISREG_PASSWORD` | **pressão** assistencial (preferencial) |
+| IndicaSUS | `10.15.0.222` / `BdSES` | **Roney** (`INDICASUS_PASSWORD`) | **ocupação** de leitos tempo real |
+| SIVEP/SRAG | banco local | — | SRAG (não usa DW neste fluxo) |
+
+1. **CNES** (`CNES_ESTABELECIMENTOS`, `CNES_LEITOS`, `CNES_EQUIPAMENTOS`, equipes) → `ops_cnes_municipio` + `indice_capacidade_cnes` na resiliência.
+2. **SISREG** (ou `VW_INTERNACAO` no DW) → `epi_pressao_assistencial`.
+3. **IndicaSUS/BdSES (Roney)** → `hospital_ocupacao_municipio`.
+4. O cruzamento territorial usa `cod_ibge` como chave única municipal.
 
 ## Arquivos sensíveis
 
-Não coloque senha dentro de código Python nem em SQL. Configure somente no `.env`, que não deve ser enviado por e-mail ou versionado em repositório público.
+Não coloque senha dentro de código Python nem em SQL. Configure somente no `.env`.
 
-## Pastas principais
+## SQL principal
 
 ```text
-data/geo/municipios_mt/MT_Municipios_2025.shp
-data/input/municipios_mt.csv
-data/input/populacao_municipal_mt_2020_2025.csv
-data/input/sivep_atualizacao/
-data/local/sivep/sivep_srag_local.db
-sql/dw_indicasus_leitos.sql
+sql/dw_cnes_estabelecimentos.sql
+sql/dw_cnes_leitos.sql
+sql/dw_cnes_equipamentos.sql
+sql/dw_cnes_equipes.sql
+sql/dw_cnes_profissionais.sql
+sql/dw_sih_internacoes_calor.sql
 sql/dw_sinan_agravos_calor.sql
 sql/dw_sim_obitos_calor.sql
 sql/dw_gal_lacen_resultados.sql
+sql/indicasus_ocupacao_municipio.sql
 ```
 
-## Fluxo recomendado
+## Validação
 
-```bat
-copy .env.producao.example .env
-instalar.bat
-atualizar_sivep_local.bat
-validar_dw_sivep.bat
-rodar_ciclo_real.bat
-abrir_painel.bat
+```powershell
+.\.venv\Scripts\python.exe validar_fontes_dw.py
+.\.venv\Scripts\python.exe atualizar_ocupacao_indicasus.py --descobrir
+.\.venv\Scripts\python.exe atualizar_ocupacao_indicasus.py
+.\.venv\Scripts\python.exe run_ciclo_completo.py --force-alert
 ```
-
-## DW
-
-Configure no `.env`:
-
-```env
-USE_SQLSERVER=true
-DW_SERVER=SERVIDOR
-DW_DATABASE=NOME_DO_DW
-DW_USER=SEU_LOGIN
-DW_PASSWORD=SUA_SENHA
-DW_DRIVER=ODBC Driver 17 for SQL Server
-```
-
-As consultas ficam na pasta `sql/` e devem ser ajustadas aos nomes reais das views/tabelas do DW.
-
-## SIVEP local
-
-Coloque arquivos exportados do SIVEP em:
-
-```text
-data/input/sivep_atualizacao/
-```
-
-Depois rode:
-
-```bat
-atualizar_sivep_local.bat
-```
-
-O sistema criará:
-
-```text
-data/local/sivep/sivep_srag_local.db
-```
-
-Durante o pipeline, esse banco é lido automaticamente e resumido por município de residência e data de início dos sintomas.

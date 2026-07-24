@@ -59,8 +59,9 @@ def _conn_parts(prefix: str = 'DW') -> dict[str, str | None]:
     pfx = prefix.upper()
     fallback_to_dw = pfx != 'DW'
     allow_dw_creds = True
-    if pfx == 'INDICASUS':
-        allow_dw_creds = as_bool(env('INDICASUS_USE_DW_CREDENTIALS', 'false'), False)
+    if pfx in {'INDICASUS', 'SISREG'}:
+        # Servidores dedicados: não herdar senha DW por padrão.
+        allow_dw_creds = as_bool(env(f'{pfx}_USE_DW_CREDENTIALS', 'false'), False)
 
     server = env(f'{prefix}_SERVER') or (env('DW_SERVER') if fallback_to_dw else None)
     database = env(f'{prefix}_DATABASE') or (env('DW_DATABASE') if fallback_to_dw else None)

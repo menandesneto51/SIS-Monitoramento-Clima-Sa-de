@@ -66,28 +66,35 @@ Substitua apenas os placeholders:
 | `TELEGRAM_BOT_TOKEN` | token real do bot |
 | `INMET_ALERTS_URL` | URL real de alertas (se tiver) |
 
-### 3.2.1 Agregar SIM / SINAN / GAL (DW) + IndicaSUS (Roney)
-
-No `.env` deixe assim (SRAG continua local):
+### 3.2.1 Agregar CNES / SISREG / IndicaSUS / SIM-SINAN-GAL
 
 ```env
+# DW — sua senha (SIM, SINAN, GAL, CNES, VW_INTERNACAO)
 USE_SQLSERVER=true
 USE_DW_SIM=true
 USE_DW_SINAN=true
 USE_DW_GAL=true
-USE_DW_INDICASUS=true
 USE_DW_CNES=true
+USE_DW_SIH=true
 EPI_LOOKBACK_DAYS=90
-
-# DW = SIM/SINAN/GAL/CNES
 DW_HOST=10.15.1.50
 DW_DATABASE=Datawarehouse
 DW_USER=menandes_cievs
-DW_PASSWORD=<senha_dw>
+DW_PASSWORD=<sua_senha_dw>
 DW_ENCRYPT=no
 DW_TRUST_SERVER_CERTIFICATE=yes
 
-# IndicaSUS tempo real = usuário Roney (não herdar DW)
+# SISREG — pressão
+USE_SISREG=true
+SISREG_HOST=10.15.1.71
+SISREG_SERVER=10.15.1.71
+SISREG_DATABASE=SES
+SISREG_USER=sisreg_sureg
+SISREG_PASSWORD=<senha_sisreg>
+SISREG_ENCRYPT=no
+SISREG_TRUST_SERVER_CERTIFICATE=yes
+
+# IndicaSUS — ocupação (Roney; NÃO herdar DW)
 INDICASUS_HOST=10.15.0.222
 INDICASUS_SERVER=10.15.0.222
 INDICASUS_DATABASE=BdSES
@@ -98,17 +105,19 @@ INDICASUS_TRUST_SERVER_CERTIFICATE=yes
 INDICASUS_USE_DW_CREDENTIALS=false
 USE_INDICASUS_OCCUPANCY_SCRIPT=true
 
-# SRAG fora do DW neste fluxo
+# SRAG fora do DW
 USE_SIVEP_LOCAL=true
 ```
 
-Validar conexões e extratores:
+Validar:
 
 ```powershell
 .\.venv\Scripts\python.exe validar_fontes_dw.py
+.\.venv\Scripts\python.exe atualizar_ocupacao_indicasus.py --descobrir
 ```
 
-Esperado: `[OK]` em SIM, SINAN e/ou GAL; probe IndicaSUS `conectado como roneydamaceno no banco BdSES`.
+Esperado: `[OK]` em CNES/SIM/SINAN/GAL; probe IndicaSUS `roneydamaceno`/`BdSES`; pressão via SISREG ou `DW:VW_INTERNACAO`.
+Se IndicaSUS não achar view de ocupação, ajuste `sql/indicasus_ocupacao_municipio.sql` com o nome listado em `--descobrir`.
 
 ### 3.3 Confirmar chaves essenciais já no modelo
 

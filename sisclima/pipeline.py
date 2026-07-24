@@ -11,14 +11,26 @@ from sisclima.ingestion.local_csv import load_all_inputs, load_csv
 from sisclima.ingestion.openmeteo import fetch_openmeteo_for_municipios
 from sisclima.ingestion.inmet import fetch_inmet_alerts, normalize_inmet_alerts
 from sisclima.ingestion.indicasus import load_indicasus_leitos
-from sisclima.ingestion.dw_sources import load_dw_sinan_agravos, load_dw_sim_obitos, load_dw_gal_lacen
+from sisclima.ingestion.dw_sources import (
+    load_dw_sinan_agravos,
+    load_dw_sim_obitos,
+    load_dw_gal_lacen,
+    load_dw_cnes_estabelecimentos,
+    load_dw_cnes_leitos,
+    load_dw_cnes_equipamentos,
+    load_dw_cnes_equipes,
+    load_dw_cnes_profissionais,
+)
 from sisclima.ingestion.sivep_local import load_sivep_local
 from sisclima.ingestion.copernicus_air_quality import fetch_cams_air_quality_municipal
 from sisclima.ingestion.ibge_municipios import get_municipios_operacionais
+from sisclima.ingestion.pressao_sources import load_pressao_assistencial_raw
+from sisclima.ingestion.indicasus_ocupacao import atualizar_ocupacao_indicasus
 from sisclima.engines.biometeo import add_biometeo_indicators
 from sisclima.engines.air_quality import add_air_quality_indicators
 from sisclima.engines.epidemiology import pressure_assistencial, sivep_summary, lacen_summary, sinan_summary, sim_heat_deaths
 from sisclima.engines.hospital import hospital_capacity, aggregate_capacity
+from sisclima.engines.cnes_ops import aggregate_cnes_municipal
 from sisclima.engines.operations import stock_autonomy, infrastructure_status, active_search, communication_latency
 from sisclima.engines.sentinel import score_rumors
 from sisclima.engines.resilience import resilience_index, vulnerability_index
@@ -270,22 +282,36 @@ def _read_sqlite_table_safe(table_name: str) -> pd.DataFrame:
 
 
 def _run_indicasus_occupancy_update() -> None:
+    """Atualiza ocupação via IndicaSUS BdSES (usuário Roney).
+
+    Ordem:
+    1) Módulo nativo sisclima.ingestion.indicasus_ocupacao
+    2) Script legado atualizar_ocupacao_indicasus.py (se existir e nativo falhar)
+    """
     try:
+        if not as_bool(env('USE_INDICASUS_OCCUPANCY_SCRIPT', 'true'), True):
+            print('[INFO] atualização IndicaSUS desativada (USE_INDICASUS_OCCUPANCY_SCRIPT=false).')
+            return
+
+        # Preferência: loader nativo (não depende de script externo).
+        try:
+            result = atualizar_ocupacao_indicasus()
+            print(f"[IndicaSUS] {result}")
+            if result.get('ok'):
+                return
+        except Exception as native_exc:
+            print(f"[AVISO] IndicaSUS nativo falhou: {native_exc}")
+
         import os
         import subprocess
         import sys
         from pathlib import Path
-
-        if not as_bool(env('USE_INDICASUS_OCCUPANCY_SCRIPT', 'true'), True):
-            print('[INFO] atualizar_ocupacao_indicasus.py desativado (USE_INDICASUS_OCCUPANCY_SCRIPT=false).')
-            return
 
         script = Path("atualizar_ocupacao_indicasus.py")
         if not script.exists():
             print("[AVISO] atualizar_ocupacao_indicasus.py não encontrado; ocupação real será ignorada nesta rodada.")
             return
 
-        # Garante variáveis que o script legado espera.
         # Validação SES/MT: usuário Roney no BdSES — NÃO reutilizar senha do DW.
         child_env = os.environ.copy()
         dw_host = env('DW_SERVER') or env('DW_HOST')
@@ -312,7 +338,6 @@ def _run_indicasus_occupancy_update() -> None:
             'INDICASUS_USER': ind_user,
             'INDICASUS_PASSWORD': ind_pwd,
             'INDICASUS_PORT': env('INDICASUS_PORT') or env('DW_PORT') or '1433',
-            # ODBC 18 exige yes/no
             'INDICASUS_ENCRYPT': env('INDICASUS_ENCRYPT') or env('DW_ENCRYPT') or 'no',
             'INDICASUS_TRUST_SERVER_CERTIFICATE': (
                 env('INDICASUS_TRUST_SERVER_CERTIFICATE')
@@ -326,7 +351,6 @@ def _run_indicasus_occupancy_update() -> None:
                 or 'yes'
             ),
         }
-        # Sempre injeta os valores resolvidos (evita env residual com senha errada).
         for key, value in fallbacks.items():
             if value:
                 child_env[key] = str(value)
@@ -492,7 +516,7 @@ def _inject_ocupacao_into_summary(summary: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, sinan=None) -> pd.DataFrame:
+def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, sinan=None, cnes=None) -> pd.DataFrame:
     # Base municipal preferencial: vulnerabilidade/metadata; se não houver, usa bases com dados.
     base_candidates = [vuln, met_ind, press, cap_agg, aq]
     base = pd.DataFrame()
@@ -520,6 +544,7 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
     latest_lacen = latest_by_municipio(lacen) if not lacen.empty else pd.DataFrame()
     latest_sim = _sum_recent_by_mun(sim, ['obitos_total', 'obitos_calor_suspeitos']) if not sim.empty else pd.DataFrame()
     latest_sinan = _sinan_recent_by_mun(sinan) if sinan is not None and not sinan.empty else pd.DataFrame()
+    latest_cnes = cnes.copy() if cnes is not None and not cnes.empty else pd.DataFrame()
     latest_rumors = latest_by_municipio(rumors) if not rumors.empty else pd.DataFrame()
     latest_aq = latest_by_municipio(aq) if not aq.empty else pd.DataFrame()
 
@@ -538,6 +563,7 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
         (latest_lacen, "_lacen"),
         (latest_sim, "_sim"),
         (latest_sinan, "_sinan"),
+        (latest_cnes, "_cnes"),
         (latest_rumors, "_rum"),
         (latest_aq, "_ar"),
     ]:
@@ -567,6 +593,8 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
         latest['obitos_total'] = _safe_float(latest.get('obitos_total'), np.nan)
         latest['obitos_calor_suspeitos'] = _safe_float(latest.get('obitos_calor_suspeitos'), np.nan)
         latest['notificacoes_sinan'] = _safe_float(latest.get('notificacoes_sinan'), np.nan)
+        latest['indice_capacidade_cnes'] = _safe_float(latest.get('indice_capacidade_cnes'), np.nan)
+        latest['pressao_calor_pct'] = _safe_float(latest.get('pressao_calor_pct'), np.nan)
         latest['score_sentinela'] = _safe_float(latest.get('score_sentinela'), np.nan)
         latest['iq_ar_score'] = _safe_float(
             latest.get('iq_ar_score', latest.get('indice_qualidade_ar_operacional')),
@@ -660,7 +688,11 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         write_df(aq_raw if aq_raw is not None else pd.DataFrame(), 'raw_qualidade_ar_copernicus')
         write_df(aq, 'qualidade_ar_municipal')
 
-        leitos_raw = load_indicasus_leitos()
+        # Capacidade instalada CNES (DW) → resiliência / ops_cnes_municipio
+        # Ocupação real = IndicaSUS BdSES (Roney); pressão = SISREG ou VW_INTERNACAO (DW)
+        leitos_raw = load_indicasus_leitos()  # na prática CNES_LEITOS via DW (capacidade)
+        if leitos_raw.empty:
+            leitos_raw = load_dw_cnes_leitos()
         leitos_raw = ensure_municipality(leitos_raw) if not leitos_raw.empty else inputs['indicasus_leitos']
         cap = hospital_capacity(leitos_raw)
         cap_agg = aggregate_capacity(cap)
@@ -668,13 +700,40 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         write_df(cap, 'hospital_capacidade_unidade')
         write_df(cap_agg, 'hospital_capacidade_agregada')
 
-        # Ocupação real IndicaSUS/BdSES em tempo quase real.
-        # Mantém hospital_capacidade_agregada como fallback, mas usa hospital_ocupacao_municipio
-        # para o cálculo do estágio quando disponível.
+        cnes_est = load_dw_cnes_estabelecimentos()
+        cnes_lei = load_dw_cnes_leitos()
+        if cnes_lei.empty and not leitos_raw.empty:
+            cnes_lei = leitos_raw
+        cnes_eqp = load_dw_cnes_equipamentos()
+        cnes_eqp_ab = load_dw_cnes_equipes()
+        cnes_prof = load_dw_cnes_profissionais()
+        ops_cnes = aggregate_cnes_municipal(
+            estabelecimentos=cnes_est,
+            leitos=cnes_lei,
+            equipamentos=cnes_eqp,
+            equipes=cnes_eqp_ab,
+            profissionais=cnes_prof,
+        )
+        write_df(ops_cnes, 'ops_cnes_municipio')
+        if not ops_cnes.empty:
+            log.info('CNES operacional: %s municípios', len(ops_cnes))
+        else:
+            log.warning('CNES operacional: sem dados (confira USE_DW_CNES e tabelas CNES_* no DW)')
+
+        # Ocupação real IndicaSUS/BdSES (Roney) em tempo quase real.
         _run_indicasus_occupancy_update()
         cap_agg = _prepare_ocupacao_cap_agg(cap_agg)
 
-        press = pressure_assistencial(leitos_raw)
+        # Pressão: SISREG → fallback VW_INTERNACAO (DW) → fallback leitos (legado)
+        press_raw = load_pressao_assistencial_raw()
+        if press_raw.empty:
+            log.warning('Pressão: SISREG/SIH vazios — usando proxy a partir da capacidade (legado)')
+            press_raw = leitos_raw
+        press = pressure_assistencial(press_raw)
+        if 'fonte_pressao' in press_raw.columns and not press.empty:
+            fonte = str(press_raw['fonte_pressao'].dropna().astype(str).head(1).tolist()[0] if press_raw['fonte_pressao'].notna().any() else '')
+            if fonte:
+                press['fonte_pressao'] = fonte
         write_df(press, 'epi_pressao_assistencial')
 
         # V4: SIVEP/SRAG vem do banco local; SINAN, SIM e GAL/LACEN vêm preferencialmente do DW.
@@ -735,8 +794,18 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             met_ind, press, cap_agg, stock, infra, busca, com,
             sivep, lacen, sim, rumors, aq, vuln, inmet_alerts,
             sinan=sinan,
+            cnes=ops_cnes,
         )
         resumo_mun = _inject_ocupacao_into_summary(resumo_mun)
+        # Consolida resumo operacional CNES para o painel (app_v6/v8/v9)
+        if not ops_cnes.empty and not resumo_mun.empty:
+            cnes_cols = ops_cnes.drop(
+                columns=[c for c in ('municipio',) if c in ops_cnes.columns and c in resumo_mun.columns],
+                errors='ignore',
+            )
+            ops_resumo = resumo_mun.merge(cnes_cols, on='cod_ibge', how='left', suffixes=('', '_cnesops'))
+            ops_resumo['status_infraestrutura'] = 'CNES DW integrado'
+            write_df(ops_resumo, 'ops_resumo_operacional_cnes')
         write_df(resumo_mun, 'resumo_municipal_atual')
         if not resumo_mun.empty:
             resumo_estado = resumo_mun.sort_values(['score','indice_vulnerabilidade_calor'] if 'indice_vulnerabilidade_calor' in resumo_mun.columns else ['score'], ascending=False).head(1).copy()
