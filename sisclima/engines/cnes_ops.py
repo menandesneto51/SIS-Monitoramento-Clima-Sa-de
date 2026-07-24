@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from sisclima.utils.io import normalize_cols
-from sisclima.utils.municipios import ensure_municipality, municipality_cols
+from sisclima.utils.municipios import ensure_municipality
 
 
 def _pick_col(df: pd.DataFrame, candidates: list[str]) -> str | None:
