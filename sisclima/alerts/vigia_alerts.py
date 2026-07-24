@@ -237,10 +237,11 @@ def _ai_orientacoes(nivel: str, motivos: list[str], contexto: dict[str, Any], in
     gemini_key = env("GEMINI_API_KEY")
     if gemini_key and not str(gemini_key).upper().startswith(("COLE_AQUI", "AI***")):
         models = [
-            env("GEMINI_MODEL", "gemini-2.0-flash") or "gemini-2.0-flash",
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
+            env("GEMINI_MODEL", "gemini-2.5-flash") or "gemini-2.5-flash",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite",
+            "gemini-flash-latest",
+            "gemini-2.5-pro",
         ]
         seen: set[str] = set()
         for model in models:
