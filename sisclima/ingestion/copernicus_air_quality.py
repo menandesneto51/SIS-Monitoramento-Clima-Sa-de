@@ -4,11 +4,24 @@ from datetime import datetime, timezone
 import os
 import numpy as np
 import pandas as pd
-from sisclima.core.config import APP_CONFIG, env, as_bool, SETTINGS
+from sisclima.core.config import APP_CONFIG, env, as_bool, SETTINGS, ROOT, env_name_used
 from sisclima.core.logging_utils import get_logger
 from sisclima.engines.air_quality import normalize_air_quality
 
 log = get_logger(__name__)
+
+
+def _normalize_copernicus_key(key: str | None) -> str | None:
+    """ADS atual exige a key sem o prefixo legado UID:."""
+    if not key:
+        return None
+    text = str(key).strip()
+    if ':' in text and not text.lower().startswith('http'):
+        # Formato legado uid:token → usa só o token.
+        left, right = text.split(':', 1)
+        if left and right and ' ' not in left and len(left) < 80:
+            return right.strip() or text
+    return text
 
 
 def _copernicus_enabled() -> bool:
@@ -71,8 +84,12 @@ def download_cams_air_quality() -> Path | None:
     dataset, request, target = build_cams_air_quality_request()
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
-        if env('COPERNICUS_KEY'):
-            client = cdsapi.Client(url=env('COPERNICUS_URL', 'https://ads.atmosphere.copernicus.eu/api'), key=env('COPERNICUS_KEY'))
+        url = env('COPERNICUS_URL', 'https://ads.atmosphere.copernicus.eu/api')
+        key = _normalize_copernicus_key(env('COPERNICUS_KEY'))
+        if key:
+            os.environ['CDSAPI_URL'] = url or 'https://ads.atmosphere.copernicus.eu/api'
+            os.environ['CDSAPI_KEY'] = key
+            client = cdsapi.Client(url=url, key=key)
         else:
             client = cdsapi.Client()
         log.info('Solicitando CAMS qualidade do ar: dataset=%s target=%s', dataset, target)

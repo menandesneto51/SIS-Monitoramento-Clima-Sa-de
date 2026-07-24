@@ -34,7 +34,7 @@ def send_email(subject: str, body: str) -> bool:
         return False
     msg = EmailMessage()
     msg['Subject'] = subject
-    msg['From'] = env('SMTP_USER') or 'sisclima@local'
+    msg['From'] = env('SMTP_FROM') or env('SMTP_USER') or 'sisclima@local'
     msg['To'] = to
     msg.set_content(body)
     host = env('SMTP_HOST', 'smtp.gmail.com') or 'smtp.gmail.com'

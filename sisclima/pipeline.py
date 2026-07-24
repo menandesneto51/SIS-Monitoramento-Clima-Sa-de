@@ -176,20 +176,49 @@ def _read_sqlite_table_safe(table_name: str) -> pd.DataFrame:
 
 def _run_indicasus_occupancy_update() -> None:
     try:
+        import os
         import subprocess
         import sys
         from pathlib import Path
+
+        if not as_bool(env('USE_INDICASUS_OCCUPANCY_SCRIPT', 'true'), True):
+            print('[INFO] atualizar_ocupacao_indicasus.py desativado (USE_INDICASUS_OCCUPANCY_SCRIPT=false).')
+            return
 
         script = Path("atualizar_ocupacao_indicasus.py")
         if not script.exists():
             print("[AVISO] atualizar_ocupacao_indicasus.py não encontrado; ocupação real será ignorada nesta rodada.")
             return
 
+        # Garante variáveis que o script legado espera, com fallback para o DW.
+        child_env = os.environ.copy()
+        dw_host = env('DW_SERVER') or env('DW_HOST')
+        dw_db = env('DW_DATABASE')
+        dw_user = env('DW_USER')
+        dw_pwd = env('DW_PASSWORD')
+        fallbacks = {
+            'INDICASUS_HOST': env('INDICASUS_HOST') or env('INDICASUS_SERVER') or dw_host,
+            'INDICASUS_SERVER': env('INDICASUS_SERVER') or env('INDICASUS_HOST') or dw_host,
+            'INDICASUS_DATABASE': env('INDICASUS_DATABASE') or env('INDICASUS_DB') or dw_db,
+            'INDICASUS_USER': env('INDICASUS_USER') or dw_user,
+            'INDICASUS_PASSWORD': env('INDICASUS_PASSWORD') or dw_pwd,
+            'INDICASUS_PORT': env('INDICASUS_PORT') or env('DW_PORT') or '1433',
+            # ODBC 18 exige yes/no
+            'INDICASUS_ENCRYPT': env('INDICASUS_ENCRYPT') or env('DW_ENCRYPT') or 'no',
+            'INDICASUS_TRUST_SERVER_CERTIFICATE': env('INDICASUS_TRUST_SERVER_CERTIFICATE') or env('DW_TRUST_SERVER_CERTIFICATE') or 'yes',
+            'Encrypt': env('DW_ENCRYPT') or 'no',
+            'TrustServerCertificate': env('DW_TRUST_SERVER_CERTIFICATE') or 'yes',
+        }
+        for key, value in fallbacks.items():
+            if value and not child_env.get(key):
+                child_env[key] = str(value)
+
         proc = subprocess.run(
             [sys.executable, str(script)],
             check=False,
             capture_output=True,
             text=True,
+            env=child_env,
         )
 
         if proc.stdout:
