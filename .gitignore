@@ -1,0 +1,58 @@
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Secrets
+.env
+*.env
+.streamlit/secrets.toml
+secrets.toml
+*senha*
+*token*
+*credential*
+*credentials*
+
+# Cursor / IDE
+.cursor/
+
+# Operational/local data
+data/input/
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+data/local/
+data/output/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs/temp/backups
+logs/
+_limpeza_segura/
+*.bak*
+*.tmp
+*.temp
+*.crdownload
+Texto colado*.txt
+
+# Local packages and Windows automation
+*.zip
+*.bat
+*.cmd
+*.ps1
+
+# Allow deploy helper scripts in local clean folder only if force-added manually
+!SUBIR_REPO_LIMPO_GITHUB_PY_V11_16.cmd
+!FORCE_PUSH_REPO_LIMPO_GITHUB_PY_V11_16.cmd
+
+# Contacts
+contatos_alertas.csv
+contatos_alertas_modelo.csv
+
+_staged_files.txt

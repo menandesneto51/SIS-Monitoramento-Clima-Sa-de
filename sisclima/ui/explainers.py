@@ -1,0 +1,305 @@
+# -*- coding: utf-8 -*-
+"""Textos explicativos para leitores leigos do painel SIS."""
+from __future__ import annotations
+
+LEVEL_GUIDE: dict[str, dict[str, str]] = {
+    "verde": {
+        "titulo": "Verde — situação sob controle",
+        "o_que_e": "Os indicadores climáticos e de saúde estão em faixa habitual para o município.",
+        "o_que_fazer": "Manter monitoramento de rotina. Não exige mobilização especial.",
+        "analogia": "Como um semáforo verde: pode seguir, mas continue olhando o painel.",
+    },
+    "amarela": {
+        "titulo": "Amarela — atenção",
+        "o_que_e": "Há sinais de calor, ar ou saúde acima do esperado. Ainda não é emergência.",
+        "o_que_fazer": "Reforçar vigilância climática e de SRAG/arboviroses. Comunicar a regional.",
+        "analogia": "Semáforo amarelo: reduza a velocidade e observe com mais cuidado.",
+    },
+    "laranja": {
+        "titulo": "Laranja — alerta",
+        "o_que_e": "Pressão relevante de calor e/ou indicadores de saúde. Prioridade operacional.",
+        "o_que_fazer": "Articular regional e assistência. Revisar estoques e plantão.",
+        "analogia": "Alerta: prepare a equipe e acompanhe o município de perto.",
+    },
+    "vermelha": {
+        "titulo": "Vermelha — resposta intensificada",
+        "o_que_e": "Condições críticas de calor e/ou carga sanitária elevada.",
+        "o_que_fazer": "Sala de situação, reforço de comunicação à população e apoio assistencial.",
+        "analogia": "Situação grave: ação coordenada imediata.",
+    },
+    "roxa": {
+        "titulo": "Roxa — situação excepcional",
+        "o_que_e": "Nível máximo do SIS: múltiplos gatilhos ao mesmo tempo.",
+        "o_que_fazer": "Mobilização plena do CIEVS e articulação estadual.",
+        "analogia": "Prioridade absoluta nesta rodada do painel.",
+    },
+    "cinza": {
+        "titulo": "Cinza — dados incompletos",
+        "o_que_e": "Faltam informações suficientes para classificar com segurança.",
+        "o_que_fazer": "Verificar fontes e atualizar o pipeline antes de decidir.",
+        "analogia": "Painel sem leitura clara — não interprete como ‘tudo bem’.",
+    },
+}
+
+INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
+    "nivel": {
+        "nome": "Nível operacional",
+        "leigo": "Resumo colorido da gravidade do município hoje (Verde → Roxa).",
+        "como_ler": "Quanto mais escuro/alto o nível, maior a prioridade para o CIEVS.",
+    },
+    "score": {
+        "nome": "Score operacional",
+        "leigo": "Nota numérica que acompanha o nível (quanto maior, mais crítico).",
+        "como_ler": "Use para ranquear municípios no mesmo nível.",
+    },
+    "tmax": {
+        "nome": "Temperatura máxima (Tmax)",
+        "leigo": "Maior temperatura do dia no município (°C).",
+        "como_ler": "Acima de ~35 °C já exige atenção a grupos vulneráveis.",
+    },
+    "utci_proxy": {
+        "nome": "UTCI proxy",
+        "leigo": "Estimativa de ‘como o corpo sente’ o calor (não só o termômetro).",
+        "como_ler": "Valores altos indicam estresse térmico mesmo com Tmax moderada.",
+    },
+    "risco_cumulativo_3d": {
+        "nome": "Risco cumulativo 3 dias",
+        "leigo": "Soma do estresse térmico dos últimos 3 dias — calor que ‘acumula’.",
+        "como_ler": "Útil para ondas de calor: um dia quente é diferente de três seguidos.",
+    },
+    "pressao_calor_pct": {
+        "nome": "Pressão assistencial (proxy)",
+        "leigo": "Estimativa de pressão sobre a rede de saúde por clima + sinais de doença.",
+        "como_ler": "É um proxy quando a ocupação real de leitos (IndicaSUS) não está disponível.",
+    },
+    "ocupacao_leitos_pct": {
+        "nome": "Ocupação de leitos",
+        "leigo": "Percentual de leitos ocupados (fonte IndicaSUS/BdSES, quando disponível).",
+        "como_ler": "Se aparecer ‘—’, a fonte assistencial não respondeu nesta rodada.",
+    },
+    "pm25_ugm3": {
+        "nome": "PM2,5",
+        "leigo": "Partículas finas no ar (fumaça/poeira) que entram fundo no pulmão.",
+        "como_ler": "Valores altos preocupam asma, idosos e crianças — comum em queimadas.",
+    },
+    "casos_srag": {
+        "nome": "Casos SRAG",
+        "leigo": "Síndrome Respiratória Aguda Grave notificada (hospitalizações graves).",
+        "como_ler": "Picos podem acompanhar vírus, fumaça ou ambos — cruzar com clima/ar.",
+    },
+    "indice_tensao_climatica": {
+        "nome": "Índice de tensão climática (0–100)",
+        "leigo": "Nota nova do SIS que resume calor + umidade + risco acumulado em uma escala fácil.",
+        "como_ler": "0–30 baixo · 31–60 moderado · 61–80 alto · >80 muito alto.",
+    },
+    "indice_carga_saude": {
+        "nome": "Índice de carga em saúde (0–100)",
+        "leigo": "Resume SRAG, arboviroses e qualidade do ar disponíveis no município.",
+        "como_ler": "Alto = mais sinais sanitários simultâneos — priorizar investigação.",
+    },
+    "indice_vigilancia_integrada": {
+        "nome": "Índice de vigilância integrada (0–100)",
+        "leigo": "Combina clima + saúde + alinhamento com o nível oficial (Verde→Roxa).",
+        "como_ler": "Use junto com o nível operacional — agora Roxa tende a ficar ≥ Vermelha.",
+    },
+    "indice_vigilancia_bruta": {
+        "nome": "Vigilância bruta (0–100)",
+        "leigo": "Mesma lógica climática/sanitária, sem misturar o nível oficial.",
+        "como_ler": "Útil para ver pressão ‘pura’ de clima+saúde quando o nível veio de outro gatilho.",
+    },
+    "tendencia_7d": {
+        "nome": "Tendência 7 dias",
+        "leigo": "Compara o nível de hoje com a predição da próxima semana.",
+        "como_ler": "Subindo / estável / descendo — horizonte curto, não é previsão de setembro.",
+    },
+    "completude_dados_pct": {
+        "nome": "Completude dos dados (%)",
+        "leigo": "Quanto das informações-chave do município está preenchido nesta rodada.",
+        "como_ler": "Baixa completude = interprete com cautela (pode faltar ar, leitos etc.).",
+    },
+    "percentil_risco_estadual": {
+        "nome": "Percentil de risco no Estado",
+        "leigo": "Posição do município frente aos demais (ex.: percentil 90 = entre os 10% piores).",
+        "como_ler": "Ajuda a relativizar: ‘quente’ em relação a Mato Grosso hoje.",
+    },
+    "orientacao_leiga": {
+        "nome": "Orientação em linguagem simples",
+        "leigo": "Frase automática sugerindo o que observar no município nesta rodada.",
+        "como_ler": "É um resumo didático — confirme sempre com o nível, o motivo e o plantão CIEVS.",
+    },
+    "indice_adaptacao_climatica": {
+        "nome": "Índice de adaptação climática (0–100)",
+        "leigo": "Síntese dos riscos prioritários do AdaptaSUS cobertos pelo SIS nesta rodada.",
+        "como_ler": "Quanto maior, maior a pressão climática–saúde agregada. Baixa completude penaliza o índice.",
+    },
+    "risco_adaptasus_dominante": {
+        "nome": "Risco AdaptaSUS dominante",
+        "leigo": "Qual dos 6 riscos prioritários mais pressiona o município hoje.",
+        "como_ler": "Use para escolher o checklist SOP (calor, ar, vetorial, chuva…). Lacunas WASH/SAN ficam explícitas.",
+    },
+    "risco_calor_vulneravel": {
+        "nome": "Risco calor × vulnerabilidade",
+        "leigo": "Combina tensão térmica com porte populacional (proxy de exposição).",
+        "como_ler": "Prioriza polos urbanos quentes sem substituir cadastro de vulneráveis.",
+    },
+    "risco_ar_queimadas": {
+        "nome": "Risco ar / queimadas",
+        "leigo": "PM2,5 amplificado por seca (chuva baixa).",
+        "como_ler": "Sem PM2,5 no município o indicador fica vazio — não é ar limpo.",
+    },
+    "risco_vetorial_climatico": {
+        "nome": "Risco vetorial climático",
+        "leigo": "Arboviroses 7d cruzadas com calor e chuva favorável ao vetor.",
+        "como_ler": "Apoia mutirões e investigação — não projeta a temporada inteira.",
+    },
+    "pressao_rede_climatica": {
+        "nome": "Pressão da rede climática",
+        "leigo": "Ocupação/pressão assistencial misturada com tensão climática.",
+        "como_ler": "Ajuda a ver se o calor chega na porta da urgência.",
+    },
+    "odds_ratio": {
+        "nome": "Odds Ratio (OR) ecológico",
+        "leigo": "Compara chance de desfecho em municípios mais expostos vs menos expostos.",
+        "como_ler": "OR > 1 sugere maior chance no grupo exposto. Não implica causalidade individual.",
+    },
+    "indice_sazonal": {
+        "nome": "Índice sazonal",
+        "leigo": "Compara a média de um mês com a média geral do período histórico.",
+        "como_ler": "Acima de 1 indica mês historicamente mais crítico para o desfecho analisado.",
+    },
+    "indice_saturacao_solo": {
+        "nome": "Índice de saturação do solo",
+        "leigo": "Quanto o solo está ‘encheu’ de água (0–100), a partir da umidade volumétrica Open-Meteo.",
+        "como_ler": "Alta/crítica aumenta atenção a alagamento junto com Cemaden/ANA — distinto de saturação de leitos.",
+    },
+    "indice_resiliencia": {
+        "nome": "Índice de resiliência operacional",
+        "leigo": "Capacidade de resposta do município (leitos livres, estoque, infra, busca, comunicação).",
+        "como_ler": "Quanto maior, melhor. Com CNES, a capacidade mistura leitos livres e capacidade instalada.",
+    },
+    "indice_capacidade_cnes": {
+        "nome": "Índice de capacidade CNES",
+        "leigo": "Proxy da capacidade instalada (leitos e estabelecimentos por população + UTI).",
+        "como_ler": "Não substitui resiliência operacional; mostra ‘quanto tem na rede’.",
+    },
+    "nivel_alerta_integrado": {
+        "nome": "Alerta integrado SIS+TITAN",
+        "leigo": "Nível único que une estágio SIS com INMET, Cemaden, solo e hidro.",
+        "como_ler": "É o max das camadas. Veja o componente dominante para saber o que puxou o alerta.",
+    },
+}
+
+SECTION_GUIDES: dict[str, dict[str, str]] = {
+    "Visão executiva": {
+        "para_que_serve": "Visão rápida do Estado: mapa colorido e lista de municípios que pedem atenção primeiro.",
+        "como_usar": "Comece pelo mapa. Depois abra a tabela ordenada por vigilância/score. Clique nas outras seções para detalhar.",
+        "cuidado": "O nível é uma síntese operacional — não é diagnóstico clínico nem alerta oficial do INMET.",
+    },
+    "Mapas": {
+        "para_que_serve": "Ver no território indicadores de calor, ar, pressão, vigilância e vulnerabilidade.",
+        "como_usar": "Escolha o indicador no seletor. Compare regionais filtrando no topo da página.",
+        "cuidado": "Alguns indicadores (PM2,5, leitos) têm cobertura parcial — ‘vazio’ no mapa ≠ zero risco.",
+    },
+    "Clima / TITAN": {
+        "para_que_serve": "Calor/UTCI, saturação do solo e alertas oficiais INMET + Cemaden + ANA.",
+        "como_usar": "Veja calor, depois solo e as abas de alertas; cruze com Assistência/Operacional.",
+        "cuidado": "Só APIs oficiais e Python claro — sem scrapers ofuscados (política SES).",
+    },
+    "Qualidade do ar": {
+        "para_que_serve": "Acompanhar fumaça e poluição (PM2,5/PM10/O3) quando houver medição.",
+        "como_usar": "Cruze com SRAG e queimadas na seca. Priorize polos com PM2,5 alto.",
+        "cuidado": "Cobertura limitada a municípios com dado — não generalize para todo o MT.",
+    },
+    "Assistência": {
+        "para_que_serve": "Ocupação de leitos e pressão assistencial sobre a rede.",
+        "como_usar": "Se ocupação estiver ‘—’, use a pressão proxy e registre a lacuna para o plantão.",
+        "cuidado": "IndicaSUS pode falhar por credencial — o proxy não substitui o dado real de leitos.",
+    },
+    "Arboviroses": {
+        "para_que_serve": "Acompanhar dengue, zika, chikungunya e correlatas no corte municipal.",
+        "como_usar": "Olhe casos 7d, incidência e mapa; cruze com calor/chuva na Visão executiva.",
+        "cuidado": "Janela curta (7d) — não projeta a temporada inteira só com este número.",
+    },
+    "SIVEP": {
+        "para_que_serve": "Monitorar SRAG hospitalar e indicadores alinhados ao MS/SVSA.",
+        "como_usar": "Veja casos, incidência, vírus e qualidade laboratorial; compare com ar/calor.",
+        "cuidado": "Atraso de notificação pode existir — interprete tendências, não só o último dia.",
+    },
+    "Sentinela SG": {
+        "para_que_serve": "Vigilância sentinela de síndrome gripal (indicadores SG-01…SG-13).",
+        "como_usar": "Confira se as unidades atingem as metas MS e a circulação viral.",
+        "cuidado": "Depende de unidades sentinela alimentadas — ausência de dado ≠ ausência de gripe.",
+    },
+    "GeoCalor": {
+        "para_que_serve": "Explorar associação entre ondas de calor e desfechos cardiorrespiratórios (lags).",
+        "como_usar": "Escolha o município e veja o risco relativo (RR) por defasagem de dias.",
+        "cuidado": "Modelo exploratório — não é laudo causal individual.",
+    },
+    "Correlação clima-saúde": {
+        "para_que_serve": "Explorar associações estatísticas entre clima e saúde no corte municipal.",
+        "como_usar": "Olhe os pares com |ρ| alto e depois o scatter — gere hipóteses, não certezas.",
+        "cuidado": "Correlação ecológica ≠ causalidade individual.",
+    },
+    "Cemaden / ANA": {
+        "para_que_serve": "Riscos hidrológicos: alertas Cemaden, telemetria ANA e chuva.",
+        "como_usar": "Cruze alertas com precipitação e nível operacional do município.",
+        "cuidado": "Cobertura de estações é desigual no território.",
+    },
+    "Inteligência": {
+        "para_que_serve": "Predição 7 dias, alerta inteligente e indicadores compostos AdaptaSUS.",
+        "como_usar": "Use para a semana seguinte; cruze com a aba AdaptaSUS / Guia MS.",
+        "cuidado": "Predição 7d ≠ forecast mensal de setembro.",
+    },
+    "AdaptaSUS / Guia MS": {
+        "para_que_serve": "Alinhar a operação CIEVS-MT aos 6 riscos prioritários do AdaptaSUS e ao Guia MS.",
+        "como_usar": "Veja cobertura estadual, risco dominante no mapa e ranking por índice de adaptação.",
+        "cuidado": "WASH/SAN ainda sem fonte — lacuna explícita, não risco zero.",
+    },
+    "Sazonalidade / OR": {
+        "para_que_serve": "Mostrar sazonalidade histórica e OR ecológico clima–agravos/ocupação.",
+        "como_usar": "Comece pelo índice mensal e pelo heatmap SE×ano; depois veja OR e lags.",
+        "cuidado": "OR e correlação temporal são exploratórios e não provam causalidade clínica individual.",
+    },
+    "Operacional": {
+        "para_que_serve": "Estoque, infraestrutura CNES e resiliência operacional.",
+        "como_usar": "Priorize municípios com baixa autonomia ou alta prioridade proxy.",
+        "cuidado": "Algumas bases logísticas ainda são parciais/proxy.",
+    },
+    "Geografia": {
+        "para_que_serve": "Conferir cadastro territorial e deduplicação municipal.",
+        "como_usar": "Use para validar códigos IBGE e regionais de saúde.",
+        "cuidado": "Inconsistências de nome/IBGE afetam mapas e joins.",
+    },
+    "Alertas": {
+        "para_que_serve": "Ver alerta integrado SIS+TITAN, SOP de envio e auditoria.",
+        "como_usar": "Comece pelo mapa/tabela do alerta integrado; valide SOP antes de armar canais.",
+        "cuidado": "Envio externo desligado por padrão. Validar com CIEVS antes de comunicação oficial.",
+    },
+    "Cálculos": {
+        "para_que_serve": "Transparência metodológica: limiares, pesos e o que entra no nível.",
+        "como_usar": "Consulte antes de questionar um município ‘por que ficou vermelho?’.",
+        "cuidado": "Mudanças em settings.yaml alteram índices compostos na próxima rodada.",
+    },
+    "Guia do leitor": {
+        "para_que_serve": "Explicar cores, indicadores e como ler o painel sem jargão.",
+        "como_usar": "Leia o glossário e a legenda de níveis antes da primeira reunião de sala de situação.",
+        "cuidado": "Textos didáticos não substituem protocolos oficiais do CIEVS/SES.",
+    },
+}
+
+HOW_TO_READ_PANEL = [
+    "1. Olhe a faixa colorida no topo: ela mostra o município mais crítico nesta rodada.",
+    "2. Veja as contagens Verde→Roxa: quanto mais vermelho/roxo, maior a carga estadual.",
+    "3. Use os filtros de Regional/Município só quando quiser aprofundar um território.",
+    "4. Na Visão executiva, o mapa responde ‘onde?’ e a tabela responde ‘quem primeiro?’.",
+    "5. Em dúvida sobre um número, abra o Guia do leitor ou o expand ‘O que significa este indicador?’.",
+]
+
+
+def level_plain(nivel: str) -> dict[str, str]:
+    key = str(nivel or "cinza").strip().lower()
+    return LEVEL_GUIDE.get(key, LEVEL_GUIDE["cinza"])
+
+
+def section_plain(secao: str) -> dict[str, str] | None:
+    return SECTION_GUIDES.get(secao)

@@ -1,0 +1,20 @@
+unidade_sentinela,cod_ibge,municipio,ano_epi,semana_epi,atende_definicao_sg,raca_cor_preenchida,escolaridade_preenchida,antiviral_preenchido,rtpcr_processado,rtpcr_ate_10_dias,encerrado_ate_60_dias,virus,positivo,idade
+US Cuiabá PA,5103403,Cuiabá,2026,20,1,1,1,1,1,1,1,Influenza A,1,34
+US Cuiabá PA,5103403,Cuiabá,2026,20,1,1,0,1,1,1,1,SARS-CoV-2,1,67
+US Cuiabá PA,5103403,Cuiabá,2026,20,1,1,1,0,1,0,1,Negativo,0,12
+US Cuiabá PA,5103403,Cuiabá,2026,21,1,1,1,1,1,1,1,VSR,1,2
+US Cuiabá PA,5103403,Cuiabá,2026,21,1,0,1,1,1,1,1,Influenza A,1,45
+US Cuiabá PA,5103403,Cuiabá,2026,22,1,1,1,1,1,1,1,SARS-CoV-2,1,55
+US Cuiabá PA,5103403,Cuiabá,2026,22,0,1,1,1,0,0,0,,0,29
+US Cuiabá PA,5103403,Cuiabá,2026,23,1,1,1,1,1,1,1,Influenza B,1,8
+US Cuiabá PA,5103403,Cuiabá,2026,24,1,1,1,1,1,1,1,VSR,1,1
+US Várzea Grande UPA,5108402,Várzea Grande,2026,20,1,1,1,1,1,1,1,Influenza A,1,22
+US Várzea Grande UPA,5108402,Várzea Grande,2026,21,1,1,0,1,1,1,1,Negativo,0,40
+US Várzea Grande UPA,5108402,Várzea Grande,2026,22,1,1,1,1,1,0,1,SARS-CoV-2,1,71
+US Várzea Grande UPA,5108402,Várzea Grande,2026,23,1,1,1,0,1,1,1,VSR,1,3
+US Várzea Grande UPA,5108402,Várzea Grande,2026,24,1,1,1,1,1,1,1,Influenza A,1,58
+US Rondonópolis,5107602,Rondonópolis,2026,20,1,0,0,0,0,0,0,,0,33
+US Rondonópolis,5107602,Rondonópolis,2026,21,1,1,1,1,1,1,1,Influenza A,1,19
+US Rondonópolis,5107602,Rondonópolis,2026,22,1,1,1,1,1,1,1,SARS-CoV-2,1,48
+US Rondonópolis,5107602,Rondonópolis,2026,23,1,1,1,1,1,1,0,Negativo,0,15
+US Rondonópolis,5107602,Rondonópolis,2026,24,1,1,1,1,1,1,1,VSR,1,6

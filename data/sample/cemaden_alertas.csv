@@ -1,0 +1,3 @@
+data,cod_ibge,municipio,uf,tipo_risco,evento,nivel,nivel_alerta,nivel_sis,status,cod_alerta,lat,lon,fonte
+2026-07-20T10:00:00,5103403,Cuiabá,MT,risco_hidrologico,Risco Hidrológico - Moderado,Moderado,Moderado,laranja,1,1001,-15.6014,-56.0979,cemaden
+2026-07-20T11:00:00,5105259,Lucas do Rio Verde,MT,chuva,Chuva Intensidade - Alto,Alto,Alto,vermelha,1,1002,-13.0500,-55.9100,cemaden

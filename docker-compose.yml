@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sis_clima_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sis_clima_saude}
+      POSTGRES_USER: ${POSTGRES_USER:-sisclima}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sisclima_trocar}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - sis_pgdata:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sisclima} -d ${POSTGRES_DB:-sis_clima_saude}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  pipeline:
+    build: .
+    container_name: sis_clima_pipeline
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./sql:/app/sql
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["pipeline"]
+
+  app:
+    build: .
+    container_name: sis_clima_app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+    ports:
+      - "${STREAMLIT_PORT:-8501}:8501"
+    volumes:
+      # Código local para mapas/shapefile e painel V9 sem rebuild a cada ajuste.
+      - ./streamlit_app.py:/app/streamlit_app.py:ro
+      - ./app_v9.py:/app/app_v9.py:ro
+      - ./sisclima:/app/sisclima:ro
+      - ./.streamlit:/app/.streamlit:ro
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./sql:/app/sql
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["app"]
+
+volumes:
+  sis_pgdata:
