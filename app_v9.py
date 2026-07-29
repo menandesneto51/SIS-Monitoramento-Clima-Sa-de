@@ -804,6 +804,17 @@ with st.expander("Como ler este painel (comece aqui se for sua 1ª vez)", expand
     st.caption("Predição numérica do SIS ≈ 7 dias. Cenários sazonais (ex.: setembro) vêm de boletins oficiais, não deste número.")
 
 metrics = state_summary_with_prediction(resumo_all, pred_v6)
+_pressao_media_top = (
+    float(pd.to_numeric(resumo_all["indice_pressao_saude"], errors="coerce").mean())
+    if "indice_pressao_saude" in resumo_all.columns
+    and pd.to_numeric(resumo_all["indice_pressao_saude"], errors="coerce").notna().any()
+    else None
+)
+_semaforo_top = (
+    resumo_all["semaforo_pressao"].astype(str).str.lower().value_counts().to_dict()
+    if "semaforo_pressao" in resumo_all.columns
+    else {}
+)
 ui_theme.section_title(
     "Situação geral do Estado",
     "Atual · predição 7 dias · tendência (queda / manutenção / aumento) — valores estaduais da rodada",
@@ -814,7 +825,7 @@ ui_theme.insight_cards(
         (
             "Prioridade global",
             safe_metric_value(prioridade_state.get("media"), "", 0),
-            f"alta+ {prioridade_state.get('n_alta_ou_mais', 0)} mun. · ↑{prioridade_state.get('tendencia_aumento', 0)}",
+            f"alta+ {prioridade_state.get('n_alta_ou_mais', 0)} · ↑{prioridade_state.get('tendencia_aumento', 0)}",
         ),
         (
             "Tensão climática",
@@ -832,14 +843,14 @@ ui_theme.insight_cards(
             "prioridade composta",
         ),
         (
+            "Pressão saúde",
+            safe_metric_value(_pressao_media_top, "", 0),
+            f"G {_semaforo_top.get('verde', 0)} · A {_semaforo_top.get('amarela', 0)} · V {_semaforo_top.get('vermelha', 0)}",
+        ),
+        (
             "Tendência ↑ em 7d",
             str(intel_state.get("tendencia_subindo", 0)),
             "municípios com piora prevista",
-        ),
-        (
-            "Completude prioridade",
-            safe_metric_value(prioridade_state.get("completude_media"), "%", 0),
-            "pilares no meta-score",
         ),
     ]
 )
