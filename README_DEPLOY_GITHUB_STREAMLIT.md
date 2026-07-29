@@ -29,4 +29,5 @@ Não subir ao GitHub arquivos com dados sensíveis, credenciais, `.env`, contato
 Dependências Cloud: `requirements.txt` enxuto (sem Fiona/GDAL/Google gRPC). Lista completa local: `requirements-full.txt`.  
 **Não** use `packages.txt` com comentários — o apt do Cloud interpreta cada palavra como pacote.
 
-Sem `DATABASE_URL` válido no Cloud, o painel sobe em fallback SQLite vazio (sem dados do CIEVS).
+Sem `DATABASE_URL` no Cloud, o painel usa o snapshot `data/cloud/sis_cloud_seed.db` (KPIs/abas).  
+Atualizar snapshot local: `.\\.venv\\Scripts\\python.exe exportar_snapshot_cloud.py` e push em `painel-v9`.
