@@ -404,7 +404,10 @@ def make_choropleth_or_points(
                     color_discrete_map=LEVEL_COLOR_MAP,
                 )
             else:
-                fig = px.choropleth_mapbox(**common)
+                fig = px.choropleth_mapbox(
+                    **common,
+                    color_continuous_scale="Reds",
+                )
             fig.update_layout(margin={"r": 0, "t": 50, "l": 0, "b": 0})
             fig.update_traces(marker_line_width=0.4, marker_line_color="#334155")
             return fig
@@ -421,6 +424,7 @@ def make_choropleth_or_points(
             lon="lon",
             color=color_col if color_col in plot_df.columns else None,
             color_discrete_map=LEVEL_COLOR_MAP if categorical else None,
+            color_continuous_scale=None if categorical else "Reds",
             hover_name="municipio" if "municipio" in plot_df.columns else None,
             hover_data=[c for c in hover_cols if c in plot_df.columns],
             center=CENTER_MT,
