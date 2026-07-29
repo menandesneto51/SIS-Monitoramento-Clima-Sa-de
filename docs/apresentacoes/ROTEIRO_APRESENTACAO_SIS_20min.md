@@ -2,15 +2,20 @@
 
 | Min | Slide | Fala-chave |
 |-----|-------|------------|
-| 0–1 | Capa | Quem somos; o SIS apoia o plantão e o Plano de Contingência |
-| 1–2 | Roteiro | Cinco blocos; sem tour infinito de telas |
-| 2–5 | Contexto | Plano seca/estiagem 2026–2027 exige indicadores contínuos |
-| 5–7 | Problema | Silos de dados × tempo do plantão × resposta escalonada |
-| 7–10 | O que é | 142 municípios; nível; 7 dias ≠ sazonal |
-| 10–12 | Fontes | Oficiais + código legível na rede SES |
-| 12–14 | Níveis | Verde→roxa e relação prudente com níveis do Plano |
-| 14–16 | Snapshot/Mapas | Demo rápida do painel + cloropletas |
-| 16–19 | TITAN/AdaptaSUS | Máximo integrado + guia MS |
-| 19–20 | Governança/próximos | TI, rotina CIEVS, perguntas |
+| 0–1 | Capa | CIEVS; SIS apoia plantão + Plano de Contingência |
+| 1–2 | Roteiro | Cinco blocos; sem tour infinito |
+| 2–5 | Contexto | Plano seca/estiagem 2026–2027 |
+| 5–7 | Problema | Silos × tempo do plantão × resposta escalonada |
+| 7–10 | O que é / Fontes | 142 municípios; APIs oficiais; código legível |
+| 10–12 | Níveis + Snapshot | Verde→roxa; demo do estado atual |
+| 12–14 | Mapas + TITAN | Cloropletas; alerta integrado (máximo) |
+| 14–16 | AdaptaSUS + Governança | Guia MS; TI/rede SES |
+| 16–18 | Ponte Plano×SIS + Checklist | Correspondência prudente; rotina 5 min |
+| 18–20 | Abas + Alertas 4 níveis + próximos | SES / Regional / Municipal / Cuiabá; validação no painel |
 
-**Dica:** tenha o PPT do Plano (DOC-WA) e o painel `http://localhost:8501` abertos em abas.
+## Demo ao vivo (90 s)
+1. http://localhost:8501 — Visão executiva  
+2. Aba Mapas — polígonos municipais  
+3. Aba Alertas — ① Estadual · ② Regionais · ③ Municipais · ④ Vigidesastre Cuiabá  
+
+**Materiais:** PPT do Plano (`DOC-20260611-WA0013..pptx`) + este deck + `docs/VISAO_OPERACIONAL_SIS_CLIMA_SAUDE.md` + painel Docker.

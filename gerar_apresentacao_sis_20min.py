@@ -191,7 +191,8 @@ def build(out: Path) -> Path:
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     blank = prs.slide_layouts[6]
-    total = 14
+    # total inicial (atualizado ao final pelo len(slides_meta) implícito nos footers)
+    total = 18
     slides_meta = []
 
     # 1 Capa
@@ -485,7 +486,95 @@ def build(out: Path) -> Path:
     _notes(s, "ROTEIRO (1,5 min): Mensagem para TI: tráfego auditável reduz risco de bloqueio.")
     slides_meta.append(s)
 
-    # 13 Próximos passos
+    # 13 Ponte Plano ↔ SIS
+    s = prs.slides.add_slide(blank)
+    _add_bg(s, CREAM)
+    _header_bar(s, "Ponte operacional: Plano × SIS", "Correspondência prudente — não é equivalência jurídica automática")
+    rows = [
+        ("Plano Nível 0", "SIS Verde", "Rotina / monitoramento"),
+        ("Plano Nível I", "SIS Amarela–Laranja", "Mobilização / atenção"),
+        ("Plano Nível II", "SIS Laranja–Vermelha", "Alerta / pressão"),
+        ("Plano Nível III–IV", "SIS Vermelha–Roxa", "Emergência / articulação plena"),
+    ]
+    y = 1.4
+    for a, b, c in rows:
+        _card(s, 0.5, y, 4.0, 1.15, a, b + " → " + c, accent=GREEN)
+        y += 1.3
+    _textbox(
+        s,
+        4.8,
+        1.5,
+        7.8,
+        5.0,
+        "Use o SIS para priorizar município/regional e alimentar a Sala de Situação.\n\n"
+        "A ativação formal de COE/Portarias continua nos fluxos do Plano e da gestão.\n\n"
+        "O painel entrega: nível, motivo, orientação leiga, mapa e fila de atenção.",
+        size=16,
+        color=INK,
+    )
+    _footer(s, 13, total)
+    _notes(s, "ROTEIRO (2 min): Mostre o DOC-WA nos níveis e diga que o SIS é o radar diário.")
+    slides_meta.append(s)
+
+    # 14 Checklist plantão 5 min
+    s = prs.slides.add_slide(blank)
+    _add_bg(s, CREAM)
+    _header_bar(s, "Checklist do plantão (5 minutos)", "Rotina mínima no CIEVS")
+    _bullets(
+        s,
+        0.55,
+        1.35,
+        12.2,
+        5.2,
+        [
+            "1. Abrir Visão executiva — ler nível estadual e município crítico.",
+            "2. Abrir Mapas — cloropleta de nível / tensão climática.",
+            "3. Abrir Clima/TITAN — solo, INMET/Cemaden, calor.",
+            "4. Abrir Alertas — fila de atenção e alerta integrado.",
+            "5. Registrar decisão (comunicado interno / encaminhamento à regional).",
+        ],
+        size=18,
+    )
+    _footer(s, 14, total)
+    _notes(s, "ROTEIRO (1,5 min): Imprima este slide como cartão de plantão.")
+    slides_meta.append(s)
+
+    # 15 Abas do painel
+    s = prs.slides.add_slide(blank)
+    _add_bg(s, CREAM)
+    _header_bar(s, "Mapa das abas do painel", "Tudo executável — com estado vazio quando a fonte faltar")
+    _bullets(
+        s,
+        0.55,
+        1.35,
+        12.2,
+        5.2,
+        [
+            "Executivo / Mapas / Clima·TITAN / Ar / Assistência",
+            "Arboviroses / SIVEP / Sentinela / GeoCalor / AdaptaSUS",
+            "Correlação / Cemaden·ANA / Sazonalidade·OR / Operacional",
+            "Geografia / Inteligência / Alertas / Cálculos / Guia",
+            "Regra: aba nunca derruba o painel; informa o que falta e como gerar.",
+        ],
+        size=17,
+    )
+    _footer(s, 15, total)
+    _notes(s, "ROTEIRO (1 min): Reforce estabilidade após refatoração.")
+    slides_meta.append(s)
+
+    # 15b Alertas 4 níveis
+    s = prs.slides.add_slide(blank)
+    _add_bg(s, CREAM)
+    _header_bar(s, "Alertas em 4 níveis", "Ícones · indicadores · predição · orientações por público")
+    _card(s, 0.45, 1.35, 6.0, 2.3, "① Estadual → SES/CIEVS", "Boletim do estado com distribuição de níveis e pred 7d.", accent=PURPLE)
+    _card(s, 6.7, 1.35, 6.0, 2.3, "② Regional + municípios", "Cada Regional de Saúde e sua jurisdição municipal.", accent=RED)
+    _card(s, 0.45, 3.85, 6.0, 2.3, "③ Municipal", "SMS/plantão — a partir do nível mínimo (ex.: laranja).", accent=ORANGE)
+    _card(s, 6.7, 3.85, 6.0, 2.3, "④ Vigidesastre Cuiabá", "Pacote dedicado IBGE 5103403 com as mesmas seções.", accent=GREEN)
+    _footer(s, 16, total)
+    _notes(s, "ROTEIRO (2 min): Mostre a aba Alertas no painel — abas ①②③④.")
+    slides_meta.append(s)
+
+    # 16 Próximos passos
     s = prs.slides.add_slide(blank)
     _add_bg(s, CREAM)
     _header_bar(s, "Próximos passos", "Do painel à rotina do CIEVS")
@@ -497,18 +586,18 @@ def build(out: Path) -> Path:
         5.0,
         [
             "Padronizar abertura do painel no plantão (checklist de 5 minutos).",
-            "Integrar envio de alertas (e-mail/Telegram) com validação humana.",
-            "Treinar regionais na leitura de mapas e níveis (linguagem simples).",
-            "Manter atualização do enriquecimento operacional e da base Postgres.",
-            "Articular indicadores do SIS aos gatilhos do Plano de Contingência (mesa técnica).",
+            "Validar boletins multinível no painel antes de armar SEND_ALERT.",
+            "Completar CSV de contatos (estadual/regional/municipal/Cuiabá).",
+            "Expandir nowcasting/forecasting e séries SIM/GAL/GeoCalor no Postgres.",
+            "Articular indicadores do SIS aos gatilhos do Plano de Contingência.",
         ],
-        size=18,
+        size=17,
     )
-    _footer(s, 13, total)
+    _footer(s, 17, total)
     _notes(s, "ROTEIRO (2 min): Peça donos: CIEVS (rotina), TI (rede), assistência (ocupação).")
     slides_meta.append(s)
 
-    # 14 Encerramento
+    # 17 Encerramento
     s = prs.slides.add_slide(blank)
     _add_bg(s, GREEN_DARK)
     _textbox(s, 0.7, 2.0, 12, 0.8, "Obrigado", size=40, bold=True, color=WHITE)
@@ -529,7 +618,7 @@ def build(out: Path) -> Path:
         5.2,
         12,
         1.0,
-        "CIEVS-MT · SES-MT\nPainel: streamlit_app.py · Documentação em docs/",
+        "CIEVS-MT · SES-MT\nPainel: http://localhost:8501 · docs/VISAO_OPERACIONAL_SIS_CLIMA_SAUDE.md",
         size=14,
         color=RGBColor(0xA8, 0xC7, 0xBC),
     )
@@ -560,18 +649,23 @@ def main() -> int:
 
 | Min | Slide | Fala-chave |
 |-----|-------|------------|
-| 0–1 | Capa | Quem somos; o SIS apoia o plantão e o Plano de Contingência |
-| 1–2 | Roteiro | Cinco blocos; sem tour infinito de telas |
-| 2–5 | Contexto | Plano seca/estiagem 2026–2027 exige indicadores contínuos |
-| 5–7 | Problema | Silos de dados × tempo do plantão × resposta escalonada |
-| 7–10 | O que é | 142 municípios; nível; 7 dias ≠ sazonal |
-| 10–12 | Fontes | Oficiais + código legível na rede SES |
-| 12–14 | Níveis | Verde→roxa e relação prudente com níveis do Plano |
-| 14–16 | Snapshot/Mapas | Demo rápida do painel + cloropletas |
-| 16–19 | TITAN/AdaptaSUS | Máximo integrado + guia MS |
-| 19–20 | Governança/próximos | TI, rotina CIEVS, perguntas |
+| 0–1 | Capa | CIEVS; SIS apoia plantão + Plano de Contingência |
+| 1–2 | Roteiro | Cinco blocos; sem tour infinito |
+| 2–5 | Contexto | Plano seca/estiagem 2026–2027 |
+| 5–7 | Problema | Silos × tempo do plantão × resposta escalonada |
+| 7–10 | O que é / Fontes | 142 municípios; APIs oficiais; código legível |
+| 10–12 | Níveis + Snapshot | Verde→roxa; demo do estado atual |
+| 12–14 | Mapas + TITAN | Cloropletas; alerta integrado (máximo) |
+| 14–16 | AdaptaSUS + Governança | Guia MS; TI/rede SES |
+| 16–18 | Ponte Plano×SIS + Checklist | Correspondência prudente; rotina 5 min |
+| 18–20 | Abas + Alertas 4 níveis + próximos | SES / Regional / Municipal / Cuiabá; validação no painel |
 
-**Dica:** tenha o PPT do Plano (DOC-WA) e o painel `http://localhost:8501` abertos em abas.
+## Demo ao vivo (90 s)
+1. http://localhost:8501 — Visão executiva  
+2. Aba Mapas — polígonos municipais  
+3. Aba Alertas — ① Estadual · ② Regionais · ③ Municipais · ④ Vigidesastre Cuiabá  
+
+**Materiais:** PPT do Plano (`DOC-20260611-WA0013..pptx`) + este deck + `docs/VISAO_OPERACIONAL_SIS_CLIMA_SAUDE.md` + painel Docker.
 """,
         encoding="utf-8",
     )

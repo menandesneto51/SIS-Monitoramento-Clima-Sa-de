@@ -364,22 +364,28 @@ div[data-testid="stExpander"] {
 """
 
 
+def _render_html(fragment: str) -> None:
+    """Renderiza HTML sem cair em bloco de código do Markdown (indentação)."""
+    compact = " ".join(line.strip() for line in fragment.splitlines() if line.strip())
+    if hasattr(st, "html"):
+        st.html(compact)
+    else:
+        st.markdown(compact, unsafe_allow_html=True)
+
+
 def apply_theme() -> None:
-    st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
+    _render_html(f"<style>{CSS}</style>")
 
 
 def hero(brand: str, kicker: str, chips: list[str] | None = None) -> None:
     chips = chips or []
     chips_html = "".join(f'<span class="sis-chip">{html.escape(c)}</span>' for c in chips)
-    st.markdown(
-        f"""
-        <div class="sis-hero">
-          <p class="sis-brand">{html.escape(brand)}</p>
-          <p class="sis-kicker">{html.escape(kicker)}</p>
-          <div class="sis-chip-row">{chips_html}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    _render_html(
+        f'<div class="sis-hero">'
+        f'<p class="sis-brand">{html.escape(brand)}</p>'
+        f'<p class="sis-kicker">{html.escape(kicker)}</p>'
+        f'<div class="sis-chip-row">{chips_html}</div>'
+        f"</div>"
     )
 
 
@@ -389,47 +395,38 @@ def level_banner(nivel: str, municipio: str, motivo: str, orientacao: str = "") 
     extra = f"<p><b>Em linguagem simples:</b> {html.escape(guide['o_que_fazer'])}</p>"
     if orientacao:
         extra += f"<p>{html.escape(orientacao)}</p>"
-    st.markdown(
-        f"""
-        <div class="sis-level-banner" style="background:{color}">
-          <h3>Nível operacional estadual · {html.escape(str(nivel).upper())}</h3>
-          <p><b>Município mais crítico:</b> {html.escape(str(municipio))}</p>
-          <p>{html.escape(str(motivo))}</p>
-          {extra}
-        </div>
-        """,
-        unsafe_allow_html=True,
+    _render_html(
+        f'<div class="sis-level-banner" style="background:{color}">'
+        f"<h3>Nível operacional estadual · {html.escape(str(nivel).upper())}</h3>"
+        f"<p><b>Município mais crítico:</b> {html.escape(str(municipio))}</p>"
+        f"<p>{html.escape(str(motivo))}</p>"
+        f"{extra}"
+        f"</div>"
     )
 
 
 def section_title(title: str, subtitle: str = "") -> None:
-    st.markdown(f'<div class="sis-section-title">{html.escape(title)}</div>', unsafe_allow_html=True)
+    _render_html(f'<div class="sis-section-title">{html.escape(title)}</div>')
     if subtitle:
-        st.markdown(f'<div class="sis-muted">{html.escape(subtitle)}</div>', unsafe_allow_html=True)
+        _render_html(f'<div class="sis-muted">{html.escape(subtitle)}</div>')
 
 
 def callout(text: str, kind: str = "info") -> None:
     kind = kind if kind in {"info", "warn", "tip"} else "info"
-    st.markdown(
-        f'<div class="sis-callout {kind}">{html.escape(text)}</div>',
-        unsafe_allow_html=True,
-    )
+    _render_html(f'<div class="sis-callout {kind}">{html.escape(text)}</div>')
 
 
 def section_guide(secao: str) -> None:
     g = section_plain(secao)
     if not g:
         return
-    st.markdown(
-        f"""
-        <div class="sis-guide">
-          <h4>Como ler esta seção</h4>
-          <p><span class="lbl">Para que serve:</span> {html.escape(g['para_que_serve'])}</p>
-          <p><span class="lbl">Como usar:</span> {html.escape(g['como_usar'])}</p>
-          <p><span class="lbl">Cuidado:</span> {html.escape(g['cuidado'])}</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    _render_html(
+        '<div class="sis-guide">'
+        "<h4>Como ler esta seção</h4>"
+        f"<p><span class=\"lbl\">Para que serve:</span> {html.escape(g['para_que_serve'])}</p>"
+        f"<p><span class=\"lbl\">Como usar:</span> {html.escape(g['como_usar'])}</p>"
+        f"<p><span class=\"lbl\">Cuidado:</span> {html.escape(g['cuidado'])}</p>"
+        "</div>"
     )
 
 
@@ -438,15 +435,13 @@ def insight_cards(items: list[tuple[str, str, str]]) -> None:
     cards = []
     for label, value, hint in items:
         cards.append(
-            f"""
-            <div class="sis-insight">
-              <div class="k">{html.escape(label)}</div>
-              <div class="v">{html.escape(str(value))}</div>
-              <div class="h">{html.escape(hint)}</div>
-            </div>
-            """
+            '<div class="sis-insight">'
+            f'<div class="k">{html.escape(label)}</div>'
+            f'<div class="v">{html.escape(str(value))}</div>'
+            f'<div class="h">{html.escape(hint)}</div>'
+            "</div>"
         )
-    st.markdown(f'<div class="sis-insight-grid">{"".join(cards)}</div>', unsafe_allow_html=True)
+    _render_html(f'<div class="sis-insight-grid">{"".join(cards)}</div>')
 
 
 def level_legend() -> None:
@@ -456,14 +451,12 @@ def level_legend() -> None:
             continue
         g = level_plain(key)
         cards.append(
-            f"""
-            <div class="sis-level-card" style="background:{color}">
-              <strong>{html.escape(g['titulo'])}</strong>
-              <span>{html.escape(g['o_que_fazer'])}</span>
-            </div>
-            """
+            f'<div class="sis-level-card" style="background:{color}">'
+            f"<strong>{html.escape(g['titulo'])}</strong>"
+            f"<span>{html.escape(g['o_que_fazer'])}</span>"
+            "</div>"
         )
-    st.markdown(f'<div class="sis-level-legend">{"".join(cards)}</div>', unsafe_allow_html=True)
+    _render_html(f'<div class="sis-level-legend">{"".join(cards)}</div>')
 
 
 def glossary_expander(keys: list[str] | None = None) -> None:

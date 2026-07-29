@@ -350,7 +350,10 @@ def choropleth_or_points(
         else:
             st.info("Sem dados geográficos suficientes para cloropleta municipal.")
         return
-    st.plotly_chart(fig, use_container_width=True)
+    try:
+        st.plotly_chart(fig, width="stretch")
+    except TypeError:
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def show_df(df: pd.DataFrame, cols: Optional[list[str]] = None, height: int = 420):
@@ -359,9 +362,13 @@ def show_df(df: pd.DataFrame, cols: Optional[list[str]] = None, height: int = 42
         return
     if cols:
         cols = [c for c in cols if c in df.columns]
-        st.dataframe(df[cols], use_container_width=True, height=height)
+        view = df[cols] if cols else df
     else:
-        st.dataframe(df, use_container_width=True, height=height)
+        view = df
+    try:
+        st.dataframe(view, width="stretch", height=height)
+    except TypeError:
+        st.dataframe(view, use_container_width=True, height=height)
 
 
 def safe_sort(df: pd.DataFrame, cols: list[str], ascending: bool | list[bool] = False) -> pd.DataFrame:
@@ -390,7 +397,10 @@ def make_bar(df: pd.DataFrame, x: str, y: str, title: str, top: int = 20):
         st.info(f"Sem valores numéricos para gráfico: {title}")
         return
     fig = px.bar(plot, x=x, y=y, title=title)
-    st.plotly_chart(fig, use_container_width=True)
+    try:
+        st.plotly_chart(fig, width="stretch")
+    except TypeError:
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def make_line(df: pd.DataFrame, date_col: str, value_cols: list[str], title: str, group_col: str = "municipio"):
@@ -425,7 +435,10 @@ def make_line(df: pd.DataFrame, date_col: str, value_cols: list[str], title: str
         color_col = "indicador"
 
     fig = px.line(long, x=date_col, y="valor", color=color_col, title=title)
-    st.plotly_chart(fig, use_container_width=True)
+    try:
+        st.plotly_chart(fig, width="stretch")
+    except TypeError:
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def state_summary_metrics(df: pd.DataFrame) -> dict:
@@ -464,6 +477,7 @@ met = load_table("met_biometeo")
 aq = load_table("qualidade_ar_municipal")
 occ = load_table("hospital_ocupacao_municipio")
 press = load_table("epi_pressao_assistencial")
+sisreg_tab = load_table("ops_sisreg_municipio")
 stock = load_table("ops_estoque_autonomia")
 infra = load_table("ops_infraestrutura_resumo")
 ops_proxy = load_table("ops_resumo_operacional_proxy")
@@ -505,7 +519,7 @@ v9_lags = load_table("v9_lags_clima_saude")
 v9_modelos = load_table("v9_modelos_temporais")
 v9_priorizacao = load_table("v9_priorizacao_epidemiologica")
 
-for df in [met, aq, occ, press, stock, infra, ops_cnes, saude_calor_mun, gal_pos_mun, sim_obitos_mun, alerta_mun_v6, pred_v6, pred_reg_v6, analise_base_v8, analise_alertas_v8, v9_saude_mensal, v9_clima, v9_painel, v9_priorizacao]:
+for df in [met, aq, occ, press, stock, infra, ops_cnes, saude_calor_mun, gal_pos_mun, sim_obitos_mun, alerta_mun_v6, pred_v6, pred_reg_v6, analise_base_v8, analise_alertas_v8, v9_saude_mensal, v9_clima, v9_painel, v9_priorizacao, sisreg_tab]:
     if not df.empty and "cod_ibge" in df.columns:
         df["cod_ibge"] = normalize_cod_ibge(df["cod_ibge"])
 
@@ -537,6 +551,13 @@ ui_theme.hero(
         f"Envio: {'ON' if alerts_enabled() else 'OFF'}",
     ],
 )
+
+if backend_name() != "postgresql":
+    st.warning(
+        f"Atenção: o painel está em **{backend_name()}**, não em PostgreSQL. "
+        "Se esperava Docker/Postgres, verifique `DATABASE_URL` e o container `sis_clima_db`. "
+        "Abas com dados incompletos podem refletir esse fallback."
+    )
 
 if resumo_all.empty:
     st.error("A tabela resumo_municipal_atual não foi encontrada ou está vazia. Rode o pipeline antes de abrir o painel.")
@@ -671,6 +692,55 @@ with f2:
 
 resumo = apply_global_filters(resumo_all, regionais_sel, municipios_sel)
 map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
+
+# Índice de pressão (IndicaSUS · SISREG · SINAN · SIM) — semáforo G/A/V
+from sisclima.engines.indice_pressao_saude import (
+    build_indice_pressao_municipal,
+    catalogo_agravos,
+    format_kpi_label,
+    state_pressao_summary,
+)
+
+_pressao_full = build_indice_pressao_municipal(
+    resumo_all,
+    sim_mun=sim_obitos_mun if not sim_obitos_mun.empty else None,
+    saude_calor_mun=saude_calor_mun if not saude_calor_mun.empty else None,
+    pred_7d=pred_v6 if not pred_v6.empty else None,
+    sisreg=sisreg_tab if not sisreg_tab.empty else None,
+)
+_pressao_cols = [
+    c
+    for c in _pressao_full.columns
+    if c.startswith("kpi_")
+    or c.startswith("indice_pressao")
+    or c.startswith("semaforo_pressao")
+    or c.startswith("pred_indice")
+    or c.startswith("pred_nivel_clima")
+    or c.startswith("tendencia_pressao")
+    or c == "pilares_disponiveis"
+]
+if not _pressao_full.empty and "cod_ibge" in _pressao_full.columns:
+    _merge_p = _pressao_full[["cod_ibge"] + [c for c in _pressao_cols if c in _pressao_full.columns]].copy()
+    drop_overlap = [c for c in _merge_p.columns if c != "cod_ibge" and c in resumo_all.columns]
+    if drop_overlap:
+        resumo_all = resumo_all.drop(columns=drop_overlap, errors="ignore")
+    resumo_all = resumo_all.merge(_merge_p, on="cod_ibge", how="left")
+    resumo = apply_global_filters(resumo_all, regionais_sel, municipios_sel)
+    if "cod_ibge" in map_df_all.columns:
+        map_base = map_df_all.copy()
+        drop_m = [c for c in _merge_p.columns if c != "cod_ibge" and c in map_base.columns]
+        if drop_m:
+            map_base = map_base.drop(columns=drop_m, errors="ignore")
+        map_df_all = map_base.merge(_merge_p, on="cod_ibge", how="left")
+        map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
+
+pressao_df = (
+    apply_global_filters(_pressao_full, regionais_sel, municipios_sel)
+    if not _pressao_full.empty
+    else _pressao_full
+)
+pressao_state = state_pressao_summary(pressao_df)
+
 st.caption(
     f"{shapefile_status} · Indicadores do topo são estaduais; mapas e tabelas abaixo respeitam o filtro. "
     f"Recorte atual: {len(resumo)} municípios."
@@ -1082,11 +1152,162 @@ elif SECTION_KEY == "Clima / TITAN":
 # Tab 4
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "Assistência":
-    ui_theme.section_title("Assistência e pressão na rede", "Leitos IndicaSUS + proxy clima–saúde quando a ocupação falha")
+    ui_theme.section_title(
+        "Assistência e índice de pressão",
+        "IndicaSUS · SISREG · SINAN · SIM — cenário atual, tendência e previsão ~7 dias (semáforo G/A/V)",
+    )
     ui_theme.callout(
-        "Se não houver ocupação real, o SIS mostra pressão proxy (calor + SRAG + arbovírus + ar). Isso orienta vigilância — não substitui censo hospitalar.",
+        "Semáforo de pressão (verde / amarela / vermelha) resume a carga assistencial-epidemiológica. "
+        "É distinto do nível operacional de 5 cores (Verde→Roxa). SISREG entra quando a tabela "
+        "`ops_sisreg_municipio` estiver disponível; até lá o índice renormaliza os demais pilares.",
         "warn",
     )
+
+    # --- Índice de pressão: KPIs estaduais ---
+    n_v = pressao_state.get("n_verde", 0)
+    n_a = pressao_state.get("n_amarela", 0)
+    n_r = pressao_state.get("n_vermelha", 0)
+    n_up = pressao_state.get("n_subindo", 0)
+    n_dn = pressao_state.get("n_descendo", 0)
+    n_st = pressao_state.get("n_estavel", 0)
+    idx_med = pressao_state.get("indice_media")
+    sisreg_cov = pressao_state.get("sisreg_cobertura", 0)
+
+    ui_theme.insight_cards(
+        [
+            (
+                "Índice pressão méd.",
+                safe_metric_value(idx_med, "", 1) if idx_med is not None else "—",
+                "0–100 · IndicaSUS+SINAN+SIM(+SISREG)",
+            ),
+            ("🟢 Verde", n_v, "municípios"),
+            ("🟡 Amarela", n_a, "municípios"),
+            ("🔴 Vermelha", n_r, "municípios"),
+        ]
+    )
+    ui_theme.insight_cards(
+        [
+            ("↑ Tendência alta", n_up, "previsão 7d piora"),
+            ("→ Estável", n_st, "previsão 7d"),
+            ("↓ Tendência queda", n_dn, "previsão 7d melhora"),
+            ("SISREG no recorte", f"{sisreg_cov}/{len(resumo)}", "com fila/regulação"),
+        ]
+    )
+
+    st.markdown("#### KPIs por pilar — atual × previsão 7d × tendência")
+    if not pressao_df.empty and "cod_ibge" in pressao_df.columns:
+        def _pillar_state(sem_col: str, tend_col: str, valor_col: str | None = None) -> str:
+            if sem_col not in pressao_df.columns:
+                return "—"
+            # moda do semáforo no recorte (pior caso se empate: vermelha > amarela > verde)
+            order = {"vermelha": 3, "amarela": 2, "verde": 1, "—": 0}
+            s = pressao_df[sem_col].astype(str).str.lower()
+            if s.replace("—", pd.NA).dropna().empty and (s == "—").all():
+                return "⚪ Sem dados"
+            # usa o pior município do recorte para o cartão-resumo do pilar
+            worst = s.map(order).fillna(0).idxmax() if len(s) else None
+            sem = str(pressao_df.loc[worst, sem_col]).lower() if worst is not None else "—"
+            tend = (
+                str(pressao_df.loc[worst, tend_col]).lower()
+                if tend_col in pressao_df.columns and worst is not None
+                else "—"
+            )
+            extra = ""
+            if valor_col and valor_col in pressao_df.columns and worst is not None:
+                try:
+                    vv = pd.to_numeric(pressao_df.loc[worst, valor_col], errors="coerce")
+                    if pd.notna(vv):
+                        extra = f" · ref. {vv:.0f}" if abs(vv) >= 10 else f" · ref. {vv:.1f}"
+                except Exception:
+                    pass
+            return f"{format_kpi_label(sem, tend)}{extra}"
+
+        pcols = st.columns(4)
+        with pcols[0]:
+            st.markdown("**IndicaSUS** (ocupação)")
+            st.markdown(_pillar_state("kpi_indicasus_semaforo", "kpi_indicasus_tendencia", "kpi_indicasus_valor"))
+            med_o = pd.to_numeric(pressao_df.get("kpi_indicasus_valor"), errors="coerce").mean()
+            st.caption(f"Ocupação méd.: {med_o:.1f}%" if pd.notna(med_o) else "Ocupação: sem dado")
+        with pcols[1]:
+            st.markdown("**SISREG** (regulação)")
+            if sisreg_cov and sisreg_cov > 0:
+                st.markdown(_pillar_state("kpi_sisreg_semaforo", "kpi_sisreg_tendencia", "kpi_sisreg_fila_h"))
+            else:
+                st.markdown("⚪ Pendente — integrar `ops_sisreg_municipio`")
+            st.caption("Fila / solicitações abertas")
+        with pcols[2]:
+            st.markdown("**SINAN** (agravos clima)")
+            st.markdown(_pillar_state("kpi_sinan_semaforo", "kpi_sinan_tendencia", "kpi_sinan_casos_7d"))
+            med_c = pd.to_numeric(pressao_df.get("kpi_sinan_casos_7d"), errors="coerce").mean()
+            st.caption(f"Arbovírus 7d méd.: {med_c:.0f}" if pd.notna(med_c) else "Arbovírus/SRAG: parcial")
+        with pcols[3]:
+            st.markdown("**SIM** (óbitos calor)")
+            st.markdown(_pillar_state("kpi_sim_semaforo", "kpi_sim_tendencia", "kpi_sim_obitos"))
+            med_ob = pd.to_numeric(pressao_df.get("kpi_sim_obitos"), errors="coerce").sum()
+            st.caption(f"Óbitos no recorte: {med_ob:.0f}" if pd.notna(med_ob) else "SIM: sem dado")
+
+        st.markdown("#### Mapa — índice de pressão (0–100)")
+        if "indice_pressao_saude" in map_df.columns and pd.to_numeric(map_df["indice_pressao_saude"], errors="coerce").notna().any():
+            choropleth_or_points(
+                map_df,
+                geojson_mun,
+                "indice_pressao_saude",
+                "Índice de pressão em saúde",
+                hover_cols=[
+                    "regional_saude",
+                    "semaforo_pressao",
+                    "tendencia_pressao_7d",
+                    "pred_indice_pressao_7d",
+                    "ocupacao_leitos_pct",
+                    "casos_arbovirus_7d",
+                ],
+            )
+        else:
+            st.info("Índice de pressão ainda sem valores mapeáveis no recorte.")
+
+        st.markdown("#### Tabela municipal — pressão, semáforo, previsão e tendência")
+        show_df(
+            safe_sort(
+                pressao_df if not pressao_df.empty else resumo,
+                ["indice_pressao_saude", "pred_indice_pressao_7d"],
+                ascending=[False, False],
+            ),
+            [
+                "cod_ibge",
+                "municipio",
+                "regional_saude",
+                "semaforo_pressao",
+                "indice_pressao_saude",
+                "pred_indice_pressao_7d",
+                "semaforo_pressao_pred_7d",
+                "tendencia_pressao_7d",
+                "kpi_indicasus_valor",
+                "kpi_indicasus_semaforo",
+                "kpi_indicasus_tendencia",
+                "kpi_sisreg_semaforo",
+                "kpi_sisreg_tendencia",
+                "kpi_sinan_casos_7d",
+                "kpi_sinan_semaforo",
+                "kpi_sinan_tendencia",
+                "kpi_sim_obitos",
+                "kpi_sim_semaforo",
+                "kpi_sim_tendencia",
+                "pilares_disponiveis",
+            ],
+            height=420,
+        )
+    else:
+        st.warning("Não foi possível calcular o índice de pressão neste recorte.")
+
+    with st.expander("Catálogo de agravos com correlação climática (bases SINAN/SIM/IndicaSUS/SISREG)"):
+        cat = catalogo_agravos()
+        if not cat.empty:
+            show_df(cat, ["id", "nome", "base", "evidencias", "indicadores", "status"], height=280)
+        else:
+            st.caption("Catálogo em `config/indice_pressao_semaforo.yaml`.")
+
+    st.divider()
+    ui_theme.section_title("Detalhe assistencial", "Leitos IndicaSUS + proxy clima–saúde quando a ocupação falha")
 
     tem_ocup = "ocupacao_leitos_pct" in resumo.columns and pd.to_numeric(resumo["ocupacao_leitos_pct"], errors="coerce").notna().any()
     tem_press = "pressao_calor_pct" in resumo.columns and pd.to_numeric(resumo["pressao_calor_pct"], errors="coerce").notna().any()
@@ -1492,12 +1713,19 @@ A aba usa `qualidade_ar_municipal`, com PM2.5, PM10, O3, NO2, CO e SO2 quando di
 - `tendencia_7d`: compara nível atual × predição 7 dias  
 Persistidos em `resumo_municipal_atual` e `indicadores_painel_municipal`.
 
-### 9. Pendências de integração plena
+### 9. Índice de pressão (semáforo G/A/V)
+
+`indice_pressao_saude` (0–100) combina **IndicaSUS** (ocupação), **SISREG** (fila/regulação, quando `ops_sisreg_municipio` existir), **SINAN** (arbovírus/SRAG/agravos calor) e **SIM** (óbitos sensíveis ao calor).  
+Cada pilar traz cenário atual, `*_pred_7d` e tendência (↑ alta / → estável / ↓ queda).  
+Cores: **verde** (baixa), **amarela** (atenção), **vermelha** (alta) — distinto do nível operacional de 5 cores.  
+Catálogo e limiares: `config/indice_pressao_semaforo.yaml`.
+
+### 10. Pendências de integração plena
 
 - estoque e autonomia de insumos por município;
 - infraestrutura crítica das unidades;
-- pressão assistencial real com fila/regulação/tempo de espera;
-- credenciais IndicaSUS válidas para ocupação real;
+- **SISREG** (fila, tempo de espera, solicitações) → popular `ops_sisreg_municipio`;
+- credenciais IndicaSUS válidas para ocupação real em todos os municípios;
 - boletim operacional automatizado.
         """
     )
@@ -1963,8 +2191,9 @@ elif SECTION_KEY == "Alertas":
                 map_ai = ai.copy()
                 map_ai["nivel"] = map_ai["nivel_alerta_integrado"]
                 map_ai, _, _ = prepare_map_dataframe(map_ai)
+            map_plot = map_ai if "nivel" in map_ai.columns else ai.rename(columns={"nivel_alerta_integrado": "nivel"})
             choropleth_or_points(
-                map_ai if "nivel" in map_ai.columns else ai.assign(columns={"nivel_alerta_integrado": "nivel"}),
+                map_plot,
                 geojson_mun,
                 "nivel",
                 "Alerta integrado SIS+TITAN",
@@ -1986,6 +2215,103 @@ elif SECTION_KEY == "Alertas":
             ("Webhook", "ativo" if status["webhook"] else "inativo", "URL configurável"),
         ]
     )
+
+    # ------------------------------------------------------------------
+    # Alertas multinível (SES / Regional / Municipal / Vigidesastre Cuiabá)
+    # ------------------------------------------------------------------
+    st.markdown("### Alertas em 4 níveis (consulta e validação)")
+    ui_theme.callout(
+        "Escopos: (1) estadual → SES/CIEVS · (2) regional + municípios da jurisdição · "
+        "(3) municipal · (4) Vigidesastre Cuiabá. Cada boletim traz ícone, indicadores, "
+        "predição ~7d e orientações para gestor, profissionais e população.",
+        "tip",
+    )
+    try:
+        from sisclima.engines.alertas_multinivel import (
+            build_alertas_multinivel,
+            payloads_to_dataframe,
+            persist_payloads,
+            render_payload_markdown,
+        )
+
+        min_lvl = st.selectbox(
+            "Nível mínimo para gerar boletim municipal",
+            ["amarela", "laranja", "vermelha", "roxa"],
+            index=1,
+            key="alerta_min_nivel_multi",
+        )
+        payloads = build_alertas_multinivel(
+            resumo,
+            alerta_integrado=alerta_integrado if isinstance(alerta_integrado, pd.DataFrame) else None,
+            predicao_7d=pred_v6 if isinstance(pred_v6, pd.DataFrame) else None,
+            min_level=min_lvl,
+        )
+        tab_est, tab_reg, tab_mun, tab_cba = st.tabs(
+            ["① Estadual (SES)", "② Regionais", "③ Municipais", "④ Cuiabá Vigidesastre"]
+        )
+        by_scope = {k: [p for p in payloads if p.get("escopo") == k] for k in ("estadual", "regional", "municipal", "cuiaba")}
+
+        def _render_scope(scope_payloads: list, tab) -> None:
+            with tab:
+                if not scope_payloads:
+                    st.info("Nenhum boletim neste escopo para o recorte/nível atuais.")
+                    return
+                labels = [f"{p.get('icone', '')} {p.get('alvo_nome')} · {p.get('nivel')}" for p in scope_payloads]
+                idx = 0
+                if len(labels) > 1:
+                    idx = st.selectbox(
+                        "Selecione o boletim",
+                        list(range(len(labels))),
+                        format_func=lambda i: labels[i],
+                        key=f"sel_alerta_{scope_payloads[0].get('escopo')}",
+                    )
+                p = scope_payloads[int(idx)]
+                st.markdown(f"#### {p.get('titulo')}")
+                c_a, c_b, c_c = st.columns(3)
+                c_a.metric("Nível", f"{p.get('icone')} {p.get('nivel')}")
+                c_b.metric("Municípios no escopo", p.get("n_municipios", 0))
+                c_c.metric("Predição 7d", f"{(p.get('predicao') or {}).get('icone_predicao', '')} {(p.get('predicao') or {}).get('nivel_predicao_7d', '—')}")
+                st.markdown("**Motivo**")
+                st.write(p.get("motivo") or "—")
+                st.markdown("**Indicadores**")
+                ind_df = pd.DataFrame(p.get("indicadores") or [])
+                if ind_df.empty:
+                    st.caption("Sem indicadores preenchidos neste boletim.")
+                else:
+                    show_df(ind_df.rename(columns={"rotulo": "Indicador", "valor": "Valor"}), ["Indicador", "Valor"], height=260)
+                ori = p.get("orientacoes") or {}
+                o1, o2, o3 = st.columns(3)
+                o1.info(f"**Gestor**\n\n{ori.get('gestor', '—')}")
+                o2.warning(f"**Profissionais**\n\n{ori.get('profissional', '—')}")
+                o3.success(f"**População**\n\n{ori.get('populacao', '—')}")
+                with st.expander("Prévia completa (Markdown / envio)", expanded=False):
+                    md = render_payload_markdown(p)
+                    st.code(md)
+                    st.download_button(
+                        "Baixar boletim (.md)",
+                        data=md,
+                        file_name=f"alerta_{p.get('escopo')}_{p.get('alvo_id')}.md",
+                        mime="text/markdown",
+                        key=f"dl_alerta_{p.get('escopo')}_{p.get('alvo_id')}",
+                    )
+
+        _render_scope(by_scope["estadual"], tab_est)
+        _render_scope(by_scope["regional"], tab_reg)
+        _render_scope(by_scope["municipal"], tab_mun)
+        _render_scope(by_scope["cuiaba"], tab_cba)
+
+        resumo_multi = payloads_to_dataframe(payloads)
+        st.markdown("#### Painel consolidado dos 4 níveis (validação)")
+        show_df(
+            resumo_multi,
+            [c for c in ["icone", "escopo", "alvo_nome", "nivel", "n_municipios", "nivel_predicao_7d", "n_indicadores", "gerado_em"] if c in resumo_multi.columns],
+            height=280,
+        )
+        if st.button("Persistir pacotes multinível na base (`alertas_multinivel_v1`)", key="btn_persist_multi"):
+            n = persist_payloads(payloads)
+            st.success(f"{n} boletim(ns) gravado(s) em alertas_multinivel_v1.")
+    except Exception as exc:
+        st.error(f"Falha ao montar alertas multinível: {exc}")
 
     st.markdown("### SOP — passo a passo (CIEVS)")
     for step in ALERT_SOP_STEPS:
@@ -2040,6 +2366,7 @@ elif SECTION_KEY == "Alertas":
         "predicao_calor_7d_municipal_v6",
         "analise_clima_saude_odds_ratio_v1",
         "alertas_enviados",
+        "alertas_multinivel_v1",
         "inmet_alertas",
         "cemaden_alertas",
         "ana_risco_municipal",
@@ -2106,7 +2433,7 @@ elif SECTION_KEY == "Sazonalidade / OR":
         "- Documento local: `docs/ANALISE_OR_SAZONALIDADE.md`."
     )
 
-    if saz_picos_v1.empty and sazon_mensal_v1.empty and analise_or_v1.empty:
+    if sazon_picos_v1.empty and sazon_mensal_v1.empty and analise_or_v1.empty:
         st.info("Tabelas de sazonalidade/OR ainda não geradas. Rode completar_sistema_operacional.py.")
     else:
         c1, c2, c3 = st.columns(3)

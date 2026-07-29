@@ -154,7 +154,11 @@ def narrativa_alertas(alerta_int: pd.DataFrame, resumo: pd.DataFrame | None = No
         f"- Níveis: {', '.join(f'{k}={v}' for k, v in vc.items()) or '—'}.",
         f"- Componentes dominantes: {', '.join(f'{k}={v}' for k, v in dom.items()) or '—'}.",
     ]
-    top = alerta_int.sort_values("score_alerta_integrado", ascending=False).head(5)
+    top = (
+        alerta_int.sort_values("score_alerta_integrado", ascending=False).head(5)
+        if "score_alerta_integrado" in alerta_int.columns
+        else alerta_int.head(5)
+    )
     for _, r in top.iterrows():
         lines.append(
             f"- **{r.get('municipio')}**: {r.get('nivel_alerta_integrado')} "
@@ -172,7 +176,8 @@ def narrativa_sazonal_or(or_df: pd.DataFrame, mensal: pd.DataFrame) -> str:
     if or_df is not None and not or_df.empty:
         sig = int(pd.to_numeric(or_df.get("significativo_005"), errors="coerce").fillna(0).astype(int).sum()) if "significativo_005" in or_df.columns else 0
         lines.append(f"- Pares OR calculados: **{_fmt(len(or_df), 0)}**; significativos (p&lt;0,05): **{sig}**.")
-        best = or_df.sort_values("or", ascending=False).head(1)
+        or_col = "or" if "or" in or_df.columns else None
+        best = or_df.sort_values(or_col, ascending=False).head(1) if or_col else or_df.head(1)
         if not best.empty:
             lines.append(
                 f"- Maior OR: **{best.iloc[0].get('exposicao')} → {best.iloc[0].get('desfecho')}** "
@@ -196,10 +201,11 @@ def render_interpretacao(
         st.session_state[f"narr_{session_key}"] = build_narr()
     txt = st.session_state.get(f"narr_{session_key}")
     if not txt:
-        # gera na primeira visita
         txt = build_narr()
         st.session_state[f"narr_{session_key}"] = txt
-    st.markdown(f'<div class="ai-box">{txt.replace(chr(10), "<br/>")}</div>', unsafe_allow_html=True)
+    # Narrativa em Markdown nativo (evita HTML quebrado por caracteres especiais).
+    with st.container():
+        st.markdown(txt)
     st.download_button(
         "Baixar justificativa (.md)",
         data=txt,

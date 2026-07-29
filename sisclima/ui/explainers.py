@@ -77,6 +77,21 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "leigo": "Percentual de leitos ocupados (fonte IndicaSUS/BdSES, quando disponível).",
         "como_ler": "Se aparecer ‘—’, a fonte assistencial não respondeu nesta rodada.",
     },
+    "indice_pressao_saude": {
+        "nome": "Índice de pressão em saúde",
+        "leigo": "Nota 0–100 da pressão sobre a rede (IndicaSUS + SISREG + SINAN + SIM).",
+        "como_ler": "Verde ≤39, amarela 40–69, vermelha ≥70. Inclui previsão ~7d e tendência ↑/→/↓.",
+    },
+    "semaforo_pressao": {
+        "nome": "Semáforo de pressão",
+        "leigo": "Verde / amarela / vermelha — leitura rápida da pressão assistencial-epidemiológica.",
+        "como_ler": "Não confundir com o nível operacional de 5 cores (até roxa).",
+    },
+    "tendencia_pressao_7d": {
+        "nome": "Tendência da pressão (7 dias)",
+        "leigo": "Se a pressão deve subir, ficar estável ou cair na próxima semana.",
+        "como_ler": "↑ alta · → estável · ↓ queda — compara índice atual × previsão 7d.",
+    },
     "pm25_ugm3": {
         "nome": "PM2,5",
         "leigo": "Partículas finas no ar (fumaça/poeira) que entram fundo no pulmão.",
@@ -211,9 +226,9 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Cobertura limitada a municípios com dado — não generalize para todo o MT.",
     },
     "Assistência": {
-        "para_que_serve": "Ocupação de leitos e pressão assistencial sobre a rede.",
-        "como_usar": "Se ocupação estiver ‘—’, use a pressão proxy e registre a lacuna para o plantão.",
-        "cuidado": "IndicaSUS pode falhar por credencial — o proxy não substitui o dado real de leitos.",
+        "para_que_serve": "Índice de pressão (IndicaSUS, SISREG, SINAN, SIM) com semáforo verde/amarela/vermelha, tendência e previsão ~7 dias.",
+        "como_usar": "Olhe o semáforo de pressão e a tendência (↑/→/↓); depois detalhe ocupação, arbovírus e óbitos. SISREG aparece quando a base estiver integrada.",
+        "cuidado": "Semáforo G/A/V ≠ nível operacional Verde→Roxa. Proxy não substitui censo IndicaSUS nem fila SISREG real.",
     },
     "Arboviroses": {
         "para_que_serve": "Acompanhar dengue, zika, chikungunya e correlatas no corte municipal.",
@@ -271,9 +286,9 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Inconsistências de nome/IBGE afetam mapas e joins.",
     },
     "Alertas": {
-        "para_que_serve": "Ver alerta integrado SIS+TITAN, SOP de envio e auditoria.",
-        "como_usar": "Comece pelo mapa/tabela do alerta integrado; valide SOP antes de armar canais.",
-        "cuidado": "Envio externo desligado por padrão. Validar com CIEVS antes de comunicação oficial.",
+        "para_que_serve": "Alertas multinível: ① SES · ② Regionais · ③ Municipais · ④ Vigidesastre Cuiabá — com indicadores, pred 7d e orientações.",
+        "como_usar": "Abra as quatro abas do boletim; valide a prévia no painel antes de armar SEND_ALERT / Telegram / e-mail.",
+        "cuidado": "Envio externo desligado por padrão (`SEND_ALERT_ON_LEVEL_CHANGE=false`). Validar com CIEVS antes de comunicação oficial.",
     },
     "Cálculos": {
         "para_que_serve": "Transparência metodológica: limiares, pesos e o que entra no nível.",

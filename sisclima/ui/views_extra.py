@@ -54,18 +54,23 @@ def render_arboviroses() -> None:
         ]:
             if col in rank.columns:
                 rank[col] = pd.to_numeric(rank[col], errors="coerce")
-        rank = rank.sort_values("casos_arbovirus_7d", ascending=False)
-        st.dataframe(rank, use_container_width=True, height=320)
-        st.plotly_chart(
-            px.bar(
-                rank.head(20),
-                x="municipio",
-                y="casos_arbovirus_7d",
-                color="agravo_dominante" if "agravo_dominante" in rank.columns else None,
-                title="Top municípios — arboviroses 7d",
-            ),
-            use_container_width=True,
-        )
+        rank = rank.sort_values("casos_arbovirus_7d", ascending=False) if "casos_arbovirus_7d" in rank.columns else rank
+        try:
+            st.dataframe(rank, width="stretch", height=320)
+        except TypeError:
+            st.dataframe(rank, use_container_width=True, height=320)
+        y_col = next((c for c in ["casos_arbovirus_7d", "incidencia_arbovirus_100k", "zscore_arbovirus"] if c in rank.columns), None)
+        if y_col and "municipio" in rank.columns:
+            st.plotly_chart(
+                px.bar(
+                    rank.head(20),
+                    x="municipio",
+                    y=y_col,
+                    color="agravo_dominante" if "agravo_dominante" in rank.columns else None,
+                    title=f"Top municípios — arboviroses ({y_col})",
+                ),
+                use_container_width=True,
+            )
     else:
         st.info("Snapshot municipal ainda não disponível.")
 
@@ -167,8 +172,9 @@ def render_sivep() -> None:
                 px.bar(estado, x="se_label", y="casos_srag", title="Casos de SRAG por SE — estadual"),
                 use_container_width=True,
             )
+        sort_cols = [c for c in ["ano_epi", "semana_epi"] if c in w.columns]
         st.dataframe(
-            w.sort_values(["ano_epi", "semana_epi"], ascending=False) if "ano_epi" in w.columns else w,
+            w.sort_values(sort_cols, ascending=False) if sort_cols else w,
             use_container_width=True,
             height=280,
         )
@@ -414,15 +420,24 @@ def render_geocalor() -> None:
             st.dataframe(status_df, use_container_width=True)
 
     if df.empty:
-        st.warning("Tabela GeoCalor ainda não gerada na base operacional.")
+        st.warning(
+            "Tabela GeoCalor ainda não gerada na base operacional. "
+            "Rode `calcular_geocalor_cardioresp_v11_12.py` e o enriquecimento; "
+            "esta aba permanece disponível sem interromper o painel."
+        )
         return
-    if df.empty:
-        st.warning("Tabela GeoCalor vazia.")
+
+    if "municipio" not in df.columns:
+        st.warning("Tabela GeoCalor sem coluna município — verifique a modelagem.")
+        st.dataframe(df.head(50), use_container_width=True)
         return
 
     municipios = sorted([x for x in df["municipio"].dropna().astype(str).unique() if x])
+    if not municipios:
+        st.info("Sem municípios na tabela GeoCalor nesta rodada.")
+        return
     default_idx = municipios.index("Cuiabá") if "Cuiabá" in municipios else 0
-    municipio = st.selectbox("Município", municipios, index=default_idx if municipios else 0)
+    municipio = st.selectbox("Município", municipios, index=default_idx)
 
     if "rr" in df.columns and "cod_ibge" in df.columns and df["rr"].notna().any():
         map_src = df.copy()

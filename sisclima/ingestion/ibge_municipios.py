@@ -7,7 +7,7 @@ from typing import Any
 import pandas as pd
 import requests
 
-from sisclima.core.config import APP_CONFIG, env
+from sisclima.core.config import APP_CONFIG, as_bool, env
 from sisclima.core.http_client import USER_AGENT, ssl_verify
 from sisclima.core.logging_utils import get_logger
 from sisclima.utils.io import normalize_cols

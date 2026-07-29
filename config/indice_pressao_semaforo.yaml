@@ -1,0 +1,115 @@
+# Índice de pressão em saúde — semáforo de 3 cores (verde / amarela / vermelha).
+# Foco: IndicaSUS + SISREG + SINAN + SIM para agravos com correlação climática
+# documentada (OMS, IPCC AR6, AdaptaSUS/MS, literatura epidemiológica).
+#
+# Distinto do nível operacional de 5 cores (verde→roxa): este semáforo resume
+# a pressão assistencial-epidemiológica para o gestor em leitura rápida.
+
+versao: "1.0"
+atualizado_em: "2026-07-28"
+
+semaforo:
+  cores: [verde, amarela, vermelha]
+  # Faixas do índice composto 0–100
+  verde_max: 39
+  amarela_max: 69
+  # vermelha: >= 70
+
+pilares:
+  indicasus:
+    peso: 0.30
+    descricao: Ocupação hospitalar (BdSES / IndicaSUS)
+    limiares_ocupacao_pct:
+      verde_max: 79
+      amarela_max: 89
+      # vermelha: >= 90
+  sisreg:
+    peso: 0.20
+    descricao: Regulação / fila (quando ops_sisreg_municipio disponível)
+    # Filas SISREG no MT costumam ser medidas em dias; limiares em horas
+    limiares_fila_horas:
+      verde_max: 168      # 7 dias
+      amarela_max: 720    # 30 dias
+    limiares_solicitacoes_abertas:
+      verde_max: 50
+      amarela_max: 300
+  sinan:
+    peso: 0.30
+    descricao: Notificações de agravos sensíveis ao clima (arboviroses + calor)
+    limiares_zscore:
+      verde_max: 0.99
+      amarela_max: 1.99
+    limiares_casos_7d:
+      verde_max: 4
+      amarela_max: 14
+  sim:
+    peso: 0.20
+    descricao: Óbitos SIM em grupos CID sensíveis ao calor / cardiorrespiratório
+    limiares_obitos_janela:
+      verde_max: 0
+      amarela_max: 2
+
+# Agravos / desfechos com associação climática reconhecida (uso operacional CIEVS)
+agravos_clima:
+  - id: dengue_arbovirus
+    nome: Dengue e outras arboviroses
+    base: SINAN
+    evidencias: "Temperatura e precipitação modulam vetor Aedes; OMS / IPCC AR6 / Guia Clima-Saúde MS"
+    indicadores: [casos_arbovirus_7d, incidencia_arbovirus_100k, zscore_arbovirus]
+
+  - id: chikungunya_zika
+    nome: Chikungunya / Zika
+    base: SINAN
+    evidencias: "Mesmo ciclo vetorial climático sensível a calor e chuva"
+    indicadores: [casos_chikungunya_7d, casos_zika_7d]
+
+  - id: srag_respiratorio
+    nome: SRAG / agravos respiratórios
+    base: SINAN / SIVEP
+    evidencias: "Calor extremo e PM2,5 (queimadas) associados a desfechos respiratórios"
+    indicadores: [casos_srag, zscore_srag]
+
+  - id: desidratacao_calor
+    nome: Desidratação / efeitos do calor
+    base: SINAN / SIM (CID E86, T67, X30)
+    evidencias: "Exposição a calor extremo eleva morbimortalidade (OMS Heat–Health)"
+    indicadores: [eventos_calor, obitos_calor_suspeitos]
+
+  - id: cardiovascular_calor
+    nome: Cardiovascular sensível ao calor
+    base: SIM (CID I*)
+    evidencias: "Picos de calor associados a óbitos cardiovasculares (literatura / GeoCalor)"
+    indicadores: [obitos_cardio]
+
+  - id: respiratorio_mortalidade
+    nome: Mortalidade respiratória
+    base: SIM (CID J*)
+    evidencias: "Calor + poluição do ar (seca/queimadas) elevam óbitos respiratórios"
+    indicadores: [obitos_resp]
+
+  - id: renal_desidratacao
+    nome: Renal / lesão aguda
+    base: SIM (N17–N19)
+    evidencias: "Desidratação e estresse térmico associados a desfechos renais"
+    indicadores: [obitos_renal]
+
+  - id: ocupacao_leitos
+    nome: Pressão hospitalar
+    base: IndicaSUS
+    evidencias: "Demanda assistencial sob extremos climáticos (AdaptaSUS — ampliação de demanda)"
+    indicadores: [ocupacao_leitos_pct]
+
+  - id: regulacao
+    nome: Fila / regulação
+    base: SISREG
+    evidencias: "Proxy de saturação da rede sob picos de demanda climática"
+    indicadores: [fila_media_h, solicitacoes_abertas]
+    status: pendente_integracao
+
+tendencia:
+  labels:
+    subindo: "↑ alta"
+    estavel: "→ estável"
+    descendo: "↓ queda"
+  # Diferença mínima no índice (pontos) para marcar mudança
+  delta_min: 5

@@ -1,0 +1,44 @@
+{
+  "gerado_em": "2026-07-28T23:02:06",
+  "backend": "postgresql",
+  "dist": {
+    "laranja": 64,
+    "amarela": 32,
+    "vermelha": 26,
+    "roxa": 20
+  },
+  "n_alertas": 130,
+  "real_send": false,
+  "send_flag": "false",
+  "email_enabled": "true",
+  "telegram_enabled": "true",
+  "hist_note": "Nenhum registro em alertas_enviados (envio nunca disparado nesta base).",
+  "email_subject": "[SIS Clima-Saúde / CIEVS] 🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena",
+  "telegram_preview": "# 🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena\n\n**Escopo:** estadual · **Alvo:** Estado de Mato Grosso · SES/CIEVS · **Municípios:** 142\n**Gerado em:** 2026-07-28T23:02:06\n\n## Motivo\nSIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2\n\n## Indicadores\n- **Municípios no escopo:** 142\n- **Distribuição de níveis:** laranja:64, amarela:32, vermelha:26, roxa:20\n- **Nível SIS:** roxa\n- **Nível integrado SIS+TITAN:** roxa\n- **Score operacional:** 4\n- **Score alerta integrado:** 4\n- **Tmáx (°C):** 34.4\n- **UTCI/proxy:** 33.4\n- **Risco acumulado 3d:** 13.2\n- **Ocupação leitos (%):** 52.2\n- **Pressão assistencial (%):** 6.1\n- **Índice saturação solo:** 39.4\n- **Classe solo:** baixa\n- **Incid. arbovírus /100 mil:** 8.3\n- **Z-score arboviroses:** 4.3\n- **Casos SRAG:** 0\n- **Incid. SRAG /100 mil:** 0\n- **Tensão climática:** 62.7\n- **Carga em saúde:** 16.9\n- **Vigilância integrada:** 55.1\n- **Tendência 7d:** descendo\n- **Nível predito 7d:** vermelha\n- **Componente dominante:** sis_estagio\n- **Motivo SIS:** UTCI/proxy 33.4 entre 32 e 38; Tmax 34.4 sem gatilho; risco cumulativo 3d 13.15 atingiu vermelha; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 39.40 sem gatilho; pressão assistencial 6.10 atingiu laranja; ocupação de leitos 52.22 sem gatilho; z-score assistencial indisponível\n- **Motivo integrado:** SIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2\n\n## Predição (~7 dias)\n🟣 Horizonte ~7 dias: nível predito predominante Roxa — mobilização plena. Municípios com tendência de piora: 74.\n\n## Orientações\n### Gestor\nComando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.\n\n### Profissionais de saúde\nProtocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.\n\n### População\nEmergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário.\n\n## Fontes\nOpen-Meteo, INMET, Cemaden, ANA, Copernicus/CAMS (quando disponível), SINAN/SIVEP/SIM/IndicaSUS (DW), SISREG (regulação/fila), SIS Clima-Saúde MT\n\n_SIS Clima-Saúde MT · CIEVS/SES-MT · validar no painel antes do envio externo._",
+  "email_preview_markdown": "# 🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena\n\n**Escopo:** estadual · **Alvo:** Estado de Mato Grosso · SES/CIEVS · **Municípios:** 142\n**Gerado em:** 2026-07-28T23:02:06\n\n## Motivo\nSIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2\n\n## Indicadores\n- **Municípios no escopo:** 142\n- **Distribuição de níveis:** laranja:64, amarela:32, vermelha:26, roxa:20\n- **Nível SIS:** roxa\n- **Nível integrado SIS+TITAN:** roxa\n- **Score operacional:** 4\n- **Score alerta integrado:** 4\n- **Tmáx (°C):** 34.4\n- **UTCI/proxy:** 33.4\n- **Risco acumulado 3d:** 13.2\n- **Ocupação leitos (%):** 52.2\n- **Pressão assistencial (%):** 6.1\n- **Índice saturação solo:** 39.4\n- **Classe solo:** baixa\n- **Incid. arbovírus /100 mil:** 8.3\n- **Z-score arboviroses:** 4.3\n- **Casos SRAG:** 0\n- **Incid. SRAG /100 mil:** 0\n- **Tensão climática:** 62.7\n- **Carga em saúde:** 16.9\n- **Vigilância integrada:** 55.1\n- **Tendência 7d:** descendo\n- **Nível predito 7d:** vermelha\n- **Componente dominante:** sis_estagio\n- **Motivo SIS:** UTCI/proxy 33.4 entre 32 e 38; Tmax 34.4 sem gatilho; risco cumulativo 3d 13.15 atingiu vermelha; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 39.40 sem gatilho; pressão assistencial 6.10 atingiu laranja; ocupação de leitos 52.22 sem gatilho; z-score assistencial indisponível\n- **Motivo integrado:** SIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2\n\n## Predição (~7 dias)\n🟣 Horizonte ~7 dias: nível predito predominante Roxa — mobilização plena. Municípios com tendência de piora: 74.\n\n## Orientações\n### Gestor\nComando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.\n\n### Profissionais de saúde\nProtocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.\n\n### População\nEmergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário.\n\n## Fontes\nOpen-Meteo, INMET, Cemaden, ANA, Copernicus/CAMS (quando disponível), SINAN/SIVEP/SIM/IndicaSUS (DW), SISREG (regulação/fila), SIS Clima-Saúde MT\n\n_SIS Clima-Saúde MT · CIEVS/SES-MT · validar no painel antes do envio externo._",
+  "legacy_level_change": {
+    "subject": "[SIS Clima-Saúde] Mudança de nível: laranja -> roxa",
+    "body": "Data de referência: 2026-07-28\nNível anterior: laranja\nNovo nível: roxa\n\nMotivos principais:\n- SIS estágio roxa\n- UTCI/proxy 33.4\n- Risco cumulativo 3d 13.2"
+  },
+  "estadual": {
+    "titulo": "🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena",
+    "nivel": "roxa",
+    "motivo": "SIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2",
+    "orientacoes": {
+      "gestor": "Comando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.",
+      "profissional": "Protocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.",
+      "populacao": "Emergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário."
+    },
+    "predicao": {
+      "nivel_predicao_7d": "roxa",
+      "icone_predicao": "🟣",
+      "municipios_tendencia_alta": "74",
+      "resumo": "Horizonte ~7 dias: nível predito predominante Roxa — mobilização plena. Municípios com tendência de piora: 74."
+    }
+  },
+  "cuiaba": {
+    "titulo": "🟣 ALERTA VIGIDESASTRE CUIABÁ · Roxa — mobilização plena",
+    "nivel": "roxa",
+    "motivo": "SIS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cumulativo 3d 10.0"
+  }
+}
