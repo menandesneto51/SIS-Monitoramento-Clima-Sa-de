@@ -873,6 +873,15 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         resumo = resumo.merge(inj_ai, on="cod_ibge", how="left")
         write_df(resumo, "resumo_municipal_atual")
 
+    # Prioridade global (soma ponderada das camadas 0–100)
+    try:
+        from sisclima.engines.prioridade_global import enrich_prioridade_global
+
+        resumo = enrich_prioridade_global(resumo)
+        write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Prioridade global não calculada: %s", exc)
+
     alerta, alerta_reg = build_alerta_inteligente(resumo, pred)
     write_df(alerta, "alerta_inteligente_municipal_v6")
     write_df(alerta_reg, "alerta_inteligente_regional_v6")
@@ -903,6 +912,15 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         )
         write_df(meta, "ops_disponibilidade_assistencia")
 
+    # Monitoramento saúde-calor (dicionário, GAL, SIM, série consolidada + status GeoCalor)
+    try:
+        from sisclima.engines.saude_calor_consolida import run_saude_calor_consolidation
+
+        saude_meta = run_saude_calor_consolidation(include_geocalor=True, try_dw=False)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Consolidação saúde-calor falhou: %s", exc)
+        saude_meta = {"ok": False, "erro": str(exc)}
+
     summary = {
         "municipios": len(resumo),
         "com_pressao": int(pd.to_numeric(resumo.get("pressao_calor_pct"), errors="coerce").notna().sum()) if "pressao_calor_pct" in resumo.columns else 0,
@@ -923,6 +941,7 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         "adaptacao_media": float(pd.to_numeric(resumo.get("indice_adaptacao_climatica"), errors="coerce").mean()) if "indice_adaptacao_climatica" in resumo.columns else None,
         "painel_kpis": state_indicator_summary(resumo),
         "nivel_dist": resumo["nivel"].value_counts().to_dict() if "nivel" in resumo.columns else {},
+        "saude_calor": saude_meta,
     }
     log.info("Enriquecimento concluído: %s", summary)
     return summary

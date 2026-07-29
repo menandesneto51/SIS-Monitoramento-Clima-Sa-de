@@ -132,6 +132,26 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "leigo": "Quanto das informações-chave do município está preenchido nesta rodada.",
         "como_ler": "Baixa completude = interprete com cautela (pode faltar ar, leitos etc.).",
     },
+    "indice_prioridade_global": {
+        "nome": "Prioridade global (0–100)",
+        "leigo": "Nota única que combina vigilância, pressão em saúde, AdaptaSUS, fragilidade da rede e alerta integrado.",
+        "como_ler": "0–30 baixa · 31–60 moderada · 61–80 alta · >80 muito alta. Não substitui o nível Verde→Roxa.",
+    },
+    "faixa_prioridade_global": {
+        "nome": "Faixa da prioridade global",
+        "leigo": "Leitura rápida da prioridade global (baixa / moderada / alta / muito alta).",
+        "como_ler": "Use para ranking de plantão; confirme no território e no nível operacional.",
+    },
+    "completude_prioridade_pct": {
+        "nome": "Completude da prioridade (%)",
+        "leigo": "Quantos pilares entraram no cálculo da prioridade global nesta rodada.",
+        "como_ler": "Baixa completude = interprete com cautela (faltou pressão, resiliência etc.).",
+    },
+    "tendencia_prioridade_7d": {
+        "nome": "Tendência da prioridade (~7 dias)",
+        "leigo": "Sinal de aumento, manutenção ou queda da prioridade no horizonte curto.",
+        "como_ler": "Combina tendência climática e de pressão assistencial quando disponíveis.",
+    },
     "percentil_risco_estadual": {
         "nome": "Percentil de risco no Estado",
         "leigo": "Posição do município frente aos demais (ex.: percentil 90 = entre os 10% piores).",

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Ajudante de interpretação do painel (padrão Meningites: guia + justificativa)."""
+"""Ajudante de interpretação do painel (padrão Meningites: guia + justificativa + IA opcional)."""
 from __future__ import annotations
 
 from typing import Callable
@@ -31,16 +31,22 @@ def _fecho(txt: str) -> str:
     return (
         txt
         + "\n\n> Texto de apoio à vigilância. **Validar com a equipe CIEVS** antes de comunicação oficial. "
-        "Associação/correlação ≠ causalidade. TITAN = camada climática/alertas oficiais incorporada ao SIS."
+        "Associação/correlação ≠ causalidade. TITAN = camada climática/alertas oficiais incorporada ao SIS. "
+        "Padrão de leitura alinhado ao painel de Meningites (guia + achados + o que não concluir)."
     )
+
+
+def _bloco(titulo: str, linhas: list[str]) -> str:
+    body = "\n".join(linhas) if linhas else "- —"
+    return f"### {titulo}\n\n{body}\n"
 
 
 GUIDE_EXECUTIVO = guide_card(
     "Como ler a Visão executiva",
     [
         "<b>Nível operacional</b>: semáforo estadual (Verde→Roxa) pelo município mais crítico.",
-        "<b>Alerta integrado SIS+TITAN</b>: une estágio SIS (clima/saúde) com INMET, Cemaden, solo e hidro.",
-        "<b>Cards</b>: tensão climática, carga saúde, saturação do solo e OR/sazonalidade quando houver.",
+        "<b>Prioridade global</b>: nota 0–100 que soma vigilância + pressão saúde + AdaptaSUS + fragilidade + alerta.",
+        "<b>Alerta integrado SIS+TITAN</b>: une estágio SIS com INMET, Cemaden, solo e hidro.",
         "<b>Não é boletim oficial</b>: use como priorização de plantão e valide no território.",
     ],
 )
@@ -71,7 +77,7 @@ GUIDE_SAZONAL_OR = guide_card(
         "<b>Índice sazonal</b>: mês acima de 1 = historicamente mais crítico.",
         "<b>OR ecológico</b>: chance relativa entre municípios mais vs menos expostos — não é causalidade individual.",
         "<b>Lags</b>: correlação clima→desfecho em 0–14 dias (exploratório).",
-        "<b>Ocupação</b>: entra como desfecho quando disponível (IndicaSUS/CNES).",
+        "<b>Método</b>: alinhado ao painel de Meningites (sazonalidade + OR), adaptado a clima–saúde.",
     ],
 )
 
@@ -89,7 +95,7 @@ GUIDE_ADAPTASUS = guide_card(
     "Como ler AdaptaSUS / Guia MS",
     [
         "<b>Seis riscos</b>: calor, ar/queimadas, vetorial, precipitação, pressão na rede, WASH (lacuna).",
-        "<b>Índice de adaptação</b>: 0–100 — quanto maior, melhor alinhamento/resposta relativa.",
+        "<b>Índice de adaptação</b>: 0–100 — pressão relativa dos riscos AdaptaSUS cobertos.",
         "<b>Orientação</b>: texto operacional por risco dominante.",
         "<b>WASH/SAN</b>: ausência de fonte ≠ risco zero — lacuna explícita.",
     ],
@@ -102,26 +108,67 @@ def narrativa_executivo(resumo: pd.DataFrame, alerta_int: pd.DataFrame | None = 
     n = len(resumo)
     niveis = resumo["nivel"].value_counts().to_dict() if "nivel" in resumo.columns else {}
     crit = int((pd.to_numeric(resumo.get("score"), errors="coerce").fillna(0) >= 2).sum()) if "score" in resumo.columns else 0
-    lines = [
+
+    olhar = [
+        "- Cruze **nível Verde→Roxa**, **prioridade global** e **alerta integrado** antes de escalar plantão.",
+        "- Cards do topo: tensão climática, carga saúde e vigilância — contexto estadual da rodada.",
+    ]
+    achados = [
         f"- Municípios no recorte: **{_fmt(n, 0)}**.",
         f"- Laranja ou mais (score≥2): **{_fmt(crit, 0)}**.",
         f"- Distribuição de nível SIS: {', '.join(f'{k}={v}' for k, v in list(niveis.items())[:6]) or '—'}.",
     ]
+    if "indice_prioridade_global" in resumo.columns:
+        p = pd.to_numeric(resumo["indice_prioridade_global"], errors="coerce")
+        alta = 0
+        if "faixa_prioridade_global" in resumo.columns:
+            alta = int(resumo["faixa_prioridade_global"].isin(["alta", "muito alta"]).sum())
+        achados.append(
+            f"- Prioridade global: média **{_fmt(p.mean(), 0)}** · máx **{_fmt(p.max(), 0)}** · "
+            f"alta/muito alta: **{alta}** municípios."
+        )
+        top_p = resumo.sort_values("indice_prioridade_global", ascending=False).head(3)
+        if not top_p.empty and "municipio" in top_p.columns:
+            nomes = ", ".join(
+                f"{r.get('municipio')} ({_fmt(r.get('indice_prioridade_global'), 0)})"
+                for _, r in top_p.iterrows()
+            )
+            achados.append(f"- Top prioridade global: {nomes}.")
     if "indice_saturacao_solo" in resumo.columns:
         sm = pd.to_numeric(resumo["indice_saturacao_solo"], errors="coerce")
-        lines.append(f"- Saturação do solo média: **{_fmt(sm.mean(), 0)}** (máx {_fmt(sm.max(), 0)}).")
+        achados.append(f"- Saturação do solo média: **{_fmt(sm.mean(), 0)}** (máx {_fmt(sm.max(), 0)}).")
     if alerta_int is not None and not alerta_int.empty and "nivel_alerta_integrado" in alerta_int.columns:
         ai = alerta_int["nivel_alerta_integrado"].value_counts().to_dict()
         top = alerta_int.sort_values("score_alerta_integrado", ascending=False).head(3)
-        lines.append(f"- Alerta integrado SIS+TITAN: {', '.join(f'{k}={v}' for k, v in ai.items())}.")
+        achados.append(f"- Alerta integrado SIS+TITAN: {', '.join(f'{k}={v}' for k, v in ai.items())}.")
         if not top.empty:
             nomes = ", ".join(f"{r.get('municipio')} ({r.get('nivel_alerta_integrado')})" for _, r in top.iterrows())
-            lines.append(f"- Prioridade imediata: {nomes}.")
-    txt = "**Justificativa (Visão executiva)**\n\n" + "\n".join(lines)
+            achados.append(f"- Prioridade imediata (alerta): {nomes}.")
+
+    nao = [
+        "- Prioridade global **não substitui** o nível operacional nem SOP de envio de alertas.",
+        "- Correlação clima–saúde / OR ≠ causalidade individual.",
+        "- Predição ~7 dias não é cenário sazonal de setembro.",
+    ]
+    prox = [
+        "- Abrir mapa/Alertas nos municípios do top prioridade e validar IndicaSUS/SISREG no território.",
+        "- Se completude da prioridade estiver baixa, completar pilares (pressão, resiliência, alerta) antes de comunicar.",
+    ]
+    txt = (
+        "**Justificativa (Visão executiva)**\n\n"
+        + _bloco("O que olhar", olhar)
+        + _bloco("Achados desta rodada", achados)
+        + _bloco("O que não concluir", nao)
+        + _bloco("Próximo passo", prox)
+    )
     return _fecho(txt)
 
 
 def narrativa_clima_titan(resumo: pd.DataFrame, solo: pd.DataFrame | None = None) -> str:
+    olhar = [
+        "- Priorize UTCI, risco cumulativo 3d e saturação do solo juntos — um isolado engana.",
+        "- Alertas INMET/Cemaden/ANA são oficiais; o SIS só os incorpora.",
+    ]
     lines = []
     if resumo is not None and not resumo.empty:
         if "utci_proxy" in resumo.columns:
@@ -139,7 +186,19 @@ def narrativa_clima_titan(resumo: pd.DataFrame, solo: pd.DataFrame | None = None
         lines.append(f"- Classes de solo: {', '.join(f'{k}={v}' for k, v in vc.items())}.")
     if not lines:
         lines.append("- Sem série climática/solo nesta rodada — rode o enrichment com USE_OPENMETEO=true.")
-    return _fecho("**Justificativa (Clima/TITAN)**\n\n" + "\n".join(lines))
+    nao = [
+        "- Solo saturado ≠ leitos saturados.",
+        "- Proxy UTCI não substitui medição biométrica oficial.",
+    ]
+    prox = ["- Cruzar municípios com UTCI/risco altos na aba Alertas e na prioridade global."]
+    txt = (
+        "**Justificativa (Clima/TITAN)**\n\n"
+        + _bloco("O que olhar", olhar)
+        + _bloco("Achados desta rodada", lines)
+        + _bloco("O que não concluir", nao)
+        + _bloco("Próximo passo", prox)
+    )
+    return _fecho(txt)
 
 
 def narrativa_alertas(alerta_int: pd.DataFrame, resumo: pd.DataFrame | None = None) -> str:
@@ -148,12 +207,23 @@ def narrativa_alertas(alerta_int: pd.DataFrame, resumo: pd.DataFrame | None = No
     vc = alerta_int["nivel_alerta_integrado"].value_counts().to_dict() if "nivel_alerta_integrado" in alerta_int.columns else {}
     dom = alerta_int["componente_dominante"].value_counts().head(5).to_dict() if "componente_dominante" in alerta_int.columns else {}
     n_laranja = int((pd.to_numeric(alerta_int.get("score_alerta_integrado"), errors="coerce").fillna(0) >= 2).sum())
+    olhar = [
+        "- Veja nível integrado + componente dominante + motivo antes de acionar SOP.",
+        "- Fila municipal: laranja+ primeiro; cruze com prioridade global quando disponível.",
+    ]
     lines = [
         f"- Municípios com alerta integrado: **{_fmt(len(alerta_int), 0)}**.",
         f"- Laranja ou mais: **{_fmt(n_laranja, 0)}**.",
         f"- Níveis: {', '.join(f'{k}={v}' for k, v in vc.items()) or '—'}.",
         f"- Componentes dominantes: {', '.join(f'{k}={v}' for k, v in dom.items()) or '—'}.",
     ]
+    if resumo is not None and not resumo.empty and "indice_prioridade_global" in resumo.columns:
+        top = resumo.sort_values("indice_prioridade_global", ascending=False).head(5)
+        lines.append(
+            "- Top prioridade global no recorte: "
+            + ", ".join(f"{r.get('municipio')} ({_fmt(r.get('indice_prioridade_global'), 0)})" for _, r in top.iterrows())
+            + "."
+        )
     top = (
         alerta_int.sort_values("score_alerta_integrado", ascending=False).head(5)
         if "score_alerta_integrado" in alerta_int.columns
@@ -164,10 +234,26 @@ def narrativa_alertas(alerta_int: pd.DataFrame, resumo: pd.DataFrame | None = No
             f"- **{r.get('municipio')}**: {r.get('nivel_alerta_integrado')} "
             f"(domina `{r.get('componente_dominante')}`) — {r.get('motivo_integrado')}"
         )
-    return _fecho("**Justificativa (Alertas SIS+TITAN)**\n\n" + "\n".join(lines))
+    nao = [
+        "- Envio Telegram/e-mail fica OFF até validar prévia (`SEND_ALERT_ON_LEVEL_CHANGE`).",
+        "- Alerta integrado ≠ confirmação de surto epidemiológico.",
+    ]
+    prox = ["- Revisar SOP e checklist da aba Alertas para os 5 primeiros da fila."]
+    txt = (
+        "**Justificativa (Alertas SIS+TITAN)**\n\n"
+        + _bloco("O que olhar", olhar)
+        + _bloco("Achados desta rodada", lines)
+        + _bloco("O que não concluir", nao)
+        + _bloco("Próximo passo", prox)
+    )
+    return _fecho(txt)
 
 
 def narrativa_sazonal_or(or_df: pd.DataFrame, mensal: pd.DataFrame) -> str:
+    olhar = [
+        "- Índice sazonal > 1 e OR significativos (p&lt;0,05) são sinais de priorização, não causalidade.",
+        "- Método espelha o painel de Meningites (sazonalidade + OR ecológico).",
+    ]
     lines = []
     if mensal is not None and not mensal.empty and "indice_sazonal" in mensal.columns:
         top = mensal.sort_values("indice_sazonal", ascending=False).head(1)
@@ -185,7 +271,43 @@ def narrativa_sazonal_or(or_df: pd.DataFrame, mensal: pd.DataFrame) -> str:
             )
     if not lines:
         lines.append("- Sem tabelas OR/sazonalidade nesta rodada.")
-    return _fecho("**Justificativa (Sazonalidade/OR)**\n\n" + "\n".join(lines))
+    nao = [
+        "- OR ecológico municipal ≠ risco individual.",
+        "- Sazonalidade histórica não substitui nowcasting da semana.",
+    ]
+    prox = ["- Cruzar pares OR significativos com municípios em prioridade global alta."]
+    txt = (
+        "**Justificativa (Sazonalidade/OR)**\n\n"
+        + _bloco("O que olhar", olhar)
+        + _bloco("Achados desta rodada", lines)
+        + _bloco("O que não concluir", nao)
+        + _bloco("Próximo passo", prox)
+    )
+    return _fecho(txt)
+
+
+def _maybe_enrich_llm(base_txt: str, session_key: str) -> str:
+    """Camada opcional de IA (mesmo endpoint do boletim). Só se o usuário marcar e USE_LLM_REPORT=true."""
+    use = st.session_state.get(f"llm_interp_{session_key}", False)
+    if not use:
+        return base_txt
+    try:
+        from sisclima.ai.report_generator import maybe_llm_report
+
+        ctx = {
+            "aba": session_key,
+            "instrucao": (
+                "Reescreva em português claro para plantão CIEVS, sem inventar números. "
+                "Preserve os achados; acrescente só leitura operacional (o que olhar / próximo passo)."
+            ),
+            "texto_base": base_txt[:6000],
+        }
+        extra = maybe_llm_report(ctx)
+        if extra:
+            return base_txt + "\n\n### Narrativa IA (revisar antes de usar)\n\n" + extra
+        return base_txt + "\n\n_IA não disponível nesta rodada (USE_LLM_REPORT / LLM_API_*). Mantido texto determinístico._"
+    except Exception as exc:  # noqa: BLE001
+        return base_txt + f"\n\n_Assistente IA indisponível: {exc}_"
 
 
 def render_interpretacao(
@@ -194,16 +316,28 @@ def render_interpretacao(
     build_narr: Callable[[], str],
     titulo: str = "Justificativa dos achados (assistente CIEVS)",
 ) -> None:
-    """Padrão Meningites: guia sempre visível + narrativa sob demanda + download."""
+    """Padrão Meningites: guia sempre visível + narrativa sob demanda + IA opcional + download."""
     st.markdown(guide_html, unsafe_allow_html=True)
     st.markdown(f"#### {titulo}")
-    if st.button("Gerar / atualizar texto justificativo", key=f"btn_interp_{session_key}"):
-        st.session_state[f"narr_{session_key}"] = build_narr()
-    txt = st.session_state.get(f"narr_{session_key}")
-    if not txt:
-        txt = build_narr()
-        st.session_state[f"narr_{session_key}"] = txt
-    # Narrativa em Markdown nativo (evita HTML quebrado por caracteres especiais).
+    c1, c2 = st.columns([2, 1])
+    with c1:
+        gerar = st.button("Gerar / atualizar texto justificativo", key=f"btn_interp_{session_key}")
+    with c2:
+        st.checkbox(
+            "Incluir narrativa IA (opcional)",
+            key=f"llm_interp_{session_key}",
+            help="Requer USE_LLM_REPORT=true e LLM_API_URL/KEY no ambiente. Nunca inventa indicadores.",
+        )
+    if gerar or f"narr_{session_key}" not in st.session_state:
+        base = build_narr()
+        st.session_state[f"narr_{session_key}"] = _maybe_enrich_llm(base, session_key)
+    elif st.session_state.get(f"llm_interp_{session_key}") and st.button(
+        "Aplicar IA ao texto atual", key=f"btn_llm_{session_key}"
+    ):
+        base = build_narr()
+        st.session_state[f"narr_{session_key}"] = _maybe_enrich_llm(base, session_key)
+
+    txt = st.session_state.get(f"narr_{session_key}") or build_narr()
     with st.container():
         st.markdown(txt)
     st.download_button(

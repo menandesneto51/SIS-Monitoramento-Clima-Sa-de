@@ -422,10 +422,20 @@ def render_geocalor() -> None:
     if df.empty:
         st.warning(
             "Tabela GeoCalor ainda não gerada na base operacional. "
-            "Rode `calcular_geocalor_cardioresp_v11_12.py` e o enriquecimento; "
+            "Rode `atualizar_monitoramento_saude_calor.py` (status) ou "
+            "`calcular_geocalor_cardioresp_v11_12.py` com série diária; "
             "esta aba permanece disponível sem interromper o painel."
         )
         return
+
+    if "status_modelagem" in df.columns:
+        st_mod = df["status_modelagem"].astype(str)
+        if st_mod.str.contains("insuficiente", case=False, na=False).all():
+            st.info(
+                "GeoCalor registrado na base, mas ainda sem série diária completa "
+                "(ondas de calor × internações/óbitos). O status da modelagem está disponível acima. "
+                "RR numérico exige `geocalor_model_input_diario`."
+            )
 
     if "municipio" not in df.columns:
         st.warning("Tabela GeoCalor sem coluna município — verifique a modelagem.")

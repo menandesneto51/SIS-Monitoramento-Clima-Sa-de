@@ -154,6 +154,9 @@ def step_pressao_alertas() -> dict:
         m = press[merge_cols].copy()
         m["cod_ibge"] = m["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
         base = base.merge(m, on="cod_ibge", how="left")
+        from sisclima.engines.prioridade_global import enrich_prioridade_global
+
+        base = enrich_prioridade_global(base)
         write_df(base, "resumo_municipal_atual", if_exists="replace")
 
     payloads = build_alertas_multinivel(

@@ -86,9 +86,21 @@ ui_theme.apply_theme()
 # Helpers
 # ---------------------------------------------------------------------
 
+@st.cache_data(show_spinner=False, ttl=300)
 def load_table(table_name: str) -> pd.DataFrame:
     try:
         return read_table(table_name)
+    except Exception:
+        return pd.DataFrame()
+
+
+def load_table_ui(table_name: str) -> pd.DataFrame:
+    """Carrega tabela com aviso na UI (usa cache de load_table)."""
+    try:
+        df = load_table(table_name)
+        if df.empty and not table_exists(table_name):
+            return df
+        return df
     except Exception as exc:
         st.warning(f"Não foi possível carregar {table_name}: {exc}")
         return pd.DataFrame()
@@ -358,7 +370,7 @@ def choropleth_or_points(
 
 def show_df(df: pd.DataFrame, cols: Optional[list[str]] = None, height: int = 420):
     if df.empty:
-        st.info("Sem dados com os filtros selecionados.")
+        st.info("Sem dados disponíveis nesta tabela (vazia ou ainda não consolidada na base).")
         return
     if cols:
         cols = [c for c in cols if c in df.columns]
@@ -466,70 +478,279 @@ def state_summary_metrics(df: pd.DataFrame) -> dict:
     return out
 
 
+def _trend_from_counts(atual: int, pred: int) -> str:
+    if pred > atual:
+        return "aumento"
+    if pred < atual:
+        return "queda"
+    return "manutenção"
+
+
+def _trend_from_values(atual, pred, tol: float = 0.05) -> str:
+    try:
+        if pd.isna(atual) or pd.isna(pred):
+            return "—"
+        a, p = float(atual), float(pred)
+        if abs(p - a) <= tol:
+            return "manutenção"
+        return "aumento" if p > a else "queda"
+    except Exception:
+        return "—"
+
+
+def _trend_icon(label: str) -> str:
+    return {"aumento": "↑", "queda": "↓", "manutenção": "→", "subindo": "↑", "descendo": "↓", "estável": "→"}.get(
+        str(label).lower(), "—"
+    )
+
+
+def _trend_pt(label: str) -> str:
+    key = str(label).lower()
+    return {
+        "aumento": "aumento",
+        "queda": "queda",
+        "manutenção": "manutenção",
+        "subindo": "aumento",
+        "descendo": "queda",
+        "estável": "manutenção",
+    }.get(key, "—")
+
+
+def _modal_tendencia(df: pd.DataFrame, col: str = "tendencia_7d") -> str:
+    if df is None or df.empty or col not in df.columns:
+        return "—"
+    vc = (
+        df[col]
+        .astype(str)
+        .str.lower()
+        .replace({"subindo": "aumento", "descendo": "queda", "estável": "manutenção", "estavel": "manutenção"})
+        .value_counts()
+    )
+    known = vc.reindex(["aumento", "manutenção", "queda"]).fillna(0)
+    if float(known.sum()) <= 0:
+        return "—"
+    return str(known.idxmax())
+
+
+def state_summary_with_prediction(resumo: pd.DataFrame, pred: pd.DataFrame) -> dict:
+    """Métricas estaduais atuais + predição 7d + tendência (queda/manutenção/aumento)."""
+    out = state_summary_metrics(resumo)
+    pred_levels = {n: 0 for n in ("verde", "amarela", "laranja", "vermelha", "roxa")}
+    out.update(
+        {
+            "pred_levels": pred_levels,
+            "tmax_pred": pd.NA,
+            "utci_pred": pd.NA,
+            "risco3d_pred": pd.NA,
+            "tendencia_clima": _modal_tendencia(resumo),
+        }
+    )
+    if pred is None or pred.empty:
+        for n in pred_levels:
+            out[f"tendencia_{n}"] = "—"
+        return out
+
+    pv = pred.copy()
+    if "cod_ibge" in resumo.columns and "cod_ibge" in pv.columns:
+        ids = set(normalize_cod_ibge(resumo["cod_ibge"]).dropna())
+        pv["cod_ibge"] = normalize_cod_ibge(pv["cod_ibge"])
+        pv = pv[pv["cod_ibge"].isin(ids)]
+
+    if "nivel_predicao_7d" in pv.columns:
+        for n in pred_levels:
+            pred_levels[n] = int((pv["nivel_predicao_7d"].astype(str).str.lower() == n).sum())
+    out["pred_levels"] = pred_levels
+    for n in pred_levels:
+        out[f"tendencia_{n}"] = _trend_from_counts(int(out.get(n, 0)), int(pred_levels[n]))
+
+    if "tmax_max_7d" in pv.columns:
+        out["tmax_pred"] = pd.to_numeric(pv["tmax_max_7d"], errors="coerce").max()
+    if "utci_proxy_max_7d" in pv.columns:
+        out["utci_pred"] = pd.to_numeric(pv["utci_proxy_max_7d"], errors="coerce").max()
+    if "risco_cumulativo_3d_max_7d" in pv.columns:
+        out["risco3d_pred"] = pd.to_numeric(pv["risco_cumulativo_3d_max_7d"], errors="coerce").max()
+
+    out["tendencia_tmax"] = _trend_from_values(out.get("tmax"), out.get("tmax_pred"), tol=0.15)
+    out["tendencia_utci"] = _trend_from_values(out.get("utci"), out.get("utci_pred"), tol=0.15)
+    out["tendencia_risco3d"] = _trend_from_values(out.get("risco3d"), out.get("risco3d_pred"), tol=0.05)
+    return out
+
+
+def metric_with_pred(col, label: str, atual, pred, tendencia: str, suffix: str = "", digits: int = 1) -> None:
+    """st.metric com valor atual e delta = predição 7d + tendência."""
+    value = safe_metric_value(atual, suffix, digits)
+    tend = _trend_pt(tendencia)
+    icon = _trend_icon(tendencia if tend != "—" else tendencia)
+    if pred is not None and not (isinstance(pred, float) and pd.isna(pred)) and str(pred) not in {"", "nan", "<NA>"}:
+        try:
+            if pd.isna(pred):
+                pred_txt = "—"
+            else:
+                pred_txt = safe_metric_value(pred, suffix, digits)
+        except Exception:
+            pred_txt = "—"
+    else:
+        pred_txt = "—"
+    delta = f"7d {pred_txt} · {icon} {tend}" if tend != "—" else f"7d {pred_txt}"
+    col.metric(label, value, delta=delta, delta_color="off")
+
+
 # ---------------------------------------------------------------------
-# Data
+# Data (núcleo no topo; demais tabelas sob demanda por aba)
 # ---------------------------------------------------------------------
 
 resumo_all = prepare_resumo()
 map_df_all, geojson_mun, shapefile_status = prepare_map_df(resumo_all)
 
-met = load_table("met_biometeo")
-aq = load_table("qualidade_ar_municipal")
-occ = load_table("hospital_ocupacao_municipio")
-press = load_table("epi_pressao_assistencial")
-sisreg_tab = load_table("ops_sisreg_municipio")
-stock = load_table("ops_estoque_autonomia")
-infra = load_table("ops_infraestrutura_resumo")
-ops_proxy = load_table("ops_resumo_operacional_proxy")
-ops_cnes = load_table("ops_resumo_operacional_cnes")
-solo_sat = load_table("solo_saturacao_municipal")
-hidro_risco = load_table("hidro_risco_municipal")
-alerta_integrado = load_table("alerta_integrado_sis_titan")
-inmet_alertas = load_table("inmet_alertas")
-cemaden_alertas_tab = load_table("cemaden_alertas")
-ana_risco_tab = load_table("ana_risco_municipal")
-saude_calor_mun = load_table("saude_calor_municipio")
-saude_calor_serie = load_table("saude_calor_serie_estado")
-saude_dic = load_table("dicionario_monitoramento_saude_v6")
-gal_pos_mun = load_table("gal_positividade_municipal_v6")
-gal_pos_serie = load_table("gal_positividade_estado_serie_v6")
-sim_obitos_mun = load_table("sim_obitos_calor_municipal_v6")
-sim_obitos_serie = load_table("sim_obitos_calor_estado_serie_v6")
-aq_estado_serie = load_table("qualidade_ar_estado_serie_v6")
-alerta_mun_v6 = load_table("alerta_inteligente_municipal_v6")
-alerta_reg_v6 = load_table("alerta_inteligente_regional_v6")
-pred_v6 = load_table("predicao_calor_7d_municipal_v6")
-pred_reg_v6 = load_table("predicao_calor_7d_regional_v6")
-analise_base_v8 = load_table("analise_clima_saude_base_municipal_v8")
-analise_corr_v8 = load_table("analise_clima_saude_correlacoes_v8")
-analise_or_v1 = load_table("analise_clima_saude_odds_ratio_v1")
-analise_alertas_v8 = load_table("analise_clima_saude_alertas_estatisticos_v8")
-sazon_mensal_v1 = load_table("sazonalidade_indice_mensal_v1")
-sazon_heat_v1 = load_table("sazonalidade_heatmap_semana_ano_v1")
-sazon_perfil_v1 = load_table("sazonalidade_perfil_semana_epi_v1")
-sazon_picos_v1 = load_table("sazonalidade_picos_v1")
-lags_v1 = load_table("clima_desfecho_lags_v1")
-validacao_v75 = load_table("validacao_v7_5")
-v9_status = load_table("v9_status_modelagem_temporal")
-v9_validacao = load_table("v9_validacao")
-v9_saude_mensal = load_table("v9_painel_saude_municipal_mensal")
-v9_clima = load_table("v9_clima_municipal_mensal_detectado")
-v9_painel = load_table("v9_painel_clima_saude_mensal")
-v9_lags = load_table("v9_lags_clima_saude")
-v9_modelos = load_table("v9_modelos_temporais")
-v9_priorizacao = load_table("v9_priorizacao_epidemiologica")
+# Núcleo: header, pressão e predição 7d (sempre)
+def _with_norm_ibge(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty or "cod_ibge" not in df.columns:
+        return df
+    out = df.copy()
+    out["cod_ibge"] = normalize_cod_ibge(out["cod_ibge"])
+    return out
 
-for df in [met, aq, occ, press, stock, infra, ops_cnes, saude_calor_mun, gal_pos_mun, sim_obitos_mun, alerta_mun_v6, pred_v6, pred_reg_v6, analise_base_v8, analise_alertas_v8, v9_saude_mensal, v9_clima, v9_painel, v9_priorizacao, sisreg_tab]:
-    if not df.empty and "cod_ibge" in df.columns:
-        df["cod_ibge"] = normalize_cod_ibge(df["cod_ibge"])
+
+sisreg_tab = _with_norm_ibge(load_table("ops_sisreg_municipio"))
+saude_calor_mun = _with_norm_ibge(load_table("saude_calor_municipio"))
+sim_obitos_mun = _with_norm_ibge(load_table("sim_obitos_calor_municipal_v6"))
+pred_v6 = _with_norm_ibge(load_table("predicao_calor_7d_municipal_v6"))
+
+# Placeholders — preenchidos após a escolha da aba (carga sob demanda)
+met = aq = occ = press = stock = infra = ops_proxy = ops_cnes = pd.DataFrame()
+solo_sat = hidro_risco = alerta_integrado = inmet_alertas = cemaden_alertas_tab = ana_risco_tab = pd.DataFrame()
+saude_calor_serie = saude_dic = gal_pos_mun = gal_pos_serie = sim_obitos_serie = aq_estado_serie = pd.DataFrame()
+alerta_mun_v6 = alerta_reg_v6 = pred_reg_v6 = pd.DataFrame()
+analise_base_v8 = analise_corr_v8 = analise_or_v1 = analise_alertas_v8 = pd.DataFrame()
+sazon_mensal_v1 = sazon_heat_v1 = sazon_perfil_v1 = sazon_picos_v1 = lags_v1 = pd.DataFrame()
+validacao_v75 = v9_status = v9_validacao = v9_saude_mensal = v9_clima = pd.DataFrame()
+v9_painel = v9_lags = v9_modelos = v9_priorizacao = pd.DataFrame()
+
+SECTION_TABLE_DEPS: dict[str, set[str]] = {
+    "Visão executiva": {"alerta_integrado_sis_titan", "cemaden_alertas", "inmet_alertas"},
+    "Clima / TITAN": {
+        "met_biometeo",
+        "solo_saturacao_municipal",
+        "hidro_risco_municipal",
+        "inmet_alertas",
+        "cemaden_alertas",
+        "ana_risco_municipal",
+    },
+    "Assistência": {
+        "saude_calor_serie_estado",
+        "dicionario_monitoramento_saude_v6",
+        "gal_positividade_municipal_v6",
+        "gal_positividade_estado_serie_v6",
+        "sim_obitos_calor_estado_serie_v6",
+    },
+    "Qualidade do ar": {"qualidade_ar_municipal", "qualidade_ar_estado_serie_v6"},
+    "Operacional": {
+        "ops_estoque_autonomia",
+        "ops_infraestrutura_resumo",
+        "ops_resumo_operacional_proxy",
+        "ops_resumo_operacional_cnes",
+    },
+    "Inteligência": {
+        "alerta_inteligente_municipal_v6",
+        "alerta_inteligente_regional_v6",
+        "predicao_calor_7d_regional_v6",
+        "analise_clima_saude_base_municipal_v8",
+        "analise_clima_saude_correlacoes_v8",
+        "analise_clima_saude_alertas_estatisticos_v8",
+        "v9_status_modelagem_temporal",
+        "v9_validacao",
+        "v9_painel_saude_municipal_mensal",
+        "v9_painel_clima_saude_mensal",
+        "v9_lags_clima_saude",
+        "v9_modelos_temporais",
+        "v9_priorizacao_epidemiologica",
+    },
+    "Alertas": {
+        "alerta_integrado_sis_titan",
+        "inmet_alertas",
+        "cemaden_alertas",
+        "hidro_risco_municipal",
+    },
+    "Sazonalidade / OR": {
+        "analise_clima_saude_odds_ratio_v1",
+        "sazonalidade_indice_mensal_v1",
+        "sazonalidade_heatmap_semana_ano_v1",
+        "sazonalidade_picos_v1",
+        "clima_desfecho_lags_v1",
+    },
+    "Correlação clima-saúde": {
+        "analise_clima_saude_base_municipal_v8",
+        "analise_clima_saude_correlacoes_v8",
+        "analise_clima_saude_alertas_estatisticos_v8",
+    },
+}
+
+TABLE_VAR_BINDINGS: dict[str, str] = {
+    "met_biometeo": "met",
+    "qualidade_ar_municipal": "aq",
+    "hospital_ocupacao_municipio": "occ",
+    "epi_pressao_assistencial": "press",
+    "ops_estoque_autonomia": "stock",
+    "ops_infraestrutura_resumo": "infra",
+    "ops_resumo_operacional_proxy": "ops_proxy",
+    "ops_resumo_operacional_cnes": "ops_cnes",
+    "solo_saturacao_municipal": "solo_sat",
+    "hidro_risco_municipal": "hidro_risco",
+    "alerta_integrado_sis_titan": "alerta_integrado",
+    "inmet_alertas": "inmet_alertas",
+    "cemaden_alertas": "cemaden_alertas_tab",
+    "ana_risco_municipal": "ana_risco_tab",
+    "saude_calor_serie_estado": "saude_calor_serie",
+    "dicionario_monitoramento_saude_v6": "saude_dic",
+    "gal_positividade_municipal_v6": "gal_pos_mun",
+    "gal_positividade_estado_serie_v6": "gal_pos_serie",
+    "sim_obitos_calor_estado_serie_v6": "sim_obitos_serie",
+    "qualidade_ar_estado_serie_v6": "aq_estado_serie",
+    "alerta_inteligente_municipal_v6": "alerta_mun_v6",
+    "alerta_inteligente_regional_v6": "alerta_reg_v6",
+    "predicao_calor_7d_regional_v6": "pred_reg_v6",
+    "analise_clima_saude_base_municipal_v8": "analise_base_v8",
+    "analise_clima_saude_correlacoes_v8": "analise_corr_v8",
+    "analise_clima_saude_odds_ratio_v1": "analise_or_v1",
+    "analise_clima_saude_alertas_estatisticos_v8": "analise_alertas_v8",
+    "sazonalidade_indice_mensal_v1": "sazon_mensal_v1",
+    "sazonalidade_heatmap_semana_ano_v1": "sazon_heat_v1",
+    "sazonalidade_perfil_semana_epi_v1": "sazon_perfil_v1",
+    "sazonalidade_picos_v1": "sazon_picos_v1",
+    "clima_desfecho_lags_v1": "lags_v1",
+    "validacao_v7_5": "validacao_v75",
+    "v9_status_modelagem_temporal": "v9_status",
+    "v9_validacao": "v9_validacao",
+    "v9_painel_saude_municipal_mensal": "v9_saude_mensal",
+    "v9_clima_municipal_mensal_detectado": "v9_clima",
+    "v9_painel_clima_saude_mensal": "v9_painel",
+    "v9_lags_clima_saude": "v9_lags",
+    "v9_modelos_temporais": "v9_modelos",
+    "v9_priorizacao_epidemiologica": "v9_priorizacao",
+}
+
+
+def hydrate_section_tables(section: str) -> None:
+    """Carrega somente as tabelas necessárias para a aba ativa (menos memória no boot)."""
+    needed = SECTION_TABLE_DEPS.get(section, set())
+    g = globals()
+    for table_name in needed:
+        var = TABLE_VAR_BINDINGS.get(table_name)
+        if not var:
+            continue
+        g[var] = _with_norm_ibge(load_table(table_name))
+
 
 # Indicadores compostos (tensão climática, vigilância, tendência…) — ao vivo no painel
 from sisclima.engines.adaptasus_intelligence import enrich_adaptasus_intelligence
+from sisclima.engines.prioridade_global import enrich_prioridade_global, state_prioridade_summary
 
 resumo_all = enrich_panel_indicators(resumo_all, pred_v6 if not pred_v6.empty else None)
 resumo_all, _, _ = enrich_adaptasus_intelligence(resumo_all)
+resumo_all = enrich_prioridade_global(resumo_all)
 map_df_all, geojson_mun, shapefile_status = prepare_map_df(resumo_all)
 intel_state = state_indicator_summary(resumo_all)
+prioridade_state = state_prioridade_summary(resumo_all)
 
 
 # ---------------------------------------------------------------------
@@ -582,14 +803,19 @@ with st.expander("Como ler este painel (comece aqui se for sua 1ª vez)", expand
         st.markdown(f"- {line}")
     st.caption("Predição numérica do SIS ≈ 7 dias. Cenários sazonais (ex.: setembro) vêm de boletins oficiais, não deste número.")
 
-metrics = state_summary_metrics(resumo_all)
+metrics = state_summary_with_prediction(resumo_all, pred_v6)
 ui_theme.section_title(
     "Situação geral do Estado",
-    "Indicadores estaduais antes dos filtros territoriais — valores máximos/médios da rodada atual",
+    "Atual · predição 7 dias · tendência (queda / manutenção / aumento) — valores estaduais da rodada",
 )
 
 ui_theme.insight_cards(
     [
+        (
+            "Prioridade global",
+            safe_metric_value(prioridade_state.get("media"), "", 0),
+            f"alta+ {prioridade_state.get('n_alta_ou_mais', 0)} mun. · ↑{prioridade_state.get('tendencia_aumento', 0)}",
+        ),
         (
             "Tensão climática",
             safe_metric_value(intel_state.get("indice_tensao_climatica_media"), "", 0),
@@ -611,29 +837,36 @@ ui_theme.insight_cards(
             "municípios com piora prevista",
         ),
         (
-            "Vigilância moderada+",
-            str(intel_state.get("vigilancia_moderada_ou_mais", 0)),
-            "municípios em faixa moderada/alta",
-        ),
-        (
-            "Completude média",
-            safe_metric_value(intel_state.get("completude_dados_pct_media"), "%", 0),
-            "dados-chave preenchidos",
+            "Completude prioridade",
+            safe_metric_value(prioridade_state.get("completude_media"), "%", 0),
+            "pilares no meta-score",
         ),
     ]
 )
 
+_tend_cli = metrics.get("tendencia_clima", "—")
 r1 = st.columns(8)
-r1[0].metric("Municípios", f"{metrics.get('municipios', 0)}")
-r1[1].metric("Tmax máx.", safe_metric_value(metrics.get("tmax"), " °C", 1))
-r1[2].metric("UTCI máx.", safe_metric_value(metrics.get("utci"), "", 1))
-r1[3].metric("Risco 3d máx.", safe_metric_value(metrics.get("risco3d"), "", 2))
-r1[4].metric("Ocupação média", safe_metric_value(metrics.get("ocup_media"), "%", 1))
-r1[5].metric("Pressão média", safe_metric_value(metrics.get("pressao_media"), "%", 1))
-r1[6].metric("PM2.5 máx.", safe_metric_value(metrics.get("pm25_max"), "", 1))
-r1[7].metric("IQA máx.", safe_metric_value(metrics.get("iqar_max"), "", 1))
+metric_with_pred(
+    r1[0],
+    "Municípios",
+    metrics.get("municipios", 0),
+    metrics.get("municipios", 0),
+    _tend_cli,
+    "",
+    0,
+)
+metric_with_pred(r1[1], "Tmax máx.", metrics.get("tmax"), metrics.get("tmax_pred"), metrics.get("tendencia_tmax", _tend_cli), " °C", 1)
+metric_with_pred(r1[2], "UTCI máx.", metrics.get("utci"), metrics.get("utci_pred"), metrics.get("tendencia_utci", _tend_cli), "", 1)
+metric_with_pred(r1[3], "Risco 3d máx.", metrics.get("risco3d"), metrics.get("risco3d_pred"), metrics.get("tendencia_risco3d", _tend_cli), "", 2)
+metric_with_pred(r1[4], "Ocupação média", metrics.get("ocup_media"), pd.NA, _tend_cli, "%", 1)
+metric_with_pred(r1[5], "Pressão média", metrics.get("pressao_media"), pd.NA, _tend_cli, "%", 1)
+metric_with_pred(r1[6], "PM2.5 máx.", metrics.get("pm25_max"), pd.NA, _tend_cli, "", 1)
+metric_with_pred(r1[7], "IQA máx.", metrics.get("iqar_max"), pd.NA, _tend_cli, "", 1)
 ui_theme.glossary_expander(
     [
+        "indice_prioridade_global",
+        "faixa_prioridade_global",
+        "tendencia_prioridade_7d",
         "indice_tensao_climatica",
         "indice_carga_saude",
         "indice_vigilancia_integrada",
@@ -645,9 +878,13 @@ ui_theme.glossary_expander(
     ]
 )
 
-ui_theme.section_title("Legenda rápida dos níveis", "O que cada cor significa na prática")
+ui_theme.section_title(
+    "Legenda rápida dos níveis",
+    "Atual · predição 7d · tendência do número de municípios em cada cor",
+)
 ui_theme.level_legend()
 
+_pred_levels = metrics.get("pred_levels") or {}
 dist_cols = st.columns(5)
 for _idx, (_nivel, _label) in enumerate([
     ("verde", "Verde"),
@@ -656,13 +893,19 @@ for _idx, (_nivel, _label) in enumerate([
     ("vermelha", "Vermelha"),
     ("roxa", "Roxa"),
 ]):
-    _valor = metrics.get(_nivel, 0)
+    _valor = int(metrics.get(_nivel, 0) or 0)
+    _pred_n = int(_pred_levels.get(_nivel, 0) or 0)
+    _tend_n = metrics.get(f"tendencia_{_nivel}", _trend_from_counts(_valor, _pred_n))
+    _icon = _trend_icon(_tend_n)
+    _tend_txt = _trend_pt(_tend_n)
     with dist_cols[_idx]:
         st.markdown(
             f"""
             <div class="sis-level-tile" style="background:{LEVEL_COLOR_MAP[_nivel]}">
                 <div class="lbl">{_label}</div>
                 <div class="val">{_valor}</div>
+                <div class="pred">7d: {_pred_n}</div>
+                <div class="trend">{_icon} {_tend_txt}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -741,40 +984,76 @@ pressao_df = (
 )
 pressao_state = state_pressao_summary(pressao_df)
 
+# Prioridade global (camadas 0–100) — recalcula após pressão IndicaSUS/SISREG/SINAN/SIM
+resumo_all = enrich_prioridade_global(resumo_all)
+resumo = apply_global_filters(resumo_all, regionais_sel, municipios_sel)
+if "cod_ibge" in map_df_all.columns and "indice_prioridade_global" in resumo_all.columns:
+    _prio_cols = [
+        c
+        for c in (
+            "cod_ibge",
+            "indice_prioridade_global",
+            "faixa_prioridade_global",
+            "completude_prioridade_pct",
+            "tendencia_prioridade_7d",
+            "orientacao_prioridade",
+            "pilares_prioridade",
+        )
+        if c in resumo_all.columns
+    ]
+    _prio = resumo_all[_prio_cols].copy()
+    drop_m = [c for c in _prio.columns if c != "cod_ibge" and c in map_df_all.columns]
+    if drop_m:
+        map_df_all = map_df_all.drop(columns=drop_m, errors="ignore")
+    map_df_all = map_df_all.merge(_prio, on="cod_ibge", how="left")
+    map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
+prioridade_state = state_prioridade_summary(resumo_all)
+
 st.caption(
     f"{shapefile_status} · Indicadores do topo são estaduais; mapas e tabelas abaixo respeitam o filtro. "
-    f"Recorte atual: {len(resumo)} municípios."
+    f"Recorte atual: {len(resumo)} municípios"
+    + (
+        f" · Prioridade global média {safe_metric_value(prioridade_state.get('media'), '', 0)}"
+        if prioridade_state
+        else ""
+    )
+    + "."
 )
 
-# Navegação por abas de primeiro nível
-NAV_SECTIONS = [
-    "Visão executiva",
-    "Mapas",
-    "Guia do leitor",
-    "Clima / TITAN",
-    "Qualidade do ar",
-    "Assistência",
-    "Arboviroses",
-    "SIVEP",
-    "Sentinela SG",
-    "GeoCalor",
-    "AdaptaSUS / Guia MS",
-    "Correlação clima-saúde",
-    "Cemaden / ANA",
-    "Sazonalidade / OR",
-    "Operacional",
-    "Geografia",
-    "Inteligência",
-    "Alertas",
-    "Cálculos",
-]
-ui_theme.section_title("Navegação", "Selecione a aba principal do painel")
+# Navegação agrupada (módulo + aba) — só a aba ativa carrega tabelas pesadas
+NAV_GROUPS: dict[str, list[str]] = {
+    "Visão": ["Visão executiva", "Mapas", "Guia do leitor"],
+    "Clima": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
+    "Saúde": [
+        "Assistência",
+        "Arboviroses",
+        "SIVEP",
+        "Sentinela SG",
+        "AdaptaSUS / Guia MS",
+        "Correlação clima-saúde",
+        "Sazonalidade / OR",
+    ],
+    "Operação": ["Operacional", "Geografia", "Inteligência", "Alertas", "Cálculos"],
+}
+ui_theme.section_title(
+    "Navegação",
+    "Módulos em abas — cada aba carrega só os dados necessários (menos memória, painel mais rápido)",
+)
+_nav_mod = st.radio(
+    "Módulo",
+    list(NAV_GROUPS.keys()),
+    horizontal=True,
+    key="nav_modulo_principal",
+    label_visibility="collapsed",
+)
 SECTION_KEY = st.radio(
     "Aba",
-    NAV_SECTIONS,
+    NAV_GROUPS[_nav_mod],
     horizontal=True,
-    key="nav_aba_principal",
+    key=f"nav_aba_{_nav_mod}",
 )
+hydrate_section_tables(SECTION_KEY)
+st.caption(f"Módulo **{_nav_mod}** · aba **{SECTION_KEY}** · tabelas sob demanda")
 st.divider()
 ui_theme.section_guide(SECTION_KEY)
 
@@ -860,11 +1139,14 @@ elif SECTION_KEY == "Visão executiva":
 
     st.markdown("#### Insights rápidos do recorte filtrado")
     intel_local = state_indicator_summary(resumo)
+    from sisclima.engines.prioridade_global import state_prioridade_summary as _prio_sum
+
+    prio_local = _prio_sum(resumo)
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Tensão climática méd.", safe_metric_value(intel_local.get("indice_tensao_climatica_media"), "", 0))
+    c1.metric("Prioridade global méd.", safe_metric_value(prio_local.get("media"), "", 0))
     c2.metric("Vigilância méd.", safe_metric_value(intel_local.get("indice_vigilancia_integrada_media"), "", 0))
     c3.metric("Municípios ↑ 7d", intel_local.get("tendencia_subindo", 0))
-    c4.metric("Completude méd.", safe_metric_value(intel_local.get("completude_dados_pct_media"), "%", 0))
+    c4.metric("Prioridade alta+", prio_local.get("n_alta_ou_mais", 0))
 
     # Checagem Roxa × Vermelha (pós-correção do índice)
     if "nivel" in resumo.columns and "indice_vigilancia_integrada" in resumo.columns:
@@ -892,13 +1174,39 @@ elif SECTION_KEY == "Visão executiva":
 
     st.markdown("#### Municípios priorizados")
     cols = [
-        "cod_ibge", "municipio", "regional_saude", "nivel", "score",
-        "indice_vigilancia_integrada", "indice_tensao_climatica", "indice_carga_saude",
-        "tendencia_7d", "percentil_risco_estadual", "completude_dados_pct",
-        "tmax", "utci_proxy", "risco_cumulativo_3d",
-        "ocupacao_leitos_pct", "pressao_calor_pct", "orientacao_leiga", "motivo",
+        c
+        for c in [
+            "cod_ibge",
+            "municipio",
+            "regional_saude",
+            "nivel",
+            "score",
+            "indice_prioridade_global",
+            "faixa_prioridade_global",
+            "tendencia_prioridade_7d",
+            "indice_vigilancia_integrada",
+            "indice_tensao_climatica",
+            "indice_carga_saude",
+            "indice_pressao_saude",
+            "tendencia_7d",
+            "percentil_risco_estadual",
+            "completude_prioridade_pct",
+            "tmax",
+            "utci_proxy",
+            "risco_cumulativo_3d",
+            "ocupacao_leitos_pct",
+            "pressao_calor_pct",
+            "orientacao_prioridade",
+            "orientacao_leiga",
+            "motivo",
+        ]
+        if c in resumo.columns
     ]
-    sort_keys = [c for c in ["indice_vigilancia_integrada", "score", "risco_cumulativo_3d"] if c in resumo.columns]
+    sort_keys = [
+        c
+        for c in ["indice_prioridade_global", "indice_vigilancia_integrada", "score", "risco_cumulativo_3d"]
+        if c in resumo.columns
+    ]
     show_df(
         safe_sort(resumo, sort_keys, ascending=[False] * len(sort_keys)) if sort_keys else resumo,
         cols,
@@ -906,6 +1214,9 @@ elif SECTION_KEY == "Visão executiva":
     )
     ui_theme.glossary_expander(
         [
+            "indice_prioridade_global",
+            "faixa_prioridade_global",
+            "tendencia_prioridade_7d",
             "nivel",
             "score",
             "indice_vigilancia_integrada",
@@ -930,6 +1241,7 @@ elif SECTION_KEY == "Mapas":
 
     st.markdown("#### Mapa principal selecionável")
     indicadores = {
+        "Prioridade global (0–100)": "indice_prioridade_global",
         "Nível operacional / risco": "nivel",
         "Score operacional": "score",
         "Vigilância integrada (0–100)": "indice_vigilancia_integrada",
@@ -958,10 +1270,12 @@ elif SECTION_KEY == "Mapas":
             col,
             label,
             hover_cols=[
-                "regional_saude", "nivel", "score", "tmax", "utci_proxy", "risco_cumulativo_3d",
+                "regional_saude", "nivel", "score", "indice_prioridade_global", "faixa_prioridade_global",
+                "tmax", "utci_proxy", "risco_cumulativo_3d",
                 "indice_vigilancia_integrada", "indice_tensao_climatica", "tendencia_7d",
-                "ocupacao_leitos_pct", "pressao_calor_pct", "indice_vulnerabilidade_calor",
-                "pm25_ugm3", "iq_ar_score", "orientacao_leiga",
+                "tendencia_prioridade_7d", "ocupacao_leitos_pct", "pressao_calor_pct",
+                "indice_vulnerabilidade_calor", "pm25_ugm3", "iq_ar_score",
+                "orientacao_prioridade", "orientacao_leiga",
             ],
             categorical=(col == "nivel"),
         )
@@ -1440,7 +1754,10 @@ elif SECTION_KEY == "Assistência":
             )
             st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Ainda não foi consolidada série estadual de SINAN/SIM/GAL/SIVEP para agravos sensíveis ao calor. Rode corrigir_resumo_v5_regionais_ar_cnes_saude.py.")
+        st.info(
+            "Ainda não foi consolidada série estadual de SINAN/SIM/GAL/SIVEP para agravos sensíveis ao calor. "
+            "Rode `atualizar_monitoramento_saude_calor.py` (ou o enriquecimento operacional)."
+        )
 
     if not saude_calor_mun.empty:
         mun = saude_calor_mun.copy()
@@ -1453,7 +1770,11 @@ elif SECTION_KEY == "Assistência":
             height=360,
         )
     else:
-        st.warning("Base consolidada saude_calor_municipio ainda vazia. O app está preparado para SINAN, SIM, GAL/LACEN e SIVEP quando as tabelas estiverem no SQLite.")
+        st.warning(
+            "Base consolidada `saude_calor_municipio` ainda vazia. "
+            "Rode `atualizar_monitoramento_saude_calor.py`. "
+            "O app usa SINAN, SIM, GAL/LACEN e SIVEP quando as tabelas estiverem na base operacional."
+        )
 
 
     st.markdown("#### Tabela municipal assistencial")

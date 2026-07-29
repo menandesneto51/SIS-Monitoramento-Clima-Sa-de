@@ -252,4 +252,20 @@ indicadores_painel:
     viés em que municípios Roxa com baixo calor ficavam abaixo da média Vermelha.
     indice_vigilancia_bruta permanece disponível (só clima+saúde). Revisar após
     IndicaSUS estável e maior cobertura de PM2,5/arbovírus.
+  # Meta-score: soma ponderada das camadas 0–100 (não soma KPIs brutos).
+  # Override: META_W_VIGILANCIA=0.30 etc.
+  meta_global:
+    pesos:
+      vigilancia: 0.30
+      pressao: 0.25
+      adaptacao: 0.20
+      fragilidade: 0.15   # 100 − indice_resiliencia
+      alerta: 0.10        # score_alerta_integrado 0–4 → 0–100
+    faixas:
+      baixa_max: 30
+      moderada_max: 60
+      alta_max: 80
+    notas: >
+      Prioridade global para ranking CIEVS. Nível Verde→Roxa permanece o estágio
+      operacional legal. Pilares ausentes são omitidos (completude_prioridade_pct).
 

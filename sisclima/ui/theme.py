@@ -273,6 +273,21 @@ header[data-testid="stHeader"] {
   line-height: 1.2;
 }
 
+.sis-level-tile .pred {
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.95;
+  margin-top: 0.15rem;
+}
+
+.sis-level-tile .trend {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.98;
+  margin-top: 0.1rem;
+}
+
 .sis-level-legend {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
