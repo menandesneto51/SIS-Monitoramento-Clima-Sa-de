@@ -8,16 +8,36 @@ de multipáginas do Streamlit.
 """
 
 from pathlib import Path
+import os
 import runpy
 import streamlit as st
+
+ROOT = Path(__file__).resolve().parent
 
 # Carrega .env local sem sobrescrever DATABASE_URL já definida (Docker/Compose).
 try:
     from dotenv import load_dotenv
 
-    load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
+    load_dotenv(ROOT / ".env", override=False)
 except Exception:
     pass
+
+# Secrets do Streamlit Cloud → ambiente (antes de importar o painel).
+try:
+    for key in st.secrets:
+        val = st.secrets.get(key)
+        if val is None or key in os.environ:
+            continue
+        if isinstance(val, (dict, list)):
+            continue
+        os.environ[str(key)] = str(val)
+except Exception:
+    pass
+
+# Sem Postgres público: usa snapshot versionado para o Cloud não ficar vazio.
+_seed = ROOT / "data" / "cloud" / "sis_cloud_seed.db"
+if not os.getenv("DATABASE_URL") and _seed.exists() and _seed.stat().st_size > 0:
+    os.environ["DATABASE_URL"] = f"sqlite:///{_seed.as_posix()}"
 
 try:
     st.set_page_config(

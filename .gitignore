@@ -31,6 +31,8 @@ data/output/
 *.db
 *.sqlite
 *.sqlite3
+!data/cloud/
+!data/cloud/sis_cloud_seed.db
 
 # Logs/temp/backups
 logs/

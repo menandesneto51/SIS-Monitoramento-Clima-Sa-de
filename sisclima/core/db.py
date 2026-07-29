@@ -53,6 +53,10 @@ def _normalize_url(url: str | None = None) -> str:
 
 
 def _sqlite_fallback_url() -> str:
+    """Preferência: snapshot Cloud versionado → SQLite operacional local."""
+    cloud_seed = ROOT / "data" / "cloud" / "sis_cloud_seed.db"
+    if cloud_seed.exists() and cloud_seed.stat().st_size > 0:
+        return f"sqlite:///{cloud_seed.as_posix()}"
     path = ROOT / "data" / "output" / "sis_integrado.db"
     path.parent.mkdir(parents=True, exist_ok=True)
     return f"sqlite:///{path.as_posix()}"
