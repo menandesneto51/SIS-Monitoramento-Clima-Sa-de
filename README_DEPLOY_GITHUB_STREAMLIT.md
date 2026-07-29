@@ -15,14 +15,18 @@ Não subir ao GitHub arquivos com dados sensíveis, credenciais, `.env`, contato
 ## Deploy no Streamlit Community Cloud
 
 1. Repositório: https://github.com/menandesneto51/SIS-Monitoramento-Clima-Sa-de
-2. Abrir https://share.streamlit.io → **New app**
+2. Abrir https://share.streamlit.io → app existente ou **New app**
 3. Configurar:
    - Repository: `menandesneto51/SIS-Monitoramento-Clima-Sa-de`
-   - Branch: `main` (ou `painel-v9` se ainda não mergeado)
+   - Branch: **`painel-v9`**
    - Main file path: `streamlit_app.py`
+   - Python version (Advanced): **3.12** (repo já tem `.python-version` / `runtime.txt`)
 4. Em **Advanced settings → Secrets**, colar o conteúdo de `.streamlit/secrets.toml.example` e definir:
    - `DATABASE_URL` apontando para um **Postgres acessível na internet** (Neon/Supabase/Railway).  
      `localhost` / Docker da máquina **não funciona** no Cloud.
-5. Deploy → aguardar build.
+5. Deploy / **Reboot** → aguardar build.
+
+Dependências Cloud: `requirements.txt` enxuto (sem Fiona/GDAL/Google gRPC). Lista completa local: `requirements-full.txt`.  
+**Não** use `packages.txt` com comentários — o apt do Cloud interpreta cada palavra como pacote.
 
 Sem `DATABASE_URL` válido no Cloud, o painel sobe em fallback SQLite vazio (sem dados do CIEVS).
