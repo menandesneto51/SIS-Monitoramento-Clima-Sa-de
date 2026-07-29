@@ -101,6 +101,116 @@ GUIDE_ADAPTASUS = guide_card(
     ],
 )
 
+GUIDE_ASSISTENCIA = guide_card(
+    "Como ler Assistência / pressão",
+    [
+        "<b>Semáforo G/A/V</b>: pressão IndicaSUS + SISREG + SINAN + SIM (≠ nível Verde→Roxa).",
+        "<b>Tendência 7d</b>: ↑ piora · → estável · ↓ melhora na previsão de pressão.",
+        "<b>Pilares</b>: ocupação, fila/regulação, arbovírus/SRAG, óbitos sensíveis ao calor.",
+        "<b>GAL/SIM/série</b>: positividade e óbitos apoiam leitura, não substituem boletim oficial.",
+    ],
+)
+
+GUIDE_MAPAS = guide_card(
+    "Como ler Mapas",
+    [
+        "<b>Camadas</b>: nível, prioridade, pressão, UTCI, vigilância — escolha uma pergunta por vez.",
+        "<b>Hover</b>: confira motivo e tendência antes de escalar.",
+        "<b>Filtros</b>: Regional/Município no topo restringem o mapa.",
+        "<b>Sem polígono</b>: pontos lat/lon ainda são válidos para priorização.",
+    ],
+)
+
+GUIDE_AR = guide_card(
+    "Como ler Qualidade do ar",
+    [
+        "<b>PM2.5</b>: proxy Copernicus/CAMS — cruze com SRAG e sintomas respiratórios.",
+        "<b>Queimadas</b>: picos de PM2.5 + AdaptaSUS ar elevam prioridade de plantão.",
+        "<b>Lacuna</b>: ausência de estação local ≠ ar limpo.",
+    ],
+)
+
+GUIDE_INTEL = guide_card(
+    "Como ler Inteligência",
+    [
+        "<b>Predição ~7d</b>: tendência de calor/risco — não é forecast de setembro.",
+        "<b>Alerta inteligente</b>: combina estágio atual com piora prevista.",
+        "<b>Modelagem V9</b>: status/lags/priorização — use como apoio, valide no território.",
+    ],
+)
+
+GUIDE_CORR = guide_card(
+    "Como ler Correlação clima–saúde",
+    [
+        "<b>|ρ| Spearman</b>: força da associação ecológica municipal.",
+        "<b>Scatter</b>: gere hipóteses; não prove causalidade individual.",
+        "<b>n≥12</b>: pares com poucos municípios são instáveis.",
+    ],
+)
+
+GUIDE_ARBO = guide_card(
+    "Como ler Arboviroses",
+    [
+        "<b>Casos 7d</b>: pressão recente — cruze com calor/chuva.",
+        "<b>Incidência / z-score</b>: compara municípios no mesmo recorte.",
+        "<b>Não projeta temporada</b>: janela curta ≠ tendência anual.",
+    ],
+)
+
+GUIDE_SIVEP = guide_card(
+    "Como ler SIVEP/SRAG",
+    [
+        "<b>Casos e óbitos</b>: SRAG hospitalar alinhada ao MS/SVSA.",
+        "<b>Vírus / lab</b>: cobertura laboratorial e circulação viral.",
+        "<b>Cruze</b>: qualidade do ar e calor podem coincidir com picos.",
+    ],
+)
+
+GUIDE_SENTINELA = guide_card(
+    "Como ler Sentinela SG",
+    [
+        "<b>SG-01…SG-13</b>: indicadores de unidades sentinela (metas MS).",
+        "<b>Ausência de dado</b>: ≠ ausência de gripe — checar alimentação das unidades.",
+        "<b>Circulação viral</b>: use junto com SIVEP para o quadro respiratório.",
+    ],
+)
+
+GUIDE_GEOCALOR = guide_card(
+    "Como ler GeoCalor",
+    [
+        "<b>RR por lag 0–7</b>: associação ondas de calor × desfechos cardiorrespiratórios.",
+        "<b>Exploratório</b>: não é laudo causal individual.",
+        "<b>Status</b>: se a série diária faltar, o bloco mostra lacuna explícita.",
+    ],
+)
+
+GUIDE_HIDRO = guide_card(
+    "Como ler Cemaden / ANA",
+    [
+        "<b>Cemaden</b>: alertas oficiais de risco (inundação, deslizamento, seca).",
+        "<b>ANA</b>: telemetria / risco hidrológico municipal.",
+        "<b>Cruze</b>: chuva Open-Meteo + nível operacional do município.",
+    ],
+)
+
+GUIDE_GEO = guide_card(
+    "Como ler Geografia",
+    [
+        "<b>Cadastro</b>: IBGE, regional, população, lat/lon.",
+        "<b>Shapefile</b>: status da malha — inconsistência quebra mapas.",
+        "<b>Vulnerabilidade</b>: índice territorial ao calor no mapa.",
+    ],
+)
+
+GUIDE_CALC = guide_card(
+    "Como ler Cálculos",
+    [
+        "<b>Transparência</b>: limiares, pesos e o que entra no nível/prioridade.",
+        "<b>settings.yaml</b>: mudanças alteram índices na próxima rodada.",
+        "<b>Use</b>: antes de questionar ‘por que ficou vermelho?’.",
+    ],
+)
+
 
 def narrativa_executivo(resumo: pd.DataFrame, alerta_int: pd.DataFrame | None = None) -> str:
     if resumo is None or resumo.empty:
@@ -249,6 +359,287 @@ def narrativa_alertas(alerta_int: pd.DataFrame, resumo: pd.DataFrame | None = No
     return _fecho(txt)
 
 
+def _narr(
+    titulo: str,
+    olhar: list[str],
+    achados: list[str],
+    nao: list[str] | None = None,
+    prox: list[str] | None = None,
+) -> str:
+    txt = (
+        f"**Justificativa ({titulo})**\n\n"
+        + _bloco("O que olhar", olhar)
+        + _bloco("Achados desta rodada", achados or ["- Sem dados nesta rodada."])
+        + _bloco("O que não concluir", nao or ["- Associação/correlação ≠ causalidade individual."])
+        + _bloco("Próximo passo", prox or ["- Validar com a equipe CIEVS no território."])
+    )
+    return _fecho(txt)
+
+
+def narrativa_assistencia(resumo: pd.DataFrame, pressao_state: dict | None = None) -> str:
+    ps = pressao_state or {}
+    olhar = [
+        "- Semáforo G/A/V e tendência 7d antes de olhar ocupação isolada.",
+        "- Cruzar vermelhos de pressão com prioridade global e alerta integrado.",
+    ]
+    achados = []
+    if resumo is not None and not resumo.empty and "indice_pressao_saude" in resumo.columns:
+        p = pd.to_numeric(resumo["indice_pressao_saude"], errors="coerce")
+        achados.append(f"- Índice de pressão médio: **{_fmt(p.mean())}** (máx {_fmt(p.max())}).")
+    if ps:
+        achados.append(
+            f"- Semáforo estadual: verde **{ps.get('n_verde', 0)}** · amarela **{ps.get('n_amarela', 0)}** · "
+            f"vermelha **{ps.get('n_vermelha', 0)}**."
+        )
+        achados.append(
+            f"- Tendência pressão 7d: ↑{ps.get('n_subindo', 0)} · →{ps.get('n_estavel', 0)} · ↓{ps.get('n_descendo', 0)}."
+        )
+        achados.append(f"- Cobertura SISREG no recorte: **{ps.get('sisreg_cobertura', 0)}** municípios.")
+    if "semaforo_pressao" in (resumo.columns if resumo is not None else []):
+        top = resumo.sort_values("indice_pressao_saude", ascending=False).head(3)
+        if not top.empty and "municipio" in top.columns:
+            achados.append(
+                "- Top pressão: "
+                + ", ".join(f"{r.get('municipio')} ({_fmt(r.get('indice_pressao_saude'))})" for _, r in top.iterrows())
+                + "."
+            )
+    return _narr(
+        "Assistência",
+        olhar,
+        achados,
+        [
+            "- Semáforo G/A/V ≠ nível operacional Verde→Roxa.",
+            "- Proxy IndicaSUS/SISREG não substitui censo/fila oficial do dia.",
+        ],
+        ["- Abrir IndicaSUS/SISREG nos vermelhos e cruzar com Alertas."],
+    )
+
+
+def narrativa_mapas(resumo: pd.DataFrame) -> str:
+    olhar = ["- Escolha uma camada (nível, prioridade, pressão) e pergunte ‘onde agir primeiro?’."]
+    achados = [f"- Municípios no mapa/recorte: **{_fmt(len(resumo) if resumo is not None else 0, 0)}**."]
+    if resumo is not None and not resumo.empty and "nivel" in resumo.columns:
+        vc = resumo["nivel"].value_counts().to_dict()
+        achados.append(f"- Níveis: {', '.join(f'{k}={v}' for k, v in vc.items())}.")
+    if resumo is not None and not resumo.empty and "indice_prioridade_global" in resumo.columns:
+        top = resumo.sort_values("indice_prioridade_global", ascending=False).head(3)
+        achados.append(
+            "- Top prioridade no mapa: "
+            + ", ".join(f"{r.get('municipio')} ({_fmt(r.get('indice_prioridade_global'), 0)})" for _, r in top.iterrows())
+            + "."
+        )
+    return _narr("Mapas", olhar, achados, prox=["- Abrir Visão executiva / Alertas nos top 3 do mapa."])
+
+
+def narrativa_ar(resumo: pd.DataFrame, aq: pd.DataFrame | None = None) -> str:
+    olhar = ["- PM2.5 alto + SRAG/Sentinela sobe prioridade respiratória de plantão."]
+    achados = []
+    if resumo is not None and not resumo.empty and "pm25_ugm3" in resumo.columns:
+        p = pd.to_numeric(resumo["pm25_ugm3"], errors="coerce")
+        achados.append(f"- PM2.5 médio (resumo): **{_fmt(p.mean())}** µg/m³ (máx {_fmt(p.max())}).")
+        n = int(p.notna().sum())
+        achados.append(f"- Municípios com PM2.5 no resumo: **{n}**.")
+    if aq is not None and not aq.empty:
+        achados.append(f"- Linhas qualidade do ar: **{_fmt(len(aq), 0)}**.")
+    if not achados:
+        achados.append("- Sem PM2.5 nesta rodada — ative Copernicus/CAMS no pipeline.")
+    return _narr(
+        "Qualidade do ar",
+        olhar,
+        achados,
+        ["- Proxy satélite ≠ medição de estação local."],
+        ["- Cruzar top PM2.5 com SIVEP e AdaptaSUS (ar/queimadas)."],
+    )
+
+
+def narrativa_operacional(resumo: pd.DataFrame, ops: pd.DataFrame | None = None) -> str:
+    olhar = ["- Baixa resiliência + alta prioridade operacional = território a reforçar."]
+    achados = []
+    if resumo is not None and not resumo.empty and "indice_resiliencia" in resumo.columns:
+        r = pd.to_numeric(resumo["indice_resiliencia"], errors="coerce")
+        achados.append(f"- Resiliência média: **{_fmt(r.mean())}** (mín {_fmt(r.min())}).")
+    if ops is not None and not ops.empty:
+        achados.append(f"- Linhas CNES/ops: **{_fmt(len(ops), 0)}**.")
+        if "indice_capacidade_cnes" in ops.columns:
+            c = pd.to_numeric(ops["indice_capacidade_cnes"], errors="coerce")
+            achados.append(f"- Capacidade CNES média: **{_fmt(c.mean())}**.")
+    if not achados:
+        achados.append("- Capacidade CNES/estoque ainda parcial nesta rodada.")
+    return _narr(
+        "Operacional",
+        olhar,
+        achados,
+        ["- Lacuna de equipamentos no DW ≠ zero equipamentos no município."],
+        ["- Priorizar municípios com baixa resiliência e pressão vermelha."],
+    )
+
+
+def narrativa_adaptasus(resumo: pd.DataFrame) -> str:
+    olhar = ["- Risco dominante + índice de adaptação 0–100 orientam o pacote AdaptaSUS."]
+    achados = []
+    if resumo is not None and not resumo.empty and "indice_adaptacao_climatica" in resumo.columns:
+        a = pd.to_numeric(resumo["indice_adaptacao_climatica"], errors="coerce")
+        achados.append(f"- Adaptação média: **{_fmt(a.mean())}** (máx {_fmt(a.max())}).")
+    if resumo is not None and not resumo.empty and "risco_adaptasus_dominante" in resumo.columns:
+        vc = resumo["risco_adaptasus_dominante"].astype(str).value_counts().head(5).to_dict()
+        achados.append(f"- Riscos dominantes: {', '.join(f'{k}={v}' for k, v in vc.items())}.")
+    if not achados:
+        achados.append("- Scores AdaptaSUS ainda não preenchidos no resumo.")
+    return _narr(
+        "AdaptaSUS",
+        olhar,
+        achados,
+        ["- WASH sem fonte = lacuna, não risco zero."],
+        ["- Abrir ranking AdaptaSUS e cruzar com Alertas."],
+    )
+
+
+def narrativa_inteligencia(resumo: pd.DataFrame, pred: pd.DataFrame | None = None) -> str:
+    olhar = ["- Predição 7d + tendência ↑ marcam municípios a vigiar na semana."]
+    achados = []
+    if pred is not None and not pred.empty:
+        achados.append(f"- Municípios com predição 7d: **{_fmt(len(pred), 0)}**.")
+    if resumo is not None and not resumo.empty and "tendencia_7d" in resumo.columns:
+        vc = resumo["tendencia_7d"].astype(str).str.lower().value_counts().to_dict()
+        achados.append(f"- Tendências: {', '.join(f'{k}={v}' for k, v in vc.items())}.")
+    if resumo is not None and not resumo.empty and "indice_vigilancia_integrada" in resumo.columns:
+        v = pd.to_numeric(resumo["indice_vigilancia_integrada"], errors="coerce")
+        achados.append(f"- Vigilância integrada média: **{_fmt(v.mean())}**.")
+    if not achados:
+        achados.append("- Sem predição/tendência nesta rodada — rode o enrichment.")
+    return _narr(
+        "Inteligência",
+        olhar,
+        achados,
+        ["- Predição 7d ≠ cenário sazonal de setembro."],
+        ["- Listar ↑ tendência e abrir Alertas / Visão executiva."],
+    )
+
+
+def narrativa_correlacao(corr: pd.DataFrame) -> str:
+    olhar = ["- Foque pares com |ρ| alto e n adequado; depois o scatter."]
+    achados = []
+    if corr is not None and not corr.empty:
+        achados.append(f"- Pares na tabela: **{_fmt(len(corr), 0)}**.")
+        rho_col = next((c for c in ["abs_spearman", "spearman", "rho"] if c in corr.columns), None)
+        if rho_col:
+            top = corr.copy()
+            top[rho_col] = pd.to_numeric(top[rho_col], errors="coerce").abs()
+            top = top.sort_values(rho_col, ascending=False).head(3)
+            for _, r in top.iterrows():
+                achados.append(
+                    f"- {_fmt(r.get(rho_col))}: {r.get('exposicao', r.get('var_x', '?'))} × "
+                    f"{r.get('desfecho', r.get('var_y', '?'))}."
+                )
+    else:
+        achados.append("- Sem pares suficientes (mín. ~12 municípios com dados válidos).")
+    return _narr(
+        "Correlação",
+        olhar,
+        achados,
+        ["- Correlação ecológica ≠ causalidade clínica."],
+        ["- Hipóteses fortes → validar em Sazonalidade/OR e no território."],
+    )
+
+
+def narrativa_arbo(arbo_mun: pd.DataFrame) -> str:
+    olhar = ["- Casos 7d + incidência; cruze top municípios com calor/chuva."]
+    achados = []
+    if arbo_mun is not None and not arbo_mun.empty:
+        achados.append(f"- Municípios: **{_fmt(arbo_mun['cod_ibge'].nunique() if 'cod_ibge' in arbo_mun.columns else len(arbo_mun), 0)}**.")
+        if "casos_arbovirus_7d" in arbo_mun.columns:
+            s = pd.to_numeric(arbo_mun["casos_arbovirus_7d"], errors="coerce").fillna(0)
+            achados.append(f"- Casos arbovírus 7d (soma): **{_fmt(s.sum(), 0)}**.")
+            top = arbo_mun.assign(_c=s).sort_values("_c", ascending=False).head(3)
+            if "municipio" in top.columns:
+                achados.append(
+                    "- Top 7d: "
+                    + ", ".join(f"{r.get('municipio')} ({_fmt(r.get('_c'), 0)})" for _, r in top.iterrows())
+                    + "."
+                )
+    else:
+        achados.append("- Tabelas de arboviroses ainda vazias nesta rodada.")
+    return _narr("Arboviroses", olhar, achados, prox=["- Cruzar top com Clima/TITAN e Assistência."])
+
+
+def narrativa_sivep(daily: pd.DataFrame) -> str:
+    olhar = ["- Casos/óbitos SRAG e cobertura lab.; compare com ar e calor."]
+    achados = []
+    if daily is not None and not daily.empty:
+        casos = pd.to_numeric(daily.get("casos_srag"), errors="coerce").fillna(0).sum() if "casos_srag" in daily.columns else 0
+        obitos = pd.to_numeric(daily.get("obitos"), errors="coerce").fillna(0).sum() if "obitos" in daily.columns else 0
+        achados.append(f"- Casos SRAG (série): **{_fmt(casos, 0)}** · óbitos **{_fmt(obitos, 0)}**.")
+        if "municipio" in daily.columns:
+            achados.append(f"- Municípios na série: **{_fmt(daily['municipio'].nunique(), 0)}**.")
+    else:
+        achados.append("- Sem série SIVEP nesta rodada.")
+    return _narr("SIVEP", olhar, achados, prox=["- Abrir Qualidade do ar e Sentinela SG em paralelo."])
+
+
+def narrativa_sentinela(agregado: pd.DataFrame) -> str:
+    olhar = ["- Metas SG e circulação viral nas unidades sentinela."]
+    achados = [
+        f"- Linhas agregadas: **{_fmt(len(agregado) if agregado is not None else 0, 0)}**."
+        if agregado is not None and not agregado.empty
+        else "- Sem agregado Sentinela nesta rodada — verificar alimentação das unidades."
+    ]
+    return _narr("Sentinela SG", olhar, achados)
+
+
+def narrativa_geocalor(geo: pd.DataFrame, status: str | None = None) -> str:
+    olhar = ["- RR por lag: picos em 0–3 dias sugerem efeito agudo de calor."]
+    achados = []
+    if geo is not None and not geo.empty:
+        achados.append(f"- Linhas GeoCalor: **{_fmt(len(geo), 0)}**.")
+        if "municipio" in geo.columns:
+            achados.append(f"- Municípios: **{_fmt(geo['municipio'].nunique(), 0)}**.")
+    else:
+        achados.append("- Tabela GeoCalor vazia ou status insuficiente nesta rodada.")
+    if status:
+        achados.append(f"- Status operacional: `{status}`.")
+    return _narr(
+        "GeoCalor",
+        olhar,
+        achados,
+        ["- RR exploratório ≠ laudo causal individual."],
+        ["- Se status insuficiente, completar série diária e rerodar consolidação."],
+    )
+
+
+def narrativa_hidro(cemaden: pd.DataFrame, ana: pd.DataFrame | None = None) -> str:
+    olhar = ["- Alertas Cemaden abertos + risco ANA + chuva no município."]
+    achados = [
+        f"- Alertas Cemaden: **{_fmt(len(cemaden) if cemaden is not None else 0, 0)}**.",
+    ]
+    if ana is not None and not ana.empty:
+        achados.append(f"- Municípios risco ANA: **{_fmt(len(ana), 0)}**.")
+    return _narr("Cemaden/ANA", olhar, achados, prox=["- Cruzar com alerta integrado e solo saturado."])
+
+
+def narrativa_geo(resumo: pd.DataFrame, status: str = "") -> str:
+    olhar = ["- Validar IBGE/regional antes de confiar no mapa."]
+    achados = [f"- Municípios no cadastro/recorte: **{_fmt(len(resumo) if resumo is not None else 0, 0)}**."]
+    if status:
+        achados.append(f"- Status shapefile: {status}")
+    if resumo is not None and not resumo.empty:
+        n_xy = int(pd.to_numeric(resumo.get("lat"), errors="coerce").notna().sum()) if "lat" in resumo.columns else 0
+        achados.append(f"- Com lat/lon: **{n_xy}**.")
+    return _narr("Geografia", olhar, achados)
+
+
+def narrativa_calculos() -> str:
+    return _narr(
+        "Cálculos",
+        ["- Consulte limiares e pesos antes de questionar um nível."],
+        [
+            "- Esta aba documenta a metodologia (settings + fórmulas).",
+            "- Prioridade global, pressão G/A/V e nível Verde→Roxa são camadas distintas.",
+        ],
+        ["- Mudar YAML sem rerodar enrichment não atualiza a base."],
+        ["- Após ajuste metodológico, rode enrichment e valide Visão executiva."],
+    )
+
+
 def narrativa_sazonal_or(or_df: pd.DataFrame, mensal: pd.DataFrame) -> str:
     olhar = [
         "- Índice sazonal > 1 e OR significativos (p&lt;0,05) são sinais de priorização, não causalidade.",
@@ -314,11 +705,15 @@ def render_interpretacao(
     session_key: str,
     guide_html: str,
     build_narr: Callable[[], str],
-    titulo: str = "Justificativa dos achados (assistente CIEVS)",
+    titulo: str = "Ajudante CIEVS — justificativa e insights (padrão Meningites)",
 ) -> None:
-    """Padrão Meningites: guia sempre visível + narrativa sob demanda + IA opcional + download."""
+    """Padrão Meningites: guia sempre visível + narrativa automática + IA opcional + download."""
     st.markdown(guide_html, unsafe_allow_html=True)
     st.markdown(f"#### {titulo}")
+    st.caption(
+        "Texto determinístico com o que olhar · achados · o que não concluir · próximo passo. "
+        "Marque IA só se USE_LLM_REPORT estiver ativo — números não são inventados."
+    )
     c1, c2 = st.columns([2, 1])
     with c1:
         gerar = st.button("Gerar / atualizar texto justificativo", key=f"btn_interp_{session_key}")

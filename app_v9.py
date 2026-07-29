@@ -46,13 +46,28 @@ from sisclima.ui.correlation import compute_spearman_pairs
 from sisclima.ui.explainers import HOW_TO_READ_PANEL, INDICATOR_GLOSSARY, LEVEL_GUIDE
 from sisclima.ui.interpretacoes import (
     GUIDE_ALERTAS,
+    GUIDE_AR,
+    GUIDE_ASSISTENCIA,
+    GUIDE_CALC,
     GUIDE_CLIMA_TITAN,
+    GUIDE_CORR,
     GUIDE_EXECUTIVO,
+    GUIDE_GEO,
+    GUIDE_INTEL,
+    GUIDE_MAPAS,
     GUIDE_OPERACIONAL,
     GUIDE_SAZONAL_OR,
     narrativa_alertas,
+    narrativa_ar,
+    narrativa_assistencia,
+    narrativa_calculos,
     narrativa_clima_titan,
+    narrativa_correlacao,
     narrativa_executivo,
+    narrativa_geo,
+    narrativa_inteligencia,
+    narrativa_mapas,
+    narrativa_operacional,
     narrativa_sazonal_or,
     render_interpretacao,
 )
@@ -1031,7 +1046,28 @@ st.caption(
     + "."
 )
 
-# Navegação agrupada (módulo + aba) — só a aba ativa carrega tabelas pesadas
+# Todas as abas planejadas (panorama) — carga sob demanda só da aba ativa
+NAV_SECTIONS: list[str] = [
+    "Visão executiva",
+    "Mapas",
+    "Guia do leitor",
+    "Clima / TITAN",
+    "Qualidade do ar",
+    "Assistência",
+    "Arboviroses",
+    "SIVEP",
+    "Sentinela SG",
+    "GeoCalor",
+    "AdaptaSUS / Guia MS",
+    "Correlação clima-saúde",
+    "Cemaden / ANA",
+    "Sazonalidade / OR",
+    "Operacional",
+    "Geografia",
+    "Inteligência",
+    "Alertas",
+    "Cálculos",
+]
 NAV_GROUPS: dict[str, list[str]] = {
     "Visão": ["Visão executiva", "Mapas", "Guia do leitor"],
     "Clima": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
@@ -1048,23 +1084,39 @@ NAV_GROUPS: dict[str, list[str]] = {
 }
 ui_theme.section_title(
     "Navegação",
-    "Módulos em abas — cada aba carrega só os dados necessários (menos memória, painel mais rápido)",
+    f"{len(NAV_SECTIONS)} abas planejadas · cada aba carrega só os dados necessários · ajudante CIEVS (padrão Meningites)",
 )
-_nav_mod = st.radio(
-    "Módulo",
-    list(NAV_GROUPS.keys()),
+_modo_nav = st.radio(
+    "Modo de navegação",
+    ["Todas as abas", "Por módulo"],
     horizontal=True,
-    key="nav_modulo_principal",
-    label_visibility="collapsed",
+    key="nav_modo_painel",
+    help="Padrão: todas as abas visíveis (como no painel completo). ‘Por módulo’ reduz a lista para telas menores.",
 )
-SECTION_KEY = st.radio(
-    "Aba",
-    NAV_GROUPS[_nav_mod],
-    horizontal=True,
-    key=f"nav_aba_{_nav_mod}",
-)
+if _modo_nav == "Todas as abas":
+    SECTION_KEY = st.radio(
+        "Aba",
+        NAV_SECTIONS,
+        horizontal=True,
+        key="nav_aba_completa",
+        label_visibility="collapsed",
+    )
+else:
+    _nav_mod = st.radio(
+        "Módulo",
+        list(NAV_GROUPS.keys()),
+        horizontal=True,
+        key="nav_modulo_principal",
+        label_visibility="collapsed",
+    )
+    SECTION_KEY = st.radio(
+        "Aba",
+        NAV_GROUPS[_nav_mod],
+        horizontal=True,
+        key=f"nav_aba_{_nav_mod}",
+    )
 hydrate_section_tables(SECTION_KEY)
-st.caption(f"Módulo **{_nav_mod}** · aba **{SECTION_KEY}** · tabelas sob demanda")
+st.caption(f"Aba ativa **{SECTION_KEY}** · {len(NAV_SECTIONS)} seções no painel completo · tabelas sob demanda")
 st.divider()
 ui_theme.section_guide(SECTION_KEY)
 
@@ -1248,6 +1300,11 @@ elif SECTION_KEY == "Mapas":
     ui_theme.callout(
         "Se o mapa aparecer ‘vazio’ em PM2,5 ou leitos, a cobertura da fonte é parcial — não significa risco zero.",
         "warn",
+    )
+    render_interpretacao(
+        "mapas",
+        GUIDE_MAPAS,
+        lambda: narrativa_mapas(resumo),
     )
 
     st.markdown("#### Mapa principal selecionável")
@@ -1486,6 +1543,11 @@ elif SECTION_KEY == "Assistência":
         "É distinto do nível operacional de 5 cores (Verde→Roxa). SISREG entra quando a tabela "
         "`ops_sisreg_municipio` estiver disponível; até lá o índice renormaliza os demais pilares.",
         "warn",
+    )
+    render_interpretacao(
+        "assistencia",
+        GUIDE_ASSISTENCIA,
+        lambda: narrativa_assistencia(resumo, pressao_state),
     )
 
     # --- Índice de pressão: KPIs estaduais ---
@@ -1809,6 +1871,11 @@ elif SECTION_KEY == "Qualidade do ar":
         "PM2,5 alto preocupa asma, idosos e crianças — comum com queimadas na seca. Município sem dado no mapa ≠ ar limpo.",
         "warn",
     )
+    render_interpretacao(
+        "qualidade_ar",
+        GUIDE_AR,
+        lambda: narrativa_ar(resumo, aq),
+    )
 
     pols = ["pm25_ugm3", "pm10_ugm3", "o3_ugm3", "no2_ugm3", "co_mgm3", "so2_ugm3", "iq_ar_score"]
     pm_nn = int(pd.to_numeric(resumo.get("pm25_ugm3"), errors="coerce").notna().sum()) if "pm25_ugm3" in resumo.columns else 0
@@ -1889,7 +1956,11 @@ elif SECTION_KEY == "Qualidade do ar":
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "Operacional":
     st.subheader("Operacional: estoque, infraestrutura e resiliência")
-    st.markdown(GUIDE_OPERACIONAL, unsafe_allow_html=True)
+    render_interpretacao(
+        "operacional",
+        GUIDE_OPERACIONAL,
+        lambda: narrativa_operacional(resumo, ops_cnes if not ops_cnes.empty else ops_proxy),
+    )
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Estoque/logística", "Base específica pendente" if stock.empty else "Integrado")
@@ -1943,6 +2014,11 @@ elif SECTION_KEY == "Operacional":
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "Geografia":
     st.subheader("Geografia, base territorial e shapefile")
+    render_interpretacao(
+        "geografia",
+        GUIDE_GEO,
+        lambda: narrativa_geo(resumo, str(shapefile_status or "")),
+    )
 
     st.info(shapefile_status)
 
@@ -1976,6 +2052,11 @@ elif SECTION_KEY == "Cálculos":
     ui_theme.callout(
         "Os índices compostos (tensão, carga, vigilância) usam pesos em config/settings.yaml → indicadores_painel. Ajuste com o CIEVS sem mudar código.",
         "tip",
+    )
+    render_interpretacao(
+        "calculos",
+        GUIDE_CALC,
+        lambda: narrativa_calculos(),
     )
 
     from sisclima.engines.panel_indicators import get_indicator_config
@@ -2072,6 +2153,11 @@ elif SECTION_KEY == "Inteligência":
     ui_theme.callout(
         "A predição numérica cobre cerca de 7 dias — útil para a semana seguinte, não para ‘projetar setembro’. Associações estatísticas são exploratórias.",
         "warn",
+    )
+    render_interpretacao(
+        "inteligencia",
+        GUIDE_INTEL,
+        lambda: narrativa_inteligencia(resumo, pred_v6),
     )
 
     st.markdown(
@@ -2886,6 +2972,12 @@ elif SECTION_KEY == "Correlação clima-saúde":
     corr = corr_persistida if fonte.startswith("Tabela") and not corr_persistida.empty else corr_live
     if corr.empty and not corr_live.empty:
         corr = corr_live
+
+    render_interpretacao(
+        "correlacao",
+        GUIDE_CORR,
+        lambda: narrativa_correlacao(corr),
+    )
 
     cmeta1, cmeta2, cmeta3 = st.columns(3)
     cmeta1.metric("Pares persistidos", len(corr_persistida))

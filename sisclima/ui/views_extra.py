@@ -14,6 +14,21 @@ from sisclima.engines.geospatial import make_choropleth_or_points, prepare_map_d
 from sisclima.engines.sentinela_sg_ms import catalog_as_dataframe as catalog_sentinela
 from sisclima.engines.sivep_ms_indicators import catalog_as_dataframe as catalog_sivep
 from sisclima.ui.theme import callout, section_title
+from sisclima.ui.interpretacoes import (
+    GUIDE_ADAPTASUS,
+    GUIDE_ARBO,
+    GUIDE_GEOCALOR,
+    GUIDE_HIDRO,
+    GUIDE_SENTINELA,
+    GUIDE_SIVEP,
+    narrativa_adaptasus,
+    narrativa_arbo,
+    narrativa_geocalor,
+    narrativa_hidro,
+    narrativa_sentinela,
+    narrativa_sivep,
+    render_interpretacao,
+)
 
 def render_arboviroses() -> None:
     section_title(
@@ -27,6 +42,11 @@ def render_arboviroses() -> None:
     arbo = read_table("epi_arboviroses")
     arbo_mun = read_table("epi_arboviroses_municipal")
     resumo = read_table("resumo_municipal_atual")
+    render_interpretacao(
+        "arboviroses",
+        GUIDE_ARBO,
+        lambda: narrativa_arbo(arbo_mun),
+    )
 
     if arbo.empty and arbo_mun.empty:
         st.error("Tabelas de arboviroses ainda não geradas. Rode o pipeline.")
@@ -146,6 +166,11 @@ def render_sivep() -> None:
     virus = read_table("epi_sivep_virus_se")
     qualidade = read_table("epi_sivep_qualidade_ms")
     painel = read_table("epi_sivep_indicadores_ms")
+    render_interpretacao(
+        "sivep",
+        GUIDE_SIVEP,
+        lambda: narrativa_sivep(daily),
+    )
 
     if daily.empty and weekly.empty:
         st.error("Tabelas SIVEP/MS ainda não geradas. Rode o pipeline.")
@@ -223,6 +248,11 @@ def render_sentinela_sg() -> None:
     sem = read_table("epi_sentinela_sg_semanal")
     virus = read_table("epi_sentinela_sg_virus_se")
     faixa = read_table("epi_sentinela_sg_faixa_etaria")
+    render_interpretacao(
+        "sentinela_sg",
+        GUIDE_SENTINELA,
+        lambda: narrativa_sentinela(ind if not ind.empty else sem),
+    )
 
     if ind.empty and sem.empty:
         st.error(
@@ -295,6 +325,12 @@ def render_hidrologia() -> None:
     cemaden = read_table("cemaden_alertas")
     met = read_table("met_biometeo")
     resumo = read_table("resumo_municipal_atual")
+    ana_risco = read_table("ana_risco_municipal")
+    render_interpretacao(
+        "cemaden_ana",
+        GUIDE_HIDRO,
+        lambda: narrativa_hidro(cemaden, ana_risco),
+    )
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Alertas Cemaden", len(cemaden))
@@ -305,7 +341,6 @@ def render_hidrologia() -> None:
     else:
         c3.metric("Precipitação máx. (mm)", "—")
 
-    ana_risco = read_table("ana_risco_municipal")
     ana_tel = read_table("ana_telemetria")
     ana_est = read_table("ana_estacoes")
     st.markdown("##### Telemetria ANA")
@@ -415,6 +450,18 @@ def render_geocalor() -> None:
             pass
         con.close()
 
+    _status_txt = None
+    if not status_df.empty:
+        for col in ("status_modelagem", "status", "geocalor_status"):
+            if col in status_df.columns and status_df[col].notna().any():
+                _status_txt = str(status_df[col].dropna().astype(str).iloc[0])
+                break
+    render_interpretacao(
+        "geocalor",
+        GUIDE_GEOCALOR,
+        lambda: narrativa_geocalor(df, _status_txt),
+    )
+
     if not status_df.empty:
         with st.expander("Status da modelagem", expanded=False):
             st.dataframe(status_df, use_container_width=True)
@@ -490,6 +537,12 @@ def render_adaptasus(resumo_filtrado: pd.DataFrame | None = None) -> None:
         "Esta aba operacionaliza o AdaptaSUS no CIEVS-MT. Não redefine metas federais. "
         "Lacunas (WASH/SAN/frio) aparecem de forma explícita — não interprete ausência como risco zero.",
         "info",
+    )
+    base_resumo = resumo_filtrado if resumo_filtrado is not None and not resumo_filtrado.empty else read_table("resumo_municipal_atual")
+    render_interpretacao(
+        "adaptasus",
+        GUIDE_ADAPTASUS,
+        lambda: narrativa_adaptasus(base_resumo),
     )
     st.markdown(
         "- [Plano AdaptaSUS (PDF)](https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/svsa/vigilancia-ambiental/plano-setorial-de-saude-adaptasus.pdf)  \n"
