@@ -19,6 +19,12 @@ case "${1:-app}" in
   pipeline-alerts)
     exec python -c "from sisclima.pipeline import run_pipeline; r=run_pipeline(send_alerts=True); print(r)"
     ;;
+  alert-once)
+    exec python -m sisclima.alerts.scheduler --once --force
+    ;;
+  alert-scheduler)
+    exec python -m sisclima.alerts.scheduler --loop
+    ;;
   validate-dw)
     exec python validar_dw_conexao.py
     ;;

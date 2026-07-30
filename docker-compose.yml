@@ -65,5 +65,32 @@ services:
         condition: service_healthy
     command: ["app"]
 
+  alerts-scheduler:
+    build: .
+    container_name: sis_clima_alerts
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+      SEND_ALERT_ON_LEVEL_CHANGE: ${SEND_ALERT_ON_LEVEL_CHANGE:-true}
+      ALERT_INTERVAL_HOURS: ${ALERT_INTERVAL_HOURS:-6}
+      ALERT_DIGEST_COOLDOWN_HOURS: ${ALERT_DIGEST_COOLDOWN_HOURS:-6}
+      ALERT_MIN_LEVEL: ${ALERT_MIN_LEVEL:-laranja}
+      # No loop Docker, o 1º ciclo respeita cooldown/fingerprint (já enviamos no start manual).
+      ALERT_SEND_ON_START: ${ALERT_SEND_ON_START:-false}
+    volumes:
+      - ./sisclima:/app/sisclima:ro
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["python", "-m", "sisclima.alerts.scheduler"]
+    command: ["--loop"]
+
 volumes:
   sis_pgdata:
