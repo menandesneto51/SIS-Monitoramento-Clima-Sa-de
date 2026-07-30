@@ -509,6 +509,21 @@ def _ensure_digest_table() -> None:
             )
             """,
         )
+        execute(
+            conn,
+            """
+            CREATE TABLE IF NOT EXISTS alertas_enviados (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at TEXT,
+                nivel_anterior TEXT,
+                nivel_novo TEXT,
+                titulo TEXT,
+                mensagem TEXT,
+                canais TEXT,
+                status TEXT
+            )
+            """,
+        )
 
 
 def _last_digest() -> dict | None:
