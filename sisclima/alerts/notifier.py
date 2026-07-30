@@ -26,7 +26,7 @@ def _webhook_enabled() -> bool:
     return bool(env('WEBHOOK_URL'))
 
 
-def send_email(subject: str, body: str) -> bool:
+def send_email(subject: str, body: str, html_body: str | None = None) -> bool:
     if not _email_enabled():
         return False
     to = env("ALERT_EMAIL_TO")
@@ -39,18 +39,20 @@ def send_email(subject: str, body: str) -> bool:
     msg["Subject"] = subject
     msg["From"] = env("SMTP_FROM") or env("SMTP_USER") or "sisclima@local"
     msg["To"] = ", ".join(recipients)
-    msg.set_content(body)
+    msg.set_content(body or "Ver versão HTML.")
+    if html_body:
+        msg.add_alternative(html_body, subtype="html")
     host = env("SMTP_HOST", "smtp.gmail.com") or "smtp.gmail.com"
     port = int(env("SMTP_PORT", "587") or 587)
     use_ssl = as_bool(env("SMTP_SSL"), port == 465)
     try:
         if use_ssl:
-            with smtplib.SMTP_SSL(host, port, timeout=30) as s:
+            with smtplib.SMTP_SSL(host, port, timeout=45) as s:
                 if env("SMTP_USER") and env("SMTP_PASSWORD"):
                     s.login(env("SMTP_USER"), env("SMTP_PASSWORD"))
                 s.send_message(msg)
         else:
-            with smtplib.SMTP(host, port, timeout=30) as s:
+            with smtplib.SMTP(host, port, timeout=45) as s:
                 s.starttls()
                 if env("SMTP_USER") and env("SMTP_PASSWORD"):
                     s.login(env("SMTP_USER"), env("SMTP_PASSWORD"))
@@ -61,20 +63,22 @@ def send_email(subject: str, body: str) -> bool:
         return False
 
 
-def send_telegram(text: str) -> bool:
+def send_telegram(text: str, *, parse_mode: str | None = None) -> bool:
     if not _telegram_enabled():
         return False
     token = env("TELEGRAM_BOT_TOKEN")
     chat_id = env("TELEGRAM_CHAT_ID")
     if not token or not chat_id:
         return False
-    # Telegram limita ~4096 caracteres
     payload_text = text if len(text) <= 4000 else text[:3990] + "\n…"
+    data = {"chat_id": chat_id, "text": payload_text, "disable_web_page_preview": "true"}
+    if parse_mode:
+        data["parse_mode"] = parse_mode
     try:
         r = http_post(
             f"https://api.telegram.org/bot{token}/sendMessage",
-            data={"chat_id": chat_id, "text": payload_text},
-            timeout=30,
+            data=data,
+            timeout=45,
         )
         if not r.ok:
             log.warning("Telegram HTTP %s: %s", r.status_code, getattr(r, "text", "")[:300])
