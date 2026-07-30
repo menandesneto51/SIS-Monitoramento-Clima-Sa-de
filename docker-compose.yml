@@ -78,8 +78,8 @@ services:
       ALERT_INTERVAL_HOURS: ${ALERT_INTERVAL_HOURS:-6}
       ALERT_DIGEST_COOLDOWN_HOURS: ${ALERT_DIGEST_COOLDOWN_HOURS:-6}
       ALERT_MIN_LEVEL: ${ALERT_MIN_LEVEL:-laranja}
-      # No loop Docker, o 1º ciclo respeita cooldown/fingerprint (já enviamos no start manual).
-      ALERT_SEND_ON_START: ${ALERT_SEND_ON_START:-false}
+      # Evita reenvio a cada restart do container; use --force manual se precisar.
+      ALERT_SEND_ON_START: "false"
     volumes:
       - ./sisclima:/app/sisclima:ro
       - ./data:/app/data
