@@ -30,11 +30,17 @@ Não subir ao GitHub arquivos com dados sensíveis, credenciais, `.env`, contato
 
 ## Deploy no Streamlit Community Cloud
 
-1. Repositório: https://github.com/menandesneto51/SIS-Monitoramento-Clima-Sa-de
-2. Abrir https://share.streamlit.io → app existente ou **New app**
-3. Configurar:
+**Manter apenas 1 app** deste repositório no https://share.streamlit.io:
+
+| Manter | Apagar |
+|--------|--------|
+| Branch **`painel-v9`** · `streamlit_app.py` | Branch **`main`** · `streamlit_app.py` (deps pesadas / pasta `pages/` / painel antigo) |
+
+1. Em https://share.streamlit.io, no app da branch **`main`**: menu **⋯** → **Delete app**
+2. No app da branch **`painel-v9`**: menu **⋯** → **Reboot app** (ou **Manage app** → logs, se o ícone vermelho persistir)
+3. Configuração correta do app único:
    - Repository: `menandesneto51/SIS-Monitoramento-Clima-Sa-de`
-   - Branch: **`painel-v9`** (ou a branch da PR de alertas após merge)
+   - Branch: **`painel-v9`**
    - Main file path: `streamlit_app.py`
    - Python version (Advanced): **3.12** (repo já tem `.python-version` / `runtime.txt`)
 4. Em **Advanced settings → Secrets**, colar o conteúdo de `.streamlit/secrets.toml.example` e definir:
@@ -43,7 +49,7 @@ Não subir ao GitHub arquivos com dados sensíveis, credenciais, `.env`, contato
    - `ALERT_FANOUT_ENABLED` = `"false"`
    - `DATABASE_URL` apontando para um **Postgres acessível na internet** (Neon/Supabase/Railway), se quiser dados ao vivo.  
      `localhost` / Docker da máquina **não funciona** no Cloud.
-5. Deploy / **Reboot** → aguardar build.
+5. Aguardar o build ficar verde e abrir o link do app.
 
 Dependências Cloud: `requirements.txt` enxuto (sem Fiona/GDAL/Google gRPC). Lista completa local: `requirements-full.txt`.  
 **Não** use `packages.txt` com comentários — o apt do Cloud interpreta cada palavra como pacote.
