@@ -16,11 +16,12 @@
 | **Estadual (SES/CIEVS)** | Canal central: `ALERT_EMAIL_TO` (ex. Menandes + `notifica@ses.mt.gov.br`) e `TELEGRAM_CHAT_ID` | **Ativo** — único escopo enviado ao CIEVS |
 | Regional / municipal / Cuiabá | Destinatários da planilha `data/input/contatos_alertas.csv` | **Gerados e gravados**; envio só com planilha + `ALERT_FANOUT_ENABLED=true` |
 
-Modelo da planilha: `data/input/contatos_alertas.exemplo.csv`.
+Modelo da planilha: `config/contatos_alertas.exemplo.csv`.
 
 ```bash
 # Ativar fan-out territorial (depois de preencher a planilha)
-cp data/input/contatos_alertas.exemplo.csv data/input/contatos_alertas.csv
+mkdir -p data/input
+cp config/contatos_alertas.exemplo.csv data/input/contatos_alertas.csv
 # editar e-mails/chats reais…
 # no .env: ALERT_FANOUT_ENABLED=true
 ```
