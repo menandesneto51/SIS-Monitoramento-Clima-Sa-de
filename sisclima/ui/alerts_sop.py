@@ -158,3 +158,51 @@ def recent_alert_log(limit: int = 20) -> pd.DataFrame:
     if "created_at" in hist.columns:
         hist = hist.sort_values("created_at", ascending=False)
     return hist.head(limit)
+
+
+def enrich_payload_for_preview(payload: dict[str, Any]) -> dict[str, Any]:
+    """Aplica orientações do padrão SES legível (sem IA) para prévia no painel."""
+    from sisclima.alerts.digest import (
+        build_orientacoes_municipal,
+        build_orientacoes_regional,
+        build_orientacoes_ses_setores,
+    )
+
+    p = dict(payload or {})
+    escopo = str(p.get("escopo") or "")
+    if escopo == "estadual":
+        p["orientacoes_setores"] = build_orientacoes_ses_setores(p)
+    elif escopo == "regional":
+        p["orientacoes_regionais"] = build_orientacoes_regional(p)
+    elif escopo in {"municipal", "cuiaba"}:
+        o = build_orientacoes_municipal(p)
+        p["orientacoes_municipais"] = o
+        p["orientacoes"] = {
+            "gestor": o.get("gestor"),
+            "profissional": o.get("profissional"),
+            "populacao": o.get("populacao"),
+        }
+    return p
+
+
+def format_boletim_painel(payload: dict[str, Any]) -> str:
+    """Texto exatamente no padrão Telegram/e-mail (resumo → KPI → ações → prioritários)."""
+    from sisclima.alerts.digest import format_payload_telegram
+
+    return format_payload_telegram(enrich_payload_for_preview(payload), compact=False)
+
+
+def boletim_destinatario_resumo(escopo: str, status: dict[str, Any] | None = None) -> str:
+    status = status or alert_channel_status()
+    esc = str(escopo or "").lower()
+    if esc == "estadual":
+        return (
+            f"Canal central CIEVS → {status.get('email_to') or 'ALERT_EMAIL_TO'} "
+            f"+ Telegram central (somente estadual)."
+        )
+    if esc == "regional":
+        return "Fan-out regional (planilha de contatos) — não vai para notifica/Telegram central."
+    if esc == "cuiaba":
+        return "Fan-out Vigidesastre Cuiabá (planilha) — não vai para o canal central CIEVS."
+    return "Fan-out municipal (planilha) — não vai para o canal central CIEVS."
+

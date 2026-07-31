@@ -306,9 +306,9 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Inconsistências de nome/IBGE afetam mapas e joins.",
     },
     "Alertas": {
-        "para_que_serve": "Alertas multinível: ① SES · ② Regionais · ③ Municipais · ④ Vigidesastre Cuiabá — com indicadores, pred 7d e orientações.",
-        "como_usar": "Abra as quatro abas do boletim; valide a prévia no painel antes de armar SEND_ALERT / Telegram / e-mail.",
-        "cuidado": "Envio externo desligado por padrão (`SEND_ALERT_ON_LEVEL_CHANGE=false`). Validar com CIEVS antes de comunicação oficial.",
+        "para_que_serve": "Boletins CIEVS no padrão SES-MT: estadual (canal central), regionais, municipais e Vigidesastre Cuiabá.",
+        "como_usar": "Na aba Alertas, valide a prévia operacional (resumo → KPI → ações → prioritários) antes de armar o envio.",
+        "cuidado": "Canal central recebe só o estadual. Identidade visual do portal SES-MT (azul). Envio externo desligado por padrão.",
     },
     "Cálculos": {
         "para_que_serve": "Transparência metodológica: limiares, pesos e o que entra no nível.",
