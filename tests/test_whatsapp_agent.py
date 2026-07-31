@@ -73,6 +73,17 @@ def test_diagnostico_avisa_sobre_evolution_em_http(monkeypatch):
     assert any('HTTPS' in aviso for aviso in diag.avisos)
 
 
+def test_diagnostico_avisa_que_callmebot_atende_um_celular_so(monkeypatch):
+    monkeypatch.setenv('CALLMEBOT_APIKEY', '123456')
+    monkeypatch.setenv('CALLMEBOT_PHONE', '65999998888')
+    monkeypatch.setenv('WHATSAPP_TO', '65999998888, 65988887777')
+    diag = whatsapp_agent.diagnosticar()
+
+    assert diag.pronto is True
+    assert diag.destinatarios == ['5565999998888']
+    assert any('5565988887777' in aviso for aviso in diag.avisos)
+
+
 def test_diagnostico_avisa_quando_canal_esta_desligado(monkeypatch, meta_completo):
     monkeypatch.setenv('ALERT_WHATSAPP_ENABLED', 'false')
     diag = whatsapp_agent.diagnosticar()

@@ -141,10 +141,15 @@ CATALOGO: dict[str, ProvedorInfo] = {
         ),
         documentacao='https://www.callmebot.com/blog/free-api-whatsapp-messages/',
         passos=(
-            Passo(1, 'Autorizar o robô',
-                  'No celular que vai receber, envie "I allow callmebot to send me messages" para +34 644 51 95 23.'),
-            Passo(2, 'Guardar a chave devolvida',
-                  'O robô responde com a apikey daquele número. A chave é individual por destinatário.',
+            Passo(1, 'Pegar o número atual do robô',
+                  'O número muda de tempos em tempos. Consulte o número vigente em '
+                  'callmebot.com/blog/free-api-whatsapp-messages e salve-o nos contatos do celular.'),
+            Passo(2, 'Autorizar o robô',
+                  'Desse celular, envie no WhatsApp a frase exata "I allow callmebot to send me messages" '
+                  'para o contato criado.'),
+            Passo(3, 'Guardar a chave devolvida',
+                  'O robô responde "API Activated for your phone number. Your APIKEY is ...". A chave é '
+                  'individual: cada destinatário precisa autorizar e tem a sua.',
                   ('CALLMEBOT_APIKEY', 'CALLMEBOT_PHONE')),
         ),
     ),
@@ -316,6 +321,12 @@ def diagnosticar(provedor: str | None = None) -> Diagnostico:
         avisos.append('EVOLUTION_API_URL está em HTTP: a chave da API trafega sem criptografia. Prefira HTTPS.')
     if escolhido == 'callmebot':
         avisos.append('CallMeBot é serviço de terceiro sem SLA. Use apenas para avisos internos e testes.')
+        ignorados = [numero for numero in whatsapp.destinatarios(env('WHATSAPP_TO')) if numero not in numeros]
+        if ignorados or len(numeros) > 1:
+            avisos.append(
+                'A chave do CallMeBot vale para um único celular, o de CALLMEBOT_PHONE. Os demais números '
+                f'({", ".join(ignorados) or "os excedentes"}) não vão receber. Para uma lista, use outro provedor.'
+            )
     if escolhido == 'webhook' and not env('WHATSAPP_WEBHOOK_TOKEN'):
         avisos.append('Webhook sem WHATSAPP_WEBHOOK_TOKEN: qualquer um que descobrir a URL dispara mensagens.')
 

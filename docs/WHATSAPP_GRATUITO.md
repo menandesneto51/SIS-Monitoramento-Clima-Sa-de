@@ -106,9 +106,14 @@ Use HTTPS: a chave da API vai no cabeçalho `apikey` e trafega em claro sobre HT
 | `CALLMEBOT_APIKEY` | sim | Chave devolvida pelo robô. |
 | `CALLMEBOT_PHONE` | sim | Celular que autorizou o robô. |
 
-No celular que vai receber, envie `I allow callmebot to send me messages` para
-**+34 644 51 95 23**. O robô responde com a chave daquele número. Cada destinatário tem uma chave
-própria, então o canal atende bem um plantão pequeno e mal uma lista.
+O número do robô muda de tempos em tempos, então pegue o vigente em
+[callmebot.com/blog/free-api-whatsapp-messages](https://www.callmebot.com/blog/free-api-whatsapp-messages/),
+salve nos contatos e envie a frase exata `I allow callmebot to send me messages`. O robô responde
+com `API Activated for your phone number. Your APIKEY is ...`.
+
+A chave é individual e vale para **um único celular**: `WHATSAPP_TO` com vários números não faz o
+CallMeBot entregar para todos, só o dono da chave recebe. Para uma lista de destinatários, use outro
+provedor.
 
 O CallMeBot responde HTTP 200 mesmo quando a chave está errada; o SIS inspeciona o corpo da resposta
 para detectar esse caso.
