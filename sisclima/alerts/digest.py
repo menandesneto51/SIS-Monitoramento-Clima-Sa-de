@@ -228,12 +228,13 @@ def build_orientacoes_ses_setores(payload: dict[str, Any]) -> dict[str, str]:
     }
 
 
-def _kpi_line(ind: dict[str, Any]) -> str | None:
+def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
     campo = str(ind.get("campo") or "")
     if campo in {"n_municipios", "distribuicao_niveis", "cobertura_ocupacao"}:
         return None
     icon = IND_ICON.get(campo, "•")
     rotulo = str(ind.get("rotulo") or campo)
+    ocup_short = "Ocupação estadual" if escopo == "estadual" else "Ocupação regional"
     # rótulos curtos no painel
     short = {
         "score": "Pontuação (pior)",
@@ -243,7 +244,7 @@ def _kpi_line(ind: dict[str, Any]) -> str | None:
         "risco_cumulativo_3d": "Risco 3d pico",
         "pressao_calor_pct": "Pressão calor pico",
         "pm25_ugm3": "PM2,5 pico",
-        "ocupacao_leitos_pct": "Ocupação estadual",
+        "ocupacao_leitos_pct": ocup_short,
         "incidencia_arbovirus_100k": "Arboviroses pico /100 mil",
         "casos_srag": "SRAG (soma)",
     }.get(campo, rotulo)
@@ -405,7 +406,7 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
         f"{ICON['indicadores']} Situação estadual",
     ]
     for ind in inds:
-        line = _kpi_line(ind)
+        line = _kpi_line(ind, escopo="estadual")
         if line:
             lines.append(line)
     # cobertura
@@ -448,22 +449,305 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
 
 def format_ses_html(p: dict[str, Any]) -> str:
     """HTML com seções para leitura no e-mail (sem rodapé duplicado)."""
-    txt = format_ses_telegram(p)
-    # parte em blocos por cabeçalhos conhecidos
-    sections = [
-        ("Resumo executivo", ICON["resumo"]),
-        ("Situação estadual", ICON["indicadores"]),
-        ("Ações por setor", ICON["orient_gestor"]),
-        ("Orientações da IA", ICON["ia"]),
-        ("Municípios prioritários", ICON["prioridade"]),
+    return _format_sectioned_html(
+        "Alerta 1/4 — Gestão SES-MT / CIEVS",
+        format_ses_telegram(p),
+        [
+            ("Resumo executivo", ICON["resumo"]),
+            ("Situação estadual", ICON["indicadores"]),
+            ("Ações por setor", ICON["orient_gestor"]),
+            ("Orientações da IA", ICON["ia"]),
+            ("Municípios prioritários", ICON["prioridade"]),
+        ],
+    )
+
+
+def build_orientacoes_regional(payload: dict[str, Any]) -> dict[str, str]:
+    """Checklist operacional para gestão da Regional de Saúde."""
+    nivel = _norm_level(payload.get("nivel"))
+    dist = payload.get("distribuicao") or {}
+    n_rox = int(dist.get("roxa", 0) or 0)
+    n_verm = int(dist.get("vermelha", 0) or 0)
+    n_lar = int(dist.get("laranja", 0) or 0)
+    n_crit = n_rox + n_verm
+    prior = payload.get("municipios_prioritarios") or []
+    top_names = ", ".join(str(p.get("municipio")) for p in prior[:5] if p.get("municipio"))
+    pred = payload.get("predicao") or {}
+    n_up = pred.get("municipios_tendencia_alta") or "—"
+    vals: dict[str, float | None] = {}
+    for ind in payload.get("indicadores") or []:
+        campo = str(ind.get("campo") or "")
+        if campo in {"utci_proxy", "ocupacao_leitos_pct", "pm25_ugm3", "risco_cumulativo_3d"}:
+            vals[campo] = _parse_num(ind.get("valor"))
+    utci = vals.get("utci_proxy")
+    ocup = vals.get("ocupacao_leitos_pct")
+    pm = vals.get("pm25_ugm3")
+
+    return {
+        "sala_situacao": (
+            f"Ativar/manter sala de situação regional ({LEVEL_LABEL.get(nivel, nivel)}). "
+            f"Acompanhar {n_crit} município(s) em vermelha/roxa e {n_lar} em laranja. "
+            f"Foco: {top_names or 'municípios de maior pontuação'}."
+        ),
+        "apoio_municipios": (
+            "Apoiar secretarias municipais na abertura de pontos de hidratação/resfriamento, "
+            "comunicação de risco e checagem de insumos."
+        ),
+        "leitos_regulacao": (
+            "Articular leitos e regulação na jurisdição"
+            + (f" (ocupação ~{ocup:.1f}%)".replace(".", ",") if ocup is not None else "")
+            + "; mapear retaguarda e transporte para hipertermia/desidratação grave."
+        ),
+        "insumos": (
+            "Checar estoque regional de soro de reidratação, soro endovenoso, antitérmicos "
+            "e insumos para atendimento climático."
+        ),
+        "trabalhador_aps": (
+            "Orientar atenção básica e saúde do trabalhador sobre pausas, hidratação e "
+            f"flexibilização de jornada sob sol"
+            + (f" (sensação pico ~{utci:.1f} °C)".replace(".", ",") if utci is not None else "")
+            + "."
+        ),
+        "ambiental": (
+            "Reforçar eliminação de criadouros e vigilância de dengue; "
+            + (f"acompanhar ar (PM2,5 pico ~{pm:.0f} µg/m³)." if pm is not None else "acompanhar qualidade do ar.")
+        ),
+        "comunicacao": (
+            f"Boletim diário aos municípios da regional; antecipar comunicação aos "
+            f"{n_up} com tendência de piora em ~7 dias; reportar críticos à SES/CIEVS."
+        ),
+    }
+
+
+def build_orientacoes_municipal(payload: dict[str, Any]) -> dict[str, str]:
+    """Checklist para gestor, profissionais e população no município."""
+    nivel = _norm_level(payload.get("nivel"))
+    utci = _parse_num(payload.get("utci_proxy"))
+    ocup = _parse_num(payload.get("ocupacao_leitos_pct"))
+    pm = _parse_num(payload.get("pm25_ugm3"))
+    risco = _parse_num(payload.get("risco_cumulativo_3d"))
+    for ind in payload.get("indicadores") or []:
+        c = str(ind.get("campo") or "")
+        if c == "utci_proxy" and utci is None:
+            utci = _parse_num(ind.get("valor"))
+        if c == "ocupacao_leitos_pct" and ocup is None:
+            ocup = _parse_num(ind.get("valor"))
+        if c == "pm25_ugm3" and pm is None:
+            pm = _parse_num(ind.get("valor"))
+        if c == "risco_cumulativo_3d" and risco is None:
+            risco = _parse_num(ind.get("valor"))
+
+    gestor = (
+        f"Manter sala de situação municipal ({LEVEL_LABEL.get(nivel, nivel)}); "
+        "informar a Regional e a SES; checar insumos e pontos de hidratação/resfriamento."
+    )
+    if STAGE_ORDER.get(nivel, -1) >= STAGE_ORDER.get("laranja", 2):
+        gestor += " Avaliar centro de operações parcial e comunicação pública."
+    if ocup is not None and ocup >= 75:
+        gestor += f" Ocupação de leitos elevada (~{ocup:.0f}%) — acionar contingência hospitalar."
+    elif ocup is not None:
+        gestor += " Monitorar tendência de leitos e filas de regulação."
+
+    profissional = (
+        "Priorizar idosos, gestantes, crianças e pessoas em situação de rua; "
+        "identificar precocemente hipertermia e desidratação; reforçar hidratação e resfriamento."
+    )
+    if risco is not None and risco >= 12:
+        profissional += " Risco de calor acumulado alto — ampliar observação em ambiente climatizado."
+    if pm is not None and pm >= 15:
+        profissional += f" Atenção respiratória: PM2,5 ~{pm:.0f} µg/m³."
+
+    populacao = (
+        "Hidrate-se; evite o sol no pico de calor; use roupas leves; "
+        "procure atendimento se houver tontura, confusão, febre alta ou falta de ar."
+    )
+    if utci is not None and utci >= 32:
+        populacao = (
+            f"Sensação térmica elevada (~{utci:.1f} °C): ".replace(".", ",")
+            + populacao
+            + " Procure pontos de resfriamento/hidratação da prefeitura."
+        )
+    if STAGE_ORDER.get(nivel, -1) >= STAGE_ORDER.get("vermelha", 3):
+        populacao += " Situação de alto risco — siga apenas canais oficiais."
+
+    return {"gestor": gestor, "profissional": profissional, "populacao": populacao}
+
+
+def format_regional_telegram(p: dict[str, Any]) -> str:
+    """Boletim regional no mesmo padrão do SES."""
+    niv = _norm_level(p.get("nivel"))
+    inds = p.get("indicadores") or []
+    n_mun = p.get("n_municipios") or next(
+        (i.get("valor") for i in inds if i.get("campo") == "n_municipios"), "—"
+    )
+    dist_txt = _dist_compact(p.get("distribuicao"), inds)
+    pred = p.get("predicao") or {}
+    acoes = p.get("orientacoes_regionais") or build_orientacoes_regional(p)
+    reg = p.get("alvo_nome") or "Regional"
+
+    lines = [
+        f"{ICON['regional']} {EMOJI.get(niv, '⚪')} ALERTA REGIONAL · {reg} · {LEVEL_LABEL.get(niv, niv)}",
+        f"{EMOJI.get(niv, '⚪')} Classificação: {p.get('nivel_rotulo') or LEVEL_LABEL.get(niv, niv)}",
+        f"🎯 Alvo: Regional de Saúde {reg} · 🏘️ Mun.: {n_mun}",
+        f"🕒 {p.get('gerado_em')}",
+        "",
+        f"{ICON['resumo']} Resumo executivo",
+        f"🏘️ {n_mun} municípios na jurisdição | {dist_txt}",
+        f"{ICON['motivo']} {str(p.get('motivo') or '—')[:280]}",
+        f"{ICON['predicao']} {pred.get('icone_predicao', '🔮')} {pred.get('resumo', '—')}",
+        "",
+        f"{ICON['indicadores']} Situação da regional",
     ]
+    for ind in inds:
+        line = _kpi_line(ind, escopo="regional")
+        if line:
+            lines.append(line)
+    for ind in inds:
+        if ind.get("campo") == "cobertura_ocupacao":
+            lines.append(f"📡 cobertura local: {ind.get('valor')}")
+    lines += [f"{ICON['legenda']} Legenda: {LEGENDA_RAPIDA}", ""]
+
+    lines.append(f"{ICON['orient_gestor']} Ações para a gestão regional (checklist)")
+    for key, label in [
+        ("sala_situacao", "Sala de situação regional"),
+        ("apoio_municipios", "Apoio aos municípios"),
+        ("leitos_regulacao", "Leitos e regulação"),
+        ("insumos", "Insumos"),
+        ("trabalhador_aps", "Atenção básica / trabalhador"),
+        ("ambiental", "Vigilância ambiental"),
+        ("comunicacao", "Comunicação e reporte à SES"),
+    ]:
+        if acoes.get(key):
+            lines.append(f"• {label} — {acoes[key]}")
+
+    if p.get("orientacao_ia"):
+        lines += ["", f"{ICON['ia']} Orientações da IA (revisar)", str(p["orientacao_ia"])]
+
+    max_prio = int(env("ALERT_REGIONAL_TOP_MUNICIPIOS", "8") or 8)
+    prior = (p.get("municipios_prioritarios") or [])[:max_prio]
+    lines += ["", f"{ICON['prioridade']} Municípios prioritários da regional (top {len(prior)})"]
+    for i, m in enumerate(prior, 1):
+        lines.append(_priority_one_liner(m, i))
+
+    lines += [
+        "",
+        f"{ICON['rodape']} Validar com a SES/CIEVS antes de envio externo.",
+        "Lista de contatos provisória — aguardando atualização CIEVS.",
+    ]
+    return "\n".join(lines)
+
+
+def format_municipal_telegram(p: dict[str, Any], *, cuiaba: bool = False) -> str:
+    """Boletim municipal (e Vigidesastre Cuiabá) no padrão legível."""
+    niv = _norm_level(p.get("nivel"))
+    inds = p.get("indicadores") or []
+    pred = p.get("predicao") or {}
+    acoes = p.get("orientacoes_municipais") or build_orientacoes_municipal(p)
+    mun = p.get("alvo_nome") or "Município"
+    reg = p.get("regional") or "—"
+
+    if cuiaba:
+        header = (
+            f"{ICON['cuiaba']} {EMOJI.get(niv, '⚪')} VIGIDESASTRE CUIABÁ · Relatório municipal · "
+            f"{LEVEL_LABEL.get(niv, niv)}"
+        )
+        alvo = f"📨 Remetente: {p.get('remetente', 'VIGIDESASTRE CUIABÁ')} · 🗺️ Regional: {reg}"
+    else:
+        header = (
+            f"{ICON['municipal']} {EMOJI.get(niv, '⚪')} ALERTA MUNICIPAL · {mun} · "
+            f"{LEVEL_LABEL.get(niv, niv)}"
+        )
+        alvo = f"🎯 Município: {mun} · 🗺️ Regional: {reg}"
+
+    lines = [
+        header,
+        f"{EMOJI.get(niv, '⚪')} Classificação: {p.get('nivel_rotulo') or LEVEL_LABEL.get(niv, niv)}",
+        alvo,
+        f"🕒 {p.get('gerado_em')}",
+        "",
+        f"{ICON['resumo']} Resumo executivo",
+        f"{ICON['motivo']} {str(p.get('motivo') or '—')[:280]}",
+        f"{ICON['predicao']} {pred.get('icone_predicao', '🔮')} {pred.get('resumo', '—')}",
+        "",
+        f"{ICON['indicadores']} Indicadores do município",
+    ]
+    # KPIs principais a partir do payload + indicadores
+    kpi_fields = [
+        ("score", "Pontuação", True),
+        ("tmax", "Tmáx", False),
+        ("utci_proxy", "Sensação", False),
+        ("risco_cumulativo_3d", "Risco 3d", False),
+        ("pressao_calor_pct", "Pressão calor", False),
+        ("pm25_ugm3", "PM2,5", False),
+        ("ocupacao_leitos_pct", "Ocupação leitos", False),
+    ]
+    shown = set()
+    for campo, short, is_score in kpi_fields:
+        val = p.get(campo)
+        if val is None:
+            for ind in inds:
+                if ind.get("campo") == campo:
+                    val = ind.get("valor")
+                    break
+        if val is None:
+            continue
+        status = _status_for(campo, val)
+        num = _parse_num(val)
+        if is_score and num is not None:
+            valor_txt = f"{int(num)}/4"
+        elif campo == "ocupacao_leitos_pct" and num is not None:
+            fonte = str(p.get("fonte_ocupacao") or "")
+            tag = ""
+            if "TEMPO_REAL" in fonte.upper():
+                tag = " local"
+            elif "FALLBACK" in fonte.upper() or "ESTADUAL" in fonte.upper():
+                tag = " estimado estadual"
+            # também detecta nota no valor string
+            vs = str(val)
+            if "local" in vs.lower():
+                tag = " local"
+            elif "estimado" in vs.lower():
+                tag = " estimado estadual"
+            valor_txt = f"{num:.1f}%{tag}".replace(".", ",")
+        elif campo == "pressao_calor_pct" and num is not None:
+            valor_txt = f"{num:.1f} /15".replace(".", ",")
+        elif num is not None:
+            valor_txt = f"{num:.1f}".replace(".", ",")
+        else:
+            valor_txt = str(val).split("(")[0].strip()
+        icon = IND_ICON.get(campo, "•")
+        line = f"{icon} {short}: {valor_txt}"
+        if status:
+            line += f" — {status}"
+        lines.append(line)
+        shown.add(campo)
+
+    lines += [f"{ICON['legenda']} Legenda: {LEGENDA_RAPIDA}", ""]
+    lines.append(f"{ICON['orient_gestor']} Orientações operacionais")
+    lines.append(f"• Gestor municipal — {acoes.get('gestor') or '—'}")
+    lines.append(f"• Profissionais de saúde — {acoes.get('profissional') or '—'}")
+    lines.append(f"• População — {acoes.get('populacao') or '—'}")
+
+    if p.get("orientacao_ia"):
+        lines += ["", f"{ICON['ia']} Orientações da IA (revisar)", str(p["orientacao_ia"])]
+
+    footer = (
+        "Relatório dedicado Vigidesastre Cuiabá · validar no território."
+        if cuiaba
+        else "Fonte: SIS Clima-Saúde MT · validar no território."
+    )
+    lines += ["", f"{ICON['rodape']} {footer}"]
+    return "\n".join(lines)
+
+
+def _format_sectioned_html(title: str, txt: str, sections: list[tuple[str, str]]) -> str:
     blocks: list[tuple[str, list[str]]] = []
-    current = ("Cabeçalho", [])
+    current: tuple[str, list[str]] = ("Cabeçalho", [])
     for line in txt.splitlines():
         matched = None
-        for title, icon in sections:
-            if title in line or (icon in line and any(t in line for t, _ in sections)):
-                matched = title
+        for sec_title, icon in sections:
+            if sec_title in line or (icon in line and any(t in line for t, _ in sections)):
+                matched = sec_title
                 break
         if matched and current[1] and matched != current[0]:
             blocks.append(current)
@@ -477,17 +761,17 @@ def format_ses_html(p: dict[str, Any]) -> str:
         blocks.append(current)
 
     parts = []
-    for title, lines in blocks:
+    for sec_title, lines in blocks:
         body = html.escape("\n".join(lines))
         parts.append(
             f"<section style='border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:0 0 12px;background:#fff'>"
-            f"<h2 style='margin:0 0 8px;font-size:16px'>{html.escape(title)}</h2>"
+            f"<h2 style='margin:0 0 8px;font-size:16px'>{html.escape(sec_title)}</h2>"
             f"<pre style='white-space:pre-wrap;font-family:Segoe UI,Arial,sans-serif;margin:0'>{body}</pre>"
             f"</section>"
         )
     return f"""
     <div style="font-family:Segoe UI,Arial,sans-serif;max-width:860px;margin:0 auto;background:#f8fafc;padding:16px">
-      <h1 style="margin:0 0 6px">{ICON['titulo']} Alerta 1/4 — Gestão SES-MT / CIEVS</h1>
+      <h1 style="margin:0 0 6px">{ICON['titulo']} {html.escape(title)}</h1>
       <p style="color:#64748b;margin:0 0 14px">Gerado em {html.escape(now_iso())}</p>
       {''.join(parts)}
     </div>
@@ -606,8 +890,6 @@ def _active_layers() -> set[str]:
 
 def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
     layers = _active_layers()
-    min_lv = _norm_level(env("ALERT_MIN_LEVEL", "laranja"))
-    min_rank = STAGE_ORDER.get(min_lv, 2)
     max_mun = int(env("ALERT_MAX_MUNICIPIOS", "12") or 12)
     max_reg = int(env("ALERT_MAX_REGIONAIS", "20") or 20)
 
@@ -616,162 +898,121 @@ def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         out.extend([p for p in payloads if p.get("escopo") == "estadual"])
 
     if "regionais" in layers or "regional" in layers:
-        regionais = [
-            p
-            for p in payloads
-            if p.get("escopo") == "regional" and STAGE_ORDER.get(_norm_level(p.get("nivel")), -1) >= min_rank
-        ]
+        # Regionais: envia todas (escopo de gestão), ordenadas por gravidade
+        regionais = [p for p in payloads if p.get("escopo") == "regional"]
         regionais = sorted(
             regionais, key=lambda p: STAGE_ORDER.get(_norm_level(p.get("nivel")), -1), reverse=True
         )[:max_reg]
         out.extend(regionais)
 
+    cuiaba_ids = {str(p.get("alvo_id")) for p in payloads if p.get("escopo") == "cuiaba"}
+
     if "municipais" in layers or "municipal" in layers:
-        municipais = [
-            p
-            for p in payloads
-            if p.get("escopo") == "municipal" and STAGE_ORDER.get(_norm_level(p.get("nivel")), -1) >= min_rank
-        ]
+        min_mun = _norm_level(env("ALERT_MIN_LEVEL_MUNICIPAL", env("ALERT_MIN_LEVEL", "laranja")))
+        min_mun_rank = STAGE_ORDER.get(min_mun, 2)
+        send_all_mun = as_bool(env("ALERT_SEND_ALL_MUNICIPIOS", "false"), False)
+        municipais = [p for p in payloads if p.get("escopo") == "municipal"]
+        # Vigidesastre Cuiabá tem boletim próprio — evita duplicata municipal
+        if "cuiaba" in layers and cuiaba_ids:
+            municipais = [p for p in municipais if str(p.get("alvo_id")) not in cuiaba_ids]
+        if not send_all_mun:
+            municipais = [
+                p for p in municipais if STAGE_ORDER.get(_norm_level(p.get("nivel")), -1) >= min_mun_rank
+            ]
 
         def _mun_key(p: dict) -> tuple:
             rank = STAGE_ORDER.get(_norm_level(p.get("nivel")), -1)
-            score = 0.0
-            for ind in p.get("indicadores") or []:
-                if ind.get("campo") in {"score", "score_alerta_integrado"}:
-                    try:
-                        score = float(str(ind.get("valor")).replace(",", ".").split()[0])
-                    except Exception:
-                        pass
-                    break
+            score = _parse_num(p.get("score")) or 0.0
             return (rank, score)
 
         municipais = sorted(municipais, key=_mun_key, reverse=True)[:max_mun]
         out.extend(municipais)
 
     if "cuiaba" in layers:
-        cui = [
-            p
-            for p in payloads
-            if p.get("escopo") == "cuiaba" and STAGE_ORDER.get(_norm_level(p.get("nivel")), -1) >= min_rank
-        ]
-        already = {str(p.get("alvo_id")) for p in out if p.get("escopo") == "municipal"}
-        for p in cui:
-            if str(p.get("alvo_id")) not in already:
-                out.append(p)
+        out.extend([p for p in payloads if p.get("escopo") == "cuiaba"])
     return out
 
 
 def _enrich_payloads_with_ai(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    max_extra = int(env("ALERT_AI_MAX_PACKS", "3") or 3)
+    max_extra = int(env("ALERT_AI_MAX_PACKS", "0") or 0)
     used_extra = 0
     for p in payloads:
         escopo = p.get("escopo")
         if escopo == "estadual":
             p["orientacoes_setores"] = build_orientacoes_ses_setores(p)
-            p["orientacao_ia"] = _ai_orientacao(p)
+            p["orientacao_ia"] = _ai_orientacao(p) if max_extra >= 0 and as_bool(env("USE_AI_ALERT_TEXT", "false"), False) else None
             continue
-        if escopo == "cuiaba":
-            p["orientacao_ia"] = _ai_orientacao(p)
+        if escopo == "regional":
+            p["orientacoes_regionais"] = build_orientacoes_regional(p)
+            if used_extra < max_extra:
+                p["orientacao_ia"] = _ai_orientacao(p)
+                used_extra += 1
             continue
-        if escopo in {"regional", "municipal"} and used_extra < max_extra:
-            p["orientacao_ia"] = _ai_orientacao(p)
-            used_extra += 1
+        if escopo in {"municipal", "cuiaba"}:
+            p["orientacoes_municipais"] = build_orientacoes_municipal(p)
+            # espelha no dict clássico para compatibilidade
+            o = p["orientacoes_municipais"]
+            p["orientacoes"] = {
+                "gestor": o.get("gestor"),
+                "profissional": o.get("profissional"),
+                "populacao": o.get("populacao"),
+            }
+            if escopo == "cuiaba" and used_extra < max_extra:
+                p["orientacao_ia"] = _ai_orientacao(p)
+                used_extra += 1
+            elif escopo == "municipal" and used_extra < max_extra:
+                p["orientacao_ia"] = _ai_orientacao(p)
+                used_extra += 1
+            continue
     return payloads
 
 
 def format_payload_telegram(p: dict[str, Any], *, compact: bool = False) -> str:
-    if p.get("escopo") == "estadual":
+    escopo = p.get("escopo")
+    if escopo == "estadual":
         txt = format_ses_telegram(p)
-        # Telegram: envia em chunks no caller; aqui só limita se compact
-        return txt if not compact or len(txt) <= 3900 else txt[:3890] + "\n…"
-
-    escopo = str(p.get("escopo") or "")
-    icon = _escopo_icon(escopo)
-    niv = _norm_level(p.get("nivel"))
-    lines = [
-        f"{icon} {p.get('titulo') or 'Alerta SIS'}",
-        f"{EMOJI.get(niv, '⚪')} Nível: {LEVEL_LABEL.get(niv, niv)}",
-        f"🎯 Alvo: {p.get('alvo_nome')} · 🏘️ Mun.: {p.get('n_municipios')}",
-        f"🕒 {p.get('gerado_em')}",
-        "",
-        f"{ICON['motivo']} Motivo",
-        str(p.get("motivo") or "—")[:500],
-        "",
-        f"{ICON['indicadores']} Indicadores",
-    ]
-    inds = p.get("indicadores") or []
-    limit = 6 if compact else 12
-    for ind in inds[:limit]:
-        campo = str(ind.get("campo") or "")
-        i = IND_ICON.get(campo, "•")
-        lines.append(f"{i} {ind.get('rotulo')}: {ind.get('valor')}")
-    pred = p.get("predicao") or {}
-    lines += [
-        "",
-        f"{ICON['predicao']} Predição ~7d",
-        f"{pred.get('icone_predicao', '🔮')} {pred.get('resumo', '—')}",
-        "",
-        f"{ICON['orient_gestor']} Gestor",
-        ((p.get("orientacoes") or {}).get("gestor") or "—"),
-        "",
-        f"{ICON['orient_prof']} Profissionais",
-        ((p.get("orientacoes") or {}).get("profissional") or "—"),
-    ]
-    if not compact:
-        lines += [
-            "",
-            f"{ICON['orient_pop']} População",
-            ((p.get("orientacoes") or {}).get("populacao") or "—"),
-        ]
-    if p.get("orientacao_ia"):
-        lines += ["", f"{ICON['ia']} Orientação IA (revisar)", str(p.get("orientacao_ia"))]
-    lines += [
-        "",
-        f"{ICON['rodape']} Validar no painel antes de comunicação oficial.",
-        "Lista de contatos provisória — aguardando atualização CIEVS.",
-    ]
-    txt = "\n".join(lines)
-    return txt if len(txt) <= 3900 else txt[:3890] + "\n…"
+    elif escopo == "regional":
+        txt = format_regional_telegram(p)
+    elif escopo == "cuiaba":
+        txt = format_municipal_telegram(p, cuiaba=True)
+    elif escopo == "municipal":
+        txt = format_municipal_telegram(p, cuiaba=False)
+    else:
+        txt = format_municipal_telegram(p, cuiaba=False)
+    if compact and len(txt) > 3900:
+        return txt[:3890] + "\n…"
+    return txt
 
 
 def format_payload_html(p: dict[str, Any]) -> str:
-    if p.get("escopo") == "estadual":
+    escopo = p.get("escopo")
+    if escopo == "estadual":
         return format_ses_html(p)
-    escopo = str(p.get("escopo") or "")
-    icon = _escopo_icon(escopo)
-    niv = _norm_level(p.get("nivel"))
-    inds_html = "".join(
-        f"<li>{html.escape(IND_ICON.get(str(i.get('campo')), '•'))} "
-        f"<b>{html.escape(str(i.get('rotulo')))}:</b> {html.escape(str(i.get('valor')))}</li>"
-        for i in (p.get("indicadores") or [])[:14]
+    if escopo == "regional":
+        return _format_sectioned_html(
+            f"Alerta regional — {p.get('alvo_nome')}",
+            format_regional_telegram(p),
+            [
+                ("Resumo executivo", ICON["resumo"]),
+                ("Situação da regional", ICON["indicadores"]),
+                ("Ações para a gestão regional", ICON["orient_gestor"]),
+                ("Municípios prioritários", ICON["prioridade"]),
+            ],
+        )
+    title = (
+        "Alerta 4/4 — Vigidesastre Cuiabá"
+        if escopo == "cuiaba"
+        else f"Alerta municipal — {p.get('alvo_nome')}"
     )
-    o = p.get("orientacoes") or {}
-    pred = p.get("predicao") or {}
-    ai = p.get("orientacao_ia")
-    ai_block = (
-        f"<h3>{ICON['ia']} Orientação IA (revisar)</h3><pre style='white-space:pre-wrap;font-family:inherit'>"
-        f"{html.escape(str(ai))}</pre>"
-        if ai
-        else ""
+    return _format_sectioned_html(
+        title,
+        format_municipal_telegram(p, cuiaba=(escopo == "cuiaba")),
+        [
+            ("Resumo executivo", ICON["resumo"]),
+            ("Indicadores do município", ICON["indicadores"]),
+            ("Orientações operacionais", ICON["orient_gestor"]),
+        ],
     )
-    return f"""
-    <section style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:0 0 18px;background:#fff">
-      <h2 style="margin:0 0 8px">{icon} {html.escape(str(p.get('titulo') or ''))}</h2>
-      <p style="margin:0 0 8px">{EMOJI.get(niv,'⚪')} <b>{html.escape(LEVEL_LABEL.get(niv, niv))}</b>
-         · 🎯 {html.escape(str(p.get('alvo_nome')))} · 🏘️ {html.escape(str(p.get('n_municipios')))}</p>
-      <p style="color:#64748b;margin:0 0 12px">🕒 {html.escape(str(p.get('gerado_em') or ''))}</p>
-      <h3>{ICON['motivo']} Motivo</h3>
-      <p>{html.escape(str(p.get('motivo') or '—')[:800])}</p>
-      <h3>{ICON['indicadores']} Indicadores</h3>
-      <ul>{inds_html or '<li>—</li>'}</ul>
-      <h3>{ICON['predicao']} Predição ~7 dias</h3>
-      <p>{html.escape(str(pred.get('icone_predicao') or '🔮'))} {html.escape(str(pred.get('resumo') or '—'))}</p>
-      <h3>{ICON['orient_gestor']} Gestor</h3><p>{html.escape(str(o.get('gestor') or '—'))}</p>
-      <h3>{ICON['orient_prof']} Profissionais</h3><p>{html.escape(str(o.get('profissional') or '—'))}</p>
-      <h3>{ICON['orient_pop']} População</h3><p>{html.escape(str(o.get('populacao') or '—'))}</p>
-      {ai_block}
-    </section>
-    """
 
 
 def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict[str, Any]], str, dict]:
@@ -801,6 +1042,11 @@ def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict
         if p.get("escopo") == "estadual":
             nivel_est = _norm_level(p.get("nivel"))
             break
+    if nivel_est == "cinza" and selected:
+        nivel_est = max(
+            (_norm_level(p.get("nivel")) for p in selected),
+            key=lambda n: STAGE_ORDER.get(n, -1),
+        )
     fp_src = "|".join(
         f"{p.get('escopo')}:{p.get('alvo_id')}:{p.get('nivel')}:{len(p.get('indicadores') or [])}"
         for p in selected[:25]
@@ -811,6 +1057,7 @@ def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict
         "n_payloads": len(selected),
         "n_regionais": sum(1 for p in selected if p.get("escopo") == "regional"),
         "n_municipais": sum(1 for p in selected if p.get("escopo") == "municipal"),
+        "n_cuiaba": sum(1 for p in selected if p.get("escopo") == "cuiaba"),
         "n_ses": sum(1 for p in selected if p.get("escopo") == "estadual"),
         "fingerprint": fingerprint,
         "com_ia": sum(1 for p in selected if p.get("orientacao_ia")),
@@ -837,48 +1084,16 @@ def _split_telegram(text: str) -> list[str]:
 
 
 def _send_telegram_batches(payloads: list[dict[str, Any]]) -> bool:
+    """Envia cada alerta como boletim próprio (mesmo padrão do SES), com rate-limit."""
     ok_any = False
-    for p in payloads:
-        if p.get("escopo") == "estadual":
-            for chunk in _split_telegram(format_ses_telegram(p)):
-                if send_telegram(chunk):
-                    ok_any = True
-                time.sleep(0.35)
-            break
-
-    regs = [p for p in payloads if p.get("escopo") == "regional"]
-    if regs:
-        header = f"{ICON['regional']} ALERTAS REGIONAIS ({len(regs)})\n" + ("─" * 28)
-        chunks: list[str] = []
-        buf = header
-        for p in regs:
-            block = "\n\n" + format_payload_telegram(p, compact=True)
-            if len(buf) + len(block) > 3800:
-                chunks.append(buf)
-                buf = f"{ICON['regional']} REGIONAIS (cont.)\n" + block
-            else:
-                buf += block
-        chunks.append(buf)
-        for c in chunks:
-            if send_telegram(c):
+    order = {"estadual": 0, "regional": 1, "municipal": 2, "cuiaba": 3}
+    ordered = sorted(payloads, key=lambda p: (order.get(str(p.get("escopo")), 9), str(p.get("alvo_nome") or "")))
+    for p in ordered:
+        txt = format_payload_telegram(p, compact=False)
+        for chunk in _split_telegram(txt):
+            if send_telegram(chunk):
                 ok_any = True
-
-    muns = [p for p in payloads if p.get("escopo") in {"municipal", "cuiaba"}]
-    if muns:
-        header = f"{ICON['municipal']} ALERTAS MUNICIPAIS / VIGIDESASTRE ({len(muns)})\n" + ("─" * 28)
-        buf = header
-        chunks = []
-        for p in muns:
-            block = "\n\n" + format_payload_telegram(p, compact=True)
-            if len(buf) + len(block) > 3800:
-                chunks.append(buf)
-                buf = f"{ICON['municipal']} MUNICIPAIS (cont.)\n" + block
-            else:
-                buf += block
-        chunks.append(buf)
-        for c in chunks:
-            if send_telegram(c):
-                ok_any = True
+            time.sleep(0.35)
     return ok_any
 
 

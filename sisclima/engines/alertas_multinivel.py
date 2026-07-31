@@ -388,30 +388,44 @@ def _predicao_from_rows(df: pd.DataFrame) -> dict[str, str]:
     }
 
 
-def _ocupacao_estadual(df: pd.DataFrame) -> tuple[float | None, str]:
+def _ocupacao_agregada(df: pd.DataFrame, *, escopo: str = "estadual") -> tuple[float | None, str]:
+    """Ocupação no escopo: ponderada por leitos; estadual pode cair no IndicaSUS estadual."""
     lo = pd.to_numeric(df.get("leitos_ocupados"), errors="coerce") if "leitos_ocupados" in df.columns else None
     lt = pd.to_numeric(df.get("leitos_total"), errors="coerce") if "leitos_total" in df.columns else None
     if lo is not None and lt is not None and float(lt.fillna(0).sum()) > 0:
         pct = 100.0 * float(lo.fillna(0).sum()) / float(lt.fillna(0).sum())
         return pct, "ponderada por leitos"
-    try:
-        from sisclima.core.db import read_table, table_exists
+    if escopo == "estadual":
+        try:
+            from sisclima.core.db import read_table, table_exists
 
-        if table_exists("hospital_ocupacao_estado"):
-            est = read_table("hospital_ocupacao_estado")
-            if est is not None and not est.empty and "ocupacao_pct" in est.columns:
-                return float(pd.to_numeric(est["ocupacao_pct"], errors="coerce").iloc[-1]), "IndicaSUS estadual"
-    except Exception:
-        pass
+            if table_exists("hospital_ocupacao_estado"):
+                est = read_table("hospital_ocupacao_estado")
+                if est is not None and not est.empty and "ocupacao_pct" in est.columns:
+                    return float(pd.to_numeric(est["ocupacao_pct"], errors="coerce").iloc[-1]), "IndicaSUS estadual"
+        except Exception:
+            pass
     if "ocupacao_leitos_pct" in df.columns:
         return float(pd.to_numeric(df["ocupacao_leitos_pct"], errors="coerce").mean()), "média municipal"
     return None, "sem dado"
 
 
-def _indicadores_agregados(df: pd.DataFrame) -> list[dict[str, str]]:
-    """Indicadores estaduais com valor + escala (não usa município sentinela cru)."""
+def _ocupacao_estadual(df: pd.DataFrame) -> tuple[float | None, str]:
+    """Compat: ocupa o agregador estadual."""
+    return _ocupacao_agregada(df, escopo="estadual")
+
+
+def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> list[dict[str, str]]:
+    """Indicadores agregados com valor + escala (não usa município sentinela cru)."""
     if df.empty:
         return []
+    pico = "estadual" if escopo == "estadual" else "da regional"
+    limiar_dist = (
+        "pior classificação define o alerta estadual"
+        if escopo == "estadual"
+        else "pior classificação define o alerta da regional"
+    )
+    ocup_rotulo = "Ocupação estadual de leitos" if escopo == "estadual" else "Ocupação de leitos na regional"
     inds: list[dict[str, str]] = []
     inds.append(
         {
@@ -432,7 +446,7 @@ def _indicadores_agregados(df: pd.DataFrame) -> list[dict[str, str]]:
                 "rotulo": "Municípios por classificação",
                 "valor": dist,
                 "escala": "contagem por cor",
-                "limiar": "pior classificação define o alerta estadual",
+                "limiar": limiar_dist,
             }
         )
 
@@ -462,10 +476,10 @@ def _indicadores_agregados(df: pd.DataFrame) -> list[dict[str, str]]:
             )
 
     for col, rotulo, escala, limiar, agg in [
-        ("tmax", "Temperatura máxima (pico estadual)", "°C", "atenção ≥37 · alerta ≥39 · intensificado ≥41 · pleno ≥43", "max"),
+        ("tmax", f"Temperatura máxima (pico {pico})", "°C", "atenção ≥37 · alerta ≥39 · intensificado ≥41 · pleno ≥43", "max"),
         (
             "utci_proxy",
-            "Sensação térmica estimada (pico estadual)",
+            f"Sensação térmica estimada (pico {pico})",
             "°C (proxy)",
             "atenção >26 · alerta >32 · intensificado >38 · pleno >46",
             "max",
@@ -514,12 +528,12 @@ def _indicadores_agregados(df: pd.DataFrame) -> list[dict[str, str]]:
         val = float(s.max()) if agg == "max" else float(s.fillna(0).sum())
         inds.append({"campo": col, "rotulo": rotulo, "valor": _fmt(val), "escala": escala, "limiar": limiar})
 
-    ocup, ocup_fonte = _ocupacao_estadual(df)
+    ocup, ocup_fonte = _ocupacao_agregada(df, escopo=escopo)
     if ocup is not None:
         inds.append(
             {
                 "campo": "ocupacao_leitos_pct",
-                "rotulo": "Ocupação estadual de leitos",
+                "rotulo": ocup_rotulo,
                 "valor": _fmt(ocup),
                 "escala": "0 a 100 %",
                 "limiar": f"atenção ≥75 · alerta ≥85 · intensificado ≥95 · pleno ≥100 · fonte: {ocup_fonte}",
@@ -614,7 +628,7 @@ def build_alertas_multinivel(
         alvo_nome="Estado de Mato Grosso · Secretaria de Estado da Saúde / CIEVS",
         alvo_id="MT",
         municipios=sorted(mun_names.unique().tolist()),
-        indicadores=_indicadores_agregados(base),
+        indicadores=_indicadores_agregados(base, escopo="estadual"),
         predicao=_predicao_from_rows(base),
         motivo=_motivo_agregado(base.sort_values("_rank", ascending=False)),
         fontes=fontes,
@@ -628,48 +642,58 @@ def build_alertas_multinivel(
 
     # 2) Regionais
     if "regional_saude" in base.columns:
+        top_reg = int(env("ALERT_REGIONAL_TOP_MUNICIPIOS", "8") or 8)
         for reg, g in base.groupby(base["regional_saude"].fillna("Sem regional").astype(str)):
             niv = _worst_nivel(g["_nivel"])
             g_names = g.get("municipio", pd.Series(dtype=str)).dropna().astype(str)
             g_names = g_names[~g_names.str.lower().isin(["", "nan", "none"])]
-            payloads.append(
-                _build_payload(
-                    escopo="regional",
-                    nivel=niv,
-                    alvo_nome=str(reg),
-                    alvo_id=str(reg),
-                    municipios=sorted(g_names.unique().tolist()),
-                    indicadores=_indicadores_agregados(g),
-                    predicao=_predicao_from_rows(g),
-                    motivo=_motivo_agregado(g.sort_values("_rank", ascending=False)),
-                    fontes=fontes,
-                )
+            rp = _build_payload(
+                escopo="regional",
+                nivel=niv,
+                alvo_nome=str(reg),
+                alvo_id=str(reg),
+                municipios=sorted(g_names.unique().tolist()),
+                indicadores=_indicadores_agregados(g, escopo="regional"),
+                predicao=_predicao_from_rows(g),
+                motivo=_motivo_agregado(g.sort_values("_rank", ascending=False)),
+                fontes=fontes,
             )
+            rp["municipios_prioritarios"] = _top_prioritarios(g, n=top_reg)
+            rp["distribuicao"] = g["_nivel"].value_counts().to_dict()
+            payloads.append(rp)
 
     # 3) Municipais
     crit = base[base["_rank"] >= min_rank].copy()
     for _, row in crit.iterrows():
         mun = str(row.get("municipio") or row.get("cod_ibge") or "Município")
-        payloads.append(
-            _build_payload(
-                escopo="municipal",
-                nivel=row.get("_nivel"),
-                alvo_nome=mun,
-                alvo_id=str(row.get("cod_ibge") or mun),
-                municipios=[mun],
-                indicadores=_pick_indicadores(row),
-                predicao={
-                    "nivel_predicao_7d": _norm_nivel(row.get("nivel_predicao_7d")),
-                    "icone_predicao": EMOJI.get(_norm_nivel(row.get("nivel_predicao_7d")), "⚪"),
-                    "resumo": (
-                        f"Predição em cerca de 7 dias: "
-                        f"{LEVEL_LABEL.get(_norm_nivel(row.get('nivel_predicao_7d')), '—')}"
-                    ),
-                },
-                motivo=_motivo_em_linguagem_clara(str(row.get("motivo_integrado") or row.get("motivo") or "—")),
-                fontes=fontes,
-            )
+        mp = _build_payload(
+            escopo="municipal",
+            nivel=row.get("_nivel"),
+            alvo_nome=mun,
+            alvo_id=str(row.get("cod_ibge") or mun),
+            municipios=[mun],
+            indicadores=_pick_indicadores(row),
+            predicao={
+                "nivel_predicao_7d": _norm_nivel(row.get("nivel_predicao_7d")),
+                "icone_predicao": EMOJI.get(_norm_nivel(row.get("nivel_predicao_7d")), "⚪"),
+                "resumo": (
+                    f"Predição em cerca de 7 dias: "
+                    f"{LEVEL_LABEL.get(_norm_nivel(row.get('nivel_predicao_7d')), '—')}"
+                ),
+            },
+            motivo=_motivo_em_linguagem_clara(str(row.get("motivo_integrado") or row.get("motivo") or "—")),
+            fontes=fontes,
         )
+        mp["regional"] = str(row.get("regional_saude") or "—")
+        mp["score"] = row.get("score")
+        mp["tmax"] = row.get("tmax")
+        mp["utci_proxy"] = row.get("utci_proxy")
+        mp["risco_cumulativo_3d"] = row.get("risco_cumulativo_3d")
+        mp["ocupacao_leitos_pct"] = row.get("ocupacao_leitos_pct")
+        mp["fonte_ocupacao"] = row.get("fonte_ocupacao")
+        mp["pressao_calor_pct"] = row.get("pressao_calor_pct")
+        mp["pm25_ugm3"] = row.get("pm25_ugm3")
+        payloads.append(mp)
 
     # 4) Cuiabá
     cui = base[base["cod_ibge"].astype(str) == CUIABA_IBGE] if "cod_ibge" in base.columns else pd.DataFrame()
@@ -677,28 +701,37 @@ def build_alertas_multinivel(
         cui = base[base["municipio"].astype(str).str.lower().str.contains("cuiab", na=False)]
     if not cui.empty:
         row = cui.sort_values("_rank", ascending=False).iloc[0]
-        payloads.append(
-            _build_payload(
-                escopo="cuiaba",
-                nivel=row.get("_nivel"),
-                alvo_nome="Cuiabá · Vigidesastre",
-                alvo_id=CUIABA_IBGE,
-                municipios=["Cuiabá"],
-                indicadores=_pick_indicadores(row),
-                predicao={
-                    "nivel_predicao_7d": _norm_nivel(row.get("nivel_predicao_7d")),
-                    "icone_predicao": EMOJI.get(_norm_nivel(row.get("nivel_predicao_7d")), "⚪"),
-                    "resumo": (
-                        f"Predição em cerca de 7 dias Cuiabá: "
-                        f"{LEVEL_LABEL.get(_norm_nivel(row.get('nivel_predicao_7d')), '—')}"
-                    ),
-                },
-                motivo=_motivo_em_linguagem_clara(
-                    str(row.get("motivo_integrado") or row.get("motivo") or "Alerta dedicado Vigidesastre Cuiabá.")
+        cp = _build_payload(
+            escopo="cuiaba",
+            nivel=row.get("_nivel"),
+            alvo_nome="Cuiabá",
+            alvo_id=CUIABA_IBGE,
+            municipios=["Cuiabá"],
+            indicadores=_pick_indicadores(row),
+            predicao={
+                "nivel_predicao_7d": _norm_nivel(row.get("nivel_predicao_7d")),
+                "icone_predicao": EMOJI.get(_norm_nivel(row.get("nivel_predicao_7d")), "⚪"),
+                "resumo": (
+                    f"Predição em cerca de 7 dias: "
+                    f"{LEVEL_LABEL.get(_norm_nivel(row.get('nivel_predicao_7d')), '—')}"
                 ),
-                fontes=fontes + ["Vigidesastre Cuiabá"],
-            )
+            },
+            motivo=_motivo_em_linguagem_clara(
+                str(row.get("motivo_integrado") or row.get("motivo") or "Alerta dedicado Vigidesastre Cuiabá.")
+            ),
+            fontes=fontes + ["Vigidesastre Cuiabá"],
         )
+        cp["remetente"] = "VIGIDESASTRE CUIABÁ"
+        cp["regional"] = str(row.get("regional_saude") or "Cuiabá")
+        cp["score"] = row.get("score")
+        cp["tmax"] = row.get("tmax")
+        cp["utci_proxy"] = row.get("utci_proxy")
+        cp["risco_cumulativo_3d"] = row.get("risco_cumulativo_3d")
+        cp["ocupacao_leitos_pct"] = row.get("ocupacao_leitos_pct")
+        cp["fonte_ocupacao"] = row.get("fonte_ocupacao")
+        cp["pressao_calor_pct"] = row.get("pressao_calor_pct")
+        cp["pm25_ugm3"] = row.get("pm25_ugm3")
+        payloads.append(cp)
 
     return payloads
 
