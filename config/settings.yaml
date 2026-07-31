@@ -102,6 +102,10 @@ alertas:
   enviar_mudanca_nivel: true
   cooldown_minutos: 60
   niveis_minimos_para_push: [laranja, vermelha, roxa]
+  whatsapp:
+    # Credenciais ficam no .env, nunca aqui. Ver docs/WHATSAPP_GRATUITO.md.
+    ddi_padrao: '55'
+    limite_caracteres: 4000
 
 
 qualidade_ar:
