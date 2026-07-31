@@ -38,6 +38,8 @@ from sisclima.ui.alerts_sop import (
     ALERT_CHECKLIST,
     ALERT_SOP_STEPS,
     alert_channel_status,
+    boletim_destinatario_resumo,
+    format_boletim_painel,
     municipal_alert_candidates,
     preview_state_alert,
     recent_alert_log,
@@ -87,7 +89,7 @@ DB_PATH = Path("data/output/sis_integrado.db")
 
 try:
     st.set_page_config(
-        page_title="SIS Integrado Clima-Saúde MT",
+        page_title="SES-MT · CIEVS · SIS Clima-Saúde",
         page_icon="🌡️",
         layout="wide",
         initial_sidebar_state="collapsed",
@@ -95,6 +97,11 @@ try:
 except Exception:
     pass
 ui_theme.apply_theme()
+ui_theme.ses_masthead(
+    sistema="SIS Clima-Saúde MT",
+    subtitulo="Sala de situação clima–saúde · boletins operacionais CIEVS",
+    base=backend_name(),
+)
 
 
 # ---------------------------------------------------------------------
@@ -773,17 +780,16 @@ prioridade_state = state_prioridade_summary(resumo_all)
 # ---------------------------------------------------------------------
 
 ui_theme.hero(
-    "SIS Clima-Saúde MT",
-    "Vigilância integrada clima–saúde com TITAN incorporado (calor, solo, INMET/Cemaden) · "
-    f"base {backend_name()} · código legível (sem ofuscação/stealth)",
+    "Sala de situação · SES-MT / CIEVS",
+    "Layout alinhado ao portal oficial saude.mt.gov.br · vigilância clima–saúde · "
+    f"base {backend_name()}",
     chips=[
-        "TITAN",
-        "Alerta integrado",
-        "Solo",
-        "OR/Sazonal",
-        "AdaptaSUS",
-        "CNES",
-        "Ajudante CIEVS",
+        "SES-MT",
+        "CIEVS",
+        "Alerta estadual",
+        "Regionais",
+        "Municípios",
+        "Vigidesastre Cuiabá",
         f"Envio: {'ON' if alerts_enabled() else 'OFF'}",
     ],
 )
@@ -2574,11 +2580,13 @@ elif SECTION_KEY == "Inteligência":
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "Alertas":
     ui_theme.section_title(
-        "Alertas integrados SIS + TITAN",
-        "Clima/saúde SIS unido a INMET, Cemaden, solo e hidro — SOP e auditoria",
+        "Boletins CIEVS · padrão SES-MT",
+        "Prévia no mesmo formato do Telegram/e-mail: resumo → KPI com status → ações → prioritários",
     )
     ui_theme.callout(
-        "Padrão seguro: SEND_ALERT_ON_LEVEL_CHANGE=false. O pipeline registra a mudança, mas não envia. Ligue só após validar a prévia abaixo.",
+        "Tema alinhado ao portal oficial SES-MT (azul institucional). "
+        "Envio externo desligado por padrão (SEND_ALERT_ON_LEVEL_CHANGE=false). "
+        "Valide a prévia abaixo antes de armar canais.",
         "warn",
     )
     render_interpretacao(
@@ -2587,69 +2595,38 @@ elif SECTION_KEY == "Alertas":
         lambda: narrativa_alertas(alerta_integrado, resumo),
     )
 
-    st.markdown("### Alerta integrado municipal (SIS + TITAN)")
-    ai = alerta_integrado.copy() if isinstance(alerta_integrado, pd.DataFrame) else pd.DataFrame()
-    if not ai.empty and "cod_ibge" in ai.columns and "cod_ibge" in resumo.columns:
-        ai = ai[ai["cod_ibge"].astype(str).isin(resumo["cod_ibge"].dropna().astype(str))]
-    if ai.empty:
-        st.info("Tabela alerta_integrado_sis_titan ainda não gerada. Rode completar_sistema_operacional.py.")
-    else:
-        n_laranja = int((pd.to_numeric(ai.get("score_alerta_integrado"), errors="coerce").fillna(0) >= 2).sum())
-        ui_theme.insight_cards(
-            [
-                ("Integrado ≥ laranja", n_laranja, "municípios"),
-                ("INMET", len(inmet_alertas), "registros"),
-                ("Cemaden", len(cemaden_alertas_tab), "registros"),
-                ("Hidro ANA", len(hidro_risco), "municípios"),
-            ]
-        )
-        if "nivel_alerta_integrado" in ai.columns:
-            map_ai, _, _ = prepare_map_dataframe(ai.rename(columns={"nivel_alerta_integrado": "nivel"}) if "nivel" not in ai.columns else ai)
-            if "nivel" not in map_ai.columns and "nivel_alerta_integrado" in ai.columns:
-                map_ai = ai.copy()
-                map_ai["nivel"] = map_ai["nivel_alerta_integrado"]
-                map_ai, _, _ = prepare_map_dataframe(map_ai)
-            map_plot = map_ai if "nivel" in map_ai.columns else ai.rename(columns={"nivel_alerta_integrado": "nivel"})
-            choropleth_or_points(
-                map_plot,
-                geojson_mun,
-                "nivel",
-                "Alerta integrado SIS+TITAN",
-                hover_cols=[c for c in ["componente_dominante", "motivo_integrado", "acao_recomendada", "utci_proxy", "indice_saturacao_solo"] if c in ai.columns],
-                categorical=True,
-            )
-        show_df(
-            safe_sort(ai, ["score_alerta_integrado"] if "score_alerta_integrado" in ai.columns else [], ascending=[False]),
-            [c for c in ["cod_ibge", "municipio", "regional_saude", "nivel_sis", "nivel_alerta_integrado", "score_alerta_integrado", "componente_dominante", "motivo_integrado", "acao_recomendada"] if c in ai.columns],
-            height=340,
-        )
-
     status = alert_channel_status()
     ui_theme.insight_cards(
         [
             ("Envio externo", "LIGADO" if status["envio_ligado"] else "DESLIGADO", f"flag={status['flag']}"),
-            ("E-mail", "ativo" if status["email"] else "inativo", str(status["email_to"])),
-            ("Telegram", "ativo" if status["telegram"] else "inativo", "bot+chat"),
-            ("Webhook", "ativo" if status["webhook"] else "inativo", "URL configurável"),
+            ("Canal central", "só SES" if status.get("central_only_ses", True) else "todas", str(status["email_to"])),
+            ("Telegram central", "ativo" if status["telegram"] else "inativo", "somente estadual"),
+            (
+                "Fan-out territorial",
+                "ATIVO" if status.get("fanout_enabled") else "adiado",
+                (
+                    f"{status.get('contacts_n', 0)} contato(s)"
+                    if status.get("contacts_available")
+                    else "sem planilha"
+                ),
+            ),
         ]
+    )
+    ui_theme.callout(
+        "Roteamento SES-MT: canal central (e-mail/Telegram CIEVS) recebe somente o estadual. "
+        "Regionais, municipais e Cuiabá são gerados; envio territorial só com planilha + ALERT_FANOUT_ENABLED.",
+        "tip",
     )
 
     # ------------------------------------------------------------------
-    # Alertas multinível (SES / Regional / Municipal / Vigidesastre Cuiabá)
+    # Boletins multinível no padrão SES legível
     # ------------------------------------------------------------------
-    st.markdown("### Alertas em 4 níveis (consulta e validação)")
-    ui_theme.callout(
-        "Escopos: (1) estadual → SES/CIEVS · (2) regional + municípios da jurisdição · "
-        "(3) municipal · (4) Vigidesastre Cuiabá. Cada boletim traz ícone, indicadores, "
-        "predição ~7d e orientações para gestor, profissionais e população.",
-        "tip",
-    )
+    st.markdown("### Validação dos boletins (padrão SES legível)")
     try:
         from sisclima.engines.alertas_multinivel import (
             build_alertas_multinivel,
             payloads_to_dataframe,
             persist_payloads,
-            render_payload_markdown,
         )
 
         min_lvl = st.selectbox(
@@ -2667,14 +2644,19 @@ elif SECTION_KEY == "Alertas":
         tab_est, tab_reg, tab_mun, tab_cba = st.tabs(
             ["① Estadual (SES)", "② Regionais", "③ Municipais", "④ Cuiabá Vigidesastre"]
         )
-        by_scope = {k: [p for p in payloads if p.get("escopo") == k] for k in ("estadual", "regional", "municipal", "cuiaba")}
+        by_scope = {
+            k: [p for p in payloads if p.get("escopo") == k]
+            for k in ("estadual", "regional", "municipal", "cuiaba")
+        }
 
-        def _render_scope(scope_payloads: list, tab) -> None:
+        def _render_scope(scope_payloads: list, tab, *, expand_preview: bool = False) -> None:
             with tab:
                 if not scope_payloads:
                     st.info("Nenhum boletim neste escopo para o recorte/nível atuais.")
                     return
-                labels = [f"{p.get('icone', '')} {p.get('alvo_nome')} · {p.get('nivel')}" for p in scope_payloads]
+                labels = [
+                    f"{p.get('icone', '')} {p.get('alvo_nome')} · {p.get('nivel')}" for p in scope_payloads
+                ]
                 idx = 0
                 if len(labels) > 1:
                     idx = st.selectbox(
@@ -2684,45 +2666,62 @@ elif SECTION_KEY == "Alertas":
                         key=f"sel_alerta_{scope_payloads[0].get('escopo')}",
                     )
                 p = scope_payloads[int(idx)]
+                esc = str(p.get("escopo") or "")
                 st.markdown(f"#### {p.get('titulo')}")
                 c_a, c_b, c_c = st.columns(3)
                 c_a.metric("Nível", f"{p.get('icone')} {p.get('nivel')}")
                 c_b.metric("Municípios no escopo", p.get("n_municipios", 0))
-                c_c.metric("Predição 7d", f"{(p.get('predicao') or {}).get('icone_predicao', '')} {(p.get('predicao') or {}).get('nivel_predicao_7d', '—')}")
-                st.markdown("**Motivo**")
-                st.write(p.get("motivo") or "—")
-                st.markdown("**Indicadores**")
-                ind_df = pd.DataFrame(p.get("indicadores") or [])
-                if ind_df.empty:
-                    st.caption("Sem indicadores preenchidos neste boletim.")
-                else:
-                    show_df(ind_df.rename(columns={"rotulo": "Indicador", "valor": "Valor"}), ["Indicador", "Valor"], height=260)
-                ori = p.get("orientacoes") or {}
-                o1, o2, o3 = st.columns(3)
-                o1.info(f"**Gestor**\n\n{ori.get('gestor', '—')}")
-                o2.warning(f"**Profissionais**\n\n{ori.get('profissional', '—')}")
-                o3.success(f"**População**\n\n{ori.get('populacao', '—')}")
-                with st.expander("Prévia completa (Markdown / envio)", expanded=False):
-                    md = render_payload_markdown(p)
-                    st.code(md)
-                    st.download_button(
-                        "Baixar boletim (.md)",
-                        data=md,
-                        file_name=f"alerta_{p.get('escopo')}_{p.get('alvo_id')}.md",
-                        mime="text/markdown",
-                        key=f"dl_alerta_{p.get('escopo')}_{p.get('alvo_id')}",
-                    )
+                pred = p.get("predicao") or {}
+                c_c.metric(
+                    "Predição 7d",
+                    f"{pred.get('icone_predicao', '')} {pred.get('nivel_predicao_7d', '—')}",
+                )
+                ui_theme.callout(boletim_destinatario_resumo(esc, status), "info")
 
-        _render_scope(by_scope["estadual"], tab_est)
+                txt = format_boletim_painel(p)
+                st.markdown("##### Prévia operacional (igual ao envio Telegram/e-mail)")
+                st.code(txt, language=None)
+                st.download_button(
+                    "Baixar boletim (.txt)",
+                    data=txt,
+                    file_name=f"alerta_{esc}_{p.get('alvo_id')}.txt",
+                    mime="text/plain",
+                    key=f"dl_alerta_txt_{esc}_{p.get('alvo_id')}",
+                )
+                st.caption(f"{len(txt)} caracteres · padrão: resumo → KPI+status → ações → prioritários/rodapé")
+
+                with st.expander("Indicadores brutos (consulta técnica)", expanded=False):
+                    ind_df = pd.DataFrame(p.get("indicadores") or [])
+                    if ind_df.empty:
+                        st.caption("Sem indicadores preenchidos neste boletim.")
+                    else:
+                        view = ind_df.rename(columns={"rotulo": "Indicador", "valor": "Valor"})
+                        cols = [c for c in ["Indicador", "Valor", "escala", "limiar"] if c in view.columns]
+                        show_df(view, cols, height=260)
+
+        _render_scope(by_scope["estadual"], tab_est, expand_preview=True)
         _render_scope(by_scope["regional"], tab_reg)
         _render_scope(by_scope["municipal"], tab_mun)
         _render_scope(by_scope["cuiaba"], tab_cba)
 
         resumo_multi = payloads_to_dataframe(payloads)
-        st.markdown("#### Painel consolidado dos 4 níveis (validação)")
+        st.markdown("#### Painel consolidado dos 4 níveis")
         show_df(
             resumo_multi,
-            [c for c in ["icone", "escopo", "alvo_nome", "nivel", "n_municipios", "nivel_predicao_7d", "n_indicadores", "gerado_em"] if c in resumo_multi.columns],
+            [
+                c
+                for c in [
+                    "icone",
+                    "escopo",
+                    "alvo_nome",
+                    "nivel",
+                    "n_municipios",
+                    "nivel_predicao_7d",
+                    "n_indicadores",
+                    "gerado_em",
+                ]
+                if c in resumo_multi.columns
+            ],
             height=280,
         )
         if st.button("Persistir pacotes multinível na base (`alertas_multinivel_v1`)", key="btn_persist_multi"):
@@ -2731,15 +2730,82 @@ elif SECTION_KEY == "Alertas":
     except Exception as exc:
         st.error(f"Falha ao montar alertas multinível: {exc}")
 
+    st.markdown("### Alerta integrado municipal (SIS + TITAN) — apoio à leitura")
+    ai = alerta_integrado.copy() if isinstance(alerta_integrado, pd.DataFrame) else pd.DataFrame()
+    if not ai.empty and "cod_ibge" in ai.columns and "cod_ibge" in resumo.columns:
+        ai = ai[ai["cod_ibge"].astype(str).isin(resumo["cod_ibge"].dropna().astype(str))]
+    if ai.empty:
+        st.info("Tabela alerta_integrado_sis_titan ainda não gerada. Rode completar_sistema_operacional.py.")
+    else:
+        n_laranja = int((pd.to_numeric(ai.get("score_alerta_integrado"), errors="coerce").fillna(0) >= 2).sum())
+        ui_theme.insight_cards(
+            [
+                ("Integrado ≥ laranja", n_laranja, "municípios"),
+                ("INMET", len(inmet_alertas), "registros"),
+                ("Cemaden", len(cemaden_alertas_tab), "registros"),
+                ("Hidro ANA", len(hidro_risco), "municípios"),
+            ]
+        )
+        if "nivel_alerta_integrado" in ai.columns:
+            map_ai, _, _ = prepare_map_dataframe(
+                ai.rename(columns={"nivel_alerta_integrado": "nivel"}) if "nivel" not in ai.columns else ai
+            )
+            if "nivel" not in map_ai.columns and "nivel_alerta_integrado" in ai.columns:
+                map_ai = ai.copy()
+                map_ai["nivel"] = map_ai["nivel_alerta_integrado"]
+                map_ai, _, _ = prepare_map_dataframe(map_ai)
+            map_plot = map_ai if "nivel" in map_ai.columns else ai.rename(columns={"nivel_alerta_integrado": "nivel"})
+            choropleth_or_points(
+                map_plot,
+                geojson_mun,
+                "nivel",
+                "Alerta integrado SIS+TITAN",
+                hover_cols=[
+                    c
+                    for c in [
+                        "componente_dominante",
+                        "motivo_integrado",
+                        "acao_recomendada",
+                        "utci_proxy",
+                        "indice_saturacao_solo",
+                    ]
+                    if c in ai.columns
+                ],
+                categorical=True,
+            )
+        show_df(
+            safe_sort(
+                ai,
+                ["score_alerta_integrado"] if "score_alerta_integrado" in ai.columns else [],
+                ascending=[False],
+            ),
+            [
+                c
+                for c in [
+                    "cod_ibge",
+                    "municipio",
+                    "regional_saude",
+                    "nivel_sis",
+                    "nivel_alerta_integrado",
+                    "score_alerta_integrado",
+                    "componente_dominante",
+                    "motivo_integrado",
+                    "acao_recomendada",
+                ]
+                if c in ai.columns
+            ],
+            height=340,
+        )
+
     st.markdown("### SOP — passo a passo (CIEVS)")
     for step in ALERT_SOP_STEPS:
         st.markdown(f"**{step['passo']}** — {step['texto']}")
 
-    with st.expander("Checklist antes de armar o envio", expanded=True):
+    with st.expander("Checklist antes de armar o envio", expanded=False):
         for item in ALERT_CHECKLIST:
             st.checkbox(item, value=False, key=f"chk_alerta_{abs(hash(item)) % 100000}")
 
-    st.markdown("### Pré-visualização da mensagem estadual")
+    st.markdown("### Histórico de mudança de nível (legado)")
     preview = preview_state_alert(
         str(sentinel.get("data", sentinel.get("data_referencia", ""))),
         str(nivel_estado),
@@ -2749,9 +2815,10 @@ elif SECTION_KEY == "Alertas":
     c1.metric("Nível persistido", preview["nivel_anterior"])
     c2.metric("Nível desta rodada", preview["nivel_novo"])
     ui_theme.callout(preview["acao"], "tip" if status["envio_ligado"] else "info")
-    st.code(preview["subject"] + "\n\n" + preview["message"])
+    with st.expander("Mensagem clássica de mudança de nível", expanded=False):
+        st.code(preview["subject"] + "\n\n" + preview["message"])
 
-    st.markdown("### Candidatos municipais (plantão)")
+    st.markdown("### Candidatos municipais (plantão — sem envio automático ao CIEVS)")
     cand = municipal_alert_candidates(resumo)
     if cand.empty:
         st.info("Nenhum município no critério laranja+/↑7d/vigilância alta neste recorte.")
@@ -3037,3 +3104,6 @@ elif SECTION_KEY == "Correlação clima-saúde":
     if not analise_alertas_v8.empty:
         st.markdown("##### Alertas estatísticos associados")
         show_df(analise_alertas_v8, height=280)
+
+# Rodapé institucional SES-MT
+ui_theme.ses_footer()

@@ -1,11 +1,34 @@
 # -*- coding: utf-8 -*-
-"""Tema visual do painel SIS Clima-Saúde MT."""
+"""Tema visual alinhado ao portal oficial SES-MT (saude.mt.gov.br).
+
+Tokens de css/style.css do portal:
+- topo/footer: linear-gradient(#000444 → #1d357f)
+- faixa navbar: #0071bb
+- títulos/links: #1351b4
+- tipografia: UniNeueRegular / UniNeueHeavy
+"""
 from __future__ import annotations
 
 import html
+from datetime import datetime
+from pathlib import Path
+
 import streamlit as st
 
 from sisclima.ui.explainers import INDICATOR_GLOSSARY, level_plain, section_plain
+
+ROOT = Path(__file__).resolve().parents[2]
+ASSETS = ROOT / "assets"
+LOGO_PATH = ASSETS / "ses-logo.jpg"
+CSS_PATH = ASSETS / "ses-panel.css"
+FONT_REG = ASSETS / "fonts" / "uni-neue-regular.otf"
+FONT_HEAVY = ASSETS / "fonts" / "uni-neue-heavy.otf"
+
+SES_BLUE = "#1351B4"
+SES_BLUE_DEEP = "#1D357F"
+SES_BLUE_NAVY = "#000444"
+SES_BLUE_ACCENT = "#0071BB"
+SES_BG = "#F8F8F8"
 
 LEVEL_COLOR_MAP = {
     "cinza": "#6b7280",
@@ -16,447 +39,252 @@ LEVEL_COLOR_MAP = {
     "roxa": "#6d28d9",
 }
 
-CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
-
-html, body, [class*="css"] {
-  font-family: "Source Sans 3", "Segoe UI", sans-serif;
-}
-
-[data-testid="stAppViewContainer"] {
-  background:
-    radial-gradient(900px 380px at 8% -5%, rgba(15,110,86,0.07), transparent 60%),
-    radial-gradient(700px 320px at 95% 8%, rgba(180,83,9,0.05), transparent 55%),
-    linear-gradient(180deg, #eef4f1 0%, #f3f6f4 40%, #f7f9f8 100%);
-}
-
-.block-container {
-  padding-top: 1.0rem !important;
-  padding-bottom: 2.8rem !important;
-  max-width: 1320px !important;
-}
-
-[data-testid="stSidebar"],
-section[data-testid="stSidebar"],
-[data-testid="stSidebarNav"],
-[data-testid="stSidebarNavItems"],
-[data-testid="stSidebarContent"],
-[data-testid="stSidebarCollapsedControl"],
-[data-testid="stSidebarUserContent"],
-div[data-testid="collapsedControl"],
-button[kind="headerNoPadding"],
-[data-testid="stBaseButton-headerNoPadding"] {
-  display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-}
-section.main > div,
-[data-testid="stAppViewContainer"] > .main,
-.stApp [data-testid="stMain"] {
-  padding-left: 1rem !important;
-  margin-left: 0 !important;
-}
-header[data-testid="stHeader"] {
-  background: transparent;
-}
-
-.sis-hero {
-  background:
-    radial-gradient(1000px 380px at 8% -20%, rgba(255,255,255,0.16), transparent 50%),
-    radial-gradient(800px 300px at 90% 120%, rgba(11,61,52,0.35), transparent 55%),
-    linear-gradient(128deg, #08352e 0%, #0f6e56 46%, #1a8a6e 100%);
-  color: #f4faf7;
-  border-radius: 24px;
-  padding: 1.45rem 1.6rem 1.25rem 1.6rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 20px 44px rgba(11, 61, 52, 0.20);
-  position: relative;
-  overflow: hidden;
-}
-
-.sis-hero::after {
-  content: "";
-  position: absolute;
-  inset: auto -40px -60px auto;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  pointer-events: none;
-}
-
-.sis-brand {
-  font-family: "Fraunces", Georgia, serif;
-  font-size: 1.85rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 0;
-  line-height: 1.12;
-}
-
-.sis-kicker {
-  opacity: 0.9;
-  font-size: 0.98rem;
-  margin: 0.4rem 0 0.9rem 0;
-  max-width: 62ch;
-}
-
-.sis-level-banner {
-  border-radius: 18px;
-  padding: 1.05rem 1.2rem;
-  color: white;
-  margin: 0.45rem 0 0.85rem 0;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
-}
-
-.sis-level-banner h3 {
-  margin: 0;
-  font-family: "Fraunces", Georgia, serif;
-  font-size: 1.28rem;
-}
-
-.sis-level-banner p {
-  margin: 0.35rem 0 0 0;
-  opacity: 0.96;
-  font-size: 0.95rem;
-}
-
-.sis-chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.7rem;
-}
-
-.sis-chip {
-  background: rgba(255,255,255,0.14);
-  border: 1px solid rgba(255,255,255,0.22);
-  border-radius: 999px;
-  padding: 0.28rem 0.72rem;
-  font-size: 0.76rem;
-  font-weight: 600;
-}
-
-.sis-section-title {
-  font-family: "Fraunces", Georgia, serif;
-  font-size: 1.4rem;
-  margin: 0.25rem 0 0.4rem 0;
-  color: #12352d;
-}
-
-.sis-muted {
-  color: #5b6f68;
-  font-size: 0.94rem;
-  margin-bottom: 0.85rem;
-  max-width: 78ch;
-}
-
-.sis-card {
-  background: #ffffff;
-  border: 1px solid #d5e3dc;
-  border-radius: 16px;
-  padding: 0.9rem 1rem;
-  margin-bottom: 0.75rem;
-  box-shadow: 0 4px 14px rgba(18, 53, 45, 0.04);
-}
-
-.sis-guide {
-  background: linear-gradient(180deg, #ffffff 0%, #f4faf7 100%);
-  border: 1px solid #cfe0d8;
-  border-left: 5px solid #0f6e56;
-  border-radius: 14px;
-  padding: 0.9rem 1.05rem;
-  margin: 0.35rem 0 1rem 0;
-}
-
-.sis-guide h4 {
-  margin: 0 0 0.4rem 0;
-  font-family: "Fraunces", Georgia, serif;
-  color: #0b3d34;
-  font-size: 1.05rem;
-}
-
-.sis-guide p {
-  margin: 0.25rem 0;
-  color: #334740;
-  font-size: 0.92rem;
-  line-height: 1.45;
-}
-
-.sis-guide .lbl {
-  font-weight: 700;
-  color: #0f6e56;
-}
-
-.sis-callout {
-  border-radius: 14px;
-  padding: 0.85rem 1rem;
-  margin: 0.5rem 0 0.9rem 0;
-  border: 1px solid transparent;
-}
-
-.sis-callout.info {
-  background: #e8f5f0;
-  border-color: #b7dccf;
-  color: #12352d;
-}
-.sis-callout.warn {
-  background: #fff7ed;
-  border-color: #fdba74;
-  color: #7c2d12;
-}
-.sis-callout.tip {
-  background: #eff6ff;
-  border-color: #93c5fd;
-  color: #1e3a5f;
-}
-
-.sis-insight-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.65rem;
-  margin: 0.4rem 0 1rem 0;
-}
-
-.sis-insight {
-  background: #fff;
-  border: 1px solid #d5e3dc;
-  border-radius: 14px;
-  padding: 0.75rem 0.85rem;
-  box-shadow: 0 3px 10px rgba(18,53,45,0.04);
-}
-
-.sis-insight .k {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #5b6f68;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.sis-insight .v {
-  font-family: "Fraunces", Georgia, serif;
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: #0b3d34;
-  line-height: 1.2;
-  margin-top: 0.2rem;
-}
-
-.sis-insight .h {
-  font-size: 0.8rem;
-  color: #5b6f68;
-  margin-top: 0.25rem;
-}
-
-.sis-level-tile {
-  color: white;
-  border-radius: 14px;
-  padding: 0.9rem 0.6rem;
-  text-align: center;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
-}
-
-.sis-level-tile .lbl {
-  font-size: 0.78rem;
-  font-weight: 600;
-  opacity: 0.92;
-}
-
-.sis-level-tile .val {
-  font-size: 1.7rem;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.sis-level-tile .pred {
-  font-size: 0.78rem;
-  font-weight: 600;
-  opacity: 0.95;
-  margin-top: 0.15rem;
-}
-
-.sis-level-tile .trend {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  opacity: 0.98;
-  margin-top: 0.1rem;
-}
-
-.sis-level-legend {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.55rem;
-  margin: 0.5rem 0 1rem 0;
-}
-
-.sis-level-card {
-  border-radius: 12px;
-  padding: 0.7rem 0.8rem;
-  color: #fff;
-  min-height: 92px;
-}
-
-.sis-level-card strong {
-  display: block;
-  font-size: 0.92rem;
-  margin-bottom: 0.25rem;
-}
-
-.sis-level-card span {
-  font-size: 0.8rem;
-  opacity: 0.95;
-  line-height: 1.35;
-}
-
-div[data-testid="stMetric"] {
-  background: #ffffff;
-  border: 1px solid #d5e3dc;
-  border-radius: 14px;
-  padding: 0.6rem 0.8rem;
-  box-shadow: 0 3px 10px rgba(18,53,45,0.03);
-}
-
-div[role="radiogroup"] {
-  gap: 0.4rem !important;
-  flex-wrap: wrap !important;
-}
-div[role="radiogroup"] label {
-  background: #ffffff !important;
-  border: 1px solid #c9dbd3 !important;
-  border-radius: 999px !important;
-  padding: 0.38rem 0.9rem !important;
-  margin: 0.1rem !important;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
-}
-div[role="radiogroup"] label:hover {
-  transform: translateY(-1px);
-  border-color: #0f6e56 !important;
-}
-div[role="radiogroup"] label:has(input:checked) {
-  background: #0f6e56 !important;
-  border-color: #0f6e56 !important;
-  color: #ffffff !important;
-}
-div[role="radiogroup"] label:has(input:checked) p,
-div[role="radiogroup"] label:has(input:checked) span {
-  color: #ffffff !important;
-}
-
-div[data-testid="stExpander"] {
-  background: #ffffff;
-  border: 1px solid #d5e3dc;
-  border-radius: 14px;
-}
-
-.guide-card {
-  background: linear-gradient(180deg, #f7fbf9 0%, #ffffff 100%);
-  border: 1px solid #cfe0d8;
-  border-left: 5px solid #0f6e56;
-  border-radius: 14px;
-  padding: 0.95rem 1.1rem;
-  margin: 0.35rem 0 0.9rem 0;
-  color: #1f2937;
-  line-height: 1.45;
-  font-size: 0.95rem;
-}
-
-.ai-box {
-  background: #0b3d34;
-  color: #e8f5f0;
-  border-radius: 14px;
-  padding: 1rem 1.15rem;
-  margin: 0.4rem 0 0.8rem 0;
-  line-height: 1.5;
-  font-size: 0.95rem;
-  box-shadow: 0 12px 28px rgba(11, 61, 52, 0.18);
-}
-"""
+LAYOUT_VERSION = "SES-MT layout 2026-07-31 · azul institucional"
 
 
 def _render_html(fragment: str) -> None:
-    """Renderiza HTML sem cair em bloco de código do Markdown (indentação)."""
     compact = " ".join(line.strip() for line in fragment.splitlines() if line.strip())
-    if hasattr(st, "html"):
-        st.html(compact)
-    else:
-        st.markdown(compact, unsafe_allow_html=True)
+    # Preferir markdown+style (aplica no app). st.html também serve para blocos.
+    st.markdown(compact, unsafe_allow_html=True)
+
+
+def _font_face_block() -> str:
+    """Fontes locais via file:// não funcionam no browser; usa data-URI só das fontes."""
+    import base64
+
+    parts = []
+    if FONT_REG.exists():
+        b64 = base64.b64encode(FONT_REG.read_bytes()).decode("ascii")
+        parts.append(
+            "@font-face{font-family:UniNeueRegular;src:url(data:font/otf;base64,"
+            f"{b64}) format('opentype');font-weight:400;font-display:swap;}}"
+        )
+    if FONT_HEAVY.exists():
+        b64 = base64.b64encode(FONT_HEAVY.read_bytes()).decode("ascii")
+        parts.append(
+            "@font-face{font-family:UniNeueHeavy;src:url(data:font/otf;base64,"
+            f"{b64}) format('opentype');font-weight:800;font-display:swap;}}"
+        )
+    return "".join(parts)
 
 
 def apply_theme() -> None:
-    _render_html(f"<style>{CSS}</style>")
+    """Injeta CSS SES de forma confiável (sem depender de CSS gigante único)."""
+    base_css = CSS_PATH.read_text(encoding="utf-8") if CSS_PATH.exists() else ""
+    # Remove @font-face relativos do arquivo (não resolvem no Streamlit)
+    cleaned = []
+    skip = False
+    for line in base_css.splitlines():
+        if "@font-face" in line:
+            skip = True
+        if skip:
+            if "}" in line:
+                skip = False
+            continue
+        cleaned.append(line)
+    body_css = "\n".join(cleaned)
+    # Fallback tipográfico institucional (Calibri/Segoe) — evita injetar ~240KB de
+    # base64 que em alguns clientes Streamlit falha silenciosamente e deixa o tema antigo.
+    fallback_fonts = (
+        "html,body,[class*=\"css\"],.stApp{"
+        "font-family:Calibri,\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif!important}"
+        "h1,h2,h3,h4,h5,h6,.sis-brand,.sis-section-title,.ses-masthead-brand,.sis-insight .v{"
+        "font-family:Calibri,\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif!important;"
+        "color:#1351B4!important}"
+    )
+    st.markdown(f"<style>{fallback_fonts}\n{body_css}</style>", unsafe_allow_html=True)
+    # Selo visível para confirmar que o painel novo carregou
+    st.markdown(
+        f'<div style="background:#1351B4;color:#fff;padding:6px 12px;font:700 12px/1.3 Calibri,Segoe UI,sans-serif;'
+        f'letter-spacing:.03em;text-transform:uppercase;margin:0 0 8px 0">{html.escape(LAYOUT_VERSION)}</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def ses_masthead(
+    *,
+    sistema: str = "SIS Clima-Saúde MT",
+    subtitulo: str = "Sala de situação clima–saúde · CIEVS / SES-MT",
+    base: str = "",
+) -> None:
+    """Chrome institucional no padrão do portal saude.mt.gov.br."""
+    hoje = datetime.now().strftime("%d/%m/%Y %H:%M")
+    # Topo com estilo INLINE (garante azul mesmo se CSS falhar)
+    st.markdown(
+        f"""
+        <div style="background:linear-gradient(to right,#000444 0%,#1d357f 40%,#1d357f 60%,#000444 100%);
+                    color:#fff;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;
+                    justify-content:space-between;align-items:center;font:400 13px UniNeueRegular,Calibri,sans-serif;">
+          <div><strong style="font-family:UniNeueHeavy,Calibri,sans-serif;">Governo de Mato Grosso</strong>
+            &nbsp;|&nbsp; Secretaria de Estado de Saúde &nbsp;|&nbsp; CIEVS</div>
+          <div>
+            <a href="https://www.saude.mt.gov.br/" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;">saude.mt.gov.br</a>
+            &nbsp;|&nbsp;
+            <a href="https://www.mt.gov.br/" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;">mt.gov.br</a>
+            &nbsp;|&nbsp; {html.escape(hoje)}
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    c_logo, c_title, c_meta = st.columns([1.2, 3.2, 1.8], vertical_alignment="center")
+    with c_logo:
+        if LOGO_PATH.exists():
+            st.image(str(LOGO_PATH), width=190)
+        else:
+            st.markdown("**SES-MT**")
+    with c_title:
+        st.markdown(
+            f"""
+            <div style="border-bottom:10px solid #0071bb;padding:6px 0 10px 0;">
+              <div style="font:800 22px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;">{html.escape(sistema)}</div>
+              <div style="color:#57595A;font:400 14px UniNeueRegular,Calibri,sans-serif;margin-top:4px;">{html.escape(subtitulo)}</div>
+              <div style="display:inline-block;margin-top:8px;background:#0071BB;color:#fff;padding:3px 8px;
+                          font:700 11px UniNeueHeavy,Calibri,sans-serif;letter-spacing:.04em;text-transform:uppercase;">
+                Layout oficial SES-MT
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with c_meta:
+        st.markdown(
+            f"""
+            <div style="text-align:right;color:#57595A;font:400 12px UniNeueRegular,Calibri,sans-serif;line-height:1.4;">
+              <span style="display:block;font:800 14px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;">SES-MT · CIEVS</span>
+              Vigilância integrada clima–saúde
+              {f"<br/>Base: {html.escape(base)}" if base else ""}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def hero(brand: str, kicker: str, chips: list[str] | None = None) -> None:
     chips = chips or []
-    chips_html = "".join(f'<span class="sis-chip">{html.escape(c)}</span>' for c in chips)
-    _render_html(
-        f'<div class="sis-hero">'
-        f'<p class="sis-brand">{html.escape(brand)}</p>'
-        f'<p class="sis-kicker">{html.escape(kicker)}</p>'
-        f'<div class="sis-chip-row">{chips_html}</div>'
-        f"</div>"
+    chips_html = "".join(
+        f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);'
+        f'padding:3px 8px;font:700 11px UniNeueHeavy,Calibri,sans-serif;letter-spacing:.03em;'
+        f'text-transform:uppercase;color:#fff;">{html.escape(c)}</span>'
+        for c in chips
+    )
+    st.markdown(
+        f"""
+        <div style="background:linear-gradient(to right,#000444 0%,#1d357f 40%,#1d357f 60%,#000444 100%);
+                    color:#fff;padding:16px 18px;margin:8px 0 12px 0;border-bottom:4px solid #0071bb;">
+          <div style="font:800 24px UniNeueHeavy,Calibri,sans-serif;color:#fff;">{html.escape(brand)}</div>
+          <div style="opacity:.95;font:400 14px UniNeueRegular,Calibri,sans-serif;margin:6px 0 10px 0;max-width:78ch;">{html.escape(kicker)}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">{chips_html}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def ses_footer() -> None:
+    st.markdown(
+        """
+        <div style="margin-top:18px;padding:16px;
+                    background:linear-gradient(to right,#000444 0%,#1d357f 40%,#1d357f 60%,#000444 100%);
+                    color:#fff;font:400 13px UniNeueRegular,Calibri,sans-serif;line-height:1.45;">
+          <div style="display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:space-between;">
+            <div>
+              <strong style="font-family:UniNeueHeavy,Calibri,sans-serif;">SES-MT — Secretaria de Estado de Saúde de Mato Grosso</strong><br/>
+              Palácio Paiaguás, Rua D, S/N, Bloco 5 — Centro Político Administrativo<br/>
+              Cuiabá-MT · CEP 78049-902 · Tel. (65) 3613-5387
+            </div>
+            <div>
+              <strong style="font-family:UniNeueHeavy,Calibri,sans-serif;">CIEVS / SIS Clima-Saúde</strong><br/>
+              Uso interno da sala de situação · validar antes de comunicação oficial<br/>
+              <a href="https://www.saude.mt.gov.br/ouvidoria" target="_blank" rel="noopener" style="color:#fff;">Ouvidoria</a>
+              · Contato: notifica@ses.mt.gov.br
+            </div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
 def level_banner(nivel: str, municipio: str, motivo: str, orientacao: str = "") -> None:
     color = LEVEL_COLOR_MAP.get(str(nivel).lower(), "#334155")
     guide = level_plain(nivel)
-    extra = f"<p><b>Em linguagem simples:</b> {html.escape(guide['o_que_fazer'])}</p>"
+    extra = f"<p style='margin:.28rem 0 0;color:#fff;'><b>Em linguagem simples:</b> {html.escape(guide['o_que_fazer'])}</p>"
     if orientacao:
-        extra += f"<p>{html.escape(orientacao)}</p>"
-    _render_html(
-        f'<div class="sis-level-banner" style="background:{color}">'
-        f"<h3>Nível operacional estadual · {html.escape(str(nivel).upper())}</h3>"
-        f"<p><b>Município mais crítico:</b> {html.escape(str(municipio))}</p>"
-        f"<p>{html.escape(str(motivo))}</p>"
-        f"{extra}"
-        f"</div>"
+        extra += f"<p style='margin:.28rem 0 0;color:#fff;'>{html.escape(orientacao)}</p>"
+    st.markdown(
+        f"""
+        <div style="background:{color};color:#fff;padding:14px 16px;margin:6px 0 12px 0;
+                    border-left:8px solid rgba(255,255,255,.45);">
+          <h3 style="margin:0;font:800 18px UniNeueHeavy,Calibri,sans-serif;color:#fff !important;">
+            Nível operacional estadual · {html.escape(str(nivel).upper())}
+          </h3>
+          <p style="margin:.28rem 0 0;color:#fff;"><b>Município mais crítico:</b> {html.escape(str(municipio))}</p>
+          <p style="margin:.28rem 0 0;color:#fff;">{html.escape(str(motivo))}</p>
+          {extra}
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
 def section_title(title: str, subtitle: str = "") -> None:
-    _render_html(f'<div class="sis-section-title">{html.escape(title)}</div>')
+    st.markdown(
+        f'<div style="font:800 19px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;border-bottom:2px solid #dbe8fb;'
+        f'padding-bottom:6px;margin:8px 0 4px 0;">{html.escape(title)}</div>',
+        unsafe_allow_html=True,
+    )
     if subtitle:
-        _render_html(f'<div class="sis-muted">{html.escape(subtitle)}</div>')
+        st.markdown(
+            f'<div style="color:#57595A;font:400 14px UniNeueRegular,Calibri,sans-serif;margin:0 0 10px 0;">{html.escape(subtitle)}</div>',
+            unsafe_allow_html=True,
+        )
 
 
 def callout(text: str, kind: str = "info") -> None:
-    kind = kind if kind in {"info", "warn", "tip"} else "info"
-    _render_html(f'<div class="sis-callout {kind}">{html.escape(text)}</div>')
+    styles = {
+        "info": ("#dbe8fb", "#a9c7ef", "#093089"),
+        "warn": ("#fff7ed", "#fdba74", "#7c2d12"),
+        "tip": ("#edf3fc", "#b7cef0", "#1d357f"),
+    }
+    bg, border, color = styles.get(kind, styles["info"])
+    st.markdown(
+        f'<div style="background:{bg};border:1px solid {border};color:{color};padding:12px 14px;margin:8px 0 12px 0;">'
+        f"{html.escape(text)}</div>",
+        unsafe_allow_html=True,
+    )
 
 
 def section_guide(secao: str) -> None:
     g = section_plain(secao)
     if not g:
         return
-    _render_html(
-        '<div class="sis-guide">'
-        "<h4>Como ler esta seção</h4>"
-        f"<p><span class=\"lbl\">Para que serve:</span> {html.escape(g['para_que_serve'])}</p>"
-        f"<p><span class=\"lbl\">Como usar:</span> {html.escape(g['como_usar'])}</p>"
-        f"<p><span class=\"lbl\">Cuidado:</span> {html.escape(g['cuidado'])}</p>"
-        "</div>"
+    st.markdown(
+        '<div style="background:#fff;border:1px solid #e7e7e7;border-left:5px solid #1351B4;padding:12px 14px;margin:6px 0 12px 0;">'
+        '<h4 style="margin:0 0 6px 0;color:#1351B4;font:800 15px UniNeueHeavy,Calibri,sans-serif;">Como ler esta seção</h4>'
+        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:#1351B4;'>Para que serve:</span> {html.escape(g['para_que_serve'])}</p>"
+        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:#1351B4;'>Como usar:</span> {html.escape(g['como_usar'])}</p>"
+        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:#1351B4;'>Cuidado:</span> {html.escape(g['cuidado'])}</p>"
+        "</div>",
+        unsafe_allow_html=True,
     )
 
 
 def insight_cards(items: list[tuple[str, str, str]]) -> None:
-    """items: (label, value, hint)"""
     cards = []
     for label, value, hint in items:
         cards.append(
-            '<div class="sis-insight">'
-            f'<div class="k">{html.escape(label)}</div>'
-            f'<div class="v">{html.escape(str(value))}</div>'
-            f'<div class="h">{html.escape(hint)}</div>'
+            '<div style="background:#fff;border:1px solid #e7e7e7;border-top:3px solid #1351B4;padding:10px 12px;">'
+            f'<div style="font:700 11px UniNeueHeavy,Calibri,sans-serif;color:#57595A;text-transform:uppercase;letter-spacing:.04em;">{html.escape(label)}</div>'
+            f'<div style="font:800 22px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;margin-top:3px;">{html.escape(str(value))}</div>'
+            f'<div style="font:400 12px UniNeueRegular,Calibri,sans-serif;color:#57595A;margin-top:3px;">{html.escape(hint)}</div>'
             "</div>"
         )
-    _render_html(f'<div class="sis-insight-grid">{"".join(cards)}</div>')
+    st.markdown(
+        f'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:6px 0 12px 0;">{"".join(cards)}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def level_legend() -> None:
@@ -466,12 +294,15 @@ def level_legend() -> None:
             continue
         g = level_plain(key)
         cards.append(
-            f'<div class="sis-level-card" style="background:{color}">'
-            f"<strong>{html.escape(g['titulo'])}</strong>"
-            f"<span>{html.escape(g['o_que_fazer'])}</span>"
+            f'<div style="background:{color};color:#fff;padding:10px 12px;min-height:74px;">'
+            f"<strong style='font:800 14px UniNeueHeavy,Calibri,sans-serif;'>{html.escape(g['titulo'])}</strong>"
+            f"<div style='font:400 12px UniNeueRegular,Calibri,sans-serif;opacity:.95;margin-top:4px;'>{html.escape(g['o_que_fazer'])}</div>"
             "</div>"
         )
-    _render_html(f'<div class="sis-level-legend">{"".join(cards)}</div>')
+    st.markdown(
+        f'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:6px 0 12px 0;">{"".join(cards)}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def glossary_expander(keys: list[str] | None = None) -> None:

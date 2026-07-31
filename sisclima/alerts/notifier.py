@@ -1,6 +1,9 @@
 from __future__ import annotations
+
 import smtplib
 from email.message import EmailMessage
+from typing import Iterable
+
 from sisclima.core.config import env, as_bool, env_name_used
 from sisclima.core.http_client import http_post
 from sisclima.core.logging_utils import get_logger
@@ -26,15 +29,37 @@ def _webhook_enabled() -> bool:
     return bool(env('WEBHOOK_URL'))
 
 
-def send_email(subject: str, body: str, html_body: str | None = None) -> bool:
-    if not _email_enabled():
+def _split_recipients(raw: str | Iterable[str] | None) -> list[str]:
+    if raw is None:
+        return []
+    if isinstance(raw, str):
+        return [p.strip() for p in raw.replace(";", ",").split(",") if p.strip()]
+    out: list[str] = []
+    for item in raw:
+        out.extend(_split_recipients(str(item)))
+    return out
+
+
+def send_email(
+    subject: str,
+    body: str,
+    html_body: str | None = None,
+    *,
+    to: str | Iterable[str] | None = None,
+) -> bool:
+    """Envia e-mail. ``to`` opcional; padrão = ALERT_EMAIL_TO (canal central CIEVS)."""
+    if env_name_used("ALERT_EMAIL_ENABLED") and not as_bool(env("ALERT_EMAIL_ENABLED"), False):
         return False
-    to = env("ALERT_EMAIL_TO")
-    if not to:
+    if to is None and not _email_enabled():
         return False
-    recipients = [p.strip() for p in str(to).replace(";", ",").split(",") if p.strip()]
+
+    recipients = _split_recipients(to if to is not None else env("ALERT_EMAIL_TO"))
     if not recipients:
         return False
+    if not env("SMTP_HOST"):
+        log.warning("SMTP_HOST ausente — e-mail não enviado")
+        return False
+
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = env("SMTP_FROM") or env("SMTP_USER") or "sisclima@local"
@@ -63,15 +88,23 @@ def send_email(subject: str, body: str, html_body: str | None = None) -> bool:
         return False
 
 
-def send_telegram(text: str, *, parse_mode: str | None = None) -> bool:
-    if not _telegram_enabled():
+def send_telegram(
+    text: str,
+    *,
+    parse_mode: str | None = None,
+    chat_id: str | None = None,
+) -> bool:
+    """Envia Telegram. ``chat_id`` opcional; padrão = TELEGRAM_CHAT_ID (canal central)."""
+    if env_name_used("ALERT_TELEGRAM_ENABLED") and not as_bool(env("ALERT_TELEGRAM_ENABLED"), False):
         return False
     token = env("TELEGRAM_BOT_TOKEN")
-    chat_id = env("TELEGRAM_CHAT_ID")
-    if not token or not chat_id:
+    target = (chat_id or env("TELEGRAM_CHAT_ID") or "").strip()
+    if not token or not target:
+        return False
+    if chat_id is None and not _telegram_enabled():
         return False
     payload_text = text if len(text) <= 4000 else text[:3990] + "\n…"
-    data = {"chat_id": chat_id, "text": payload_text, "disable_web_page_preview": "true"}
+    data = {"chat_id": target, "text": payload_text, "disable_web_page_preview": "true"}
     if parse_mode:
         data["parse_mode"] = parse_mode
     try:
