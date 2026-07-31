@@ -1,0 +1,4 @@
+# Dependências apenas de desenvolvimento/teste.
+# O ambiente de execução do painel está em requirements.txt.
+-r requirements.txt
+pytest>=8.0
