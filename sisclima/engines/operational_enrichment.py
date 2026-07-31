@@ -528,7 +528,8 @@ def build_alerta_inteligente(resumo: pd.DataFrame, pred: pd.DataFrame) -> tuple[
             if isinstance(niv, str) and niv.lower() in ("laranja", "vermelha", "roxa"):
                 extras += 1
                 break
-        pred_s = int(row.get("risco_preditivo_score") or 0)
+        pred_raw = pd.to_numeric(row.get("risco_preditivo_score"), errors="coerce")
+        pred_s = int(pred_raw) if pd.notna(pred_raw) else 0
         score = max(score, pred_s)
         score = min(score + (1 if extras >= 2 else 0), 4)
         return score, LEVEL_ORDER[min(score + 1, 5)]
