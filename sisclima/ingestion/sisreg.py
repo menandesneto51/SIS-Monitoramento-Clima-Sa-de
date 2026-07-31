@@ -220,22 +220,26 @@ def load_sisreg_csv(path: Path | None = None) -> pd.DataFrame:
     out["municipio"] = df["municipio"] if "municipio" in df.columns else None
     out["regional_saude"] = df["regional_saude"] if "regional_saude" in df.columns else None
 
+    def _num_col(*names: str) -> pd.Series:
+        for name in names:
+            if name not in df.columns:
+                continue
+            series = pd.to_numeric(df[name], errors="coerce")
+            if isinstance(series, pd.Series) and not series.isna().all():
+                return series
+        return pd.Series(float("nan"), index=df.index, dtype="float64")
+
     # Solicitações abertas = fila ambulatorial + pendências hospitalares
-    amb = pd.to_numeric(df.get("amb_fila_espera_total"), errors="coerce")
-    if amb is None or amb.isna().all():
-        amb = pd.to_numeric(df.get("amb_fila_ativa_estrita_total"), errors="coerce")
-    hosp = pd.to_numeric(df.get("hosp_pendentes_recentes_ate365d"), errors="coerce")
-    if hosp is None or hosp.isna().all():
-        hosp = pd.to_numeric(df.get("hosp_pendentes_total"), errors="coerce")
+    amb = _num_col("amb_fila_espera_total", "amb_fila_ativa_estrita_total")
+    hosp = _num_col("hosp_pendentes_recentes_ate365d", "hosp_pendentes_total")
     out["solicitacoes_abertas"] = (amb.fillna(0) + hosp.fillna(0)).round(0)
 
     # Tempo médio: preferir dias recentes → horas
-    dias = pd.to_numeric(df.get("amb_tempo_espera_medio_recente_dias"), errors="coerce")
-    if dias is None or dias.isna().all():
-        dias = pd.to_numeric(df.get("amb_tempo_espera_medio_dias"), errors="coerce")
-    hosp_dias = pd.to_numeric(df.get("hosp_tempo_espera_medio_pendencias_ate365d_dias"), errors="coerce")
-    if hosp_dias is None or hosp_dias.isna().all():
-        hosp_dias = pd.to_numeric(df.get("hosp_tempo_espera_medio_dias"), errors="coerce")
+    dias = _num_col("amb_tempo_espera_medio_recente_dias", "amb_tempo_espera_medio_dias")
+    hosp_dias = _num_col(
+        "hosp_tempo_espera_medio_pendencias_ate365d_dias",
+        "hosp_tempo_espera_medio_dias",
+    )
     # média ponderada simples entre amb/hosp quando ambos existem
     fila_h = dias * 24.0
     fila_h_hosp = hosp_dias * 24.0
@@ -243,10 +247,10 @@ def load_sisreg_csv(path: Path | None = None) -> pd.DataFrame:
     out["tempo_espera_h"] = out["fila_media_h"]
 
     # Taxa de regulação aproximada (autorizadas / solicitações) quando disponível
-    auth = pd.to_numeric(df.get("amb_autorizadas_total"), errors="coerce")
-    sol30 = pd.to_numeric(df.get("amb_solicitacoes_30d"), errors="coerce")
-    with pd.option_context("mode.use_inf_as_na", True):
-        taxa = (100.0 * auth / sol30.replace({0: pd.NA})).clip(0, 100)
+    auth = _num_col("amb_autorizadas_total")
+    sol30 = _num_col("amb_solicitacoes_30d")
+    denom = sol30.replace(0, pd.NA)
+    taxa = (100.0 * auth / denom).replace([float("inf"), float("-inf")], pd.NA).clip(0, 100)
     out["taxa_regulacao_pct"] = taxa.round(1)
 
     out["fonte"] = f"SISREG_CSV:{chosen.name}"
