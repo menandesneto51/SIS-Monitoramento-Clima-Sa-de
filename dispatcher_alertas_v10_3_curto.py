@@ -2,23 +2,24 @@
 """
 SIS Clima-Saúde MT - Alertas V10.3 CURTO/CONSOLIDADO
 
-Objetivo:
+AVISO (legado): preferir o digest atual em `python -m sisclima.alerts.scheduler`.
+O canal central CIEVS (ALERT_EMAIL_TO / TELEGRAM_CHAT_ID) deve receber somente o
+alerta estadual. Regionais/municipais/Cuiabá usam `sisclima/alerts/digest.py` +
+planilha `data/input/contatos_alertas.csv` com ALERT_FANOUT_ENABLED=true.
+
+Objetivo histórico:
 - Reduzir alertas longos e repetitivos.
 - Enviar um boletim estadual compacto e boletins regionais compactos.
 - Agrupar municípios por nível de alerta.
 - Incluir orientações gerais para municípios, gestores e profissionais.
 - Destacar orientações específicas apenas quando houver gatilhos objetivos.
 
-Uso:
-.venv\\Scripts\\python.exe dispatcher_alertas_v10_2_curto.py --dry-run --min-level laranja
-.venv\\Scripts\\python.exe dispatcher_alertas_v10_2_curto.py --send --min-level laranja
-.venv\\Scripts\\python.exe dispatcher_alertas_v10_2_curto.py --send --min-level vermelha
+Uso (legado):
+.venv\\Scripts\\python.exe dispatcher_alertas_v10_3_curto.py --dry-run --min-level laranja
+.venv\\Scripts\\python.exe dispatcher_alertas_v10_3_curto.py --send --min-level laranja
 
-Saídas:
-- data/output/alertas_v10_2_curto_preview.html
-- data/output/alertas_v10_2_curto_preview.txt
-- alertas_gerados_v10_2
-- historico_envios_alertas_v10_2
+Preferido (produção):
+python -m sisclima.alerts.scheduler --once --force
 """
 
 from __future__ import annotations

@@ -2628,10 +2628,25 @@ elif SECTION_KEY == "Alertas":
     ui_theme.insight_cards(
         [
             ("Envio externo", "LIGADO" if status["envio_ligado"] else "DESLIGADO", f"flag={status['flag']}"),
-            ("E-mail", "ativo" if status["email"] else "inativo", str(status["email_to"])),
-            ("Telegram", "ativo" if status["telegram"] else "inativo", "bot+chat"),
-            ("Webhook", "ativo" if status["webhook"] else "inativo", "URL configurável"),
+            ("Canal central", "só SES" if status.get("central_only_ses", True) else "TODAS as camadas", str(status["email_to"])),
+            ("Telegram central", "ativo" if status["telegram"] else "inativo", "somente estadual"),
+            (
+                "Fan-out territorial",
+                "ATIVO" if status.get("fanout_enabled") else "adiado",
+                (
+                    f"{status.get('contacts_n', 0)} contato(s)"
+                    if status.get("contacts_available")
+                    else "sem planilha de contatos"
+                ),
+            ),
         ]
+    )
+    ui_theme.callout(
+        "Roteamento: `ALERT_EMAIL_TO` e `TELEGRAM_CHAT_ID` recebem **somente o alerta estadual** (CIEVS). "
+        "Regionais, municipais e Cuiabá são gerados/gravados; envio territorial só com "
+        "`data/input/contatos_alertas.csv` + `ALERT_FANOUT_ENABLED=true`. "
+        f"Agendador Docker: a cada {status.get('interval_h', '24')}h (não depende do notebook).",
+        "tip",
     )
 
     # ------------------------------------------------------------------
@@ -2639,10 +2654,10 @@ elif SECTION_KEY == "Alertas":
     # ------------------------------------------------------------------
     st.markdown("### Alertas em 4 níveis (consulta e validação)")
     ui_theme.callout(
-        "Escopos: (1) estadual → SES/CIEVS · (2) regional + municípios da jurisdição · "
-        "(3) municipal · (4) Vigidesastre Cuiabá. Cada boletim traz ícone, indicadores, "
-        "predição ~7d e orientações para gestor, profissionais e população.",
-        "tip",
+        "Escopos: (1) estadual → SES/CIEVS (canal central) · (2) regional · "
+        "(3) municipal · (4) Vigidesastre Cuiabá (fan-out quando houver planilha). "
+        "Cada boletim traz ícone, indicadores, predição ~7d e orientações.",
+        "info",
     )
     try:
         from sisclima.engines.alertas_multinivel import (
@@ -2702,7 +2717,7 @@ elif SECTION_KEY == "Alertas":
                 o1.info(f"**Gestor**\n\n{ori.get('gestor', '—')}")
                 o2.warning(f"**Profissionais**\n\n{ori.get('profissional', '—')}")
                 o3.success(f"**População**\n\n{ori.get('populacao', '—')}")
-                with st.expander("Prévia completa (Markdown / envio)", expanded=False):
+                with st.expander("Prévia completa (Markdown — consulta)", expanded=False):
                     md = render_payload_markdown(p)
                     st.code(md)
                     st.download_button(
@@ -2712,6 +2727,14 @@ elif SECTION_KEY == "Alertas":
                         mime="text/markdown",
                         key=f"dl_alerta_{p.get('escopo')}_{p.get('alvo_id')}",
                     )
+                    esc = str(p.get("escopo") or "")
+                    if esc == "estadual":
+                        st.caption("Este escopo é o que o canal central (e-mail/Telegram CIEVS) envia.")
+                    else:
+                        st.caption(
+                            "Envio territorial depende de planilha de contatos + ALERT_FANOUT_ENABLED=true "
+                            "(não vai para notifica@ses / Telegram central)."
+                        )
 
         _render_scope(by_scope["estadual"], tab_est)
         _render_scope(by_scope["regional"], tab_reg)
@@ -2739,7 +2762,7 @@ elif SECTION_KEY == "Alertas":
         for item in ALERT_CHECKLIST:
             st.checkbox(item, value=False, key=f"chk_alerta_{abs(hash(item)) % 100000}")
 
-    st.markdown("### Pré-visualização da mensagem estadual")
+    st.markdown("### Pré-visualização da mensagem estadual (canal central)")
     preview = preview_state_alert(
         str(sentinel.get("data", sentinel.get("data_referencia", ""))),
         str(nivel_estado),
@@ -2751,7 +2774,21 @@ elif SECTION_KEY == "Alertas":
     ui_theme.callout(preview["acao"], "tip" if status["envio_ligado"] else "info")
     st.code(preview["subject"] + "\n\n" + preview["message"])
 
-    st.markdown("### Candidatos municipais (plantão)")
+    try:
+        from sisclima.alerts.digest import build_digest_message
+
+        dig_subj, dig_msg, dig_fp, dig_meta = build_digest_message(resumo)
+        with st.expander("Prévia do boletim SES legível (o que o agendador envia ao canal central)", expanded=False):
+            st.caption(
+                f"fingerprint={dig_fp} · gerados={dig_meta.get('n_gerados')} · "
+                f"envio central={dig_meta.get('n_central_envio', 1)} · "
+                f"fan-out={((dig_meta.get('fanout') or {}).get('fanout_enabled'))}"
+            )
+            st.code(dig_subj + "\n\n" + dig_msg)
+    except Exception as exc:
+        st.caption(f"Prévia do digest SES indisponível: {exc}")
+
+    st.markdown("### Candidatos municipais (plantão — sem envio automático ao CIEVS)")
     cand = municipal_alert_candidates(resumo)
     if cand.empty:
         st.info("Nenhum município no critério laranja+/↑7d/vigilância alta neste recorte.")
