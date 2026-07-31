@@ -3,7 +3,7 @@ altair==5.5.0
 numpy==2.4.6
 pandas==3.0.3
 plotly==6.7.0
-pyarrow==24.0.0
+pyarrow==25.0.0
 pydantic==2.13.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
@@ -22,5 +22,5 @@ shapely==2.1.2
 geopandas==1.1.4
 pyogrio==0.12.1
 beautifulsoup4==4.14.3
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.12
 pymssql==2.3.4

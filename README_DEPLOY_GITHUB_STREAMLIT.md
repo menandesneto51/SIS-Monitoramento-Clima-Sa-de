@@ -42,7 +42,7 @@ Não subir ao GitHub arquivos com dados sensíveis, credenciais, `.env`, contato
    - Repository: `menandesneto51/SIS-Monitoramento-Clima-Sa-de`
    - Branch: **`painel-v9`**
    - Main file path: `streamlit_app.py`
-   - Python version (Advanced): **3.12** (repo já tem `.python-version` / `runtime.txt`)
+   - Python version (Advanced): **3.12** (preferencial). O Cloud **ignora** `runtime.txt`; se ficar em 3.14, o `requirements.txt` já usa wheels compatíveis (`psycopg2-binary>=2.9.12`, `pyarrow>=25`).
 4. Em **Advanced settings → Secrets**, colar o conteúdo de `.streamlit/secrets.toml.example` e definir:
    - `ALERT_EMAIL_TO` = `seu_email,notifica@ses.mt.gov.br`
    - `ALERT_CENTRAL_ONLY_SES` = `"true"`
