@@ -11,6 +11,7 @@ from typing import Any
 
 import pandas as pd
 
+from sisclima.alerts.contacts import fanout_enabled, recipients_for, summarize_contacts
 from sisclima.alerts.notifier import send_email, send_telegram
 from sisclima.core.config import as_bool, env
 from sisclima.core.db import db_conn, execute, fetchone, read_table, table_exists
@@ -25,6 +26,10 @@ from sisclima.engines.stages import STAGE_ORDER
 from sisclima.utils.dates import now_iso
 
 log = get_logger(__name__)
+
+# Canal central (Menandes / CIEVS / notifica): somente estadual.
+CENTRAL_SCOPES = frozenset({"estadual"})
+TERRITORIAL_SCOPES = frozenset({"regional", "municipal", "cuiaba"})
 
 ICON = {
     "titulo": "🌡️",
@@ -884,11 +889,13 @@ def _ai_orientacao(payload: dict[str, Any]) -> str | None:
 
 
 def _active_layers() -> set[str]:
+    """Camadas geradas/persistidas. Padrão: todas (envio central continua só SES)."""
     raw = env("ALERT_LAYERS", "ses,regionais,municipais,cuiaba") or "ses,regionais,municipais,cuiaba"
     return {x.strip().lower() for x in raw.split(",") if x.strip()}
 
 
 def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Seleciona payloads por camada (para meta/persistência lógica). Envio é separado."""
     layers = _active_layers()
     max_mun = int(env("ALERT_MAX_MUNICIPIOS", "12") or 12)
     max_reg = int(env("ALERT_MAX_REGIONAIS", "20") or 20)
@@ -898,7 +905,6 @@ def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         out.extend([p for p in payloads if p.get("escopo") == "estadual"])
 
     if "regionais" in layers or "regional" in layers:
-        # Regionais: envia todas (escopo de gestão), ordenadas por gravidade
         regionais = [p for p in payloads if p.get("escopo") == "regional"]
         regionais = sorted(
             regionais, key=lambda p: STAGE_ORDER.get(_norm_level(p.get("nivel")), -1), reverse=True
@@ -912,7 +918,6 @@ def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         min_mun_rank = STAGE_ORDER.get(min_mun, 2)
         send_all_mun = as_bool(env("ALERT_SEND_ALL_MUNICIPIOS", "false"), False)
         municipais = [p for p in payloads if p.get("escopo") == "municipal"]
-        # Vigidesastre Cuiabá tem boletim próprio — evita duplicata municipal
         if "cuiaba" in layers and cuiaba_ids:
             municipais = [p for p in municipais if str(p.get("alvo_id")) not in cuiaba_ids]
         if not send_all_mun:
@@ -931,6 +936,17 @@ def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if "cuiaba" in layers:
         out.extend([p for p in payloads if p.get("escopo") == "cuiaba"])
     return out
+
+
+def _central_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Somente estadual → Menandes / CIEVS (ALERT_EMAIL_TO + TELEGRAM_CHAT_ID)."""
+    if as_bool(env("ALERT_CENTRAL_ONLY_SES", "true"), True):
+        return [p for p in payloads if p.get("escopo") in CENTRAL_SCOPES]
+    return list(payloads)
+
+
+def _territorial_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [p for p in payloads if p.get("escopo") in TERRITORIAL_SCOPES]
 
 
 def _enrich_payloads_with_ai(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -1023,7 +1039,7 @@ def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict
         if table_exists("predicao_calor_7d_municipal_v6")
         else pd.DataFrame()
     )
-    # Para o pack SES legível, gera a partir de verde e filtra no select
+    # Gera todas as camadas; persiste todas; envio central filtra só SES.
     payloads = build_alertas_multinivel(
         resumo,
         alerta if not alerta.empty else None,
@@ -1037,28 +1053,32 @@ def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict
     except Exception as exc:  # noqa: BLE001
         log.warning("Falha ao persistir alertas_multinivel_v1: %s", exc)
 
+    central = _central_payloads(selected)
+    territorial = _territorial_payloads(selected)
+
     nivel_est = "cinza"
-    for p in selected:
+    for p in payloads:
         if p.get("escopo") == "estadual":
             nivel_est = _norm_level(p.get("nivel"))
             break
-    if nivel_est == "cinza" and selected:
-        nivel_est = max(
-            (_norm_level(p.get("nivel")) for p in selected),
-            key=lambda n: STAGE_ORDER.get(n, -1),
-        )
+    # Fingerprint do canal central = só SES (não reenvia estadual por mudança territorial)
     fp_src = "|".join(
-        f"{p.get('escopo')}:{p.get('alvo_id')}:{p.get('nivel')}:{len(p.get('indicadores') or [])}"
-        for p in selected[:25]
-    )
+        f"{p.get('escopo')}:{p.get('alvo_id')}:{p.get('nivel')}:{str(p.get('motivo') or '')[:80]}"
+        for p in central
+    ) or f"sem_ses|{nivel_est}"
     fingerprint = hashlib.sha1(fp_src.encode("utf-8")).hexdigest()[:16]
+    contacts_meta = summarize_contacts()
     meta = {
         "nivel": nivel_est,
         "n_payloads": len(selected),
+        "n_gerados": len(payloads),
         "n_regionais": sum(1 for p in selected if p.get("escopo") == "regional"),
         "n_municipais": sum(1 for p in selected if p.get("escopo") == "municipal"),
         "n_cuiaba": sum(1 for p in selected if p.get("escopo") == "cuiaba"),
         "n_ses": sum(1 for p in selected if p.get("escopo") == "estadual"),
+        "n_central_envio": len(central),
+        "n_territorial_pendente": len(territorial),
+        "fanout": contacts_meta,
         "fingerprint": fingerprint,
         "com_ia": sum(1 for p in selected if p.get("orientacao_ia")),
         "layers": sorted(_active_layers()),
@@ -1083,42 +1103,93 @@ def _split_telegram(text: str) -> list[str]:
     return chunks
 
 
-def _send_telegram_batches(payloads: list[dict[str, Any]]) -> bool:
-    """Envia cada alerta como boletim próprio (mesmo padrão do SES), com rate-limit."""
+def _send_telegram_batches(payloads: list[dict[str, Any]], *, chat_id: str | None = None) -> bool:
+    """Envia boletins ao chat indicado (padrão: canal central TELEGRAM_CHAT_ID)."""
     ok_any = False
     order = {"estadual": 0, "regional": 1, "municipal": 2, "cuiaba": 3}
     ordered = sorted(payloads, key=lambda p: (order.get(str(p.get("escopo")), 9), str(p.get("alvo_nome") or "")))
     for p in ordered:
         txt = format_payload_telegram(p, compact=False)
         for chunk in _split_telegram(txt):
-            if send_telegram(chunk):
+            if send_telegram(chunk, chat_id=chat_id):
                 ok_any = True
             time.sleep(0.35)
     return ok_any
 
 
-def _send_email_pack(payloads: list[dict[str, Any]], meta: dict) -> bool:
-    niv = _norm_level(meta.get("nivel"))
-    only_ses = meta.get("n_payloads") == 1 and meta.get("n_ses") == 1
+def _send_email_pack(payloads: list[dict[str, Any]], meta: dict, *, to: str | list[str] | None = None) -> bool:
+    if not payloads:
+        return False
+    niv = _norm_level(meta.get("nivel") or (payloads[0].get("nivel") if payloads else "cinza"))
+    only_ses = len(payloads) == 1 and payloads[0].get("escopo") == "estadual"
     if only_ses:
-        p = next(x for x in payloads if x.get("escopo") == "estadual")
+        p = payloads[0]
         subject = f"[SIS] {ICON['estado']} Alerta SES-MT / CIEVS — {LEVEL_LABEL.get(niv, niv)}"
         plain = format_ses_telegram(p)
-        return send_email(subject, plain, html_body=format_ses_html(p))
+        return send_email(subject, plain, html_body=format_ses_html(p), to=to)
 
     subject = (
-        f"[SIS Clima-Saúde] {EMOJI.get(niv, '⚪')} Boletim multinível CIEVS — "
-        f"{niv.upper()} · {meta.get('n_regionais', 0)} regionais · {meta.get('n_municipais', 0)} municípios"
+        f"[SIS Clima-Saúde] {EMOJI.get(niv, '⚪')} Boletim · "
+        f"{niv.upper()} · {len(payloads)} alerta(s)"
     )
     body_html = f"""
     <div style="font-family:Segoe UI,Arial,sans-serif;max-width:860px;margin:0 auto;background:#f8fafc;padding:18px">
       <h1 style="margin:0 0 6px">{ICON['titulo']} SIS Clima-Saúde MT</h1>
-      <p style="margin:0 0 16px;color:#334155">Boletim operacional multinível · gerado em {html.escape(now_iso())}</p>
+      <p style="margin:0 0 16px;color:#334155">Boletim operacional · gerado em {html.escape(now_iso())}</p>
       {''.join(format_payload_html(p) for p in payloads)}
     </div>
     """
     plain = "\n\n".join(format_payload_telegram(p, compact=False) for p in payloads[:8])
-    return send_email(subject, plain, html_body=body_html)
+    return send_email(subject, plain, html_body=body_html, to=to)
+
+
+def _fanout_territorial(payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    """Encaminha regionais/municipais/Cuiabá aos destinatários da planilha (nunca ao canal central)."""
+    territorial = _territorial_payloads(payloads)
+    if not territorial:
+        return {"status": "sem_territoriais", "enviados": 0, "sem_destinatario": 0}
+
+    if not fanout_enabled():
+        log.info(
+            "Territoriais gerados=%d · fan-out adiado (planilha ausente ou ALERT_FANOUT_ENABLED=false). "
+            "Canal central CIEVS recebe somente o estadual.",
+            len(territorial),
+        )
+        return {
+            "status": "adiado_sem_contatos",
+            "gerados": len(territorial),
+            "enviados": 0,
+            "contatos": summarize_contacts(),
+        }
+
+    enviados = 0
+    sem_dest = 0
+    for p in territorial:
+        emails, chats = recipients_for(
+            str(p.get("escopo")),
+            regional=str(p.get("alvo_nome") if p.get("escopo") == "regional" else p.get("regional") or ""),
+            cod_ibge=str(p.get("alvo_id") or ""),
+            municipio=str(p.get("alvo_nome") or ""),
+        )
+        if not emails and not chats:
+            sem_dest += 1
+            continue
+        txt = format_payload_telegram(p, compact=False)
+        html_body = format_payload_html(p)
+        subject = f"[SIS] {p.get('titulo') or p.get('alvo_nome')}"
+        if emails:
+            if send_email(subject, txt, html_body=html_body, to=emails):
+                enviados += 1
+            time.sleep(0.2)
+        for chat in chats:
+            for chunk in _split_telegram(txt):
+                if send_telegram(chunk, chat_id=chat):
+                    enviados += 1
+                time.sleep(0.35)
+
+    status = "enviado" if enviados else "sem_envio"
+    log.info("Fan-out territorial %s · enviados=%s sem_dest=%s", status, enviados, sem_dest)
+    return {"status": status, "enviados": enviados, "sem_destinatario": sem_dest, "gerados": len(territorial)}
 
 
 def send_digest(
@@ -1130,13 +1201,14 @@ def send_digest(
     _ensure_digest_table()
     payloads, fingerprint, meta = build_multilevel_pack(resumo)
     nivel = meta["nivel"]
+    central = _central_payloads(payloads)
 
     if not force and not as_bool(env("SEND_ALERT_ON_LEVEL_CHANGE", "false"), False):
         out = {"status": "bloqueado_por_config", "nivel": nivel, "fingerprint": fingerprint}
         log.info("Digest bloqueado: SEND_ALERT_ON_LEVEL_CHANGE=false")
         return out
 
-    if not payloads:
+    if not central and not payloads:
         return {"status": "sem_payloads", "nivel": nivel}
 
     if not min_level_ok(nivel) and not force:
@@ -1156,10 +1228,22 @@ def send_digest(
     ):
         return {"status": "identico", "nivel": nivel, "fingerprint": fingerprint}
 
-    tg_ok = _send_telegram_batches(payloads)
-    em_ok = _send_email_pack(payloads, meta)
-    results = {"email": em_ok, "telegram": tg_ok, "webhook": False, "n_payloads": len(payloads)}
-    status = "enviado" if (tg_ok or em_ok) else "registrado_sem_canal"
+    # 1) Canal central CIEVS: somente estadual
+    tg_ok = _send_telegram_batches(central) if central else False
+    em_ok = _send_email_pack(central, meta) if central else False
+
+    # 2) Territoriais: gerados sempre; envio só com planilha + ALERT_FANOUT_ENABLED
+    fanout = _fanout_territorial(payloads)
+
+    results = {
+        "email": em_ok,
+        "telegram": tg_ok,
+        "webhook": False,
+        "n_payloads_central": len(central),
+        "n_payloads_gerados": meta.get("n_gerados", len(payloads)),
+        "fanout": fanout,
+    }
+    status = "enviado" if (tg_ok or em_ok or fanout.get("enviados")) else "registrado_sem_canal"
     with db_conn() as conn:
         execute(
             conn,
@@ -1186,10 +1270,11 @@ def send_digest(
                 now_iso(),
                 (last or {}).get("nivel"),
                 nivel,
-                f"[SIS] Multinível {EMOJI.get(nivel,'⚪')} {nivel.upper()}",
+                f"[SIS] SES/CIEVS {EMOJI.get(nivel,'⚪')} {nivel.upper()}",
                 (
-                    f"payloads={len(payloads)}; regionais={meta.get('n_regionais')}; "
-                    f"municipais={meta.get('n_municipais')}; ia={meta.get('com_ia')}"
+                    f"central_ses={len(central)}; gerados={meta.get('n_gerados')}; "
+                    f"regionais={meta.get('n_regionais')}; municipais={meta.get('n_municipais')}; "
+                    f"fanout={fanout.get('status')}"
                 ),
                 json.dumps({"tipo": "multinivel", **results}, ensure_ascii=False),
                 status,
@@ -1201,9 +1286,7 @@ def send_digest(
 
 def build_digest_message(resumo: pd.DataFrame | None = None) -> tuple[str, str, str, dict]:
     payloads, fingerprint, meta = build_multilevel_pack(resumo)
-    subject = f"[SIS Clima-Saúde] {EMOJI.get(meta['nivel'],'⚪')} Multinível {meta['nivel'].upper()}"
+    subject = f"[SIS Clima-Saúde] {EMOJI.get(meta['nivel'],'⚪')} SES/CIEVS {meta['nivel'].upper()}"
     ses = next((p for p in payloads if p.get("escopo") == "estadual"), None)
-    message = format_ses_telegram(ses) if ses else "\n\n".join(
-        format_payload_telegram(p, compact=True) for p in payloads[:5]
-    )
+    message = format_ses_telegram(ses) if ses else "Sem alerta estadual gerado."
     return subject, message, fingerprint, meta
