@@ -133,17 +133,20 @@ CATALOGO: dict[str, ProvedorInfo] = {
         rotulo='CallMeBot (gratuito, uso pessoal)',
         tipo='nao_oficial',
         custo='Totalmente gratuito, sem cadastro e sem servidor.',
-        indicado_para='Plantão e testes: avisar rapidamente 1 ou 2 celulares da equipe técnica.',
+        indicado_para='Plantão e testes, quando já existe uma chave ativa do robô.',
         limitacoes=(
+            'O cadastro fecha quando o robô lota. Nesse período o site esconde o número e não há como '
+            'obter chave nova — só esperar ou usar outro provedor.',
             'Cada destinatário precisa autorizar o robô individualmente e recebe uma chave própria.',
             'Serviço de terceiro, sem SLA e com limite de frequência de envio.',
             'Não use para comunicação oficial com a população.',
         ),
         documentacao='https://www.callmebot.com/blog/free-api-whatsapp-messages/',
         passos=(
-            Passo(1, 'Pegar o número atual do robô',
-                  'O número muda de tempos em tempos. Consulte o número vigente em '
-                  'callmebot.com/blog/free-api-whatsapp-messages e salve-o nos contatos do celular.'),
+            Passo(1, 'Verificar se o robô aceita cadastro',
+                  'Em callmebot.com/blog/free-api-whatsapp-messages, o número aparece apenas quando há vagas. '
+                  'Se estiver mascarado ou o robô responder "This Bot is full", não há alternativa: use outro '
+                  'provedor. O número também muda de tempos em tempos, então sempre consulte o site.'),
             Passo(2, 'Autorizar o robô',
                   'Desse celular, envie no WhatsApp a frase exata "I allow callmebot to send me messages" '
                   'para o contato criado.'),
@@ -231,12 +234,15 @@ def recomendar(tem_servidor: bool = False, uso: str = 'institucional', volume_al
     if uso == 'automacao':
         return 'webhook', ('Você já tem uma automação montada: o VIGIA só precisa disparar o gatilho e a '
                            'ferramenta existente cuida do envio.')
-    if uso == 'interno' and not tem_servidor:
-        return 'callmebot', ('Para avisar poucos celulares da equipe técnica, o CallMeBot resolve sem servidor '
-                             'e sem cadastro. Não use para comunicação oficial com a população.')
     if volume_alto and tem_servidor:
         return 'evolution', ('Com servidor próprio e volume alto, a Evolution API evita a cobrança por template '
                              'fora da janela de 24h. Aceite o risco de ser um caminho não oficial.')
+    if uso == 'interno':
+        # O CallMeBot seria mais simples, mas o cadastro dele passa longos períodos fechado.
+        return 'meta_cloud', ('Mesmo para avisar só a equipe técnica, a Cloud API da Meta é o caminho confiável: '
+                              'o número de teste é gratuito e atende até 5 celulares. O CallMeBot seria mais '
+                              'simples, mas só serve se você já tiver uma chave: quando o robô lota, ele para de '
+                              'aceitar cadastro por tempo indeterminado.')
     return 'meta_cloud', ('Para comunicação oficial, a Cloud API da Meta é o caminho suportado: número de teste '
                           'gratuito para começar e sem custo em mensagens de serviço dentro da janela de 24h.')
 

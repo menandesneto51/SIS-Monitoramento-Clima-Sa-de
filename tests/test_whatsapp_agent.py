@@ -122,7 +122,8 @@ def test_mascarar():
     [
         ({}, 'meta_cloud'),
         ({'uso': 'automacao'}, 'webhook'),
-        ({'uso': 'interno'}, 'callmebot'),
+        # O CallMeBot nunca é recomendado: o cadastro dele fica fechado quando o robô lota.
+        ({'uso': 'interno'}, 'meta_cloud'),
         ({'uso': 'interno', 'tem_servidor': True}, 'meta_cloud'),
         ({'tem_servidor': True, 'volume_alto': True}, 'evolution'),
     ],

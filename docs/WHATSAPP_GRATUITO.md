@@ -18,7 +18,7 @@ de ambiente.
 |---|---|---|---|
 | `meta_cloud` | Oficial (Meta) | Sem mensalidade. Número de teste gratuito. Mensagens de serviço e templates utilitários dentro da janela de 24h não são cobrados; templates fora dela são cobrados por mensagem. | Comunicação oficial com número institucional, sem servidor próprio. |
 | `evolution` | Não oficial (open source) | Só o custo do servidor onde roda. Sem cobrança por mensagem. | Já existe servidor/Docker e o volume proativo é alto. |
-| `callmebot` | Não oficial (serviço de terceiro) | Zero. | Plantão e testes: avisar 1 ou 2 celulares da equipe técnica. |
+| `callmebot` | Não oficial (serviço de terceiro) | Zero. | Plantão e testes, **se você já tiver uma chave ativa**: o cadastro fica fechado quando o robô lota. |
 | `webhook` | Ponte (n8n, Make, Zapier, Apps Script) | Depende da ferramenta; n8n auto-hospedado é gratuito. | Já existe automação montada e o VIGIA só precisa disparar o gatilho. |
 
 Em caso de dúvida:
@@ -106,10 +106,17 @@ Use HTTPS: a chave da API vai no cabeçalho `apikey` e trafega em claro sobre HT
 | `CALLMEBOT_APIKEY` | sim | Chave devolvida pelo robô. |
 | `CALLMEBOT_PHONE` | sim | Celular que autorizou o robô. |
 
-O número do robô muda de tempos em tempos, então pegue o vigente em
-[callmebot.com/blog/free-api-whatsapp-messages](https://www.callmebot.com/blog/free-api-whatsapp-messages/),
-salve nos contatos e envie a frase exata `I allow callmebot to send me messages`. O robô responde
-com `API Activated for your phone number. Your APIKEY is ...`.
+> **O cadastro nem sempre está aberto.** O robô tem um limite de usuários. Quando lota, o site
+> mascara o número (`+34*********`) e quem tenta se cadastrar recebe `This Bot is full`. Não há
+> contorno — nem números alternativos de páginas antigas resolvem, porque a lotação é do serviço.
+> Nesse caso, use outro provedor; para um punhado de celulares, o número de teste da Cloud API da
+> Meta é gratuito e atende até 5 destinatários.
+
+Com o cadastro aberto, pegue o número vigente em
+[callmebot.com/blog/free-api-whatsapp-messages](https://www.callmebot.com/blog/free-api-whatsapp-messages/)
+— ele muda de tempos em tempos —, salve nos contatos e envie a frase exata
+`I allow callmebot to send me messages`. O robô responde com
+`API Activated for your phone number. Your APIKEY is ...`.
 
 A chave é individual e vale para **um único celular**: `WHATSAPP_TO` com vários números não faz o
 CallMeBot entregar para todos, só o dono da chave recebe. Para uma lista de destinatários, use outro
