@@ -835,6 +835,21 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
             write_df(resumo, "resumo_municipal_atual")
 
     ana_tel = read_table("ana_telemetria")
+    ana_est = read_table("ana_estacoes")
+    # Níveis de rios (cota/vazão) — contrato compartilhado com Vigibarragens/IDAP A6
+    niveis_rios = pd.DataFrame()
+    try:
+        from sisclima.engines.niveis_rios import build_niveis_rios_municipal, merge_niveis_rios_into_resumo
+
+        niveis_rios = build_niveis_rios_municipal(ana_tel, ana_est if not ana_est.empty else None)
+        write_df(niveis_rios if niveis_rios is not None else pd.DataFrame(), "niveis_rios_municipal")
+        if niveis_rios is not None and not niveis_rios.empty:
+            resumo = merge_niveis_rios_into_resumo(resumo, niveis_rios)
+            write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Níveis de rios não gerados: %s", exc)
+        niveis_rios = pd.DataFrame()
+
     hidro = compute_hidro_risco_from_ana(ana_tel)
     if hidro is None or hidro.empty:
         # Fallback leve a partir de ana_risco_municipal (nível de chuva)
@@ -1107,6 +1122,31 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         freshness = pd.DataFrame()
         freshness_summary = {}
 
+    # Perspectiva de pressão 14d (persistência + clima — não é nowcast epi)
+    try:
+        from sisclima.engines.epi_outlook import build_perspectiva_pressao_14d, summarize_outlook
+
+        press_tab = read_table("indice_pressao_saude_municipal_v1")
+        outlook = build_perspectiva_pressao_14d(
+            resumo,
+            pred14=pred14 if pred14 is not None else read_table("predicao_calor_14d_municipal"),
+            pressao=press_tab if not press_tab.empty else None,
+        )
+        write_df(outlook, "perspectiva_pressao_14d_municipal")
+        outlook_summary = summarize_outlook(outlook)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Perspectiva pressão 14d não gerada: %s", exc)
+        outlook = pd.DataFrame()
+        outlook_summary = {}
+
+    # SAN lacuna explícita + status de fontes (parcial — regenerar completa depois)
+    try:
+        from sisclima.engines.fonte_status import ensure_san_lacuna_table
+
+        write_df(ensure_san_lacuna_table(), "san_municipal")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Stub SAN não gravado: %s", exc)
+
     summary = {
         "municipios": len(resumo),
         "com_pressao": int(pd.to_numeric(resumo.get("pressao_calor_pct"), errors="coerce").notna().sum()) if "pressao_calor_pct" in resumo.columns else 0,
@@ -1123,6 +1163,8 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         "predicao_7d": len(pred),
         "predicao_14d": len(pred14) if pred14 is not None else 0,
         "fonte_frescor": freshness_summary,
+        "niveis_rios": len(niveis_rios) if isinstance(niveis_rios, pd.DataFrame) else 0,
+        "perspectiva_pressao_14d": outlook_summary,
         "alerta_inteligente": len(alerta),
         "indicadores_painel": len(snap) if not snap.empty else 0,
         "adaptasus_municipios": len(adapt_mun) if adapt_mun is not None else 0,

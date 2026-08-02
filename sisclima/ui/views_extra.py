@@ -343,7 +343,54 @@ def render_hidrologia() -> None:
 
     ana_tel = read_table("ana_telemetria")
     ana_est = read_table("ana_estacoes")
-    st.markdown("##### Telemetria ANA")
+    niveis_rios = read_table("niveis_rios_municipal")
+    st.markdown("##### Níveis de rios (cota / vazão ANA)")
+    callout(
+        "Snapshot municipal a partir da telemetria ANA — razão vs P90 local como proxy da cota de alerta "
+        "(mesmo espírito do IDAP A6 do Vigibarragens). Não substitui réguas da Defesa Civil.",
+        "tip",
+    )
+    if niveis_rios.empty:
+        st.info("Sem `niveis_rios_municipal`. Rode o enrichment com `ana_telemetria` (sample ou ANA_FETCH_SERIES=true na VPN).")
+    else:
+        r1, r2, r3, r4 = st.columns(4)
+        r1.metric("Municípios com cota", int(pd.to_numeric(niveis_rios.get("cota_cm"), errors="coerce").notna().sum()))
+        r2.metric(
+            "≥ Laranja (nível rio)",
+            int(niveis_rios["nivel_rio"].astype(str).str.lower().isin(["laranja", "vermelha", "roxa"]).sum())
+            if "nivel_rio" in niveis_rios.columns
+            else 0,
+        )
+        r3.metric(
+            "Tendência ↑",
+            int(niveis_rios["tendencia_cota_7d"].astype(str).str.lower().eq("subindo").sum())
+            if "tendencia_cota_7d" in niveis_rios.columns
+            else 0,
+        )
+        r4.metric("Estações (inventário)", len(ana_est) if not ana_est.empty else 0)
+        map_rio, geojson_rio, status_rio = prepare_map_dataframe(
+            niveis_rios.rename(columns={"nivel_rio": "nivel"}) if "nivel" not in niveis_rios.columns else niveis_rios
+        )
+        st.caption(status_rio)
+        if "nivel" in map_rio.columns or "nivel_rio" in niveis_rios.columns:
+            color_rio = "nivel" if "nivel" in map_rio.columns else "nivel_rio"
+            fig_rio = make_choropleth_or_points(
+                map_rio if color_rio in map_rio.columns else niveis_rios,
+                geojson_rio,
+                color_col=color_rio if color_rio in map_rio.columns else "nivel_rio",
+                title="Nível operacional do rio (proxy cota)",
+                categorical=True,
+                hover_cols=[c for c in ["cota_cm", "vazao_m3s", "razao_nivel_cota_alerta", "tendencia_cota_7d", "nome_rio_estacao"] if c in niveis_rios.columns],
+            )
+            if fig_rio is not None:
+                st.plotly_chart(fig_rio, use_container_width=True)
+        st.dataframe(
+            niveis_rios.sort_values("score_nivel_rio", ascending=False) if "score_nivel_rio" in niveis_rios.columns else niveis_rios,
+            use_container_width=True,
+            height=280,
+        )
+
+    st.markdown("##### Telemetria ANA (chuva / série bruta)")
     if ana_risco.empty and ana_tel.empty:
         st.info("Sem dados ANA. Ative `USE_ANA=true` ou use CSV em `data/input/ana_*.csv`.")
     else:

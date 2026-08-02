@@ -639,6 +639,9 @@ sim_obitos_mun = _with_norm_ibge(load_table("sim_obitos_calor_municipal_v6"))
 pred_v6 = _with_norm_ibge(load_table("predicao_calor_7d_municipal_v6"))
 pred_14d = _with_norm_ibge(load_table("predicao_calor_14d_municipal"))
 fonte_frescor = load_table("fonte_frescor_estado")
+fonte_status = load_table("fonte_status_regeneracao")
+niveis_rios = _with_norm_ibge(load_table("niveis_rios_municipal"))
+perspectiva_14d = _with_norm_ibge(load_table("perspectiva_pressao_14d_municipal"))
 
 # Placeholders — preenchidos após a escolha da aba (carga sob demanda)
 met = aq = occ = press = stock = infra = ops_proxy = ops_cnes = pd.DataFrame()
@@ -661,6 +664,7 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "met_biometeo",
         "solo_saturacao_municipal",
         "hidro_risco_municipal",
+        "niveis_rios_municipal",
         "inmet_alertas",
         "cemaden_alertas",
         "ana_risco_municipal",
@@ -685,6 +689,7 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "predicao_calor_7d_regional_v6",
         "predicao_calor_14d_municipal",
         "predicao_calor_14d_regional",
+        "perspectiva_pressao_14d_municipal",
         "analise_clima_saude_base_municipal_v8",
         "analise_clima_saude_correlacoes_v8",
         "analise_clima_saude_alertas_estatisticos_v8",
@@ -696,7 +701,8 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "v9_modelos_temporais",
         "v9_priorizacao_epidemiologica",
     },
-    "Cálculos": {"fonte_frescor_estado"},
+    "Cálculos": {"fonte_frescor_estado", "fonte_status_regeneracao"},
+    "Cemaden / ANA": {"niveis_rios_municipal", "ana_risco_municipal", "hidro_risco_municipal", "cemaden_alertas"},
     "Alertas": {
         "alerta_integrado_sis_titan",
         "inmet_alertas",
@@ -744,6 +750,9 @@ TABLE_VAR_BINDINGS: dict[str, str] = {
     "predicao_calor_14d_municipal": "pred_14d",
     "predicao_calor_14d_regional": "pred_reg_14d",
     "fonte_frescor_estado": "fonte_frescor",
+    "fonte_status_regeneracao": "fonte_status",
+    "niveis_rios_municipal": "niveis_rios",
+    "perspectiva_pressao_14d_municipal": "perspectiva_14d",
     "analise_clima_saude_base_municipal_v8": "analise_base_v8",
     "analise_clima_saude_correlacoes_v8": "analise_corr_v8",
     "analise_clima_saude_odds_ratio_v1": "analise_or_v1",
@@ -1500,12 +1509,13 @@ elif SECTION_KEY == "Clima / TITAN":
 
         intel_cli = state_indicator_summary(resumo)
         sat_media = pd.to_numeric(resumo.get("indice_saturacao_solo"), errors="coerce").mean() if "indice_saturacao_solo" in resumo.columns else None
+        n_frio = int(pd.to_numeric(resumo.get("onda_fria_2d"), errors="coerce").fillna(0).gt(0).sum()) if "onda_fria_2d" in resumo.columns else 0
         ui_theme.insight_cards(
             [
                 ("Tensão climática méd.", safe_metric_value(intel_cli.get("indice_tensao_climatica_media"), "", 0), "índice 0–100"),
                 ("Tmax máx.", safe_metric_value(pd.to_numeric(resumo.get("tmax"), errors="coerce").max() if "tmax" in resumo.columns else None, " °C", 1), "no recorte"),
                 ("Risco 3d máx.", safe_metric_value(pd.to_numeric(resumo.get("risco_cumulativo_3d"), errors="coerce").max() if "risco_cumulativo_3d" in resumo.columns else None, "", 1), "acumulado"),
-                ("Saturação solo méd.", safe_metric_value(sat_media, "", 0), "índice 0–100"),
+                ("Onda fria (munis)", n_frio, "tmin extrema · AdaptaSUS"),
             ]
         )
 
@@ -1528,6 +1538,29 @@ elif SECTION_KEY == "Clima / TITAN":
         )
     else:
         st.info("Tabela met_biometeo não disponível para os filtros selecionados.")
+
+    # ---- Frio extremo ----
+    st.markdown("### Extremos de frio")
+    frio_cols = [c for c in ("onda_fria_2d", "severidade_onda_fria", "duracao_onda_fria_dias", "tmin", "excesso_frio_tmin") if c in resumo.columns]
+    if frio_cols:
+        n_onda = int(pd.to_numeric(resumo.get("onda_fria_2d"), errors="coerce").fillna(0).gt(0).sum()) if "onda_fria_2d" in resumo.columns else 0
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Municípios em onda fria", n_onda)
+        c2.metric(
+            "Severidade máx.",
+            safe_metric_value(pd.to_numeric(resumo.get("severidade_onda_fria"), errors="coerce").max() if "severidade_onda_fria" in resumo.columns else None, "", 1),
+        )
+        c3.metric(
+            "Tmin mín.",
+            safe_metric_value(pd.to_numeric(resumo.get("tmin"), errors="coerce").min() if "tmin" in resumo.columns else None, " °C", 1),
+        )
+        show_df(
+            safe_sort(resumo, ["severidade_onda_fria", "onda_fria_2d"], ascending=[False, False]) if "severidade_onda_fria" in resumo.columns else resumo,
+            [c for c in ["cod_ibge", "municipio", "regional_saude", "tmin", "onda_fria_2d", "duracao_onda_fria_dias", "severidade_onda_fria", "excesso_frio_tmin", "nivel"] if c in resumo.columns],
+            height=260,
+        )
+    else:
+        st.caption("Indicadores de frio ainda não mesclados no resumo — rode o enrichment.")
 
     # ---- Solo ----
     st.markdown("### Saturação do solo")
@@ -2320,6 +2353,20 @@ A tabela `fonte_frescor_estado` avalia idade do dado (dias), status (`ok` / `atr
     else:
         show_df(fonte_frescor, height=360)
 
+    st.markdown("### Confiabilidade da regeneração (DW / IndicaSUS / SISREG)")
+    ui_theme.callout(
+        "Status da última rodada de `regenerar_sistema_completo.py`. SAN permanece lacuna explícita.",
+        "info",
+    )
+    if fonte_status.empty:
+        st.info("Rode regenerar_sistema_completo.py para gerar `fonte_status_regeneracao`.")
+    else:
+        show_df(
+            fonte_status,
+            [c for c in ["fonte_nome", "status", "flag_habilitada", "tcp_ok", "senha_configurada", "registros", "municipios_com_dado", "detalhe", "avaliado_em"] if c in fonte_status.columns],
+            height=320,
+        )
+
 
 
 # ---------------------------------------------------------------------
@@ -2651,6 +2698,51 @@ elif SECTION_KEY == "Inteligência":
         )
         st.markdown("#### Predição regional (14 dias)")
         show_df(pred_reg_14d, height=220)
+
+    # ---------------------------------------------------------------
+    # Perspectiva de pressão 14d (não é nowcast epi)
+    # ---------------------------------------------------------------
+    st.markdown("### Perspectiva de pressão em saúde (14 dias)")
+    ui_theme.callout(
+        "Persistência do índice de pressão + overlay climático 14d. "
+        "Não é nowcast epidemiológico 14–28d (exige série SIVEP longa e correção de atraso).",
+        "warn",
+    )
+    if perspectiva_14d.empty:
+        st.info("Tabela perspectiva_pressao_14d_municipal ainda não gerada. Rode o enrichment.")
+    else:
+        from sisclima.engines.epi_outlook import summarize_outlook
+
+        po = perspectiva_14d.copy()
+        if "cod_ibge" in po.columns and "cod_ibge" in resumo.columns:
+            po["cod_ibge"] = normalize_cod_ibge(po["cod_ibge"])
+            po = po[po["cod_ibge"].isin(resumo["cod_ibge"].dropna().astype(str))]
+        osu = summarize_outlook(po)
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Municípios", osu.get("n", 0))
+        c2.metric("Semáforo vermelha", osu.get("vermelha", 0))
+        c3.metric("Semáforo amarela", osu.get("amarela", 0))
+        c4.metric("Perspectiva méd.", safe_metric_value(osu.get("media"), "", 0))
+        show_df(
+            po.sort_values("perspectiva_pressao_14d", ascending=False) if "perspectiva_pressao_14d" in po.columns else po,
+            [
+                c
+                for c in [
+                    "cod_ibge",
+                    "municipio",
+                    "regional_saude",
+                    "indice_pressao_atual",
+                    "overlay_clima_14d",
+                    "perspectiva_pressao_14d",
+                    "semaforo_perspectiva_14d",
+                    "tendencia_pressao_7d",
+                    "nivel_predicao_14d",
+                    "fonte_outlook",
+                ]
+                if c in po.columns
+            ],
+            height=320,
+        )
 
     # ---------------------------------------------------------------
     # Alerta inteligente
