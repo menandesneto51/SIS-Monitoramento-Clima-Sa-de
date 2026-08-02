@@ -80,6 +80,7 @@ from sisclima.ui.views_extra import (
     render_hidrologia,
     render_sentinela_sg,
     render_sivep,
+    render_vigibarragens,
 )
 from sisclima.alerts.change_detector import alerts_enabled
 
@@ -1067,6 +1068,7 @@ NAV_SECTIONS: list[str] = [
     "AdaptaSUS / Guia MS",
     "Correlação clima-saúde",
     "Cemaden / ANA",
+    "VigiBarragens",
     "Sazonalidade / OR",
     "Operacional",
     "Geografia",
@@ -1076,7 +1078,7 @@ NAV_SECTIONS: list[str] = [
 ]
 NAV_GROUPS: dict[str, list[str]] = {
     "Visão": ["Visão executiva", "Mapas", "Guia do leitor"],
-    "Clima": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
+    "Clima": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "VigiBarragens", "GeoCalor"],
     "Saúde": [
         "Assistência",
         "Arboviroses",
@@ -2898,6 +2900,9 @@ elif SECTION_KEY == "AdaptaSUS / Guia MS":
 
 elif SECTION_KEY == "Cemaden / ANA":
     render_hidrologia()
+
+elif SECTION_KEY == "VigiBarragens":
+    render_vigibarragens()
 
 elif SECTION_KEY == "Sazonalidade / OR":
     ui_theme.section_title(

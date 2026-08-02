@@ -23,6 +23,7 @@ ENV_BY_KEY = {
     'qualidade_ar_csv': 'QUALIDADE_AR_CSV',
     'sentinela_sg_agregado_csv': 'SENTINELA_SG_AGREGADO_CSV',
     'sentinela_sg_amostras_csv': 'SENTINELA_SG_AMOSTRAS_CSV',
+    'vigibarragens_csv': 'VIGIBARRAGENS_CSV',
 }
 
 ROOT_FALLBACKS = {
@@ -105,4 +106,8 @@ def load_all_inputs() -> dict[str, pd.DataFrame]:
         out['sentinela_sg_amostras'] = load_csv('sentinela_sg_amostras_csv', [])
     except Exception:
         out['sentinela_sg_amostras'] = pd.DataFrame()
+    try:
+        out['vigibarragens_barragens'] = load_csv('vigibarragens_csv', ['data_atualizacao'])
+    except Exception:
+        out['vigibarragens_barragens'] = pd.DataFrame()
     return out

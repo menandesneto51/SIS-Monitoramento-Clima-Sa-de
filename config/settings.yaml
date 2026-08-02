@@ -157,6 +157,7 @@ data_sources:
   qualidade_ar_csv: qualidade_ar_copernicus.csv
   sentinela_sg_agregado_csv: sentinela_sg_agregado_semanal.csv
   sentinela_sg_amostras_csv: sentinela_sg_amostras.csv
+  vigibarragens_csv: vigibarragens_barragens.csv
 
 alertas:
   enviar_mudanca_nivel: true

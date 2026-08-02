@@ -34,6 +34,10 @@ from sisclima.engines.epidemiology import (
 from sisclima.engines.sivep_ms_indicators import compute_all_sivep_ms_outputs
 from sisclima.engines.sentinela_sg_ms import compute_sentinela_sg_indicators
 from sisclima.ingestion.ana_hidroweb import load_ana_bundle
+from sisclima.ingestion.vigibarragens import (
+    barragens_alerta_for_municipio,
+    load_vigibarragens_bundle,
+)
 from sisclima.engines.hospital import hospital_capacity, aggregate_capacity
 from sisclima.engines.operations import stock_autonomy, infrastructure_status, active_search, communication_latency
 from sisclima.engines.sentinel import score_rumors
@@ -356,7 +360,7 @@ def _inject_ocupacao_into_summary(summary: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, arbo=None, cemaden_alerts=None, ana_risco=None) -> pd.DataFrame:
+def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, arbo=None, cemaden_alerts=None, ana_risco=None, vigibarragens_risco=None) -> pd.DataFrame:
     # Base municipal preferencial: vulnerabilidade/metadata; se não houver, usa bases com dados.
     base_candidates = [vuln, met_ind, press, cap_agg, aq]
     base = pd.DataFrame()
@@ -418,6 +422,13 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
                 merged['precipitacao_mm'] = merged['precipitacao_mm'].fillna(pd.to_numeric(merged['chuva_mm'], errors='coerce'))
             elif 'chuva_mm' in merged.columns and 'precipitacao_mm' not in merged.columns:
                 merged['precipitacao_mm'] = pd.to_numeric(merged['chuva_mm'], errors='coerce')
+
+    # VigiBarragens: exposição municipal a barragens (populações na ZAS).
+    if vigibarragens_risco is not None and isinstance(vigibarragens_risco, pd.DataFrame) and not vigibarragens_risco.empty:
+        keep_vb = [c for c in ['cod_ibge', 'municipio', 'n_barragens', 'populacao_zas_total', 'nivel_emergencia_max', 'nivel_sis'] if c in vigibarragens_risco.columns]
+        if keep_vb:
+            vb_cols = vigibarragens_risco[keep_vb].rename(columns={'nivel_sis': 'nivel_vigibarragens'})
+            merged = _merge(merged, vb_cols, suffix='_vb')
 
     # Ocupação real IndicaSUS: usa município quando houver e estado como fallback.
     ocup_estado_fallback = _get_ocupacao_estado_fallback()
@@ -481,6 +492,14 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
                 f"Chuva ANA {nivel_chuva}"
                 + (f" ({float(chuva_val):.1f} mm)" if pd.notna(chuva_val) else "")
             )
+        motivo_vb, nivel_vb = barragens_alerta_for_municipio(
+            vigibarragens_risco if vigibarragens_risco is not None else pd.DataFrame(),
+            municipio=latest.get('municipio'),
+            cod_ibge=latest.get('cod_ibge'),
+        )
+        if motivo_vb:
+            _apply_alert_motivo_to_stage(stage, motivo_vb, nivel_sis=nivel_vb)
+            extra_motivos.append(motivo_vb)
         if latest.get('motivo_qualidade_ar') and pd.notna(latest.get('motivo_qualidade_ar')):
             extra_motivos.append(str(latest.get('motivo_qualidade_ar')))
         stage.motivos.extend(extra_motivos)
@@ -647,6 +666,18 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             print(f"[AVISO] ANA/HIDROWEB não gerado: {exc}")
             ana_risco = pd.DataFrame()
 
+        # VigiBarragens (SIGBM/ANM: populações expostas a barragens de mineração)
+        vigibarragens_risco = pd.DataFrame()
+        try:
+            if as_bool(env('USE_VIGIBARRAGENS', 'true'), True):
+                vb = load_vigibarragens_bundle(municipios)
+                for table_name, frame in vb.items():
+                    write_df(frame if frame is not None else pd.DataFrame(), table_name)
+                vigibarragens_risco = vb.get('vigibarragens_exposicao_municipal', pd.DataFrame())
+        except Exception as exc:
+            print(f"[AVISO] VigiBarragens não gerado: {exc}")
+            vigibarragens_risco = pd.DataFrame()
+
         write_df(lacen, 'lab_lacen_gal')
         write_df(sinan, 'epi_sinan_agravos')
         write_df(sim, 'epi_sim_obitos_calor')
@@ -675,6 +706,7 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         resumo_mun = _build_municipal_summary(
             met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln,
             inmet_alerts, arbo=arbo_mun, cemaden_alerts=cemaden_alerts, ana_risco=ana_risco,
+            vigibarragens_risco=vigibarragens_risco,
         )
         resumo_mun = _inject_ocupacao_into_summary(resumo_mun)
         write_df(resumo_mun, 'resumo_municipal_atual')
