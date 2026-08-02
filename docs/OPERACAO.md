@@ -19,11 +19,15 @@
 Modelo da planilha: `config/contatos_alertas.exemplo.csv`.
 
 ```bash
+# Validar planilha e ver quem receberia cada boletim (não envia)
+python -m sisclima.alerts.contacts --validate --plan
+
 # Ativar fan-out territorial (depois de preencher a planilha)
 mkdir -p data/input
 cp config/contatos_alertas.exemplo.csv data/input/contatos_alertas.csv
 # editar e-mails/chats reais…
 # no .env: ALERT_FANOUT_ENABLED=true
+# opcional em homologação: ALERT_FANOUT_DRY_RUN=true (planeja sem enviar)
 ```
 
 ## Agendador diário sem notebook

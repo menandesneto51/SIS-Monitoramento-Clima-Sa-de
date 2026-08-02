@@ -11,7 +11,13 @@ from typing import Any
 
 import pandas as pd
 
-from sisclima.alerts.contacts import fanout_enabled, recipients_for, summarize_contacts
+from sisclima.alerts.contacts import (
+    fanout_dry_run_enabled,
+    fanout_enabled,
+    plan_fanout,
+    recipients_for,
+    summarize_contacts,
+)
 from sisclima.alerts.notifier import send_email, send_telegram
 from sisclima.core.config import as_bool, env
 from sisclima.core.db import db_conn, execute, fetchone, read_table, table_exists
@@ -1148,6 +1154,28 @@ def _fanout_territorial(payloads: list[dict[str, Any]]) -> dict[str, Any]:
     territorial = _territorial_payloads(payloads)
     if not territorial:
         return {"status": "sem_territoriais", "enviados": 0, "sem_destinatario": 0}
+
+    # Dry-run: planeja roteamento (pode usar exemplo) sem enviar e-mail/Telegram.
+    if fanout_dry_run_enabled() and not fanout_enabled():
+        plan = plan_fanout(payloads, allow_example=True)
+        log.info(
+            "Fan-out dry-run · territoriais=%s com_dest=%s sem_dest=%s fonte=%s",
+            plan.get("n_territoriais"),
+            plan.get("n_com_destinatario"),
+            plan.get("n_sem_destinatario"),
+            plan.get("fonte"),
+        )
+        return {
+            "status": "dry_run_fanout",
+            "gerados": len(territorial),
+            "enviados": 0,
+            "sem_destinatario": int(plan.get("n_sem_destinatario") or 0),
+            "com_destinatario": int(plan.get("n_com_destinatario") or 0),
+            "cobertura_pct": plan.get("cobertura_pct"),
+            "fonte_contatos": plan.get("fonte"),
+            "path": plan.get("path"),
+            "contatos": summarize_contacts(),
+        }
 
     if not fanout_enabled():
         log.info(
