@@ -39,7 +39,18 @@ def _hourly_soil_daily_means(js: dict) -> pd.DataFrame:
     return hdf.groupby("data", as_index=False)[cols].mean()
 
 
-def _fetch_one(lat: float, lon: float, municipio: str | None = None, cod_ibge=None, days: int = 7) -> pd.DataFrame:
+def _default_forecast_days(fallback: int = 16) -> int:
+    """Open-Meteo free: até 16 dias. Default 16 para horizonte operacional 14d+."""
+    raw = env('OPENMETEO_FORECAST_DAYS', str(fallback)) or str(fallback)
+    try:
+        days = int(raw)
+    except (TypeError, ValueError):
+        days = fallback
+    return max(1, min(days, 16))
+
+
+def _fetch_one(lat: float, lon: float, municipio: str | None = None, cod_ibge=None, days: int | None = None) -> pd.DataFrame:
+    days = _default_forecast_days() if days is None else max(1, min(int(days), 16))
     base = env('OPENMETEO_BASE_URL', 'https://api.open-meteo.com/v1/forecast')
     hourly = (
         'temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation,'
@@ -88,7 +99,7 @@ def _fetch_one(lat: float, lon: float, municipio: str | None = None, cod_ibge=No
     return daily
 
 
-def fetch_openmeteo_forecast(days: int = 7) -> pd.DataFrame:
+def fetch_openmeteo_forecast(days: int | None = None) -> pd.DataFrame:
     if not as_bool(env('USE_OPENMETEO', 'true'), True):
         return pd.DataFrame()
     try:
@@ -98,10 +109,10 @@ def fetch_openmeteo_forecast(days: int = 7) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def fetch_openmeteo_for_municipios(municipios: pd.DataFrame, days: int = 7, max_municipios: int | None = None) -> pd.DataFrame:
+def fetch_openmeteo_for_municipios(municipios: pd.DataFrame, days: int | None = None, max_municipios: int | None = None) -> pd.DataFrame:
     """Consulta previsão por município usando lat/lon da base municipal.
 
-    Por padrão não limita quantidade. Use OPENMETEO_MAX_MUNICIPIOS para teste.
+    Por padrão usa OPENMETEO_FORECAST_DAYS (default 16). Use OPENMETEO_MAX_MUNICIPIOS para teste.
     """
     if not as_bool(env('USE_OPENMETEO', 'true'), True):
         return pd.DataFrame()
