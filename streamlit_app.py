@@ -39,19 +39,21 @@ _seed = ROOT / "data" / "cloud" / "sis_cloud_seed.db"
 if not os.getenv("DATABASE_URL") and _seed.exists() and _seed.stat().st_size > 0:
     os.environ["DATABASE_URL"] = f"sqlite:///{_seed.as_posix()}"
 
+_logo = ROOT / "assets" / "ses-logo.jpg"
 try:
     st.set_page_config(
-        page_title="SIS Integrado Clima-Saúde MT",
-        page_icon="🌡️",
+        page_title="SES-MT · CIEVS · SIS Clima-Saúde",
+        page_icon=str(_logo) if _logo.exists() else None,
         layout="wide",
         initial_sidebar_state="collapsed",
     )
 except Exception:
     pass
 
-for app in ["app_v9.py", "app_v8.py", "app_v6.py"]:
+# Entrada única do painel institucional (não usar app.py legado — tema antigo).
+for app in ["app_v9.py"]:
     if Path(app).exists():
         runpy.run_path(app, run_name="__main__")
         break
 else:
-    st.error("Nenhum app_v9.py, app_v8.py ou app_v6.py encontrado.")
+    st.error("app_v9.py não encontrado. O painel SES-MT usa exclusivamente app_v9.py.")

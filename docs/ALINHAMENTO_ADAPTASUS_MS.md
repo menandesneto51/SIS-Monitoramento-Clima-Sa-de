@@ -22,12 +22,12 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 
 | Risco prioritário | Cobertura SIS | Indicadores principais | Tabelas / motores |
 |-------------------|---------------|------------------------|-------------------|
-| Extremos de temperatura (calor/frio) | Forte em calor; frio fraco | `tmax`, `utci_proxy`, `risco_cumulativo_3d`, `risco_calor_vulneravel` | `met_biometeo`, GeoCalor, `panel_indicators` |
+| Extremos de temperatura (calor/frio) | Forte (calor + frio + demografia) | `tmax`, `tmin`, `utci_proxy`, `risco_cumulativo_3d`, `risco_calor_vulneravel`, `pop_vulneravel_exposta`, `indice_exposicao_vulneravel` | `met_biometeo`, IBGE Censo 2022, GeoCalor, `panel_indicators` |
 | Poluição atmosférica | Parcial | `pm25_ugm3`, `risco_ar_queimadas` | `qualidade_ar_municipal` |
 | Vetoriais / zoonoses | Parcial (arboviroses) | `casos_arbovirus_7d`, `risco_vetorial_climatico` | `epi_arboviroses_*` |
 | Extremos de precipitação | Parcial | `precipitacao_mm`, Cemaden/ANA | `cemaden_alertas`, `ana_*` |
-| WASH | Ausente | — | Fase 2 (fonte SES/DW) |
-| SAN | Ausente | — | Fase 2 (fonte SES) |
+| WASH | Parcial (Censo IBGE 2022) | `cobertura_rede_agua_pct`, `deficit_esgoto_inadequado_pct`, `indice_deficit_wash`, `risco_wash` | `wash_municipal`, `adaptasus_intelligence` |
+| SAN | Ausente | — | Fase 2 (fonte SES/SISVAN) |
 
 ## Artefatos gerados pelo SIS
 
@@ -42,11 +42,14 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 
 - **Risco dominante**: risco AdaptaSUS com maior score no município nesta rodada.  
 - **Índice de adaptação climática**: síntese 0–100 dos riscos cobertos, penalizada por baixa completude de dados.  
-- **Lacuna explícita**: WASH/SAN/frio sem fonte — o painel declara a ausência; não interpretar como risco zero.  
+- **Lacuna explícita**: SAN sem fonte SES/SISVAN — o painel declara a ausência; não interpretar como risco zero.  
+- **WASH**: déficit estrutural do Censo IBGE 2022 (água/esgoto); amplificado em estiagem no score AdaptaSUS.  
+- **Vulnerabilidade × exposição**: demografia IBGE Censo 2022 (`idosos_pct`, crianças, rural, densidade) cruzada com tensão térmica/fumaça (`pop_vulneravel_exposta`, `indice_exposicao_vulneravel`).  
 - **Orientação AdaptaSUS**: checklist curto “o que monitorar / o que fazer”, inspirado no Guia MS (não substitui protocolo clínico).
 
 ## Limitações honestas
 
 - Este alinhamento **operacionaliza** o AdaptaSUS no CIEVS-MT; não redefine metas federais.  
-- Indicadores WASH/SAN só entram quando houver base estadual confiável.  
+- WASH é estrutural (Censo), não monitoramento operacional SNIS/SINISA.  
+- Indicadores SAN só entram quando houver base estadual confiável.  
 - Predição 7 dias do SIS não é forecast climático sazonal.

@@ -37,6 +37,11 @@ riscos:
       - severidade_onda_fria
       - indice_tensao_climatica
       - risco_calor_vulneravel
+      - indice_vulnerabilidade_calor
+      - pop_vulneravel_exposta
+      - indice_exposicao_vulneravel
+      - idosos_pct
+      - criancas_0_4_pct
     gatilhos:
       calor_utci: 32
       calor_risco3d: 7
@@ -108,12 +113,23 @@ riscos:
   - id: wash
     nome: Acesso inadequado a água, saneamento e higiene (WASH)
     eixos: [morbimortalidade_clima, interrupcao_servicos]
-    status_cobertura: ausente
-    indicadores_sis: []
-    gatilhos: {}
+    status_cobertura: parcial_censo_ibge
+    indicadores_sis:
+      - cobertura_rede_agua_pct
+      - deficit_rede_agua_pct
+      - cobertura_agua_canalizada_pct
+      - cobertura_esgoto_rede_pct
+      - deficit_esgoto_inadequado_pct
+      - indice_deficit_wash
+      - risco_wash
+    gatilhos:
+      deficit_agua_pct: 20
+      deficit_esgoto_pct: 30
+      indice_deficit_wash: 35
     acoes_guia:
-      - Lacuna no SIS — aguardar fonte SES-MT/DW
-      - Manter checklist operacional de água potável em eventos extremos
+      - Monitorar déficit de rede de água/esgoto (Censo IBGE) em estiagem e pós-chuva
+      - Articular Vigilância Ambiental / água potável em eventos extremos
+      - Cruzar com precipitação baixa e risco de doenças de veiculação hídrica
 
   - id: san
     nome: Insegurança alimentar e nutricional (SAN)
