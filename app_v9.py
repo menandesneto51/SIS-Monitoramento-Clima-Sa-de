@@ -90,7 +90,7 @@ DB_PATH = Path("data/output/sis_integrado.db")
 try:
     st.set_page_config(
         page_title="SES-MT · CIEVS · SIS Clima-Saúde",
-        page_icon="🌡️",
+        page_icon=str(Path("assets/ses-logo.jpg")) if Path("assets/ses-logo.jpg").exists() else None,
         layout="wide",
         initial_sidebar_state="collapsed",
     )
@@ -780,25 +780,22 @@ prioridade_state = state_prioridade_summary(resumo_all)
 # ---------------------------------------------------------------------
 
 ui_theme.hero(
-    "Sala de situação · SES-MT / CIEVS",
-    "Layout alinhado ao portal oficial saude.mt.gov.br · vigilância clima–saúde · "
-    f"base {backend_name()}",
+    "SIS Clima-Saúde MT",
+    "Sala de situação CIEVS — cruza clima, qualidade do ar, assistência e vigilância para priorizar a resposta territorial.",
     chips=[
         "SES-MT",
         "CIEVS",
-        "Alerta estadual",
-        "Regionais",
-        "Municípios",
-        "Vigidesastre Cuiabá",
-        f"Envio: {'ON' if alerts_enabled() else 'OFF'}",
+        "AdaptaSUS",
+        "Alerta multinível",
+        f"Alertas {'ativos' if alerts_enabled() else 'em modo local'}",
     ],
 )
 
 if backend_name() != "postgresql":
-    st.warning(
-        f"Atenção: o painel está em **{backend_name()}**, não em PostgreSQL. "
-        "Se esperava Docker/Postgres, verifique `DATABASE_URL` e o container `sis_clima_db`. "
-        "Abas com dados incompletos podem refletir esse fallback."
+    ui_theme.callout(
+        f"Ambiente atual: {backend_name()} (não PostgreSQL). "
+        "Se esperava Docker/Postgres, verifique DATABASE_URL. Abas incompletas podem refletir esse fallback.",
+        "warn",
     )
 
 if resumo_all.empty:
@@ -811,6 +808,20 @@ nivel_estado = normalize_level(sentinel.get("nivel"))
 municipio_sentinel = sentinel.get("municipio", "—")
 motivo_estado = replace_motivo_indisponivel(sentinel)
 orientacao_sentinel = str(sentinel.get("orientacao_leiga", "") or "")
+_data_ref = ""
+for _col in ("data_referencia", "data_processamento", "atualizado_em"):
+    if _col in resumo_all.columns and resumo_all[_col].notna().any():
+        _data_ref = str(resumo_all[_col].dropna().astype(str).iloc[0])[:16]
+        break
+ui_theme.status_strip(
+    [
+        ("Nível estadual", str(nivel_estado).upper()),
+        ("Municípios", str(len(resumo_all))),
+        ("Referência", _data_ref or "rodada atual"),
+        ("Base", backend_name()),
+    ],
+    note="Indicadores do topo são estaduais; mapas e tabelas respeitam o filtro territorial.",
+)
 
 ui_theme.level_banner(
     nivel_estado,
@@ -819,10 +830,10 @@ ui_theme.level_banner(
     orientacao=orientacao_sentinel,
 )
 
-with st.expander("Como ler este painel (comece aqui se for sua 1ª vez)", expanded=False):
+with st.expander("Como ler este painel (primeira visita)", expanded=False):
     for line in HOW_TO_READ_PANEL:
         st.markdown(f"- {line}")
-    st.caption("Predição numérica do SIS ≈ 7 dias. Cenários sazonais (ex.: setembro) vêm de boletins oficiais, não deste número.")
+    st.caption("Predição numérica do SIS ≈ 7 dias. Cenários sazonais vêm de boletins oficiais, não deste número.")
 
 metrics = state_summary_with_prediction(resumo_all, pred_v6)
 _pressao_media_top = (
@@ -838,7 +849,7 @@ _semaforo_top = (
 )
 ui_theme.section_title(
     "Situação geral do Estado",
-    "Atual · predição 7 dias · tendência (queda / manutenção / aumento) — valores estaduais da rodada",
+    "Valores estaduais da rodada · atual · predição 7 dias · tendência",
 )
 
 ui_theme.insight_cards(
@@ -911,10 +922,9 @@ ui_theme.glossary_expander(
 )
 
 ui_theme.section_title(
-    "Legenda rápida dos níveis",
+    "Distribuição dos níveis operacionais",
     "Atual · predição 7d · tendência do número de municípios em cada cor",
 )
-ui_theme.level_legend()
 
 _pred_levels = metrics.get("pred_levels") or {}
 dist_cols = st.columns(5)
@@ -933,7 +943,7 @@ for _idx, (_nivel, _label) in enumerate([
     with dist_cols[_idx]:
         st.markdown(
             f"""
-            <div class="sis-level-tile" style="background:{LEVEL_COLOR_MAP[_nivel]}">
+            <div class="sis-level-tile" style="background:{LEVEL_COLOR_MAP[_nivel]};border:1px solid rgba(0,4,68,.12);">
                 <div class="lbl">{_label}</div>
                 <div class="val">{_valor}</div>
                 <div class="pred">7d: {_pred_n}</div>
@@ -943,8 +953,11 @@ for _idx, (_nivel, _label) in enumerate([
             unsafe_allow_html=True,
         )
 
+with st.expander("O que cada cor significa na operação", expanded=False):
+    ui_theme.level_legend()
+
 # Filtros globais no topo (sempre visíveis)
-st.markdown("### Filtros territoriais")
+st.markdown("<div class='sis-panel soft'><div class='sis-panel-title'>Filtros territoriais</div>", unsafe_allow_html=True)
 f1, f2 = st.columns(2)
 regionais_disponiveis = sorted(
     [x for x in resumo_all.get("regional_saude", pd.Series(dtype=str)).dropna().astype(str).unique() if x]
@@ -953,7 +966,13 @@ municipios_disponiveis = sorted(
     [x for x in resumo_all.get("municipio", pd.Series(dtype=str)).dropna().astype(str).unique() if x]
 )
 with f1:
-    regionais_sel = st.multiselect("Regional de Saúde", regionais_disponiveis, default=[])
+    regionais_sel = st.multiselect(
+        "Regional de Saúde",
+        regionais_disponiveis,
+        default=[],
+        placeholder="Todas as regionais",
+        help="Vazio = Estado inteiro. Escolha uma ou mais regionais para focar a sala de situação.",
+    )
 tmp = resumo_all.copy()
 if regionais_sel and "regional_saude" in tmp.columns:
     tmp = tmp[tmp["regional_saude"].isin(regionais_sel)]
@@ -963,7 +982,14 @@ municipios_filtrados = (
     else municipios_disponiveis
 )
 with f2:
-    municipios_sel = st.multiselect("Município", municipios_filtrados, default=[])
+    municipios_sel = st.multiselect(
+        "Município",
+        municipios_filtrados,
+        default=[],
+        placeholder="Todos os municípios do recorte",
+        help="Opcional. Combina com a regional selecionada.",
+    )
+st.markdown("</div>", unsafe_allow_html=True)
 
 resumo = apply_global_filters(resumo_all, regionais_sel, municipios_sel)
 map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
@@ -1041,15 +1067,15 @@ if "cod_ibge" in map_df_all.columns and "indice_prioridade_global" in resumo_all
     map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
 prioridade_state = state_prioridade_summary(resumo_all)
 
-st.caption(
-    f"{shapefile_status} · Indicadores do topo são estaduais; mapas e tabelas abaixo respeitam o filtro. "
-    f"Recorte atual: {len(resumo)} municípios"
-    + (
-        f" · Prioridade global média {safe_metric_value(prioridade_state.get('media'), '', 0)}"
-        if prioridade_state
-        else ""
-    )
-    + "."
+ui_theme.status_strip(
+    [
+        ("Recorte", f"{len(resumo)} municípios"),
+        (
+            "Prioridade méd.",
+            str(safe_metric_value(prioridade_state.get("media"), "", 0)) if prioridade_state else "—",
+        ),
+        ("Mapa", shapefile_status.split("·")[0].strip() if shapefile_status else "geo"),
+    ],
 )
 
 # Todas as abas planejadas (panorama) — carga sob demanda só da aba ativa
@@ -1090,16 +1116,19 @@ NAV_GROUPS: dict[str, list[str]] = {
 }
 ui_theme.section_title(
     "Navegação",
-    f"{len(NAV_SECTIONS)} abas planejadas · cada aba carrega só os dados necessários · ajudante CIEVS (padrão Meningites)",
+    "Escolha a aba da sala de situação. Cada seção carrega só os dados necessários.",
 )
+ui_theme.nav_label("Modo")
 _modo_nav = st.radio(
     "Modo de navegação",
     ["Todas as abas", "Por módulo"],
     horizontal=True,
     key="nav_modo_painel",
-    help="Padrão: todas as abas visíveis (como no painel completo). ‘Por módulo’ reduz a lista para telas menores.",
+    label_visibility="collapsed",
+    help="Padrão: todas as abas. ‘Por módulo’ reduz a lista em telas menores.",
 )
 if _modo_nav == "Todas as abas":
+    ui_theme.nav_label("Abas do painel")
     SECTION_KEY = st.radio(
         "Aba",
         NAV_SECTIONS,
@@ -1108,6 +1137,7 @@ if _modo_nav == "Todas as abas":
         label_visibility="collapsed",
     )
 else:
+    ui_theme.nav_label("Módulo")
     _nav_mod = st.radio(
         "Módulo",
         list(NAV_GROUPS.keys()),
@@ -1115,15 +1145,19 @@ else:
         key="nav_modulo_principal",
         label_visibility="collapsed",
     )
+    ui_theme.nav_label(f"Abas · {_nav_mod}")
     SECTION_KEY = st.radio(
         "Aba",
         NAV_GROUPS[_nav_mod],
         horizontal=True,
         key=f"nav_aba_{_nav_mod}",
+        label_visibility="collapsed",
     )
 hydrate_section_tables(SECTION_KEY)
-st.caption(f"Aba ativa **{SECTION_KEY}** · {len(NAV_SECTIONS)} seções no painel completo · tabelas sob demanda")
-st.divider()
+ui_theme.status_strip(
+    [("Aba ativa", SECTION_KEY), ("Seções", str(len(NAV_SECTIONS)))],
+    note="Ajudante CIEVS disponível em cada seção.",
+)
 ui_theme.section_guide(SECTION_KEY)
 
 

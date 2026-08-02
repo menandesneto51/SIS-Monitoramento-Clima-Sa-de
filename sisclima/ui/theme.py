@@ -5,7 +5,7 @@ Tokens de css/style.css do portal:
 - topo/footer: linear-gradient(#000444 → #1d357f)
 - faixa navbar: #0071bb
 - títulos/links: #1351b4
-- tipografia: UniNeueRegular / UniNeueHeavy
+- tipografia: UniNeue / Calibri (fallback institucional)
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ SES_BLUE = "#1351B4"
 SES_BLUE_DEEP = "#1D357F"
 SES_BLUE_NAVY = "#000444"
 SES_BLUE_ACCENT = "#0071BB"
-SES_BG = "#F8F8F8"
+SES_BG = "#F4F7FB"
 
 LEVEL_COLOR_MAP = {
     "cinza": "#6b7280",
@@ -39,42 +39,13 @@ LEVEL_COLOR_MAP = {
     "roxa": "#6d28d9",
 }
 
-LAYOUT_VERSION = "SES-MT layout 2026-07-31 · azul institucional"
+LAYOUT_VERSION = "SES-MT layout 2026-08-02 · azul institucional"
 
 
-def _render_html(fragment: str) -> None:
-    compact = " ".join(line.strip() for line in fragment.splitlines() if line.strip())
-    # Preferir markdown+style (aplica no app). st.html também serve para blocos.
-    st.markdown(compact, unsafe_allow_html=True)
-
-
-def _font_face_block() -> str:
-    """Fontes locais via file:// não funcionam no browser; usa data-URI só das fontes."""
-    import base64
-
-    parts = []
-    if FONT_REG.exists():
-        b64 = base64.b64encode(FONT_REG.read_bytes()).decode("ascii")
-        parts.append(
-            "@font-face{font-family:UniNeueRegular;src:url(data:font/otf;base64,"
-            f"{b64}) format('opentype');font-weight:400;font-display:swap;}}"
-        )
-    if FONT_HEAVY.exists():
-        b64 = base64.b64encode(FONT_HEAVY.read_bytes()).decode("ascii")
-        parts.append(
-            "@font-face{font-family:UniNeueHeavy;src:url(data:font/otf;base64,"
-            f"{b64}) format('opentype');font-weight:800;font-display:swap;}}"
-        )
-    return "".join(parts)
-
-
-def apply_theme() -> None:
-    """Injeta CSS SES de forma confiável (sem depender de CSS gigante único)."""
-    base_css = CSS_PATH.read_text(encoding="utf-8") if CSS_PATH.exists() else ""
-    # Remove @font-face relativos do arquivo (não resolvem no Streamlit)
+def _strip_font_faces(css: str) -> str:
     cleaned = []
     skip = False
-    for line in base_css.splitlines():
+    for line in css.splitlines():
         if "@font-face" in line:
             skip = True
         if skip:
@@ -82,21 +53,68 @@ def apply_theme() -> None:
                 skip = False
             continue
         cleaned.append(line)
-    body_css = "\n".join(cleaned)
-    # Fallback tipográfico institucional (Calibri/Segoe) — evita injetar ~240KB de
-    # base64 que em alguns clientes Streamlit falha silenciosamente e deixa o tema antigo.
-    fallback_fonts = (
+    return "\n".join(cleaned)
+
+
+def _critical_css() -> str:
+    """CSS mínimo INLINE — garante azul SES mesmo se o arquivo/fonte falhar."""
+    return f"""
+html, body, .stApp, [data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > .main, section.main {{
+  background: {SES_BG} !important;
+  background-color: {SES_BG} !important;
+}}
+[data-testid="stHeader"], [data-testid="stToolbar"] {{
+  background: transparent !important;
+}}
+.block-container {{
+  padding-top: 0.15rem !important;
+  max-width: 1280px !important;
+}}
+h1, h2, h3, h4, h5, h6 {{
+  color: {SES_BLUE} !important;
+  font-family: Calibri, "Segoe UI", Tahoma, sans-serif !important;
+}}
+[data-testid="stSidebar"],
+section[data-testid="stSidebar"],
+[data-testid="stSidebarNav"],
+div[data-testid="collapsedControl"],
+button[kind="headerNoPadding"],
+[data-testid="stBaseButton-headerNoPadding"] {{
+  display: none !important;
+  width: 0 !important;
+  visibility: hidden !important;
+}}
+"""
+
+
+def apply_theme() -> None:
+    """Injeta tema SES em camadas (crítico → arquivo → selo). Sem base64 gigante."""
+    # 1) Crítico primeiro (nunca depende de arquivo/fonte)
+    st.markdown(f"<style>{_critical_css()}</style>", unsafe_allow_html=True)
+
+    # 2) CSS completo do arquivo (sem @font-face relativos)
+    if CSS_PATH.exists():
+        body_css = _strip_font_faces(CSS_PATH.read_text(encoding="utf-8"))
+        st.markdown(f"<style>{body_css}</style>", unsafe_allow_html=True)
+
+    # 3) Tipografia institucional sem embutir OTF (evita falha silenciosa ~240KB)
+    st.markdown(
+        "<style>"
         "html,body,[class*=\"css\"],.stApp{"
         "font-family:Calibri,\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif!important}"
         "h1,h2,h3,h4,h5,h6,.sis-brand,.sis-section-title,.ses-masthead-brand,.sis-insight .v{"
-        "font-family:Calibri,\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif!important;"
-        "color:#1351B4!important}"
+        f"font-family:Calibri,\"Segoe UI\",sans-serif!important;color:{SES_BLUE}!important}}"
+        "</style>",
+        unsafe_allow_html=True,
     )
-    st.markdown(f"<style>{fallback_fonts}\n{body_css}</style>", unsafe_allow_html=True)
-    # Selo visível para confirmar que o painel novo carregou
+
+    # 4) Selo visível — confirma que o layout novo carregou
     st.markdown(
-        f'<div style="background:#1351B4;color:#fff;padding:6px 12px;font:700 12px/1.3 Calibri,Segoe UI,sans-serif;'
-        f'letter-spacing:.03em;text-transform:uppercase;margin:0 0 8px 0">{html.escape(LAYOUT_VERSION)}</div>',
+        f'<div style="background:{SES_BLUE};color:#fff;padding:7px 12px;'
+        f'font:700 12px/1.3 Calibri,Segoe UI,sans-serif;letter-spacing:.04em;'
+        f'text-transform:uppercase;margin:0 0 8px 0;border-bottom:3px solid {SES_BLUE_ACCENT};">'
+        f"{html.escape(LAYOUT_VERSION)}</div>",
         unsafe_allow_html=True,
     )
 
@@ -107,15 +125,15 @@ def ses_masthead(
     subtitulo: str = "Sala de situação clima–saúde · CIEVS / SES-MT",
     base: str = "",
 ) -> None:
-    """Chrome institucional no padrão do portal saude.mt.gov.br."""
+    """Chrome institucional no padrão do portal saude.mt.gov.br (estilos INLINE)."""
     hoje = datetime.now().strftime("%d/%m/%Y %H:%M")
-    # Topo com estilo INLINE (garante azul mesmo se CSS falhar)
     st.markdown(
         f"""
         <div style="background:linear-gradient(to right,#000444 0%,#1d357f 40%,#1d357f 60%,#000444 100%);
                     color:#fff;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;
-                    justify-content:space-between;align-items:center;font:400 13px UniNeueRegular,Calibri,sans-serif;">
-          <div><strong style="font-family:UniNeueHeavy,Calibri,sans-serif;">Governo de Mato Grosso</strong>
+                    justify-content:space-between;align-items:center;
+                    font:400 13px Calibri,Segoe UI,sans-serif;">
+          <div><strong style="font-family:Calibri,Segoe UI,sans-serif;font-weight:800;">Governo de Mato Grosso</strong>
             &nbsp;|&nbsp; Secretaria de Estado de Saúde &nbsp;|&nbsp; CIEVS</div>
           <div>
             <a href="https://www.saude.mt.gov.br/" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;">saude.mt.gov.br</a>
@@ -128,22 +146,22 @@ def ses_masthead(
         unsafe_allow_html=True,
     )
 
-    c_logo, c_title, c_meta = st.columns([1.2, 3.2, 1.8], vertical_alignment="center")
+    c_logo, c_title, c_meta = st.columns([1.15, 3.35, 1.7], vertical_alignment="center")
     with c_logo:
         if LOGO_PATH.exists():
-            st.image(str(LOGO_PATH), width=190)
+            st.image(str(LOGO_PATH), width=176)
         else:
             st.markdown("**SES-MT**")
     with c_title:
         st.markdown(
             f"""
-            <div style="border-bottom:10px solid #0071bb;padding:6px 0 10px 0;">
-              <div style="font:800 22px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;">{html.escape(sistema)}</div>
-              <div style="color:#57595A;font:400 14px UniNeueRegular,Calibri,sans-serif;margin-top:4px;">{html.escape(subtitulo)}</div>
-              <div style="display:inline-block;margin-top:8px;background:#0071BB;color:#fff;padding:3px 8px;
-                          font:700 11px UniNeueHeavy,Calibri,sans-serif;letter-spacing:.04em;text-transform:uppercase;">
-                Layout oficial SES-MT
-              </div>
+            <div style="background:#fff;border-bottom:10px solid {SES_BLUE_ACCENT};padding:6px 0 10px 0;">
+              <div style="font:800 22px Calibri,Segoe UI,sans-serif;color:{SES_BLUE};line-height:1.15;">{html.escape(sistema)}</div>
+              <div style="color:#57595A;font:400 14px Calibri,Segoe UI,sans-serif;margin-top:4px;">{html.escape(subtitulo)}</div>
+              <span style="display:inline-block;margin-top:8px;background:{SES_BLUE_ACCENT};color:#fff;padding:3px 8px;
+                           font:700 11px Calibri,Segoe UI,sans-serif;letter-spacing:.04em;text-transform:uppercase;">Sala de situação</span>
+              <span style="display:inline-block;margin-top:8px;margin-left:6px;background:{SES_BLUE};color:#fff;padding:3px 8px;
+                           font:700 11px Calibri,Segoe UI,sans-serif;letter-spacing:.04em;text-transform:uppercase;">Azul institucional SES-MT</span>
             </div>
             """,
             unsafe_allow_html=True,
@@ -151,10 +169,10 @@ def ses_masthead(
     with c_meta:
         st.markdown(
             f"""
-            <div style="text-align:right;color:#57595A;font:400 12px UniNeueRegular,Calibri,sans-serif;line-height:1.4;">
-              <span style="display:block;font:800 14px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;">SES-MT · CIEVS</span>
+            <div style="text-align:right;color:#57595A;font:400 12px Calibri,Segoe UI,sans-serif;line-height:1.45;">
+              <span style="display:block;font:800 15px Calibri,Segoe UI,sans-serif;color:{SES_BLUE};">SES-MT · CIEVS</span>
               Vigilância integrada clima–saúde
-              {f"<br/>Base: {html.escape(base)}" if base else ""}
+              {f"<br/><span style='display:inline-block;margin-top:6px;background:#EDF3FC;color:{SES_BLUE_DEEP};border:1px solid #B7CEF0;padding:2px 8px;font:700 11px Calibri,sans-serif;'>Base {html.escape(base)}</span>" if base else ""}
             </div>
             """,
             unsafe_allow_html=True,
@@ -164,17 +182,17 @@ def ses_masthead(
 def hero(brand: str, kicker: str, chips: list[str] | None = None) -> None:
     chips = chips or []
     chips_html = "".join(
-        f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);'
-        f'padding:3px 8px;font:700 11px UniNeueHeavy,Calibri,sans-serif;letter-spacing:.03em;'
+        f'<span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.32);'
+        f'padding:3px 8px;font:700 11px Calibri,Segoe UI,sans-serif;letter-spacing:.03em;'
         f'text-transform:uppercase;color:#fff;">{html.escape(c)}</span>'
         for c in chips
     )
     st.markdown(
         f"""
-        <div style="background:linear-gradient(to right,#000444 0%,#1d357f 40%,#1d357f 60%,#000444 100%);
-                    color:#fff;padding:16px 18px;margin:8px 0 12px 0;border-bottom:4px solid #0071bb;">
-          <div style="font:800 24px UniNeueHeavy,Calibri,sans-serif;color:#fff;">{html.escape(brand)}</div>
-          <div style="opacity:.95;font:400 14px UniNeueRegular,Calibri,sans-serif;margin:6px 0 10px 0;max-width:78ch;">{html.escape(kicker)}</div>
+        <div style="background:linear-gradient(115deg,#000444 0%,#1d357f 45%,#1351b4 78%,#0071bb 100%);
+                    color:#fff;padding:16px 18px;margin:8px 0 12px 0;border-bottom:4px solid {SES_BLUE_ACCENT};">
+          <div style="font:800 24px Calibri,Segoe UI,sans-serif;color:#fff;line-height:1.15;">{html.escape(brand)}</div>
+          <div style="opacity:.96;font:400 14px Calibri,Segoe UI,sans-serif;margin:6px 0 10px 0;max-width:78ch;">{html.escape(kicker)}</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">{chips_html}</div>
         </div>
         """,
@@ -182,20 +200,58 @@ def hero(brand: str, kicker: str, chips: list[str] | None = None) -> None:
     )
 
 
+def status_strip(items: list[tuple[str, str]], note: str = "") -> None:
+    pills = "".join(
+        f"<span style='display:inline-flex;align-items:center;gap:4px;background:#EDF3FC;color:{SES_BLUE_DEEP};"
+        f"border:1px solid #B7CEF0;padding:3px 8px;font:700 11px Calibri,sans-serif;"
+        f"letter-spacing:.03em;text-transform:uppercase;'>"
+        f"<strong style='color:{SES_BLUE};'>{html.escape(k)}</strong>&nbsp;{html.escape(v)}</span>"
+        for k, v in items
+        if v not in (None, "", "—")
+    )
+    note_html = f"<span style='color:#57595A;font:400 13px Calibri,sans-serif;'>{html.escape(note)}</span>" if note else ""
+    st.markdown(
+        f"<div style='display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#fff;"
+        f"border:1px solid #E2E8F0;border-left:4px solid {SES_BLUE_ACCENT};padding:8px 12px;margin:4px 0 10px 0;'>"
+        f"{pills}{note_html}</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def panel_open(title: str = "", *, soft: bool = False) -> None:
+    border = SES_BLUE_ACCENT if soft else SES_BLUE
+    bg = "#FBFDFF" if soft else "#fff"
+    title_html = (
+        f"<div style='font:800 12px Calibri,sans-serif;letter-spacing:.05em;text-transform:uppercase;"
+        f"color:#57595A;margin:0 0 8px 0;'>{html.escape(title)}</div>"
+        if title
+        else ""
+    )
+    st.markdown(
+        f"<div style='background:{bg};border:1px solid #E2E8F0;border-top:3px solid {border};"
+        f"padding:12px 14px;margin:6px 0 12px 0;'>{title_html}",
+        unsafe_allow_html=True,
+    )
+
+
+def panel_close() -> None:
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
 def ses_footer() -> None:
     st.markdown(
-        """
+        f"""
         <div style="margin-top:18px;padding:16px;
                     background:linear-gradient(to right,#000444 0%,#1d357f 40%,#1d357f 60%,#000444 100%);
-                    color:#fff;font:400 13px UniNeueRegular,Calibri,sans-serif;line-height:1.45;">
+                    color:#fff;font:400 13px Calibri,Segoe UI,sans-serif;line-height:1.45;">
           <div style="display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:space-between;">
             <div>
-              <strong style="font-family:UniNeueHeavy,Calibri,sans-serif;">SES-MT — Secretaria de Estado de Saúde de Mato Grosso</strong><br/>
+              <strong style="font-weight:800;">SES-MT — Secretaria de Estado de Saúde de Mato Grosso</strong><br/>
               Palácio Paiaguás, Rua D, S/N, Bloco 5 — Centro Político Administrativo<br/>
               Cuiabá-MT · CEP 78049-902 · Tel. (65) 3613-5387
             </div>
             <div>
-              <strong style="font-family:UniNeueHeavy,Calibri,sans-serif;">CIEVS / SIS Clima-Saúde</strong><br/>
+              <strong style="font-weight:800;">CIEVS / SIS Clima-Saúde</strong><br/>
               Uso interno da sala de situação · validar antes de comunicação oficial<br/>
               <a href="https://www.saude.mt.gov.br/ouvidoria" target="_blank" rel="noopener" style="color:#fff;">Ouvidoria</a>
               · Contato: notifica@ses.mt.gov.br
@@ -208,6 +264,7 @@ def ses_footer() -> None:
 
 
 def level_banner(nivel: str, municipio: str, motivo: str, orientacao: str = "") -> None:
+    """Faixa do nível operacional — cor semântica, moldura azul SES para não 'virar' o fundo da página."""
     color = LEVEL_COLOR_MAP.get(str(nivel).lower(), "#334155")
     guide = level_plain(nivel)
     extra = f"<p style='margin:.28rem 0 0;color:#fff;'><b>Em linguagem simples:</b> {html.escape(guide['o_que_fazer'])}</p>"
@@ -215,14 +272,17 @@ def level_banner(nivel: str, municipio: str, motivo: str, orientacao: str = "") 
         extra += f"<p style='margin:.28rem 0 0;color:#fff;'>{html.escape(orientacao)}</p>"
     st.markdown(
         f"""
-        <div style="background:{color};color:#fff;padding:14px 16px;margin:6px 0 12px 0;
-                    border-left:8px solid rgba(255,255,255,.45);">
-          <h3 style="margin:0;font:800 18px UniNeueHeavy,Calibri,sans-serif;color:#fff !important;">
-            Nível operacional estadual · {html.escape(str(nivel).upper())}
-          </h3>
-          <p style="margin:.28rem 0 0;color:#fff;"><b>Município mais crítico:</b> {html.escape(str(municipio))}</p>
-          <p style="margin:.28rem 0 0;color:#fff;">{html.escape(str(motivo))}</p>
-          {extra}
+        <div style="background:{SES_BG};padding:0 0 10px 0;margin:0;">
+          <div style="background:{color};color:#fff;padding:14px 16px;
+                      border-left:8px solid {SES_BLUE};border-right:8px solid {SES_BLUE_ACCENT};
+                      box-shadow:inset 0 0 0 1px rgba(0,4,68,.15);">
+            <h3 style="margin:0;font:800 18px Calibri,Segoe UI,sans-serif;color:#fff !important;">
+              Nível operacional estadual · {html.escape(str(nivel).upper())}
+            </h3>
+            <p style="margin:.28rem 0 0;color:#fff;"><b>Município mais crítico:</b> {html.escape(str(municipio))}</p>
+            <p style="margin:.28rem 0 0;color:#fff;">{html.escape(str(motivo))}</p>
+            {extra}
+          </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -231,13 +291,13 @@ def level_banner(nivel: str, municipio: str, motivo: str, orientacao: str = "") 
 
 def section_title(title: str, subtitle: str = "") -> None:
     st.markdown(
-        f'<div style="font:800 19px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;border-bottom:2px solid #dbe8fb;'
+        f'<div style="font:800 19px Calibri,Segoe UI,sans-serif;color:{SES_BLUE};border-bottom:2px solid #dbe8fb;'
         f'padding-bottom:6px;margin:8px 0 4px 0;">{html.escape(title)}</div>',
         unsafe_allow_html=True,
     )
     if subtitle:
         st.markdown(
-            f'<div style="color:#57595A;font:400 14px UniNeueRegular,Calibri,sans-serif;margin:0 0 10px 0;">{html.escape(subtitle)}</div>',
+            f'<div style="color:#57595A;font:400 14px Calibri,Segoe UI,sans-serif;margin:0 0 10px 0;">{html.escape(subtitle)}</div>',
             unsafe_allow_html=True,
         )
 
@@ -261,11 +321,11 @@ def section_guide(secao: str) -> None:
     if not g:
         return
     st.markdown(
-        '<div style="background:#fff;border:1px solid #e7e7e7;border-left:5px solid #1351B4;padding:12px 14px;margin:6px 0 12px 0;">'
-        '<h4 style="margin:0 0 6px 0;color:#1351B4;font:800 15px UniNeueHeavy,Calibri,sans-serif;">Como ler esta seção</h4>'
-        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:#1351B4;'>Para que serve:</span> {html.escape(g['para_que_serve'])}</p>"
-        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:#1351B4;'>Como usar:</span> {html.escape(g['como_usar'])}</p>"
-        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:#1351B4;'>Cuidado:</span> {html.escape(g['cuidado'])}</p>"
+        f'<div style="background:#fff;border:1px solid #e7e7e7;border-left:5px solid {SES_BLUE};padding:12px 14px;margin:6px 0 12px 0;">'
+        f'<h4 style="margin:0 0 6px 0;color:{SES_BLUE};font:800 15px Calibri,Segoe UI,sans-serif;">Como ler esta seção</h4>'
+        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:{SES_BLUE};'>Para que serve:</span> {html.escape(g['para_que_serve'])}</p>"
+        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:{SES_BLUE};'>Como usar:</span> {html.escape(g['como_usar'])}</p>"
+        f"<p style='margin:4px 0;color:#333;'><span style='font-weight:700;color:{SES_BLUE};'>Cuidado:</span> {html.escape(g['cuidado'])}</p>"
         "</div>",
         unsafe_allow_html=True,
     )
@@ -275,10 +335,10 @@ def insight_cards(items: list[tuple[str, str, str]]) -> None:
     cards = []
     for label, value, hint in items:
         cards.append(
-            '<div style="background:#fff;border:1px solid #e7e7e7;border-top:3px solid #1351B4;padding:10px 12px;">'
-            f'<div style="font:700 11px UniNeueHeavy,Calibri,sans-serif;color:#57595A;text-transform:uppercase;letter-spacing:.04em;">{html.escape(label)}</div>'
-            f'<div style="font:800 22px UniNeueHeavy,Calibri,sans-serif;color:#1351B4;margin-top:3px;">{html.escape(str(value))}</div>'
-            f'<div style="font:400 12px UniNeueRegular,Calibri,sans-serif;color:#57595A;margin-top:3px;">{html.escape(hint)}</div>'
+            f'<div style="background:#fff;border:1px solid #e7e7e7;border-top:3px solid {SES_BLUE};padding:10px 12px;min-height:92px;">'
+            f'<div style="font:700 11px Calibri,sans-serif;color:#57595A;text-transform:uppercase;letter-spacing:.04em;">{html.escape(label)}</div>'
+            f'<div style="font:800 22px Calibri,sans-serif;color:{SES_BLUE};margin-top:3px;">{html.escape(str(value))}</div>'
+            f'<div style="font:400 12px Calibri,sans-serif;color:#57595A;margin-top:3px;">{html.escape(hint)}</div>'
             "</div>"
         )
     st.markdown(
@@ -295,12 +355,20 @@ def level_legend() -> None:
         g = level_plain(key)
         cards.append(
             f'<div style="background:{color};color:#fff;padding:10px 12px;min-height:74px;">'
-            f"<strong style='font:800 14px UniNeueHeavy,Calibri,sans-serif;'>{html.escape(g['titulo'])}</strong>"
-            f"<div style='font:400 12px UniNeueRegular,Calibri,sans-serif;opacity:.95;margin-top:4px;'>{html.escape(g['o_que_fazer'])}</div>"
+            f"<strong style='font:800 14px Calibri,sans-serif;'>{html.escape(g['titulo'])}</strong>"
+            f"<div style='font:400 12px Calibri,sans-serif;opacity:.95;margin-top:4px;'>{html.escape(g['o_que_fazer'])}</div>"
             "</div>"
         )
     st.markdown(
         f'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:6px 0 12px 0;">{"".join(cards)}</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def nav_label(text: str = "Navegação do painel") -> None:
+    st.markdown(
+        f'<div style="font:800 12px Calibri,sans-serif;letter-spacing:.06em;text-transform:uppercase;'
+        f'color:#57595A;margin:4px 0 6px 0;">{html.escape(text)}</div>',
         unsafe_allow_html=True,
     )
 
