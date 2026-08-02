@@ -71,16 +71,28 @@ def _score_temperatura(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
 
 
 def _score_poluicao(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
-    if "pm25_ugm3" not in df.columns and "iq_ar_score" not in df.columns:
+    has_pm = "pm25_ugm3" in df.columns or "iq_ar_score" in df.columns
+    has_focos = "focos_queimadas_7d" in df.columns
+    if not has_pm and not has_focos:
         return pd.Series(np.nan, index=df.index), pd.Series(0.0, index=df.index)
     pm = _clip01(_num(df["pm25_ugm3"]) / 75.0) if "pm25_ugm3" in df.columns else pd.Series(0.0, index=df.index)
     iq = _clip01(_num(df["iq_ar_score"]) / 100.0) if "iq_ar_score" in df.columns else pd.Series(0.0, index=df.index)
+    focos = (
+        _clip01(_num(df["focos_queimadas_7d"]) / 80.0)
+        if has_focos
+        else pd.Series(0.0, index=df.index)
+    )
     # Seca amplifica queimadas
     seca = pd.Series(0.0, index=df.index)
     if "precipitacao_mm" in df.columns:
         seca = _clip01((5.0 - _num(df["precipitacao_mm"])) / 5.0)
-    score = (pm * 0.55 + iq * 0.25 + seca * 0.20) * 100.0
-    has = _num(df["pm25_ugm3"]).notna() if "pm25_ugm3" in df.columns else pd.Series(False, index=df.index)
+    if "dias_sem_chuva_max" in df.columns:
+        seca = np.maximum(seca, _clip01(_num(df["dias_sem_chuva_max"]) / 30.0))
+    score = (pm * 0.40 + iq * 0.15 + focos * 0.30 + seca * 0.15) * 100.0
+    has = (
+        (_num(df["pm25_ugm3"]).notna() if "pm25_ugm3" in df.columns else pd.Series(False, index=df.index))
+        | (_num(df["focos_queimadas_7d"]).fillna(0) > 0 if has_focos else pd.Series(False, index=df.index))
+    )
     cov = has.astype(float)
     score = score.where(has, np.nan)
     return score.clip(0, 100), cov
@@ -174,8 +186,17 @@ def derive_smart_risk_indicators(df: pd.DataFrame) -> pd.DataFrame:
 
     pm = _clip01(_num(out["pm25_ugm3"]) / 75.0) if "pm25_ugm3" in out.columns else pd.Series(0.0, index=out.index)
     seca = _clip01((5.0 - _num(out["precipitacao_mm"])) / 5.0) if "precipitacao_mm" in out.columns else pd.Series(0.0, index=out.index)
-    out["risco_ar_queimadas"] = ((pm * 0.7 + seca * 0.3) * 100.0).where(
-        _num(out["pm25_ugm3"]).notna() if "pm25_ugm3" in out.columns else pd.Series(False, index=out.index),
+    focos = (
+        _clip01(_num(out["focos_queimadas_7d"]) / 80.0)
+        if "focos_queimadas_7d" in out.columns
+        else pd.Series(0.0, index=out.index)
+    )
+    has_ar = (
+        (_num(out["pm25_ugm3"]).notna() if "pm25_ugm3" in out.columns else pd.Series(False, index=out.index))
+        | (_num(out["focos_queimadas_7d"]).fillna(0) > 0 if "focos_queimadas_7d" in out.columns else pd.Series(False, index=out.index))
+    )
+    out["risco_ar_queimadas"] = ((pm * 0.45 + focos * 0.40 + seca * 0.15) * 100.0).where(
+        has_ar,
         np.nan,
     ).clip(0, 100).round(1)
 

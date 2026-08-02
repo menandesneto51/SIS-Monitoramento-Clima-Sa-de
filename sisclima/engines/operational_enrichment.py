@@ -855,6 +855,73 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     ]
     write_df(resumo[base_cols + extra], "analise_clima_saude_base_municipal_v8")
 
+    # Queimadas INPE (refresh best-effort) + merge no resumo
+    try:
+        from sisclima.ingestion.inpe_queimadas import load_queimadas_municipais
+        from sisclima.core.config import as_bool, env
+
+        if as_bool(env("USE_INPE_QUEIMADAS", "true"), True):
+            q = load_queimadas_municipais()
+            write_df(q if q is not None else pd.DataFrame(), "queimadas_focos_municipal")
+            if q is not None and not q.empty and "cod_ibge" in q.columns:
+                qcols = [
+                    c
+                    for c in (
+                        "cod_ibge",
+                        "focos_queimadas_24h",
+                        "focos_queimadas_7d",
+                        "frp_queimadas_7d",
+                        "nivel_queimadas",
+                        "dias_sem_chuva_max",
+                    )
+                    if c in q.columns
+                ]
+                qm = q[qcols].drop_duplicates("cod_ibge")
+                qm["cod_ibge"] = qm["cod_ibge"].astype(str)
+                resumo["cod_ibge"] = resumo["cod_ibge"].astype(str)
+                for col in qcols:
+                    if col != "cod_ibge" and col in resumo.columns:
+                        resumo = resumo.drop(columns=[col])
+                resumo = resumo.merge(qm, on="cod_ibge", how="left")
+                write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Queimadas INPE não mescladas no enrichment: %s", exc)
+
+    # Frio extremo a partir do último dia de met_biometeo
+    try:
+        met_frio = read_table("met_biometeo")
+        if not met_frio.empty and "tmin" in met_frio.columns and "cod_ibge" in met_frio.columns:
+            from sisclima.engines.biometeo import add_coldwave_indicators
+            from sisclima.core.config import SETTINGS as _SETTINGS
+
+            mf = add_coldwave_indicators(met_frio, _SETTINGS if isinstance(_SETTINGS, dict) else {})
+            if "data" in mf.columns:
+                mf["data"] = pd.to_datetime(mf["data"], errors="coerce")
+                mf = mf.sort_values("data").groupby("cod_ibge", as_index=False).tail(1)
+            fcols = [
+                c
+                for c in (
+                    "cod_ibge",
+                    "onda_fria_2d",
+                    "duracao_onda_fria_dias",
+                    "intensidade_onda_fria",
+                    "severidade_onda_fria",
+                    "excesso_frio_tmin",
+                )
+                if c in mf.columns
+            ]
+            if len(fcols) > 1:
+                fm = mf[fcols].drop_duplicates("cod_ibge")
+                fm["cod_ibge"] = fm["cod_ibge"].astype(str)
+                resumo["cod_ibge"] = resumo["cod_ibge"].astype(str)
+                for col in fcols:
+                    if col != "cod_ibge" and col in resumo.columns:
+                        resumo = resumo.drop(columns=[col])
+                resumo = resumo.merge(fm, on="cod_ibge", how="left")
+                write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Indicadores de frio não mesclados: %s", exc)
+
     # Alerta integrado SIS + TITAN antes do alerta inteligente (para compor extras)
     inmet_tab = read_table("inmet_alertas")
     cemaden_tab = read_table("cemaden_alertas")

@@ -20,6 +20,7 @@ from sisclima.ingestion.dw_sources import load_dw_sinan_agravos, load_dw_sim_obi
 from sisclima.ingestion.sivep_local import load_sivep_local
 from sisclima.ingestion.copernicus_air_quality import fetch_cams_air_quality_municipal
 from sisclima.ingestion.ibge_municipios import get_municipios_operacionais
+from sisclima.ingestion.inpe_queimadas import load_queimadas_municipais
 from sisclima.engines.biometeo import add_biometeo_indicators
 from sisclima.engines.air_quality import add_air_quality_indicators
 from sisclima.engines.epidemiology import (
@@ -566,6 +567,16 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         write_df(aq_raw if aq_raw is not None else pd.DataFrame(), 'raw_qualidade_ar_copernicus')
         write_df(aq, 'qualidade_ar_municipal')
 
+        # Queimadas INPE (focos 24h/7d por município) — reforça narrativa de fumaça/seca.
+        queimadas = pd.DataFrame()
+        try:
+            if as_bool(env('USE_INPE_QUEIMADAS', 'true'), True):
+                queimadas = load_queimadas_municipais()
+        except Exception as exc:
+            log.warning('INPE queimadas não carregado: %s', exc)
+            queimadas = pd.DataFrame()
+        write_df(queimadas if queimadas is not None else pd.DataFrame(), 'queimadas_focos_municipal')
+
         leitos_raw = load_indicasus_leitos()
         leitos_raw = ensure_municipality(leitos_raw) if not leitos_raw.empty else inputs['indicasus_leitos']
         cap = hospital_capacity(leitos_raw)
@@ -677,6 +688,44 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             inmet_alerts, arbo=arbo_mun, cemaden_alerts=cemaden_alerts, ana_risco=ana_risco,
         )
         resumo_mun = _inject_ocupacao_into_summary(resumo_mun)
+        # Queimadas INPE → colunas no resumo
+        if not queimadas.empty and 'cod_ibge' in queimadas.columns and not resumo_mun.empty:
+            qcols = [
+                c for c in (
+                    'cod_ibge', 'focos_queimadas_24h', 'focos_queimadas_7d',
+                    'frp_queimadas_7d', 'nivel_queimadas', 'dias_sem_chuva_max',
+                ) if c in queimadas.columns
+            ]
+            qm = queimadas[qcols].drop_duplicates('cod_ibge')
+            qm['cod_ibge'] = qm['cod_ibge'].astype(str)
+            resumo_mun['cod_ibge'] = resumo_mun['cod_ibge'].astype(str)
+            for c in qcols:
+                if c != 'cod_ibge' and c in resumo_mun.columns:
+                    resumo_mun = resumo_mun.drop(columns=[c])
+            resumo_mun = resumo_mun.merge(qm, on='cod_ibge', how='left')
+        # Frio extremo: snapshot do último dia em met_biometeo
+        if not met_ind.empty and 'tmin' in met_ind.columns and not resumo_mun.empty:
+            m = met_ind.copy()
+            if 'data' in m.columns:
+                m['data'] = pd.to_datetime(m['data'], errors='coerce')
+                m = m.sort_values('data').groupby('cod_ibge', as_index=False).tail(1) if 'cod_ibge' in m.columns else m
+            fcols = [
+                c for c in (
+                    'cod_ibge', 'tmin', 'onda_fria_2d', 'duracao_onda_fria_dias',
+                    'intensidade_onda_fria', 'severidade_onda_fria', 'excesso_frio_tmin',
+                ) if c in m.columns
+            ]
+            if 'cod_ibge' in fcols:
+                fm = m[fcols].drop_duplicates('cod_ibge')
+                fm['cod_ibge'] = fm['cod_ibge'].astype(str)
+                resumo_mun['cod_ibge'] = resumo_mun['cod_ibge'].astype(str)
+                for c in fcols:
+                    if c != 'cod_ibge' and c in resumo_mun.columns and c != 'tmin':
+                        resumo_mun = resumo_mun.drop(columns=[c])
+                # tmin: preencher se ausente
+                if 'tmin' in resumo_mun.columns and 'tmin' in fm.columns:
+                    resumo_mun = resumo_mun.drop(columns=['tmin'])
+                resumo_mun = resumo_mun.merge(fm, on='cod_ibge', how='left')
         write_df(resumo_mun, 'resumo_municipal_atual')
 
         # Completa gaps (pressão proxy, arbo/SIVEP/AQ, correlação, predição, alerta inteligente)

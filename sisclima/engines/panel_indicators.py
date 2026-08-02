@@ -70,10 +70,11 @@ _DEFAULTS = {
         "umidade_seca": 0.06,
     },
     "carga_saude": {
-        "srag": 0.38,
-        "arbovirus": 0.20,
+        "srag": 0.34,
+        "arbovirus": 0.18,
         "pm25": 0.10,
-        "pressao": 0.32,
+        "queimadas": 0.08,
+        "pressao": 0.30,
     },
     "vigilancia_integrada": {
         # bruta = tensão+carga+pressão; depois alinha com nível operacional
@@ -204,6 +205,17 @@ def _orientacao_leiga(row: pd.Series) -> str:
     except Exception:
         pass
     try:
+        focos = row.get("focos_queimadas_7d", np.nan)
+        if pd.notna(focos) and float(focos) >= 20:
+            bits.append("Focos de queimadas elevados (INPE).")
+    except Exception:
+        pass
+    try:
+        if pd.notna(row.get("onda_fria_2d")) and int(float(row.get("onda_fria_2d") or 0)) >= 1:
+            bits.append("Onda de frio em curso (Tmín).")
+    except Exception:
+        pass
+    try:
         if pd.notna(carga) and float(carga) >= 60:
             bits.append("Sinais sanitários elevados.")
     except Exception:
@@ -257,14 +269,25 @@ def enrich_panel_indicators(resumo: pd.DataFrame, pred: pd.DataFrame | None = No
         else pd.Series(0.0, index=df.index)
     )
     pm = _clip01(_num(df["pm25_ugm3"]) / 75.0) if "pm25_ugm3" in df.columns else pd.Series(0.0, index=df.index)
+    focos = (
+        _clip01(_num(df["focos_queimadas_7d"]) / 80.0)
+        if "focos_queimadas_7d" in df.columns
+        else pd.Series(0.0, index=df.index)
+    )
     press = (
         _clip01(_num(df["pressao_calor_pct"]) / 12.0)
         if "pressao_calor_pct" in df.columns
         else pd.Series(0.0, index=df.index)
     )
     df["indice_carga_saude"] = _scale_0_100(
-        [srag, arbo, pm, press],
-        [float(w_c["srag"]), float(w_c["arbovirus"]), float(w_c["pm25"]), float(w_c["pressao"])],
+        [srag, arbo, pm, focos, press],
+        [
+            float(w_c["srag"]),
+            float(w_c["arbovirus"]),
+            float(w_c["pm25"]),
+            float(w_c.get("queimadas", 0.08)),
+            float(w_c["pressao"]),
+        ],
     ).round(1)
 
     # Vigilância bruta = só clima+saúde (sem nível oficial)

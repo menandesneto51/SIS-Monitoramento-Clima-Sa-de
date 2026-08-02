@@ -26,42 +26,49 @@ riscos:
   - id: temperatura_extrema
     nome: Extremos de temperatura (calor e frio)
     eixos: [morbimortalidade_clima, demanda_servicos, emergencia_saude_publica]
-    status_cobertura: forte_calor_fraco_frio
+    status_cobertura: calor_e_frio
     indicadores_sis:
       - tmax
       - tmin
       - utci_proxy
       - risco_cumulativo_3d
       - onda_calor_p95_2d
+      - onda_fria_2d
+      - severidade_onda_fria
       - indice_tensao_climatica
       - risco_calor_vulneravel
     gatilhos:
       calor_utci: 32
       calor_risco3d: 7
       frio_tmin: 12
+      frio_tmin_risco: 8
     acoes_guia:
       - Hidratação e resfriamento de grupos vulneráveis
       - Pontos de apoio climatizados em eventos de calor
       - Monitorar idosos, crianças, gestantes e trabalhadores expostos
-      - Atenção a tmin extrema (frio) quando disponível
+      - Em onda de frio: abrigo, aquecimento seguro e atenção a pneumonia/COPD
 
   - id: poluicao_ar
     nome: Riscos à saúde associados à poluição atmosférica
     eixos: [morbimortalidade_clima, demanda_servicos]
-    status_cobertura: parcial
+    status_cobertura: parcial_com_queimadas_inpe
     indicadores_sis:
       - pm25_ugm3
       - pm10_ugm3
       - iq_ar_score
       - risco_ar_queimadas
+      - focos_queimadas_7d
+      - focos_queimadas_24h
+      - nivel_queimadas
       - casos_srag
     gatilhos:
       pm25: 35
       iq_ar: 60
+      focos_7d: 20
     acoes_guia:
       - Orientar redução de exposição outdoor em picos de PM2,5
       - Reforçar atenção a asma/DPOC e SRAG
-      - Cruzar com queimadas/seca na Amazônia Legal / Cerrado MT
+      - Cruzar focos INPE com seca/estiagem no Cerrado e Amazônia Legal MT
 
   - id: vetoriais_zoonoses
     nome: Mudança do perfil de doenças vetoriais e zoonóticas

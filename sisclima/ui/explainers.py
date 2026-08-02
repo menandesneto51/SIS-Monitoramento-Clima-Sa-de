@@ -97,6 +97,31 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "leigo": "Partículas finas no ar (fumaça/poeira) que entram fundo no pulmão.",
         "como_ler": "Valores altos preocupam asma, idosos e crianças — comum em queimadas.",
     },
+    "focos_queimadas_7d": {
+        "nome": "Focos de queimadas (7 dias)",
+        "leigo": "Quantidade de focos de calor detectados pelo INPE no município na última semana.",
+        "como_ler": "≥20 amarelo/laranja operacional · ≥50 vermelho · ≥120 roxo — cruzar com PM2,5 e SRAG.",
+    },
+    "focos_queimadas_24h": {
+        "nome": "Focos de queimadas (24 h)",
+        "leigo": "Focos INPE no último dia — sinal quase em tempo real de fogo ativo.",
+        "como_ler": "Pico diário ajuda a priorizar comunicação e atenção respiratória imediata.",
+    },
+    "nivel_queimadas": {
+        "nome": "Nível operacional de queimadas",
+        "leigo": "Semáforo Verde→Roxa só dos focos INPE (independente do nível climático geral).",
+        "como_ler": "Use junto com qualidade do ar — muitos focos sem PM2,5 ainda exigem atenção.",
+    },
+    "onda_fria_2d": {
+        "nome": "Onda de frio (≥2 dias)",
+        "leigo": "Tmín abaixo do limiar de alerta por dois ou mais dias seguidos.",
+        "como_ler": "1 = evento em curso — reforçar abrigo e vigilância de pneumonia/COPD.",
+    },
+    "severidade_onda_fria": {
+        "nome": "Severidade da onda de frio (0–4)",
+        "leigo": "Intensidade do frio extremo com base na Tmín e na duração.",
+        "como_ler": "0 rotina · 1–2 atenção · 3–4 risco alto para grupos vulneráveis.",
+    },
     "casos_srag": {
         "nome": "Casos SRAG",
         "leigo": "Síndrome Respiratória Aguda Grave notificada (hospitalizações graves).",
