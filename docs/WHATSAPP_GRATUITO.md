@@ -4,6 +4,9 @@ O SIS Clima-Saúde MT envia os alertas de mudança de nível por e-mail, Telegra
 WhatsApp. Este documento cobre o canal de WhatsApp e os provedores que operam sem custo de
 licença.
 
+**Tutorial passo a passo (Meta Cloud API + número já no WhatsApp Business):**
+[`TUTORIAL_WHATSAPP_META_CLOUD.md`](TUTORIAL_WHATSAPP_META_CLOUD.md)
+
 A configuração é conduzida pelo **agente de configuração**, disponível de duas formas:
 
 - página **Configurar WhatsApp** no painel (`pages/13_Configurar_WhatsApp.py`);
@@ -57,7 +60,7 @@ Com `WHATSAPP_PROVIDER=auto`, o primeiro provedor completamente configurado é u
 | `WHATSAPP_TEMPLATE_NAME` | não | Template aprovado, necessário para envio proativo. |
 | `WHATSAPP_TEMPLATE_LANG` | não | Idioma do template. Padrão `pt_BR`. |
 
-Passo a passo:
+Passo a passo resumido (guia completo em [`TUTORIAL_WHATSAPP_META_CLOUD.md`](TUTORIAL_WHATSAPP_META_CLOUD.md)):
 
 1. Crie um app do tipo **Negócios** em [developers.facebook.com](https://developers.facebook.com) e
    adicione o produto **WhatsApp**.

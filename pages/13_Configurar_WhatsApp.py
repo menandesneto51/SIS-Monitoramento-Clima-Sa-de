@@ -238,4 +238,7 @@ with aba_cli:
     )
     st.caption("Rode na máquina do pipeline para validar o mesmo canal fora do painel.")
 
-st.caption("Guia completo em `docs/WHATSAPP_GRATUITO.md`.")
+st.caption(
+    "Tutorial passo a passo (Meta Cloud API): `docs/TUTORIAL_WHATSAPP_META_CLOUD.md` · "
+    "Referência geral: `docs/WHATSAPP_GRATUITO.md`"
+)

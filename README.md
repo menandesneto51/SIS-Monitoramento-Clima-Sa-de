@@ -17,7 +17,9 @@ O canal de WhatsApp usa provedores gratuitos (Cloud API da Meta, Evolution API a
 CallMeBot ou ponte por webhook). Para configurar, abra a página **Configurar WhatsApp** no painel
 ou rode `python -m sisclima.alerts.whatsapp_agent diagnostico`.
 
-Guia completo: [`docs/WHATSAPP_GRATUITO.md`](docs/WHATSAPP_GRATUITO.md).
+- **Tutorial passo a passo (Meta + número no WhatsApp Business):**
+  [`docs/TUTORIAL_WHATSAPP_META_CLOUD.md`](docs/TUTORIAL_WHATSAPP_META_CLOUD.md)
+- **Referência geral dos provedores:** [`docs/WHATSAPP_GRATUITO.md`](docs/WHATSAPP_GRATUITO.md)
 
 ## Atualização
 
