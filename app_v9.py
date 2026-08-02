@@ -2729,7 +2729,8 @@ elif SECTION_KEY == "Alertas":
     )
     ui_theme.callout(
         "Roteamento SES-MT: canal central (e-mail/Telegram CIEVS) recebe somente o estadual. "
-        "Regionais, municipais e Cuiabá são gerados; envio territorial só com planilha + ALERT_FANOUT_ENABLED.",
+        "Regionais, municipais e Cuiabá são gerados; envio territorial só com planilha + ALERT_FANOUT_ENABLED. "
+        "Use a prévia de roteamento abaixo (dry-run) antes de liberar o fan-out.",
         "tip",
     )
 
@@ -2743,6 +2744,7 @@ elif SECTION_KEY == "Alertas":
             payloads_to_dataframe,
             persist_payloads,
         )
+        from sisclima.alerts.contacts import plan_fanout, validate_contacts
 
         min_lvl = st.selectbox(
             "Nível mínimo para gerar boletim municipal",
@@ -2842,6 +2844,64 @@ elif SECTION_KEY == "Alertas":
         if st.button("Persistir pacotes multinível na base (`alertas_multinivel_v1`)", key="btn_persist_multi"):
             n = persist_payloads(payloads)
             st.success(f"{n} boletim(ns) gravado(s) em alertas_multinivel_v1.")
+
+        with st.expander("Prévia de roteamento territorial (dry-run — não envia)", expanded=False):
+            st.caption(
+                "Usa `data/input/contatos_alertas.csv` se existir; senão, o modelo "
+                "`config/contatos_alertas.exemplo.csv`. Nunca dispara e-mail/Telegram."
+            )
+            report = validate_contacts()
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Planilha", "OK" if report.get("ok") else "ERROS", report.get("fonte", "—"))
+            c2.metric("Linhas", report.get("n_linhas", 0), f"{report.get('n_ativos', 0)} ativos")
+            c3.metric("Erros", len(report.get("errors") or []))
+            c4.metric("Avisos", len(report.get("warnings") or []))
+            if report.get("errors"):
+                for err in report["errors"][:12]:
+                    st.error(err)
+            if report.get("warnings"):
+                for warn in report["warnings"][:12]:
+                    st.warning(warn)
+            plan = plan_fanout(payloads, allow_example=True)
+            ui_theme.insight_cards(
+                [
+                    ("Territoriais", plan.get("n_territoriais", 0), "boletins"),
+                    ("Com destinatário", plan.get("n_com_destinatario", 0), plan.get("fonte", "—")),
+                    ("Sem destinatário", plan.get("n_sem_destinatario", 0), "completar planilha"),
+                    ("Cobertura", f"{plan.get('cobertura_pct', 0)}%", "roteamento"),
+                ]
+            )
+            if status.get("fanout_dry_run"):
+                ui_theme.callout(
+                    "ALERT_FANOUT_DRY_RUN=true — o scheduler registraria status dry_run_fanout sem enviar.",
+                    "info",
+                )
+            plan_df = plan.get("plan")
+            if isinstance(plan_df, pd.DataFrame) and not plan_df.empty:
+                show_df(
+                    plan_df,
+                    [
+                        c
+                        for c in [
+                            "escopo",
+                            "alvo_nome",
+                            "nivel",
+                            "emails",
+                            "telegram_chat_ids",
+                            "n_emails",
+                            "n_chats",
+                            "status_roteamento",
+                        ]
+                        if c in plan_df.columns
+                    ],
+                    height=320,
+                )
+            else:
+                st.info("Nenhum boletim territorial no recorte/nível atuais para planejar roteamento.")
+            st.code(
+                "python -m sisclima.alerts.contacts --validate --plan",
+                language="bash",
+            )
     except Exception as exc:
         st.error(f"Falha ao montar alertas multinível: {exc}")
 
