@@ -665,7 +665,7 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "gal_positividade_estado_serie_v6",
         "sim_obitos_calor_estado_serie_v6",
     },
-    "Qualidade do ar": {"qualidade_ar_municipal", "qualidade_ar_estado_serie_v6"},
+    "Qualidade do ar": {"qualidade_ar_municipal", "qualidade_ar_estado_serie_v6", "queimadas_focos_municipal"},
     "Operacional": {
         "ops_estoque_autonomia",
         "ops_infraestrutura_resumo",
@@ -1872,9 +1872,10 @@ elif SECTION_KEY == "Assistência":
 # Tab 5
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "Qualidade do ar":
-    ui_theme.section_title("Qualidade do ar", "PM2,5, PM10, O3 e IQA — cobertura parcial no território")
+    ui_theme.section_title("Qualidade do ar", "PM2,5/IQA + focos de queimadas INPE (24h/7d)")
     ui_theme.callout(
-        "PM2,5 alto preocupa asma, idosos e crianças — comum com queimadas na seca. Município sem dado no mapa ≠ ar limpo.",
+        "PM2,5 alto preocupa asma, idosos e crianças — comum com queimadas na seca. "
+        "Focos INPE mostram fogo mesmo quando PM2,5 municipal ainda não chegou.",
         "warn",
     )
     render_interpretacao(
@@ -1885,14 +1886,55 @@ elif SECTION_KEY == "Qualidade do ar":
 
     pols = ["pm25_ugm3", "pm10_ugm3", "o3_ugm3", "no2_ugm3", "co_mgm3", "so2_ugm3", "iq_ar_score"]
     pm_nn = int(pd.to_numeric(resumo.get("pm25_ugm3"), errors="coerce").notna().sum()) if "pm25_ugm3" in resumo.columns else 0
+    focos7 = pd.to_numeric(resumo.get("focos_queimadas_7d"), errors="coerce") if "focos_queimadas_7d" in resumo.columns else pd.Series(dtype=float)
+    focos_mun = int((focos7.fillna(0) > 0).sum()) if len(focos7) else 0
     ui_theme.insight_cards(
         [
             ("Mun. com PM2,5", pm_nn, "no recorte filtrado"),
             ("PM2,5 máx.", safe_metric_value(pd.to_numeric(resumo.get("pm25_ugm3"), errors="coerce").max() if "pm25_ugm3" in resumo.columns else None, "", 1), "µg/m³"),
-            ("IQA máx.", safe_metric_value(pd.to_numeric(resumo.get("iq_ar_score"), errors="coerce").max() if "iq_ar_score" in resumo.columns else None, "", 1), "quando disponível"),
-            ("Carga saúde méd.", safe_metric_value(pd.to_numeric(resumo.get("indice_carga_saude"), errors="coerce").mean() if "indice_carga_saude" in resumo.columns else None, "", 0), "inclui ar"),
+            ("Mun. com focos 7d", focos_mun, "INPE BDQueimadas"),
+            (
+                "Focos 7d (máx.)",
+                safe_metric_value(focos7.max() if len(focos7) else None, "", 0),
+                "por município",
+            ),
         ]
     )
+
+    st.markdown("#### Queimadas INPE — ranking municipal (7 dias)")
+    if "focos_queimadas_7d" in resumo.columns and focos_mun > 0:
+        qrank = resumo.copy()
+        qrank["focos_queimadas_7d"] = pd.to_numeric(qrank["focos_queimadas_7d"], errors="coerce").fillna(0)
+        qrank = qrank[qrank["focos_queimadas_7d"] > 0].sort_values("focos_queimadas_7d", ascending=False)
+        cols_q = [
+            c
+            for c in (
+                "municipio",
+                "regional_saude",
+                "focos_queimadas_24h",
+                "focos_queimadas_7d",
+                "nivel_queimadas",
+                "pm25_ugm3",
+                "risco_ar_queimadas",
+                "nivel",
+            )
+            if c in qrank.columns
+        ]
+        show_df(qrank[cols_q].head(40), height=320)
+        map_q = first_col(map_df, ["focos_queimadas_7d", "risco_ar_queimadas", "pm25_ugm3"])
+        if map_q:
+            choropleth_or_points(
+                map_df,
+                geojson_mun,
+                map_q,
+                f"Queimadas / ar — {map_q}",
+                hover_cols=[c for c in ["nivel_queimadas", "focos_queimadas_24h", "pm25_ugm3"] if c in map_df.columns],
+            )
+    else:
+        st.info(
+            "Sem focos INPE no recorte. Confira `USE_INPE_QUEIMADAS=true` e rode "
+            "`regenerar_sistema_completo.py` ou o enrichment operacional."
+        )
 
     st.markdown("#### Série histórica estadual — média dos municípios")
     estado = aq_estado_serie.copy() if not aq_estado_serie.empty else pd.DataFrame()
@@ -1955,7 +1997,9 @@ elif SECTION_KEY == "Qualidade do ar":
         if map_col:
             choropleth_or_points(map_df, geojson_mun, map_col, f"Qualidade do ar - {map_col}", hover_cols=["qualidade_ar_nivel", "poluente_dominante", "indice_carga_saude"])
         show_df(aq_plot, height=450)
-    ui_theme.glossary_expander(["pm25_ugm3", "indice_carga_saude"])
+    ui_theme.glossary_expander(
+        ["pm25_ugm3", "focos_queimadas_7d", "focos_queimadas_24h", "nivel_queimadas", "indice_carga_saude"]
+    )
 
 # ---------------------------------------------------------------------
 # Tab 6
