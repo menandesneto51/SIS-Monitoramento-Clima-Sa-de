@@ -443,8 +443,19 @@ def reclassify_resumo(resumo: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Predição operacional 7d a partir da série met (inclui forecast Open-Meteo se houver)."""
+def build_predicao_horizon(
+    met: pd.DataFrame,
+    resumo: pd.DataFrame,
+    *,
+    days: int = 7,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Predição operacional climática no horizonte `days` (7 ou 14).
+
+    Usa forecast Open-Meteo quando houver datas futuras; senão, persistência
+    dos últimos `days` observados. Não é nowcast epidemiológico nem sazonal.
+    """
+    days = max(1, int(days))
+    suffix = f"{days}d"
     if met is None or met.empty:
         return pd.DataFrame(), pd.DataFrame()
     m = _ibge_keys(met)
@@ -452,14 +463,14 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
     today = pd.Timestamp.today().normalize()
     fut = m[m["data"] >= today].copy()
     if fut.empty:
-        fut = m[m["data"] >= (today - pd.Timedelta(days=7))].copy()
-        fonte = "persistencia_7d_observado"
+        fut = m[m["data"] >= (today - pd.Timedelta(days=days))].copy()
+        fonte = f"persistencia_{suffix}_observado"
     else:
-        fut = fut[fut["data"] <= today + pd.Timedelta(days=7)].copy()
+        fut = fut[fut["data"] <= today + pd.Timedelta(days=days)].copy()
         fonte = (
-            "openmeteo_forecast_7d"
+            f"openmeteo_forecast_{suffix}"
             if ("fonte" in m.columns and m["fonte"].astype(str).str.contains("openmeteo", case=False, na=False).any())
-            else "met_forward_7d"
+            else f"met_forward_{suffix}"
         )
 
     if fut.empty or "cod_ibge" not in fut.columns:
@@ -474,18 +485,21 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
         rows.append(
             {
                 "cod_ibge": str(cod),
-                "tmax_max_7d": pd.to_numeric(grp["tmax"], errors="coerce").max() if "tmax" in grp else np.nan,
-                "utci_proxy_max_7d": pd.to_numeric(grp["utci_proxy"], errors="coerce").max() if "utci_proxy" in grp else np.nan,
-                "risco_cumulativo_3d_max_7d": pd.to_numeric(grp["risco_cumulativo_3d"], errors="coerce").max() if "risco_cumulativo_3d" in grp else np.nan,
-                "dias_onda_calor_prevista_7d": float(pd.to_numeric(grp["onda_calor_p95_2d"], errors="coerce").fillna(0).sum()) if "onda_calor_p95_2d" in grp else 0.0,
+                f"tmax_max_{suffix}": pd.to_numeric(grp["tmax"], errors="coerce").max() if "tmax" in grp else np.nan,
+                f"utci_proxy_max_{suffix}": pd.to_numeric(grp["utci_proxy"], errors="coerce").max() if "utci_proxy" in grp else np.nan,
+                f"risco_cumulativo_3d_max_{suffix}": pd.to_numeric(grp["risco_cumulativo_3d"], errors="coerce").max() if "risco_cumulativo_3d" in grp else np.nan,
+                f"dias_onda_calor_prevista_{suffix}": float(pd.to_numeric(grp["onda_calor_p95_2d"], errors="coerce").fillna(0).sum()) if "onda_calor_p95_2d" in grp else 0.0,
+                "horizonte_dias": days,
+                "dias_com_dado": int(grp["data"].nunique()),
             }
         )
     agg = pd.DataFrame(rows)
 
     def _nivel_pred(row) -> str:
         score = 0
-        if pd.notna(row.get("risco_cumulativo_3d_max_7d")):
-            r = float(row["risco_cumulativo_3d_max_7d"])
+        r = row.get(f"risco_cumulativo_3d_max_{suffix}")
+        if pd.notna(r):
+            r = float(r)
             if r >= 18:
                 score = max(score, 4)
             elif r >= 12:
@@ -494,8 +508,9 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
                 score = max(score, 2)
             elif r >= 3:
                 score = max(score, 1)
-        if pd.notna(row.get("utci_proxy_max_7d")):
-            u = float(row["utci_proxy_max_7d"])
+        u = row.get(f"utci_proxy_max_{suffix}")
+        if pd.notna(u):
+            u = float(u)
             if u >= 44:
                 score = max(score, 4)
             elif u >= 40:
@@ -504,8 +519,9 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
                 score = max(score, 2)
             elif u >= 32:
                 score = max(score, 1)
-        if pd.notna(row.get("tmax_max_7d")):
-            t = float(row["tmax_max_7d"])
+        t = row.get(f"tmax_max_{suffix}")
+        if pd.notna(t):
+            t = float(t)
             if t >= 40:
                 score = max(score, 3)
             elif t >= 37:
@@ -514,9 +530,11 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
                 score = max(score, 1)
         return LEVEL_ORDER[min(score + 1, 5)]
 
-    agg["nivel_predicao_7d"] = agg.apply(_nivel_pred, axis=1)
-    agg["risco_preditivo_score"] = agg["nivel_predicao_7d"].map(STAGE_ORDER).fillna(0).astype(int)
+    nivel_col = f"nivel_predicao_{suffix}"
+    agg[nivel_col] = agg.apply(_nivel_pred, axis=1)
+    agg["risco_preditivo_score"] = agg[nivel_col].map(STAGE_ORDER).fillna(0).astype(int)
     agg["fonte_predicao"] = fonte
+    agg["data_processamento"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if not resumo.empty and "municipio" in resumo.columns:
         mun_cols = ["cod_ibge", "municipio"] + (["regional_saude"] if "regional_saude" in resumo.columns else [])
@@ -533,12 +551,18 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
                 risco_preditivo_score=("risco_preditivo_score", "max"),
             )
         )
-        reg["nivel_predicao_7d"] = reg["risco_preditivo_score"].map(
+        reg[nivel_col] = reg["risco_preditivo_score"].map(
             lambda s: LEVEL_ORDER[min(int(s) + 1, 5)] if pd.notna(s) else "verde"
         )
+        reg["horizonte_dias"] = days
     else:
         reg = pd.DataFrame()
     return agg, reg
+
+
+def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Compat: predição operacional 7d."""
+    return build_predicao_horizon(met, resumo, days=7)
 
 
 def build_alerta_inteligente(resumo: pd.DataFrame, pred: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -852,6 +876,15 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     pred, pred_reg = build_predicao_7d(met, resumo)
     write_df(pred, "predicao_calor_7d_municipal_v6")
     write_df(pred_reg, "predicao_calor_7d_regional_v6")
+    # Horizonte 14d (clima operacional — não é nowcast epidemiológico)
+    pred14, pred14_reg = pd.DataFrame(), pd.DataFrame()
+    try:
+        pred14, pred14_reg = build_predicao_horizon(met, resumo, days=14)
+        write_df(pred14 if pred14 is not None else pd.DataFrame(), "predicao_calor_14d_municipal")
+        write_df(pred14_reg if pred14_reg is not None else pd.DataFrame(), "predicao_calor_14d_regional")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Predição 14d não gerada: %s", exc)
+        pred14, pred14_reg = pd.DataFrame(), pd.DataFrame()
 
     # Indicadores compostos do painel (tensão climática, vigilância, tendência 7d…)
     from sisclima.engines.panel_indicators import (
@@ -1062,6 +1095,18 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         log.warning("Consolidação saúde-calor falhou: %s", exc)
         saude_meta = {"ok": False, "erro": str(exc)}
 
+    # Governança de frescor/completude por fonte (após materializar as tabelas)
+    try:
+        from sisclima.engines.data_freshness import build_fonte_freshness, summarize_freshness
+
+        freshness = build_fonte_freshness()
+        write_df(freshness, "fonte_frescor_estado")
+        freshness_summary = summarize_freshness(freshness)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Frescor de fontes não gerado: %s", exc)
+        freshness = pd.DataFrame()
+        freshness_summary = {}
+
     summary = {
         "municipios": len(resumo),
         "com_pressao": int(pd.to_numeric(resumo.get("pressao_calor_pct"), errors="coerce").notna().sum()) if "pressao_calor_pct" in resumo.columns else 0,
@@ -1076,6 +1121,8 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         "hidro_risco": len(hidro) if hidro is not None else 0,
         "alerta_integrado": len(alerta_int) if alerta_int is not None else 0,
         "predicao_7d": len(pred),
+        "predicao_14d": len(pred14) if pred14 is not None else 0,
+        "fonte_frescor": freshness_summary,
         "alerta_inteligente": len(alerta),
         "indicadores_painel": len(snap) if not snap.empty else 0,
         "adaptasus_municipios": len(adapt_mun) if adapt_mun is not None else 0,
