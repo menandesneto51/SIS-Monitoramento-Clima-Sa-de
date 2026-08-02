@@ -148,12 +148,46 @@ def _score_ausente(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
     return pd.Series(np.nan, index=df.index), pd.Series(0.0, index=df.index)
 
 
+def _score_wash(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+    """Risco WASH 0–100 a partir do déficit domiciliar IBGE (+ amplificação por estiagem)."""
+    base = None
+    if "indice_deficit_wash" in df.columns:
+        base = _num(df["indice_deficit_wash"])
+    else:
+        parts = []
+        if "deficit_rede_agua_pct" in df.columns:
+            parts.append(_num(df["deficit_rede_agua_pct"]))
+        if "deficit_esgoto_inadequado_pct" in df.columns:
+            parts.append(_num(df["deficit_esgoto_inadequado_pct"]))
+        if "deficit_agua_canalizada_pct" in df.columns:
+            parts.append(_num(df["deficit_agua_canalizada_pct"]))
+        if parts:
+            mat = np.column_stack([p.fillna(np.nan).to_numpy(dtype=float) for p in parts])
+            base = pd.Series(np.nanmean(mat, axis=1), index=df.index)
+    if base is None:
+        return pd.Series(np.nan, index=df.index), pd.Series(0.0, index=df.index)
+
+    score = base.clip(0, 100)
+    # Estiagem / baixa umidade amplifica déficit de água (não inventa risco sem dado WASH)
+    amp = pd.Series(0.0, index=df.index)
+    if "precipitacao_mm" in df.columns:
+        amp = np.maximum(amp, _clip01((3.0 - _num(df["precipitacao_mm"])) / 3.0) * 0.15)
+    if "umidade_media" in df.columns:
+        amp = np.maximum(amp, _clip01((40.0 - _num(df["umidade_media"])) / 30.0) * 0.12)
+    if "dias_sem_chuva_max" in df.columns:
+        amp = np.maximum(amp, _clip01(_num(df["dias_sem_chuva_max"]) / 35.0) * 0.15)
+    score = (score * (1.0 + amp)).clip(0, 100)
+    cov = base.notna().astype(float)
+    score = score.where(base.notna(), np.nan)
+    return score, cov
+
+
 _SCORE_FN = {
     "temperatura_extrema": _score_temperatura,
     "poluicao_ar": _score_poluicao,
     "vetoriais_zoonoses": _score_vetorial,
     "precipitacao_extrema": _score_precipitacao,
-    "wash": _score_ausente,
+    "wash": _score_wash,
     "san": _score_ausente,
 }
 
@@ -301,6 +335,8 @@ def enrich_adaptasus_intelligence(resumo: pd.DataFrame) -> tuple[pd.DataFrame, p
             "orientacao_adaptasus", "checklist_adaptasus",
             "risco_calor_vulneravel", "risco_ar_queimadas", "risco_vetorial_climatico",
             "pressao_rede_climatica", "risco_precipitacao",
+            "indice_deficit_wash", "cobertura_rede_agua_pct", "deficit_rede_agua_pct",
+            "cobertura_esgoto_rede_pct", "deficit_esgoto_inadequado_pct",
         ] + [f"risco_{r}" for r in RISK_IDS] + [f"cobertura_{r}" for r in RISK_IDS]
         if c in df.columns
     ]

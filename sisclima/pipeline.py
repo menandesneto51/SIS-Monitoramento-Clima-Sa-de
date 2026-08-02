@@ -726,6 +726,30 @@ def run_pipeline(send_alerts: bool = True) -> dict:
                 if 'tmin' in resumo_mun.columns and 'tmin' in fm.columns:
                     resumo_mun = resumo_mun.drop(columns=['tmin'])
                 resumo_mun = resumo_mun.merge(fm, on='cod_ibge', how='left')
+        # WASH IBGE (Censo) → colunas no resumo / AdaptaSUS
+        try:
+            from sisclima.ingestion.ibge_wash import load_wash_municipal
+
+            wash = load_wash_municipal()
+            write_df(wash if wash is not None else pd.DataFrame(), 'wash_municipal')
+            if wash is not None and not wash.empty and 'cod_ibge' in wash.columns and not resumo_mun.empty:
+                wcols = [
+                    c for c in (
+                        'cod_ibge', 'cobertura_rede_agua_pct', 'deficit_rede_agua_pct',
+                        'cobertura_agua_canalizada_pct', 'deficit_agua_canalizada_pct',
+                        'cobertura_esgoto_rede_pct', 'deficit_esgoto_inadequado_pct',
+                        'indice_deficit_wash', 'fonte_wash',
+                    ) if c in wash.columns
+                ]
+                wm = wash[wcols].drop_duplicates('cod_ibge')
+                wm['cod_ibge'] = wm['cod_ibge'].astype(str)
+                resumo_mun['cod_ibge'] = resumo_mun['cod_ibge'].astype(str)
+                for c in wcols:
+                    if c != 'cod_ibge' and c in resumo_mun.columns:
+                        resumo_mun = resumo_mun.drop(columns=[c])
+                resumo_mun = resumo_mun.merge(wm, on='cod_ibge', how='left')
+        except Exception as exc:
+            print(f'[AVISO] WASH IBGE não mesclado: {exc}')
         write_df(resumo_mun, 'resumo_municipal_atual')
 
         # Completa gaps (pressão proxy, arbo/SIVEP/AQ, correlação, predição, alerta inteligente)

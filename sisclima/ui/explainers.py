@@ -195,7 +195,27 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
     "risco_adaptasus_dominante": {
         "nome": "Risco AdaptaSUS dominante",
         "leigo": "Qual dos 6 riscos prioritários mais pressiona o município hoje.",
-        "como_ler": "Use para escolher o checklist SOP (calor, ar, vetorial, chuva…). Lacunas WASH/SAN ficam explícitas.",
+        "como_ler": "Use para escolher o checklist SOP (calor, ar, vetorial, chuva…). SAN permanece lacuna explícita.",
+    },
+    "risco_wash": {
+        "nome": "Risco WASH (água/saneamento)",
+        "leigo": "Déficit domiciliar de rede de água e esgoto (Censo IBGE), amplificado em estiagem.",
+        "como_ler": "Alto = mais domicílios sem rede adequada. Não substitui monitoramento operacional SNIS/SINISA em tempo real.",
+    },
+    "indice_deficit_wash": {
+        "nome": "Índice de déficit WASH",
+        "leigo": "Combina falta de rede de água, água não canalizada e esgoto inadequado (0–100).",
+        "como_ler": "Base estrutural (Censo). Em estiagem o risco AdaptaSUS pode subir acima deste piso.",
+    },
+    "cobertura_rede_agua_pct": {
+        "nome": "Cobertura rede de água (%)",
+        "leigo": "% de domicílios com ligação à rede geral usada como forma principal (Censo 2022).",
+        "como_ler": "Complementar com Vigilância Ambiental em eventos de desabastecimento.",
+    },
+    "deficit_esgoto_inadequado_pct": {
+        "nome": "Déficit esgoto inadequado (%)",
+        "leigo": "% de domicílios com fossa rudimentar, vala, corpo d'água ou sem banheiro.",
+        "como_ler": "Prioriza risco de veiculação hídrica após chuva intensa ou em seca prolongada.",
     },
     "risco_calor_vulneravel": {
         "nome": "Risco calor × vulnerabilidade",
@@ -313,7 +333,7 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
     "AdaptaSUS / Guia MS": {
         "para_que_serve": "Alinhar a operação CIEVS-MT aos 6 riscos prioritários do AdaptaSUS e ao Guia MS.",
         "como_usar": "Veja cobertura estadual, risco dominante no mapa e ranking por índice de adaptação.",
-        "cuidado": "WASH/SAN ainda sem fonte — lacuna explícita, não risco zero.",
+        "cuidado": "SAN ainda sem fonte SES — lacuna explícita, não risco zero. WASH usa Censo IBGE (estrutural).",
     },
     "Sazonalidade / OR": {
         "para_que_serve": "Mostrar sazonalidade histórica e OR ecológico clima–agravos/ocupação.",

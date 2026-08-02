@@ -94,10 +94,10 @@ GUIDE_OPERACIONAL = guide_card(
 GUIDE_ADAPTASUS = guide_card(
     "Como ler AdaptaSUS / Guia MS",
     [
-        "<b>Seis riscos</b>: calor, ar/queimadas, vetorial, precipitação, pressão na rede, WASH (lacuna).",
+        "<b>Seis riscos</b>: calor, ar/queimadas, vetorial, precipitação, WASH (Censo IBGE), SAN (lacuna).",
         "<b>Índice de adaptação</b>: 0–100 — pressão relativa dos riscos AdaptaSUS cobertos.",
         "<b>Orientação</b>: texto operacional por risco dominante.",
-        "<b>WASH/SAN</b>: ausência de fonte ≠ risco zero — lacuna explícita.",
+        "<b>SAN</b>: ausência de fonte ≠ risco zero — lacuna explícita. WASH = Censo estrutural.",
     ],
 )
 
@@ -489,7 +489,7 @@ def narrativa_adaptasus(resumo: pd.DataFrame) -> str:
         "AdaptaSUS",
         olhar,
         achados,
-        ["- WASH sem fonte = lacuna, não risco zero."],
+        ["- SAN sem fonte = lacuna, não risco zero; WASH via Censo IBGE."],
         ["- Abrir ranking AdaptaSUS e cruzar com Alertas."],
     )
 

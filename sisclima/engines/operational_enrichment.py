@@ -827,6 +827,40 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
 
     resumo = enrich_panel_indicators(resumo, pred)
 
+    # WASH IBGE (antes do AdaptaSUS, para alimentar risco_wash)
+    try:
+        from sisclima.ingestion.ibge_wash import load_wash_municipal
+        from sisclima.core.config import as_bool, env
+
+        if as_bool(env("USE_IBGE_WASH", "true"), True):
+            wash = load_wash_municipal()
+            write_df(wash if wash is not None else pd.DataFrame(), "wash_municipal")
+            if wash is not None and not wash.empty and "cod_ibge" in wash.columns:
+                wcols = [
+                    c
+                    for c in (
+                        "cod_ibge",
+                        "cobertura_rede_agua_pct",
+                        "deficit_rede_agua_pct",
+                        "cobertura_agua_canalizada_pct",
+                        "deficit_agua_canalizada_pct",
+                        "cobertura_esgoto_rede_pct",
+                        "deficit_esgoto_inadequado_pct",
+                        "indice_deficit_wash",
+                        "fonte_wash",
+                    )
+                    if c in wash.columns
+                ]
+                wm = wash[wcols].drop_duplicates("cod_ibge")
+                wm["cod_ibge"] = wm["cod_ibge"].astype(str)
+                resumo["cod_ibge"] = resumo["cod_ibge"].astype(str)
+                for col in wcols:
+                    if col != "cod_ibge" and col in resumo.columns:
+                        resumo = resumo.drop(columns=[col])
+                resumo = resumo.merge(wm, on="cod_ibge", how="left")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("WASH IBGE não mesclado no enrichment: %s", exc)
+
     # Inteligência AdaptaSUS / Guia MS (scores por risco + derivados)
     from sisclima.engines.adaptasus_intelligence import enrich_adaptasus_intelligence
 
@@ -850,6 +884,8 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
             "percentil_risco_estadual", "orientacao_leiga", "orientacao_adaptasus",
             "risco_adaptasus_dominante", "risco_calor_vulneravel", "risco_ar_queimadas",
             "risco_vetorial_climatico", "pressao_rede_climatica",
+            "indice_deficit_wash", "risco_wash", "cobertura_rede_agua_pct",
+            "deficit_esgoto_inadequado_pct",
         ]
         if c in resumo.columns and c not in base_cols
     ]
