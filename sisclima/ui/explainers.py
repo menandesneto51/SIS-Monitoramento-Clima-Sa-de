@@ -282,6 +282,36 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "leigo": "Nível único que une estágio SIS com INMET, Cemaden, solo e hidro.",
         "como_ler": "É o max das camadas. Veja o componente dominante para saber o que puxou o alerta.",
     },
+    "status_frescor": {
+        "nome": "Status de frescor da fonte",
+        "leigo": "Se o dado daquela fonte está em dia, atrasado, crítico, ausente ou é estrutural (Censo).",
+        "como_ler": "ok ≤ limiar; atrasado = atenção; critico/sem_dado = priorizar coleta; estrutural = Censo, sem refresh diário.",
+    },
+    "idade_dias": {
+        "nome": "Idade do dado (dias)",
+        "leigo": "Quantos dias se passaram desde a última observação/referência da fonte.",
+        "como_ler": "0–2 dias costuma ser operacional para clima; epidemiológico tolera mais; Censo pode ter centenas de dias.",
+    },
+    "nivel_predicao_14d": {
+        "nome": "Nível preditivo 14 dias",
+        "leigo": "Síntese do calor previsto nos próximos ~14 dias (Open-Meteo ou persistência).",
+        "como_ler": "Mesma escala Verde→Roxa da predição 7d. É horizonte climático, não nowcast epidemiológico.",
+    },
+    "nivel_rio": {
+        "nome": "Nível operacional do rio",
+        "leigo": "Estágio da cota/vazão ANA no município (proxy vs P90 da série local).",
+        "como_ler": "Alinhado ao IDAP A6 do Vigibarragens. Não substitui cota de alerta nominal da Defesa Civil.",
+    },
+    "razao_nivel_cota_alerta": {
+        "nome": "Razão cota / P90 local",
+        "leigo": "Quão perto a cota atual está do percentil 90 da série recente da estação.",
+        "como_ler": "≥1 ≈ acima do P90 (atenção a cheia). Série curta → interprete com cautela.",
+    },
+    "perspectiva_pressao_14d": {
+        "nome": "Perspectiva de pressão 14d",
+        "leigo": "Mistura a pressão atual da rede com o clima previsto em 14 dias.",
+        "como_ler": "Semáforo G/A/V. Não é nowcast de casos — é apoio à priorização do plantão.",
+    },
 }
 
 SECTION_GUIDES: dict[str, dict[str, str]] = {
@@ -341,9 +371,14 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Cobertura de estações é desigual no território.",
     },
     "Inteligência": {
-        "para_que_serve": "Predição 7 dias, alerta inteligente e indicadores compostos AdaptaSUS.",
-        "como_usar": "Use para a semana seguinte; cruze com a aba AdaptaSUS / Guia MS.",
-        "cuidado": "Predição 7d ≠ forecast mensal de setembro.",
+        "para_que_serve": "Predição climática 7d/14d, alerta inteligente e indicadores compostos AdaptaSUS.",
+        "como_usar": "Use 7d para a semana seguinte e 14d para o horizonte climático Open-Meteo; cruze com AdaptaSUS / Guia MS.",
+        "cuidado": "Predição 7d/14d é climática — não é nowcast epidemiológico nem projeção sazonal de setembro.",
+    },
+    "Frescor de dados": {
+        "para_que_serve": "Mostrar idade, status e cobertura das fontes que alimentam o painel.",
+        "como_usar": "Na Visão executiva ou em Cálculos, priorize refresh das fontes críticas/atrasadas.",
+        "cuidado": "Fonte estrutural (Censo) com idade alta não é falha operacional.",
     },
     "AdaptaSUS / Guia MS": {
         "para_que_serve": "Alinhar a operação CIEVS-MT aos 6 riscos prioritários do AdaptaSUS e ao Guia MS.",

@@ -196,9 +196,17 @@ def step_validate() -> dict:
         "indice_pressao_saude_municipal_v1",
         "alertas_multinivel_v1",
         "predicao_calor_7d_municipal_v6",
+        "predicao_calor_14d_municipal",
         "alerta_integrado_sis_titan",
         "hospital_ocupacao_municipio",
         "epi_arboviroses_municipal",
+        "fonte_frescor_estado",
+        "fonte_status_regeneracao",
+        "niveis_rios_municipal",
+        "perspectiva_pressao_14d_municipal",
+        "wash_municipal",
+        "san_municipal",
+        "queimadas_focos_municipal",
     ]
     out = {"backend": backend_name(), "tables": {}}
     for t in tables:
@@ -206,6 +214,25 @@ def step_validate() -> dict:
         out["tables"][t] = int(len(df))
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return out
+
+
+def step_fonte_status(report: dict) -> dict:
+    _step("Status de confiabilidade das fontes (DW / IndicaSUS / SISREG / ANA / SAN)")
+    from sisclima.core.db import write_df
+    from sisclima.engines.fonte_status import build_fonte_status_regeneracao, ensure_san_lacuna_table
+
+    write_df(ensure_san_lacuna_table(), "san_municipal", if_exists="replace")
+    status = build_fonte_status_regeneracao(report=report)
+    write_df(status, "fonte_status_regeneracao", if_exists="replace")
+    summary = {
+        "n": int(len(status)),
+        "por_status": status["status"].value_counts().to_dict() if not status.empty else {},
+    }
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+    if not status.empty:
+        for _, row in status.iterrows():
+            print(f"  [{row['status']}] {row['fonte_nome']}: {row['detalhe']}")
+    return summary
 
 
 def main() -> int:
@@ -227,6 +254,7 @@ def main() -> int:
         if not args.skip_sisreg:
             report["sisreg"] = step_sisreg()
         report["pressao_alertas"] = step_pressao_alertas()
+        report["fonte_status"] = step_fonte_status(report)
         report["validacao"] = step_validate()
         if args.pptx:
             report["pptx"] = step_pptx()
@@ -243,6 +271,10 @@ def main() -> int:
         report["ok"] = False
         report["error"] = str(exc)
         report["finished_at"] = datetime.now().isoformat(timespec="seconds")
+        try:
+            report["fonte_status"] = step_fonte_status(report)
+        except Exception:  # noqa: BLE001
+            pass
         err_path = ROOT / "logs" / f"regeneracao_ERRO_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         err_path.parent.mkdir(parents=True, exist_ok=True)
         err_path.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
