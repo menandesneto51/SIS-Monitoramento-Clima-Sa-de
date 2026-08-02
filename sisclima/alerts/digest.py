@@ -178,19 +178,35 @@ def build_orientacoes_ses_setores(payload: dict[str, Any]) -> dict[str, str]:
     vals: dict[str, float | None] = {}
     for ind in payload.get("indicadores") or []:
         campo = str(ind.get("campo") or "")
-        if campo in {"utci_proxy", "ocupacao_leitos_pct", "pm25_ugm3", "incidencia_arbovirus_100k", "risco_cumulativo_3d"}:
+        if campo in {
+            "utci_proxy",
+            "ocupacao_leitos_pct",
+            "pm25_ugm3",
+            "incidencia_arbovirus_100k",
+            "risco_cumulativo_3d",
+            "focos_queimadas_7d",
+            "razao_nivel_cota_alerta",
+            "perspectiva_pressao_14d",
+        }:
             vals[campo] = _parse_num(ind.get("valor"))
 
     utci = vals.get("utci_proxy")
     ocup = vals.get("ocupacao_leitos_pct")
     pm = vals.get("pm25_ugm3")
     arbo = vals.get("incidencia_arbovirus_100k")
+    focos = vals.get("focos_queimadas_7d")
+    razao_rio = vals.get("razao_nivel_cota_alerta")
+    persp = vals.get("perspectiva_pressao_14d")
 
     cievs = (
         f"Manter sala de situação ativa ({LEVEL_LABEL.get(nivel, nivel)}). "
         f"Articular {n_crit} município(s) em vermelha/roxa e {n_lar} em laranja. "
         f"Foco: {top_names or 'municípios de maior pontuação'}."
     )
+    if persp is not None and persp >= 70:
+        cievs += f" Perspectiva de pressão 14d elevada (~{persp:.0f}) — antecipar contingência (não é nowcast epi)."
+    if razao_rio is not None and razao_rio >= 1.0:
+        cievs += " Cotas ANA acima do P90 local — cruzar com Cemaden/Defesa Civil."
     hospitalar = (
         "Verificar leitos e plano de contingência hospitalar nas regionais prioritárias"
         + (f" (ocupação estadual ~{ocup:.1f}%)".replace(".", ",") if ocup is not None else "")
@@ -221,8 +237,13 @@ def build_orientacoes_ses_setores(payload: dict[str, Any]) -> dict[str, str]:
     )
     amb = (
         "Eliminar criadouros e comunicar risco de dengue; "
-        + (f"acompanhar ar (PM2,5 pico ~{pm:.0f} µg/m³)." if pm is not None else "acompanhar qualidade do ar.")
+        + (f"acompanhar ar (PM2,5 pico ~{pm:.0f} µg/m³)" if pm is not None else "acompanhar qualidade do ar")
     )
+    if focos is not None and focos >= 20:
+        amb += f"; queimadas INPE ~{focos:.0f} focos/7d — reforçar comunicação sobre fumaça"
+    if razao_rio is not None and razao_rio >= 0.9:
+        amb += "; monitorar níveis de rio (telemetria ANA) e áreas de alagamento"
+    amb += "."
     comunicacao = (
         f"Boletim unificado às Regionais; mensagens de hidratação e evitar pico de calor; "
         f"antecipar comunicação aos {n_up} municípios com tendência de piora em ~7 dias."
@@ -537,6 +558,10 @@ def build_orientacoes_municipal(payload: dict[str, Any]) -> dict[str, str]:
     ocup = _parse_num(payload.get("ocupacao_leitos_pct"))
     pm = _parse_num(payload.get("pm25_ugm3"))
     risco = _parse_num(payload.get("risco_cumulativo_3d"))
+    focos = _parse_num(payload.get("focos_queimadas_7d"))
+    onda_fria = _parse_num(payload.get("onda_fria_2d"))
+    nivel_rio = str(payload.get("nivel_rio") or "").strip().lower()
+    razao_rio = _parse_num(payload.get("razao_nivel_cota_alerta"))
     for ind in payload.get("indicadores") or []:
         c = str(ind.get("campo") or "")
         if c == "utci_proxy" and utci is None:
@@ -547,6 +572,10 @@ def build_orientacoes_municipal(payload: dict[str, Any]) -> dict[str, str]:
             pm = _parse_num(ind.get("valor"))
         if c == "risco_cumulativo_3d" and risco is None:
             risco = _parse_num(ind.get("valor"))
+        if c == "focos_queimadas_7d" and focos is None:
+            focos = _parse_num(ind.get("valor"))
+        if c == "razao_nivel_cota_alerta" and razao_rio is None:
+            razao_rio = _parse_num(ind.get("valor"))
 
     gestor = (
         f"Manter sala de situação municipal ({LEVEL_LABEL.get(nivel, nivel)}); "
@@ -558,6 +587,12 @@ def build_orientacoes_municipal(payload: dict[str, Any]) -> dict[str, str]:
         gestor += f" Ocupação de leitos elevada (~{ocup:.0f}%) — acionar contingência hospitalar."
     elif ocup is not None:
         gestor += " Monitorar tendência de leitos e filas de regulação."
+    if nivel_rio in {"laranja", "vermelha", "roxa"} or (razao_rio is not None and razao_rio >= 1.0):
+        gestor += " Nível de rio elevado (ANA) — articular Defesa Civil e vigilância de áreas alagáveis."
+    if focos is not None and focos >= 20:
+        gestor += f" Queimadas ~{focos:.0f} focos/7d — orientar redução de exposição à fumaça."
+    if onda_fria is not None and onda_fria >= 1:
+        gestor += " Onda de frio — garantir abrigo/aquecimento seguro para vulneráveis."
 
     profissional = (
         "Priorizar idosos, gestantes, crianças e pessoas em situação de rua; "
@@ -567,6 +602,10 @@ def build_orientacoes_municipal(payload: dict[str, Any]) -> dict[str, str]:
         profissional += " Risco de calor acumulado alto — ampliar observação em ambiente climatizado."
     if pm is not None and pm >= 15:
         profissional += f" Atenção respiratória: PM2,5 ~{pm:.0f} µg/m³."
+    if onda_fria is not None and onda_fria >= 1:
+        profissional += " Em frio extremo: reforçar atenção a pneumonia/COPD e hipotermia."
+    if nivel_rio in {"laranja", "vermelha", "roxa"}:
+        profissional += " Em cheia: preparar resposta a diarréia/lesões e interrupção de água."
 
     populacao = (
         "Hidrate-se; evite o sol no pico de calor; use roupas leves; "
@@ -578,6 +617,10 @@ def build_orientacoes_municipal(payload: dict[str, Any]) -> dict[str, str]:
             + populacao
             + " Procure pontos de resfriamento/hidratação da prefeitura."
         )
+    if onda_fria is not None and onda_fria >= 1:
+        populacao += " Em frio intenso: agasalhe-se, evite aquecedores improvisados e procure abrigo se necessário."
+    if focos is not None and focos >= 20:
+        populacao += " Com fumaça de queimadas: reduza atividades ao ar livre e proteja crianças/idosos."
     if STAGE_ORDER.get(nivel, -1) >= STAGE_ORDER.get("vermelha", 3):
         populacao += " Situação de alto risco — siga apenas canais oficiais."
 

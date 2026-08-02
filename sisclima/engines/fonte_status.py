@@ -191,6 +191,27 @@ def build_fonte_status_regeneracao(*, report: dict[str, Any] | None = None) -> p
         status="estrutural" if wash_regs else "sem_dado",
     )
 
+    # Queimadas INPE
+    q_regs = _count("queimadas_focos_municipal")
+    q_mun = _munis("queimadas_focos_municipal")
+    if not as_bool(env("USE_INPE_QUEIMADAS", "true"), True):
+        st, det = "desligado", "USE_INPE_QUEIMADAS=false"
+    elif q_regs == 0:
+        st, det = "sem_dado", "queimadas_focos_municipal vazio"
+    else:
+        st, det = "ok", f"{q_mun} munis com agregação INPE"
+    add(
+        "inpe_queimadas",
+        "Queimadas INPE (focos)",
+        flag=as_bool(env("USE_INPE_QUEIMADAS", "true"), True),
+        tcp_ok=None,
+        registros=q_regs,
+        municipios=q_mun,
+        senha_ok=None,
+        detalhe=det,
+        status=st,
+    )
+
     return pd.DataFrame(rows)
 
 

@@ -27,7 +27,7 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 | Vetoriais / zoonoses | Parcial (arboviroses) | `casos_arbovirus_7d`, `risco_vetorial_climatico` | `epi_arboviroses_*` |
 | Extremos de precipitação | Parcial | `precipitacao_mm`, Cemaden/ANA | `cemaden_alertas`, `ana_*` |
 | WASH | Parcial (Censo IBGE 2022) | `cobertura_rede_agua_pct`, `deficit_esgoto_inadequado_pct`, `indice_deficit_wash`, `risco_wash` | `wash_municipal`, `adaptasus_intelligence` |
-| SAN | Ausente | — | Fase 2 (fonte SES/SISVAN) |
+| SAN | Ausente (lacuna explícita) | stub `san_municipal` (`status=lacuna`) | Fase 2 (SISVAN/CadÚnico sob acordo SES) |
 
 ## Artefatos gerados pelo SIS
 
