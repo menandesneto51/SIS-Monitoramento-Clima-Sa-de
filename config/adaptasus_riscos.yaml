@@ -37,6 +37,11 @@ riscos:
       - severidade_onda_fria
       - indice_tensao_climatica
       - risco_calor_vulneravel
+      - indice_vulnerabilidade_calor
+      - pop_vulneravel_exposta
+      - indice_exposicao_vulneravel
+      - idosos_pct
+      - criancas_0_4_pct
     gatilhos:
       calor_utci: 32
       calor_risco3d: 7

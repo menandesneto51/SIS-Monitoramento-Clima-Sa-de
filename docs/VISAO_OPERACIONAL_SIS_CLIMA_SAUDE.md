@@ -103,7 +103,7 @@ Entrada: `streamlit_app.py` → `app_v9.py`.
 3. Séries Galileo/SIM/GeoCalor completas na base Postgres em todas as rodadas.
 4. Templates HTML ricos com ícones estáticos para e-mail institucional.
 5. Integração SISREG → popular `ops_sisreg_municipio` (contrato em `sql/ops_sisreg_municipio_contrato.sql`).
-6. SAN / insegurança alimentar (SISVAN/CadÚnico) — WASH já cobre déficit estrutural via Censo IBGE 2022.
+6. SAN / insegurança alimentar (SISVAN/CadÚnico) — WASH (Censo IBGE) e vulnerabilidade × exposição já cobrem os KPIs estruturais.
 
 ## 8. Princípio de operação
 

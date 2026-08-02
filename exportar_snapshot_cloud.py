@@ -63,6 +63,7 @@ TABLES = [
     "geocalor_cardioresp_rr_municipal_v11_12",
     "adaptasus_risco_estado",
     "adaptasus_risco_municipal",
+    "geo_vulnerabilidade_municipal",
     "ops_estoque_autonomia",
     "ops_infraestrutura_resumo",
     "ops_resumo_operacional_proxy",

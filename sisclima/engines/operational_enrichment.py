@@ -168,8 +168,19 @@ def enrich_resumo_columns(resumo: pd.DataFrame) -> pd.DataFrame:
             else:
                 out["municipio"] = out["municipio"].fillna(out[cand])
 
-    # População / regional a partir da vulnerabilidade
+    # População / regional / demografia IBGE a partir da vulnerabilidade
     vuln = read_table("geo_vulnerabilidade_municipal")
+    if vuln.empty:
+        try:
+            from sisclima.ingestion.ibge_vulnerabilidade import load_vulnerabilidade_municipal
+            from sisclima.engines.resilience import vulnerability_index
+
+            demo = load_vulnerabilidade_municipal()
+            if not demo.empty:
+                vuln = vulnerability_index(demo)
+                write_df(vuln, "geo_vulnerabilidade_municipal")
+        except Exception:
+            vuln = pd.DataFrame()
     if not vuln.empty:
         v = vuln.copy()
         v = _ibge_keys(v)
@@ -177,18 +188,42 @@ def enrich_resumo_columns(resumo: pd.DataFrame) -> pd.DataFrame:
             v["populacao"] = pd.to_numeric(v["populacao_x"], errors="coerce")
         elif "populacao_y" in v.columns:
             v["populacao"] = pd.to_numeric(v.get("populacao", v["populacao_y"]), errors="coerce")
+        if "populacao" not in v.columns and "populacao_censo_2022" in v.columns:
+            v["populacao"] = pd.to_numeric(v["populacao_censo_2022"], errors="coerce")
         if "municipio_x" in v.columns:
             v["municipio_geo"] = v["municipio_x"]
-        keep = [c for c in ["cod_ibge", "populacao", "indice_vulnerabilidade_calor", "regional_saude", "municipio_geo", "lat", "lon"] if c in v.columns]
+        keep = [
+            c for c in [
+                "cod_ibge", "populacao", "indice_vulnerabilidade_calor", "cobertura_vulnerabilidade_pct",
+                "regional_saude", "municipio_geo", "lat", "lon",
+                "idosos_pct", "criancas_0_4_pct", "criancas_0_9_pct", "rural_pct", "densidade",
+                "area_km2", "idosos_60mais", "criancas_0_4", "fonte_vulnerabilidade",
+            ]
+            if c in v.columns
+        ]
         v = v[keep].drop_duplicates("cod_ibge")
-        # evita colisão de lat/lon/populacao já preenchidos
-        overlap = [c for c in keep if c != "cod_ibge" and c in out.columns]
+        # Campos demográficos: sempre atualizam quando o índice legado está flat (=50)
+        force_demo = [
+            "idosos_pct", "criancas_0_4_pct", "criancas_0_9_pct", "rural_pct", "densidade",
+            "area_km2", "idosos_60mais", "criancas_0_4", "fonte_vulnerabilidade",
+            "cobertura_vulnerabilidade_pct",
+        ]
+        flat_vuln = (
+            "indice_vulnerabilidade_calor" in out.columns
+            and pd.to_numeric(out["indice_vulnerabilidade_calor"], errors="coerce").nunique(dropna=True) <= 1
+        )
+        if flat_vuln and "indice_vulnerabilidade_calor" in v.columns:
+            force_demo.append("indice_vulnerabilidade_calor")
+        overlap = [c for c in keep if c != "cod_ibge" and c in out.columns and c not in force_demo]
         v_merge = v.drop(columns=overlap, errors="ignore") if overlap else v
-        # se populacao/regional faltam, permite merge desses campos
-        for need in ["populacao", "regional_saude", "indice_vulnerabilidade_calor", "municipio_geo"]:
-            if need in v.columns and (need not in out.columns or out[need].isna().all()):
-                if need not in v_merge.columns:
-                    v_merge = v_merge.merge(v[["cod_ibge", need]], on="cod_ibge", how="left") if "cod_ibge" in v_merge.columns else v[["cod_ibge", need]]
+        for need in ["populacao", "regional_saude", "indice_vulnerabilidade_calor", "municipio_geo"] + force_demo:
+            if need in v.columns and need not in v_merge.columns:
+                if need not in out.columns or out[need].isna().all() or need in force_demo:
+                    v_merge = v_merge.merge(v[["cod_ibge", need]].drop_duplicates("cod_ibge"), on="cod_ibge", how="left")
+        # drop force cols from out before merge to avoid _x/_y
+        drop_force = [c for c in force_demo if c in out.columns and c in v_merge.columns]
+        if drop_force:
+            out = out.drop(columns=drop_force, errors="ignore")
         if "cod_ibge" in v_merge.columns and len(v_merge.columns) > 1:
             out = out.merge(v_merge.drop_duplicates("cod_ibge"), on="cod_ibge", how="left")
         if "municipio_geo" in out.columns:
@@ -886,6 +921,8 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
             "risco_vetorial_climatico", "pressao_rede_climatica",
             "indice_deficit_wash", "risco_wash", "cobertura_rede_agua_pct",
             "deficit_esgoto_inadequado_pct",
+            "pop_vulneravel_exposta", "indice_exposicao_vulneravel", "idosos_pct",
+
         ]
         if c in resumo.columns and c not in base_cols
     ]

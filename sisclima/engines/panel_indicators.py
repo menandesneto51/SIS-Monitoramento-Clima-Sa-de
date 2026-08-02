@@ -57,6 +57,10 @@ PANEL_INDICATOR_COLS = [
     "risco_ar_queimadas",
     "risco_vetorial_climatico",
     "pressao_rede_climatica",
+    "pop_vulneravel_estimada",
+    "pop_vulneravel_exposta",
+    "indice_exposicao_vulneravel",
+    "flag_vulneravel_exposto",
     "score_inteligencia",
     "delta_vigilancia_vs_vermelha_media",
 ]
