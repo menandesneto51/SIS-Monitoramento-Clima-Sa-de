@@ -38,18 +38,30 @@ abrir_painel.bat
 
 ## DW
 
-Configure no `.env`:
+Configure no `.env` (mesmo contrato dos projetos **Meningites** e **Ondas de calor**):
 
 ```env
 USE_SQLSERVER=true
-DW_SERVER=SERVIDOR
-DW_DATABASE=NOME_DO_DW
-DW_USER=SEU_LOGIN
-DW_PASSWORD=SUA_SENHA
-DW_DRIVER=ODBC Driver 17 for SQL Server
+DW_SERVER=10.15.1.50
+DW_HOST=10.15.1.50
+DW_DATABASE=Datawarehouse
+DW_USER=menandes_cievs
+DW_PASSWORD=  # senha real — não versionar
+DW_DRIVER=ODBC Driver 18 for SQL Server
+DW_ENCRYPT=no
+DW_TRUST_SERVER_CERTIFICATE=yes
+# Opcional: reutilizar .env de outro projeto CIEVS
+# DW_ENV_FILE=C:\Users\Menandesneto\OneDrive\CIEVS MT\Monitoramento ondas de calor\.env
+```
+
+Validar:
+
+```bash
+python validar_dw_conexao.py
 ```
 
 As consultas ficam na pasta `sql/` e devem ser ajustadas aos nomes reais das views/tabelas do DW.
+Views já usadas pelos projetos irmãos: `VW_SINAN_*`, `VW_GAL`, `CNES_ESTABELECIMENTOS`, `SIM`.
 
 ## SIVEP local
 
