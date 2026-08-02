@@ -199,8 +199,23 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
     },
     "risco_calor_vulneravel": {
         "nome": "Risco calor × vulnerabilidade",
-        "leigo": "Combina tensão térmica com porte populacional (proxy de exposição).",
-        "como_ler": "Prioriza polos urbanos quentes sem substituir cadastro de vulneráveis.",
+        "leigo": "Combina tensão térmica com demografia IBGE (idosos/crianças/rural) e porte populacional.",
+        "como_ler": "Prioriza municípios quentes com mais grupos sensíveis — não substitui cadastro APS.",
+    },
+    "pop_vulneravel_exposta": {
+        "nome": "População vulnerável exposta",
+        "leigo": "Estimativa de idosos (≥60) + crianças (0–4) em município sob calor alto ou fumaça.",
+        "como_ler": "Proxy Censo×clima para volume de atenção; não é lista nominal de vulneráveis.",
+    },
+    "indice_exposicao_vulneravel": {
+        "nome": "Índice exposição × vulnerabilidade",
+        "leigo": "Fraçao demográfica sensível amplificada pela intensidade de calor/fumaça (0–100).",
+        "como_ler": "Ajuda a ranquear onde a exposição climática encontra mais pessoas sensíveis.",
+    },
+    "idosos_pct": {
+        "nome": "% idosos (≥60 anos)",
+        "leigo": "Parcela da população com 60 anos ou mais (Censo IBGE 2022).",
+        "como_ler": "Grupo prioritário em ondas de calor, frio e fumaça.",
     },
     "risco_ar_queimadas": {
         "nome": "Risco ar / queimadas",

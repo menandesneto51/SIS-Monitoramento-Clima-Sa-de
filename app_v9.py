@@ -2078,17 +2078,43 @@ elif SECTION_KEY == "Geografia":
             map_df,
             geojson_mun,
             "indice_vulnerabilidade_calor",
-            "Vulnerabilidade territorial ao calor",
-            hover_cols=["municipio", "regional_saude", "populacao", "populacao_2025", "area_km2_ibge"],
+            "Vulnerabilidade territorial ao calor (IBGE)",
+            hover_cols=[
+                c for c in [
+                    "municipio", "regional_saude", "populacao", "idosos_pct",
+                    "criancas_0_4_pct", "rural_pct", "pop_vulneravel_exposta",
+                ]
+                if c in map_df.columns
+            ],
         )
     else:
         st.warning("Campo indice_vulnerabilidade_calor não encontrado no resumo municipal.")
 
+    if "indice_exposicao_vulneravel" in map_df.columns:
+        st.markdown("#### Mapa exposição climática × vulnerabilidade demográfica")
+        choropleth_or_points(
+            map_df,
+            geojson_mun,
+            "indice_exposicao_vulneravel",
+            "Exposição × vulnerabilidade",
+            hover_cols=[
+                c for c in [
+                    "municipio", "risco_calor_vulneravel", "pop_vulneravel_exposta",
+                    "idosos_pct", "indice_tensao_climatica",
+                ]
+                if c in map_df.columns
+            ],
+        )
+
     st.markdown("#### Tabela geográfica deduplicada")
     geo_cols = [
-        "cod_ibge", "municipio", "regional_saude", "macroregiao_saude",
-        "populacao", "populacao_2025", "lat", "lon",
-        "indice_vulnerabilidade_calor",
+        c for c in [
+            "cod_ibge", "municipio", "regional_saude", "macroregiao_saude",
+            "populacao", "populacao_2025", "lat", "lon",
+            "indice_vulnerabilidade_calor", "idosos_pct", "criancas_0_4_pct",
+            "rural_pct", "densidade", "indice_exposicao_vulneravel", "pop_vulneravel_exposta",
+        ]
+        if c in map_df.columns
     ]
     geo_table = map_df.drop_duplicates("cod_ibge") if "cod_ibge" in map_df.columns else map_df
     show_df(geo_table.sort_values("municipio") if "municipio" in geo_table.columns else geo_table, geo_cols, height=520)
@@ -2231,10 +2257,12 @@ elif SECTION_KEY == "Inteligência":
         c for c in [
             "indice_adaptacao_climatica", "risco_calor_vulneravel", "risco_ar_queimadas",
             "risco_vetorial_climatico", "pressao_rede_climatica", "risco_precipitacao",
+            "indice_exposicao_vulneravel", "pop_vulneravel_exposta",
         ]
         if c in resumo.columns
     ]
     if smart_cols:
+        pop_exp = pd.to_numeric(resumo.get("pop_vulneravel_exposta"), errors="coerce") if "pop_vulneravel_exposta" in resumo.columns else pd.Series(dtype=float)
         ui_theme.insight_cards(
             [
                 (
@@ -2248,14 +2276,14 @@ elif SECTION_KEY == "Inteligência":
                     "índice",
                 ),
                 (
-                    "Ar/queimadas máx.",
-                    safe_metric_value(pd.to_numeric(resumo.get("risco_ar_queimadas"), errors="coerce").max(), "", 0),
-                    "quando há PM2,5",
+                    "Pop. vulnerável exposta",
+                    safe_metric_value(pop_exp.sum() if pop_exp.notna().any() else None, "", 0),
+                    "idosos+crianças sob calor/fumaça",
                 ),
                 (
-                    "Pressão rede máx.",
-                    safe_metric_value(pd.to_numeric(resumo.get("pressao_rede_climatica"), errors="coerce").max(), "", 0),
-                    "clima×assistência",
+                    "Exposição×vuln. máx.",
+                    safe_metric_value(pd.to_numeric(resumo.get("indice_exposicao_vulneravel"), errors="coerce").max() if "indice_exposicao_vulneravel" in resumo.columns else None, "", 0),
+                    "0–100",
                 ),
             ]
         )
@@ -2264,8 +2292,12 @@ elif SECTION_KEY == "Inteligência":
             y = "risco_calor_vulneravel" if "risco_calor_vulneravel" in resumo.columns else smart_cols[0]
             make_bar(resumo, "municipio", y, "Top calor × vulnerabilidade")
         with sc2:
-            y2 = "pressao_rede_climatica" if "pressao_rede_climatica" in resumo.columns else smart_cols[-1]
-            make_bar(resumo, "municipio", y2, "Top pressão da rede climática")
+            y2 = (
+                "indice_exposicao_vulneravel"
+                if "indice_exposicao_vulneravel" in resumo.columns
+                else ("pressao_rede_climatica" if "pressao_rede_climatica" in resumo.columns else smart_cols[-1])
+            )
+            make_bar(resumo, "municipio", y2, "Top exposição × vulnerabilidade")
         if "risco_adaptasus_dominante_nome" in resumo.columns:
             show_df(
                 safe_sort(resumo, ["indice_adaptacao_climatica"], ascending=[False]),
@@ -2274,6 +2306,7 @@ elif SECTION_KEY == "Inteligência":
                         "cod_ibge", "municipio", "regional_saude", "nivel",
                         "indice_adaptacao_climatica", "risco_adaptasus_dominante_nome",
                         "orientacao_adaptasus", "risco_calor_vulneravel",
+                        "indice_exposicao_vulneravel", "pop_vulneravel_exposta", "idosos_pct",
                         "risco_ar_queimadas", "risco_vetorial_climatico", "pressao_rede_climatica",
                     ]
                     if c in resumo.columns
@@ -2281,7 +2314,11 @@ elif SECTION_KEY == "Inteligência":
                 height=320,
             )
         ui_theme.glossary_expander(
-            ["indice_adaptacao_climatica", "risco_calor_vulneravel", "risco_ar_queimadas", "risco_vetorial_climatico", "pressao_rede_climatica"]
+            [
+                "indice_adaptacao_climatica", "risco_calor_vulneravel",
+                "pop_vulneravel_exposta", "indice_exposicao_vulneravel",
+                "risco_ar_queimadas", "risco_vetorial_climatico", "pressao_rede_climatica",
+            ]
         )
     else:
         st.info("Indicadores AdaptaSUS ainda não calculados. Rode completar_sistema_operacional.py.")

@@ -103,6 +103,7 @@ Entrada: `streamlit_app.py` → `app_v9.py`.
 3. Séries Galileo/SIM/GeoCalor completas na base Postgres em todas as rodadas.
 4. Templates HTML ricos com ícones estáticos para e-mail institucional.
 5. Integração SISREG → popular `ops_sisreg_municipio` (contrato em `sql/ops_sisreg_municipio_contrato.sql`).
+6. WASH/SAN AdaptaSUS com fonte estadual (SNIS/SES) — demografia IBGE × exposição já cobre o KPI de vulnerabilidade populacional.
 
 ## 8. Princípio de operação
 

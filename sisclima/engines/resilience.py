@@ -65,24 +65,60 @@ def resilience_index(latest: dict, weights: dict) -> dict:
     return out
 
 
+# Pesos relativos do índice (só entram colunas presentes). Demografia IBGE primeiro.
+_VULN_WEIGHTS = {
+    "idosos_pct": 0.34,
+    "criancas_0_4_pct": 0.18,
+    "criancas_0_9_pct": 0.08,
+    "pobreza_pct": 0.16,
+    "sem_ar_condicionado_pct": 0.10,
+    "rural_pct": 0.10,
+    "pop_rua": 0.06,
+    "densidade": 0.08,
+}
+
+
 def vulnerability_index(municipios: pd.DataFrame, populacao: pd.DataFrame | None = None) -> pd.DataFrame:
     if municipios.empty:
         return pd.DataFrame()
     df = municipios.copy()
-    if populacao is not None and not populacao.empty and 'cod_ibge' in df.columns and 'cod_ibge' in populacao.columns:
-        df['cod_ibge'] = df['cod_ibge'].astype(str).str.extract(r'(\d+)')[0].str.zfill(7)
+    if "cod_ibge" in df.columns:
+        df["cod_ibge"] = df["cod_ibge"].astype(str).str.extract(r"(\d+)")[0].str.zfill(7)
+    if populacao is not None and not populacao.empty and "cod_ibge" in df.columns and "cod_ibge" in populacao.columns:
         pop = populacao.copy()
-        pop['cod_ibge'] = pop['cod_ibge'].astype(str).str.extract(r'(\d+)')[0].str.zfill(7)
-        df = df.merge(pop, on='cod_ibge', how='left')
-    numeric_cols = [c for c in ['idosos_pct','pobreza_pct','sem_ar_condicionado_pct','rural_pct','pop_rua','densidade'] if c in df.columns]
+        pop["cod_ibge"] = pop["cod_ibge"].astype(str).str.extract(r"(\d+)")[0].str.zfill(7)
+        # evita colunas duplicadas com sufixo _x/_y
+        overlap = [c for c in pop.columns if c != "cod_ibge" and c in df.columns]
+        pop = pop.drop(columns=overlap, errors="ignore")
+        df = df.merge(pop, on="cod_ibge", how="left")
+
+    # Preferir proxy 0–4; se só houver 0–9, não duplicar peso
+    numeric_cols = [c for c in _VULN_WEIGHTS if c in df.columns]
+    if "criancas_0_4_pct" in numeric_cols and "criancas_0_9_pct" in numeric_cols:
+        numeric_cols = [c for c in numeric_cols if c != "criancas_0_9_pct"]
     if not numeric_cols:
-        df['indice_vulnerabilidade_calor'] = 50
+        df["indice_vulnerabilidade_calor"] = 50.0
+        df["cobertura_vulnerabilidade_pct"] = 0.0
         return df
-    score = 0
+
+    weighted = pd.Series(0.0, index=df.index)
+    w_sum = 0.0
+    covered = pd.Series(0.0, index=df.index)
     for c in numeric_cols:
-        vals = pd.to_numeric(df[c], errors='coerce')
-        mn, mx = vals.min(), vals.max()
-        norm = (vals - mn) / (mx - mn) if mx != mn else pd.Series(0, index=df.index)
-        score = score + norm.fillna(0)
-    df['indice_vulnerabilidade_calor'] = (score / len(numeric_cols) * 100).round(1)
+        vals = pd.to_numeric(df[c], errors="coerce")
+        mn, mx = vals.min(skipna=True), vals.max(skipna=True)
+        if pd.isna(mn) or pd.isna(mx) or mx == mn:
+            norm = pd.Series(0.0, index=df.index)
+        else:
+            norm = ((vals - mn) / (mx - mn)).clip(0, 1)
+        w = float(_VULN_WEIGHTS.get(c, 0.1))
+        present = vals.notna().astype(float)
+        weighted = weighted + norm.fillna(0.0) * w * present
+        covered = covered + present * w
+        w_sum += w
+    # Renormaliza pelo peso efetivo por município (evita 0 artificial quando falta coluna)
+    denom = covered.replace(0, np.nan)
+    score = (weighted / denom * 100.0).fillna(50.0)
+    df["indice_vulnerabilidade_calor"] = score.round(1)
+    df["cobertura_vulnerabilidade_pct"] = (covered / (w_sum or 1.0) * 100.0).round(1)
     return df

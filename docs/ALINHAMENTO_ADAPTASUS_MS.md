@@ -22,7 +22,7 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 
 | Risco prioritário | Cobertura SIS | Indicadores principais | Tabelas / motores |
 |-------------------|---------------|------------------------|-------------------|
-| Extremos de temperatura (calor/frio) | Forte em calor; frio fraco | `tmax`, `utci_proxy`, `risco_cumulativo_3d`, `risco_calor_vulneravel` | `met_biometeo`, GeoCalor, `panel_indicators` |
+| Extremos de temperatura (calor/frio) | Forte (calor + frio + demografia) | `tmax`, `tmin`, `utci_proxy`, `risco_cumulativo_3d`, `risco_calor_vulneravel`, `pop_vulneravel_exposta`, `indice_exposicao_vulneravel` | `met_biometeo`, IBGE Censo 2022, GeoCalor, `panel_indicators` |
 | Poluição atmosférica | Parcial | `pm25_ugm3`, `risco_ar_queimadas` | `qualidade_ar_municipal` |
 | Vetoriais / zoonoses | Parcial (arboviroses) | `casos_arbovirus_7d`, `risco_vetorial_climatico` | `epi_arboviroses_*` |
 | Extremos de precipitação | Parcial | `precipitacao_mm`, Cemaden/ANA | `cemaden_alertas`, `ana_*` |
@@ -42,7 +42,8 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 
 - **Risco dominante**: risco AdaptaSUS com maior score no município nesta rodada.  
 - **Índice de adaptação climática**: síntese 0–100 dos riscos cobertos, penalizada por baixa completude de dados.  
-- **Lacuna explícita**: WASH/SAN/frio sem fonte — o painel declara a ausência; não interpretar como risco zero.  
+- **Lacuna explícita**: WASH/SAN sem fonte — o painel declara a ausência; não interpretar como risco zero.  
+- **Vulnerabilidade × exposição**: demografia IBGE Censo 2022 (`idosos_pct`, crianças, rural, densidade) cruzada com tensão térmica/fumaça (`pop_vulneravel_exposta`, `indice_exposicao_vulneravel`).  
 - **Orientação AdaptaSUS**: checklist curto “o que monitorar / o que fazer”, inspirado no Guia MS (não substitui protocolo clínico).
 
 ## Limitações honestas

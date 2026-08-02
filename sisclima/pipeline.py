@@ -680,6 +680,36 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         write_df(busca, 'ops_busca_ativa')
         write_df(com, 'ops_comunicacao')
 
+        # Demografia IBGE (Censo) → componentes do índice de vulnerabilidade
+        try:
+            from sisclima.ingestion.ibge_vulnerabilidade import load_vulnerabilidade_municipal
+
+            vuln_demo = load_vulnerabilidade_municipal()
+            if not vuln_demo.empty and "cod_ibge" in vuln_demo.columns:
+                vuln_demo = ensure_municipality(vuln_demo)
+                demo_cols = [
+                    c for c in [
+                        "cod_ibge", "idosos_pct", "criancas_0_4_pct", "criancas_0_9_pct",
+                        "rural_pct", "densidade", "area_km2", "populacao_censo_2022",
+                        "idosos_60mais", "criancas_0_4", "fonte_vulnerabilidade",
+                    ]
+                    if c in vuln_demo.columns
+                ]
+                base_m = municipios.copy()
+                if "cod_ibge" in base_m.columns:
+                    base_m["cod_ibge"] = base_m["cod_ibge"].astype(str).str.extract(r"(\d+)")[0].str.zfill(7)
+                overlap = [c for c in demo_cols if c != "cod_ibge" and c in base_m.columns]
+                merge_demo = vuln_demo[demo_cols].drop(columns=overlap, errors="ignore")
+                municipios = base_m.merge(merge_demo, on="cod_ibge", how="left")
+                if "populacao" not in municipios.columns and "populacao_censo_2022" in municipios.columns:
+                    municipios["populacao"] = pd.to_numeric(municipios["populacao_censo_2022"], errors="coerce")
+                elif "populacao_censo_2022" in municipios.columns:
+                    municipios["populacao"] = pd.to_numeric(municipios.get("populacao"), errors="coerce").fillna(
+                        pd.to_numeric(municipios["populacao_censo_2022"], errors="coerce")
+                    )
+        except Exception as exc:
+            print(f"[AVISO] Vulnerabilidade IBGE não mesclada: {exc}")
+
         vuln = vulnerability_index(municipios, populacao)
         write_df(vuln, 'geo_vulnerabilidade_municipal')
 
