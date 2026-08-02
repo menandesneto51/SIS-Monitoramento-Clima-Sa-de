@@ -12,6 +12,7 @@ linha de comando:
     python -m sisclima.alerts.whatsapp_agent diagnostico
     python -m sisclima.alerts.whatsapp_agent env --provedor evolution
     python -m sisclima.alerts.whatsapp_agent testar --para 65999998888
+    python -m sisclima.alerts.whatsapp_agent descobrir --token EAA...
 """
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ import sys
 from dataclasses import asdict, dataclass, field
 
 from sisclima.alerts import whatsapp
+from sisclima.alerts import meta_discover
 from sisclima.core.config import env, env_name_used
 
 SEGREDOS = ('TOKEN', 'KEY', 'APIKEY', 'SENHA', 'PASSWORD', 'SECRET')
@@ -527,6 +529,40 @@ def _cmd_testar(args: argparse.Namespace) -> int:
     return 0 if any(r.ok for r in resultados) else 1
 
 
+def _cmd_descobrir(args: argparse.Namespace) -> int:
+    token = (args.token or env('WHATSAPP_TOKEN') or '').strip()
+    if not token:
+        print('Informe --token EAA... ou defina WHATSAPP_TOKEN no ambiente.', file=sys.stderr)
+        print('Gere o token em: https://developers.facebook.com/tools/explorer', file=sys.stderr)
+        print('Guia visual: docs/META_ONDE_CLICAR.md', file=sys.stderr)
+        return 2
+
+    resultado = meta_discover.descobrir(token)
+    if args.json:
+        payload = {
+            'ok': resultado.ok,
+            'token_valido': resultado.token_valido,
+            'numeros': [asdict(n) for n in resultado.numeros],
+            'waba_ids': resultado.waba_ids,
+            'avisos': resultado.avisos,
+            'erros': resultado.erros,
+            'phone_number_id_sugerido': resultado.phone_number_id_sugerido,
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(meta_discover.resumo_texto(resultado))
+        if resultado.phone_number_id_sugerido:
+            valores = {
+                'WHATSAPP_PHONE_NUMBER_ID': resultado.phone_number_id_sugerido,
+                'WHATSAPP_TOKEN': token,
+                'WHATSAPP_TO': '65992190039',
+            }
+            print('\n--- Bloco .env sugerido ---')
+            print(gerar_env('meta_cloud', valores))
+
+    return 0 if resultado.ok else 1
+
+
 def construir_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='python -m sisclima.alerts.whatsapp_agent',
@@ -562,6 +598,13 @@ def construir_parser() -> argparse.ArgumentParser:
     p_teste.add_argument('--para', help='Destinatários separados por vírgula. Padrão: WHATSAPP_TO.')
     p_teste.add_argument('--mensagem', help='Texto alternativo para o teste.')
     p_teste.set_defaults(func=_cmd_testar)
+
+    p_desc = sub.add_parser(
+        'descobrir',
+        help='Lista Phone number IDs via Graph API (quando API Setup não aparece).',
+    )
+    p_desc.add_argument('--token', help='Token EAA... do Explorador da Graph API ou WHATSAPP_TOKEN.')
+    p_desc.set_defaults(func=_cmd_descobrir)
 
     return parser
 

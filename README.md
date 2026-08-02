@@ -19,6 +19,7 @@ ou rode `python -m sisclima.alerts.whatsapp_agent diagnostico`.
 
 - **Tutorial passo a passo (Meta + número no WhatsApp Business):**
   [`docs/TUTORIAL_WHATSAPP_META_CLOUD.md`](docs/TUTORIAL_WHATSAPP_META_CLOUD.md)
+- **Não achou API Setup na Meta?** [`docs/META_ONDE_CLICAR.md`](docs/META_ONDE_CLICAR.md)
 - **Referência geral dos provedores:** [`docs/WHATSAPP_GRATUITO.md`](docs/WHATSAPP_GRATUITO.md)
 
 ## Atualização

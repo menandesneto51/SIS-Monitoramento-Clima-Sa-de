@@ -10,6 +10,7 @@ pipeline do `sisclima`.
 
 Documentos relacionados:
 
+- [`META_ONDE_CLICAR.md`](META_ONDE_CLICAR.md) — **se não achar API Setup** (interface Meta 2026)
 - [`WHATSAPP_GRATUITO.md`](WHATSAPP_GRATUITO.md) — visão geral dos provedores e variáveis
 - [`OPERACAO.md`](OPERACAO.md) — rotina diária do pipeline
 
@@ -66,6 +67,10 @@ caminhos:
 - [ ] Número anotado no formato internacional: **+55 65 99219-0039**
 
 ---
+
+> **Não achou a tela API Setup?** Siga [`META_ONDE_CLICAR.md`](META_ONDE_CLICAR.md) ou rode
+> `python -m sisclima.alerts.whatsapp_agent descobrir --token EAA...` após gerar token no
+> [Explorador da Graph API](https://developers.facebook.com/tools/explorer).
 
 ## Fase 1 — Criar o app na Meta
 
