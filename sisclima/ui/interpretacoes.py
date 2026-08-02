@@ -641,7 +641,7 @@ def narrativa_vigibarragens(barragens: pd.DataFrame, risco: pd.DataFrame | None 
         if "n_em_emergencia" in risco.columns:
             emerg = int(pd.to_numeric(risco["n_em_emergencia"], errors="coerce").fillna(0).sum())
             if emerg:
-                achados.append(f"- Barragens em emergência (NE2/NE3): **{_fmt(emerg, 0)}**.")
+                achados.append(f"- Barragens em emergência (NE1/NE2/NE3): **{_fmt(emerg, 0)}**.")
     return _narr(
         "VigiBarragens",
         olhar,
