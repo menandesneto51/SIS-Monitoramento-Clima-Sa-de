@@ -7,10 +7,39 @@ from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Carrega SEM sobrescrever variáveis já existentes do ambiente.
-for _candidate in [ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env']:
-    if _candidate.exists():
-        load_dotenv(_candidate, override=False)
+def _load_env_files() -> None:
+    """Carrega .env local e, opcionalmente, DW_ENV_FILE de outro projeto CIEVS.
+
+    Mesmo padrão do Meningites / Ondas de calor: reutilizar um .env irmão
+    sem versionar senha. Variáveis já definidas no ambiente NÃO são sobrescritas.
+    """
+    candidates: list[Path] = [ROOT / ".env", ROOT.parent / ".env", Path.cwd() / ".env"]
+    # Sibling projects (Windows OneDrive / pasta CIEVS MT)
+    parent = ROOT.parent
+    candidates.extend(
+        [
+            parent / "Monitoramento ondas de calor" / ".env",
+            parent / "Meningites" / ".env",
+            parent / "SIS-Monitoramento-Clima-Saude-GITHUB-LIMPO" / ".env",
+        ]
+    )
+    dw_env = (os.getenv("DW_ENV_FILE") or "").strip()
+    if dw_env:
+        candidates.insert(0, Path(dw_env))
+
+    seen: set[Path] = set()
+    for cand in candidates:
+        try:
+            path = cand.resolve()
+        except OSError:
+            continue
+        if path in seen or not path.is_file():
+            continue
+        seen.add(path)
+        load_dotenv(path, override=False)
+
+
+_load_env_files()
 
 
 def _load_yaml(path: Path) -> dict:
@@ -40,10 +69,17 @@ ENV_ALIASES: dict[str, list[str]] = {
     'MUNICIPIO_KEY': ['MUNICIPIO_KEY', 'CHAVE_IBGE', 'COD_IBGE_COL', 'CODIGO_IBGE_COL'],
     'MUNICIPIOS_SOURCE': ['MUNICIPIOS_SOURCE', 'FONTE_MUNICIPIOS'],
 
+    # Also map DW_HOST explicitly (Meningites uses DW_HOST)
+    'DW_HOST': ['DW_HOST', 'DW_SERVER'],
+    'DW_ENCRYPT': ['DW_ENCRYPT', 'SQLSERVER_ENCRYPT', 'ENCRYPT'],
+    'DW_CLIENT': ['DW_CLIENT', 'SQLSERVER_CLIENT'],
+    'DW_ENV_FILE': ['DW_ENV_FILE', 'DW_DOTENV', 'DOTENV_DW'],
+    'DW_PORT': ['DW_PORT', 'SQLSERVER_PORT', 'DB_PORT'],
+
     # SQL Server / DW
     'USE_SQLSERVER': ['USE_SQLSERVER', 'USAR_SQLSERVER', 'USE_DW', 'USAR_DW', 'SQLSERVER_ENABLED', 'DW_ENABLED'],
-    'DW_SERVER': ['DW_SERVER', 'DW_HOST', 'DATAWAREHOUSE_SERVER', 'DATAWAREHOUSE_HOST', 'SQLSERVER_HOST', 'SQLSERVER_SERVER', 'SERVER_SQL', 'DB_HOST', 'INDICASUS_SERVER'],
-    'DW_DATABASE': ['DW_DATABASE', 'DW_DB', 'DATAWAREHOUSE_DATABASE', 'DATAWAREHOUSE_DB', 'SQLSERVER_DATABASE', 'SQLSERVER_DB', 'SQLSERVER_DATABASE_DW', 'DATABASE_DW', 'DB_NAME', 'INDICASUS_DATABASE'],
+    'DW_SERVER': ['DW_SERVER', 'DW_HOST', 'DATAWAREHOUSE_SERVER', 'DATAWAREHOUSE_HOST', 'SQLSERVER_HOST', 'SQLSERVER_SERVER', 'SERVER_SQL', 'DB_HOST'],
+    'DW_DATABASE': ['DW_DATABASE', 'DW_DB', 'DATAWAREHOUSE_DATABASE', 'DATAWAREHOUSE_DB', 'SQLSERVER_DATABASE', 'SQLSERVER_DB', 'SQLSERVER_DATABASE_DW', 'DATABASE_DW', 'DB_NAME'],
     'DW_USER': ['DW_USER', 'DW_LOGIN', 'DATAWAREHOUSE_USER', 'SQLSERVER_USER', 'SQLSERVER_USERNAME', 'DB_USER', 'USUARIO_DW', 'LOGIN_DW'],
     'DW_PASSWORD': ['DW_PASSWORD', 'DW_PASS', 'DATAWAREHOUSE_PASSWORD', 'SQLSERVER_PASSWORD', 'SQLSERVER_PWD', 'DB_PASSWORD', 'SENHA_DW', 'PASSWORD_DW'],
     'DW_DRIVER': ['DW_DRIVER', 'SQLSERVER_DRIVER', 'ODBC_DRIVER', 'DB_DRIVER'],
