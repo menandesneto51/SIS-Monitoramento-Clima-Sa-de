@@ -76,17 +76,11 @@ STATUS_THRESHOLDS: dict[str, list[tuple[float, str]]] = {
     # (limiar mínimo, rótulo) — ordem ascendente; último que o valor ultrapassa vence
     "score": [(0, "VERDE"), (1, "AMARELA"), (2, "LARANJA"), (3, "VERMELHA"), (4, "ROXA")],
     "score_alerta_integrado": [(0, "VERDE"), (1, "AMARELA"), (2, "LARANJA"), (3, "VERMELHA"), (4, "ROXA")],
-    "tmax": [(0, "rotina"), (36, "atenção"), (39, "ALERTA"), (41, "INTENSIFICADO"), (43, "PLENO")],
+    "tmax": [(0, "rotina"), (37, "atenção"), (39, "ALERTA"), (41, "INTENSIFICADO"), (43, "PLENO")],
     "utci_proxy": [(0, "rotina"), (26, "atenção"), (32, "ALERTA"), (38, "INTENSIFICADO"), (46, "PLENO")],
     "risco_cumulativo_3d": [(0, "rotina"), (3, "atenção"), (7, "ALERTA"), (12, "INTENSIFICADO"), (18, "PLENO")],
     "pressao_calor_pct": [(0, "rotina"), (2, "atenção"), (4, "ALERTA"), (7, "INTENSIFICADO"), (10, "PLENO")],
-    "ocupacao_leitos_pct": [
-        (0, "abaixo do limiar de alerta (≥75)"),
-        (75, "atenção"),
-        (85, "ALERTA"),
-        (95, "INTENSIFICADO"),
-        (100, "PLENO"),
-    ],
+    "ocupacao_leitos_pct": [(0, "abaixo do limiar de alerta"), (75, "atenção"), (85, "ALERTA"), (95, "INTENSIFICADO"), (100, "PLENO")],
     "pm25_ugm3": [(0, "dentro/próximo ref. OMS"), (15, "acima da ref. OMS (~15)")],
 }
 
@@ -248,6 +242,7 @@ def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
     icon = IND_ICON.get(campo, "•")
     rotulo = str(ind.get("rotulo") or campo)
     ocup_short = "Ocupação estadual" if escopo == "estadual" else "Ocupação regional"
+    # rótulos curtos no painel
     short = {
         "score": "Pontuação (pior)",
         "score_alerta_integrado": "Pontuação integrada (pior)",

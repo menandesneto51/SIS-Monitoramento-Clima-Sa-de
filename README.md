@@ -10,9 +10,10 @@ Sistema Python/Streamlit para monitoramento em tempo real de risco climático-sa
 - Usa meteorologia operacional por Open-Meteo como fallback e mantém acoplamento Copernicus/ERA5-Land.
 - Integra IndicaSUS/leitos, SIVEP/SRAG (indicadores MS), sentinela SG, LACEN/GAL, SINAN, SIM, SENTINELA, Cemaden, ANA, estoque, infraestrutura, busca ativa e comunicação.
 - Classifica níveis Verde, Amarela, Laranja, Vermelha e Roxa.
-- Envia alerta por mudança de nível via e-mail, Telegram e webhook.
+- Envia **alerta estadual** (SES/CIEVS) por e-mail/Telegram/webhook; regionais/municipais/Cuiabá são gerados e aguardam planilha de contatos para fan-out.
 - Gera boletim operacional auditável com camada opcional de IA.
 - Apresenta painel Streamlit com situação estadual, municípios prioritários, qualidade do ar, assistência, leitos, infraestrutura, insumos, busca ativa, recomendações e auditoria.
+- Mantém agendador Docker diário (`alerts-scheduler`) independente do notebook.
 
 ## Instalação rápida no Windows
 

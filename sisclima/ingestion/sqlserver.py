@@ -46,9 +46,16 @@ def build_sqlserver_conn(prefix: str = "DW") -> str | None:
     driver = parts["driver"]
     trusted = as_bool(parts["trusted"], False)
     trust_cert = parts["trust_cert"]
+    encrypt = env(f"{prefix}_ENCRYPT") or env("DW_ENCRYPT") or "no"
+    port = parts["port"] or "1433"
     if not server or not database:
         return None
-    base = f"DRIVER={{{driver}}};SERVER={server};DATABASE={database};TrustServerCertificate={trust_cert};"
+    # Prefer host,port form (ODBC 18 / FreeTDS friendly)
+    server_target = server if ("," in str(server) or str(server).lower().startswith("tcp:")) else f"{server},{port}"
+    base = (
+        f"DRIVER={{{driver}}};SERVER={server_target};DATABASE={database};"
+        f"Encrypt={encrypt};TrustServerCertificate={trust_cert};"
+    )
     if trusted and not user:
         return base + "Trusted_Connection=yes;"
     if user and password:

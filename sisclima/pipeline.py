@@ -20,6 +20,7 @@ from sisclima.ingestion.dw_sources import load_dw_sinan_agravos, load_dw_sim_obi
 from sisclima.ingestion.sivep_local import load_sivep_local
 from sisclima.ingestion.copernicus_air_quality import fetch_cams_air_quality_municipal
 from sisclima.ingestion.ibge_municipios import get_municipios_operacionais
+from sisclima.ingestion.inpe_queimadas import load_queimadas_municipais
 from sisclima.engines.biometeo import add_biometeo_indicators
 from sisclima.engines.air_quality import add_air_quality_indicators
 from sisclima.engines.epidemiology import (
@@ -569,6 +570,16 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         write_df(aq_raw if aq_raw is not None else pd.DataFrame(), 'raw_qualidade_ar_copernicus')
         write_df(aq, 'qualidade_ar_municipal')
 
+        # Queimadas INPE (focos 24h/7d por município) — reforça narrativa de fumaça/seca.
+        queimadas = pd.DataFrame()
+        try:
+            if as_bool(env('USE_INPE_QUEIMADAS', 'true'), True):
+                queimadas = load_queimadas_municipais()
+        except Exception as exc:
+            log.warning('INPE queimadas não carregado: %s', exc)
+            queimadas = pd.DataFrame()
+        write_df(queimadas if queimadas is not None else pd.DataFrame(), 'queimadas_focos_municipal')
+
         leitos_raw = load_indicasus_leitos()
         leitos_raw = ensure_municipality(leitos_raw) if not leitos_raw.empty else inputs['indicasus_leitos']
         cap = hospital_capacity(leitos_raw)
@@ -672,6 +683,36 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         write_df(busca, 'ops_busca_ativa')
         write_df(com, 'ops_comunicacao')
 
+        # Demografia IBGE (Censo) → componentes do índice de vulnerabilidade
+        try:
+            from sisclima.ingestion.ibge_vulnerabilidade import load_vulnerabilidade_municipal
+
+            vuln_demo = load_vulnerabilidade_municipal()
+            if not vuln_demo.empty and "cod_ibge" in vuln_demo.columns:
+                vuln_demo = ensure_municipality(vuln_demo)
+                demo_cols = [
+                    c for c in [
+                        "cod_ibge", "idosos_pct", "criancas_0_4_pct", "criancas_0_9_pct",
+                        "rural_pct", "densidade", "area_km2", "populacao_censo_2022",
+                        "idosos_60mais", "criancas_0_4", "fonte_vulnerabilidade",
+                    ]
+                    if c in vuln_demo.columns
+                ]
+                base_m = municipios.copy()
+                if "cod_ibge" in base_m.columns:
+                    base_m["cod_ibge"] = base_m["cod_ibge"].astype(str).str.extract(r"(\d+)")[0].str.zfill(7)
+                overlap = [c for c in demo_cols if c != "cod_ibge" and c in base_m.columns]
+                merge_demo = vuln_demo[demo_cols].drop(columns=overlap, errors="ignore")
+                municipios = base_m.merge(merge_demo, on="cod_ibge", how="left")
+                if "populacao" not in municipios.columns and "populacao_censo_2022" in municipios.columns:
+                    municipios["populacao"] = pd.to_numeric(municipios["populacao_censo_2022"], errors="coerce")
+                elif "populacao_censo_2022" in municipios.columns:
+                    municipios["populacao"] = pd.to_numeric(municipios.get("populacao"), errors="coerce").fillna(
+                        pd.to_numeric(municipios["populacao_censo_2022"], errors="coerce")
+                    )
+        except Exception as exc:
+            print(f"[AVISO] Vulnerabilidade IBGE não mesclada: {exc}")
+
         vuln = vulnerability_index(municipios, populacao)
         write_df(vuln, 'geo_vulnerabilidade_municipal')
 
@@ -680,6 +721,68 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             inmet_alerts, arbo=arbo_mun, cemaden_alerts=cemaden_alerts, ana_risco=ana_risco,
         )
         resumo_mun = _inject_ocupacao_into_summary(resumo_mun)
+        # Queimadas INPE → colunas no resumo
+        if not queimadas.empty and 'cod_ibge' in queimadas.columns and not resumo_mun.empty:
+            qcols = [
+                c for c in (
+                    'cod_ibge', 'focos_queimadas_24h', 'focos_queimadas_7d',
+                    'frp_queimadas_7d', 'nivel_queimadas', 'dias_sem_chuva_max',
+                ) if c in queimadas.columns
+            ]
+            qm = queimadas[qcols].drop_duplicates('cod_ibge')
+            qm['cod_ibge'] = qm['cod_ibge'].astype(str)
+            resumo_mun['cod_ibge'] = resumo_mun['cod_ibge'].astype(str)
+            for c in qcols:
+                if c != 'cod_ibge' and c in resumo_mun.columns:
+                    resumo_mun = resumo_mun.drop(columns=[c])
+            resumo_mun = resumo_mun.merge(qm, on='cod_ibge', how='left')
+        # Frio extremo: snapshot do último dia em met_biometeo
+        if not met_ind.empty and 'tmin' in met_ind.columns and not resumo_mun.empty:
+            m = met_ind.copy()
+            if 'data' in m.columns:
+                m['data'] = pd.to_datetime(m['data'], errors='coerce')
+                m = m.sort_values('data').groupby('cod_ibge', as_index=False).tail(1) if 'cod_ibge' in m.columns else m
+            fcols = [
+                c for c in (
+                    'cod_ibge', 'tmin', 'onda_fria_2d', 'duracao_onda_fria_dias',
+                    'intensidade_onda_fria', 'severidade_onda_fria', 'excesso_frio_tmin',
+                ) if c in m.columns
+            ]
+            if 'cod_ibge' in fcols:
+                fm = m[fcols].drop_duplicates('cod_ibge')
+                fm['cod_ibge'] = fm['cod_ibge'].astype(str)
+                resumo_mun['cod_ibge'] = resumo_mun['cod_ibge'].astype(str)
+                for c in fcols:
+                    if c != 'cod_ibge' and c in resumo_mun.columns and c != 'tmin':
+                        resumo_mun = resumo_mun.drop(columns=[c])
+                # tmin: preencher se ausente
+                if 'tmin' in resumo_mun.columns and 'tmin' in fm.columns:
+                    resumo_mun = resumo_mun.drop(columns=['tmin'])
+                resumo_mun = resumo_mun.merge(fm, on='cod_ibge', how='left')
+        # WASH IBGE (Censo) → colunas no resumo / AdaptaSUS
+        try:
+            from sisclima.ingestion.ibge_wash import load_wash_municipal
+
+            wash = load_wash_municipal()
+            write_df(wash if wash is not None else pd.DataFrame(), 'wash_municipal')
+            if wash is not None and not wash.empty and 'cod_ibge' in wash.columns and not resumo_mun.empty:
+                wcols = [
+                    c for c in (
+                        'cod_ibge', 'cobertura_rede_agua_pct', 'deficit_rede_agua_pct',
+                        'cobertura_agua_canalizada_pct', 'deficit_agua_canalizada_pct',
+                        'cobertura_esgoto_rede_pct', 'deficit_esgoto_inadequado_pct',
+                        'indice_deficit_wash', 'fonte_wash',
+                    ) if c in wash.columns
+                ]
+                wm = wash[wcols].drop_duplicates('cod_ibge')
+                wm['cod_ibge'] = wm['cod_ibge'].astype(str)
+                resumo_mun['cod_ibge'] = resumo_mun['cod_ibge'].astype(str)
+                for c in wcols:
+                    if c != 'cod_ibge' and c in resumo_mun.columns:
+                        resumo_mun = resumo_mun.drop(columns=[c])
+                resumo_mun = resumo_mun.merge(wm, on='cod_ibge', how='left')
+        except Exception as exc:
+            print(f'[AVISO] WASH IBGE não mesclado: {exc}')
         write_df(resumo_mun, 'resumo_municipal_atual')
 
         # Completa gaps (pressão proxy, arbo/SIVEP/AQ, correlação, predição, alerta inteligente)

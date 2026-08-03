@@ -71,16 +71,28 @@ def _score_temperatura(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
 
 
 def _score_poluicao(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
-    if "pm25_ugm3" not in df.columns and "iq_ar_score" not in df.columns:
+    has_pm = "pm25_ugm3" in df.columns or "iq_ar_score" in df.columns
+    has_focos = "focos_queimadas_7d" in df.columns
+    if not has_pm and not has_focos:
         return pd.Series(np.nan, index=df.index), pd.Series(0.0, index=df.index)
     pm = _clip01(_num(df["pm25_ugm3"]) / 75.0) if "pm25_ugm3" in df.columns else pd.Series(0.0, index=df.index)
     iq = _clip01(_num(df["iq_ar_score"]) / 100.0) if "iq_ar_score" in df.columns else pd.Series(0.0, index=df.index)
+    focos = (
+        _clip01(_num(df["focos_queimadas_7d"]) / 80.0)
+        if has_focos
+        else pd.Series(0.0, index=df.index)
+    )
     # Seca amplifica queimadas
     seca = pd.Series(0.0, index=df.index)
     if "precipitacao_mm" in df.columns:
         seca = _clip01((5.0 - _num(df["precipitacao_mm"])) / 5.0)
-    score = (pm * 0.55 + iq * 0.25 + seca * 0.20) * 100.0
-    has = _num(df["pm25_ugm3"]).notna() if "pm25_ugm3" in df.columns else pd.Series(False, index=df.index)
+    if "dias_sem_chuva_max" in df.columns:
+        seca = np.maximum(seca, _clip01(_num(df["dias_sem_chuva_max"]) / 30.0))
+    score = (pm * 0.40 + iq * 0.15 + focos * 0.30 + seca * 0.15) * 100.0
+    has = (
+        (_num(df["pm25_ugm3"]).notna() if "pm25_ugm3" in df.columns else pd.Series(False, index=df.index))
+        | (_num(df["focos_queimadas_7d"]).fillna(0) > 0 if has_focos else pd.Series(False, index=df.index))
+    )
     cov = has.astype(float)
     score = score.where(has, np.nan)
     return score.clip(0, 100), cov
@@ -136,12 +148,46 @@ def _score_ausente(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
     return pd.Series(np.nan, index=df.index), pd.Series(0.0, index=df.index)
 
 
+def _score_wash(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+    """Risco WASH 0–100 a partir do déficit domiciliar IBGE (+ amplificação por estiagem)."""
+    base = None
+    if "indice_deficit_wash" in df.columns:
+        base = _num(df["indice_deficit_wash"])
+    else:
+        parts = []
+        if "deficit_rede_agua_pct" in df.columns:
+            parts.append(_num(df["deficit_rede_agua_pct"]))
+        if "deficit_esgoto_inadequado_pct" in df.columns:
+            parts.append(_num(df["deficit_esgoto_inadequado_pct"]))
+        if "deficit_agua_canalizada_pct" in df.columns:
+            parts.append(_num(df["deficit_agua_canalizada_pct"]))
+        if parts:
+            mat = np.column_stack([p.fillna(np.nan).to_numpy(dtype=float) for p in parts])
+            base = pd.Series(np.nanmean(mat, axis=1), index=df.index)
+    if base is None:
+        return pd.Series(np.nan, index=df.index), pd.Series(0.0, index=df.index)
+
+    score = base.clip(0, 100)
+    # Estiagem / baixa umidade amplifica déficit de água (não inventa risco sem dado WASH)
+    amp = pd.Series(0.0, index=df.index)
+    if "precipitacao_mm" in df.columns:
+        amp = np.maximum(amp, _clip01((3.0 - _num(df["precipitacao_mm"])) / 3.0) * 0.15)
+    if "umidade_media" in df.columns:
+        amp = np.maximum(amp, _clip01((40.0 - _num(df["umidade_media"])) / 30.0) * 0.12)
+    if "dias_sem_chuva_max" in df.columns:
+        amp = np.maximum(amp, _clip01(_num(df["dias_sem_chuva_max"]) / 35.0) * 0.15)
+    score = (score * (1.0 + amp)).clip(0, 100)
+    cov = base.notna().astype(float)
+    score = score.where(base.notna(), np.nan)
+    return score, cov
+
+
 _SCORE_FN = {
     "temperatura_extrema": _score_temperatura,
     "poluicao_ar": _score_poluicao,
     "vetoriais_zoonoses": _score_vetorial,
     "precipitacao_extrema": _score_precipitacao,
-    "wash": _score_ausente,
+    "wash": _score_wash,
     "san": _score_ausente,
 }
 
@@ -160,24 +206,88 @@ def _nome_risco(cfg: dict[str, Any], risk_id: str) -> str:
     return risk_id
 
 
+def _pop_proxy01(out: pd.DataFrame) -> pd.Series:
+    if "populacao" not in out.columns:
+        return pd.Series(0.5, index=out.index)
+    pop = _num(out["populacao"]).fillna(0)
+    return _clip01(np.log1p(pop) / np.log1p(pop.max() if float(pop.max() or 0) > 0 else 1))
+
+
+def _vuln_component01(out: pd.DataFrame) -> pd.Series:
+    """Vulnerabilidade 0–1: índice demográfico quando há variância; senão porte populacional."""
+    if "indice_vulnerabilidade_calor" in out.columns:
+        iv = _num(out["indice_vulnerabilidade_calor"])
+        # Índice flat (legado = 50 em todos) não diferencia — cai no proxy populacional
+        if iv.notna().sum() >= 10 and float(iv.max() - iv.min()) > 1.0:
+            return _clip01(iv / 100.0)
+    return _pop_proxy01(out)
+
+
 def derive_smart_risk_indicators(df: pd.DataFrame) -> pd.DataFrame:
-    """Derivados inteligentes (sem novas fontes externas)."""
+    """Derivados inteligentes (demografia IBGE + tensão climática / ar)."""
     out = df.copy()
-    # calor × proxy demográfico (log população como vulnerabilidade relativa)
-    tensao = _num(out["indice_tensao_climatica"]) if "indice_tensao_climatica" in out.columns else _num(out.get("risco_cumulativo_3d", pd.Series(dtype=float))) * 6.0
-    if "populacao" in out.columns:
-        pop = _num(out["populacao"]).fillna(0)
-        vuln = _clip01(np.log1p(pop) / np.log1p(pop.max() if pop.max() > 0 else 1))
-    else:
-        vuln = pd.Series(0.5, index=out.index)
-    out["risco_calor_vulneravel"] = (tensao.fillna(0) * (0.55 + 0.45 * vuln)).clip(0, 100).round(1)
+    # Exposição térmica
+    tensao = (
+        _num(out["indice_tensao_climatica"])
+        if "indice_tensao_climatica" in out.columns
+        else _num(out.get("risco_cumulativo_3d", pd.Series(dtype=float))) * 6.0
+    )
+    pop_proxy = _pop_proxy01(out)
+    vuln_demo = _vuln_component01(out)
+    # 55% demografia (idosos/crianças/rural…) + 45% porte — evita priorizar só capital
+    vuln = (0.55 * vuln_demo + 0.45 * pop_proxy).clip(0, 1)
+    out["risco_calor_vulneravel"] = (tensao.fillna(0) * (0.50 + 0.50 * vuln)).clip(0, 100).round(1)
 
     pm = _clip01(_num(out["pm25_ugm3"]) / 75.0) if "pm25_ugm3" in out.columns else pd.Series(0.0, index=out.index)
     seca = _clip01((5.0 - _num(out["precipitacao_mm"])) / 5.0) if "precipitacao_mm" in out.columns else pd.Series(0.0, index=out.index)
-    out["risco_ar_queimadas"] = ((pm * 0.7 + seca * 0.3) * 100.0).where(
-        _num(out["pm25_ugm3"]).notna() if "pm25_ugm3" in out.columns else pd.Series(False, index=out.index),
+    focos = (
+        _clip01(_num(out["focos_queimadas_7d"]) / 80.0)
+        if "focos_queimadas_7d" in out.columns
+        else pd.Series(0.0, index=out.index)
+    )
+    has_ar = (
+        (_num(out["pm25_ugm3"]).notna() if "pm25_ugm3" in out.columns else pd.Series(False, index=out.index))
+        | (_num(out["focos_queimadas_7d"]).fillna(0) > 0 if "focos_queimadas_7d" in out.columns else pd.Series(False, index=out.index))
+    )
+    out["risco_ar_queimadas"] = ((pm * 0.45 + focos * 0.40 + seca * 0.15) * 100.0).where(
+        has_ar,
         np.nan,
     ).clip(0, 100).round(1)
+
+    # População vulnerável exposta (proxy operacional, não cadastro APS)
+    pop = _num(out["populacao"]) if "populacao" in out.columns else pd.Series(np.nan, index=out.index)
+    idosos_pct = _num(out["idosos_pct"]) if "idosos_pct" in out.columns else pd.Series(np.nan, index=out.index)
+    criancas_pct = (
+        _num(out["criancas_0_4_pct"])
+        if "criancas_0_4_pct" in out.columns
+        else (_num(out["criancas_0_9_pct"]) if "criancas_0_9_pct" in out.columns else pd.Series(np.nan, index=out.index))
+    )
+    # Fallbacks estaduais conservadores (Censo ~MT) só para estimar magnitude
+    idosos_pct = idosos_pct.fillna(12.0)
+    criancas_pct = criancas_pct.fillna(7.0)
+    pop_vuln = pop * ((idosos_pct + criancas_pct) / 100.0)
+
+    false = pd.Series(False, index=out.index)
+    calor_alto = tensao.fillna(0) >= 55
+    if "tmax" in out.columns:
+        calor_alto = calor_alto | (_num(out["tmax"]).fillna(0) >= 35)
+    if "utci_proxy" in out.columns:
+        calor_alto = calor_alto | (_num(out["utci_proxy"]).fillna(0) >= 32)
+    if "onda_calor_p95_2d" in out.columns:
+        calor_alto = calor_alto | (_num(out["onda_calor_p95_2d"]).fillna(0) >= 1)
+    fumaca_alta = false.copy()
+    if "pm25_ugm3" in out.columns:
+        fumaca_alta = fumaca_alta | (_num(out["pm25_ugm3"]).fillna(0) >= 35)
+    if "focos_queimadas_7d" in out.columns:
+        fumaca_alta = fumaca_alta | (_num(out["focos_queimadas_7d"]).fillna(0) >= 10)
+    fumaca_alta = fumaca_alta | (_num(out["risco_ar_queimadas"]).fillna(0) >= 50)
+    exposto = calor_alto | fumaca_alta
+    out["pop_vulneravel_estimada"] = pop_vuln.round(0)
+    out["pop_vulneravel_exposta"] = pop_vuln.where(exposto, 0.0).round(0)
+    frac_vuln = _clip01((idosos_pct + criancas_pct) / 40.0)
+    intensidade = np.maximum(_clip01(tensao / 100.0), _clip01(_num(out["risco_ar_queimadas"]).fillna(0) / 100.0))
+    out["indice_exposicao_vulneravel"] = (frac_vuln * (0.35 + 0.65 * intensidade) * 100.0).clip(0, 100).round(1)
+    out["flag_vulneravel_exposto"] = exposto.astype(int)
 
     arbo = _clip01(_num(out["casos_arbovirus_7d"]) / 30.0) if "casos_arbovirus_7d" in out.columns else pd.Series(0.0, index=out.index)
     tmax = _clip01((_num(out["tmax"]) - 28.0) / 10.0) if "tmax" in out.columns else pd.Series(0.0, index=out.index)
@@ -280,6 +390,13 @@ def enrich_adaptasus_intelligence(resumo: pd.DataFrame) -> tuple[pd.DataFrame, p
             "orientacao_adaptasus", "checklist_adaptasus",
             "risco_calor_vulneravel", "risco_ar_queimadas", "risco_vetorial_climatico",
             "pressao_rede_climatica", "risco_precipitacao",
+            "indice_deficit_wash", "cobertura_rede_agua_pct", "deficit_rede_agua_pct",
+            "cobertura_esgoto_rede_pct", "deficit_esgoto_inadequado_pct",
+            "pop_vulneravel_estimada", "pop_vulneravel_exposta",
+            "indice_exposicao_vulneravel", "flag_vulneravel_exposto",
+            "idosos_pct", "criancas_0_4_pct", "rural_pct", "densidade",
+            "indice_vulnerabilidade_calor", "cobertura_vulnerabilidade_pct",
+
         ] + [f"risco_{r}" for r in RISK_IDS] + [f"cobertura_{r}" for r in RISK_IDS]
         if c in df.columns
     ]

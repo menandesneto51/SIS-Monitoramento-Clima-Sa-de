@@ -97,6 +97,31 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "leigo": "Partículas finas no ar (fumaça/poeira) que entram fundo no pulmão.",
         "como_ler": "Valores altos preocupam asma, idosos e crianças — comum em queimadas.",
     },
+    "focos_queimadas_7d": {
+        "nome": "Focos de queimadas (7 dias)",
+        "leigo": "Quantidade de focos de calor detectados pelo INPE no município na última semana.",
+        "como_ler": "≥20 amarelo/laranja operacional · ≥50 vermelho · ≥120 roxo — cruzar com PM2,5 e SRAG.",
+    },
+    "focos_queimadas_24h": {
+        "nome": "Focos de queimadas (24 h)",
+        "leigo": "Focos INPE no último dia — sinal quase em tempo real de fogo ativo.",
+        "como_ler": "Pico diário ajuda a priorizar comunicação e atenção respiratória imediata.",
+    },
+    "nivel_queimadas": {
+        "nome": "Nível operacional de queimadas",
+        "leigo": "Semáforo Verde→Roxa só dos focos INPE (independente do nível climático geral).",
+        "como_ler": "Use junto com qualidade do ar — muitos focos sem PM2,5 ainda exigem atenção.",
+    },
+    "onda_fria_2d": {
+        "nome": "Onda de frio (≥2 dias)",
+        "leigo": "Tmín abaixo do limiar de alerta por dois ou mais dias seguidos.",
+        "como_ler": "1 = evento em curso — reforçar abrigo e vigilância de pneumonia/COPD.",
+    },
+    "severidade_onda_fria": {
+        "nome": "Severidade da onda de frio (0–4)",
+        "leigo": "Intensidade do frio extremo com base na Tmín e na duração.",
+        "como_ler": "0 rotina · 1–2 atenção · 3–4 risco alto para grupos vulneráveis.",
+    },
     "casos_srag": {
         "nome": "Casos SRAG",
         "leigo": "Síndrome Respiratória Aguda Grave notificada (hospitalizações graves).",
@@ -170,12 +195,47 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
     "risco_adaptasus_dominante": {
         "nome": "Risco AdaptaSUS dominante",
         "leigo": "Qual dos 6 riscos prioritários mais pressiona o município hoje.",
-        "como_ler": "Use para escolher o checklist SOP (calor, ar, vetorial, chuva…). Lacunas WASH/SAN ficam explícitas.",
+        "como_ler": "Use para escolher o checklist SOP (calor, ar, vetorial, chuva…). SAN permanece lacuna explícita.",
+    },
+    "risco_wash": {
+        "nome": "Risco WASH (água/saneamento)",
+        "leigo": "Déficit domiciliar de rede de água e esgoto (Censo IBGE), amplificado em estiagem.",
+        "como_ler": "Alto = mais domicílios sem rede adequada. Não substitui monitoramento operacional SNIS/SINISA em tempo real.",
+    },
+    "indice_deficit_wash": {
+        "nome": "Índice de déficit WASH",
+        "leigo": "Combina falta de rede de água, água não canalizada e esgoto inadequado (0–100).",
+        "como_ler": "Base estrutural (Censo). Em estiagem o risco AdaptaSUS pode subir acima deste piso.",
+    },
+    "cobertura_rede_agua_pct": {
+        "nome": "Cobertura rede de água (%)",
+        "leigo": "% de domicílios com ligação à rede geral usada como forma principal (Censo 2022).",
+        "como_ler": "Complementar com Vigilância Ambiental em eventos de desabastecimento.",
+    },
+    "deficit_esgoto_inadequado_pct": {
+        "nome": "Déficit esgoto inadequado (%)",
+        "leigo": "% de domicílios com fossa rudimentar, vala, corpo d'água ou sem banheiro.",
+        "como_ler": "Prioriza risco de veiculação hídrica após chuva intensa ou em seca prolongada.",
     },
     "risco_calor_vulneravel": {
         "nome": "Risco calor × vulnerabilidade",
-        "leigo": "Combina tensão térmica com porte populacional (proxy de exposição).",
-        "como_ler": "Prioriza polos urbanos quentes sem substituir cadastro de vulneráveis.",
+        "leigo": "Combina tensão térmica com demografia IBGE (idosos/crianças/rural) e porte populacional.",
+        "como_ler": "Prioriza municípios quentes com mais grupos sensíveis — não substitui cadastro APS.",
+    },
+    "pop_vulneravel_exposta": {
+        "nome": "População vulnerável exposta",
+        "leigo": "Estimativa de idosos (≥60) + crianças (0–4) em município sob calor alto ou fumaça.",
+        "como_ler": "Proxy Censo×clima para volume de atenção; não é lista nominal de vulneráveis.",
+    },
+    "indice_exposicao_vulneravel": {
+        "nome": "Índice exposição × vulnerabilidade",
+        "leigo": "Fraçao demográfica sensível amplificada pela intensidade de calor/fumaça (0–100).",
+        "como_ler": "Ajuda a ranquear onde a exposição climática encontra mais pessoas sensíveis.",
+    },
+    "idosos_pct": {
+        "nome": "% idosos (≥60 anos)",
+        "leigo": "Parcela da população com 60 anos ou mais (Censo IBGE 2022).",
+        "como_ler": "Grupo prioritário em ondas de calor, frio e fumaça.",
     },
     "risco_ar_queimadas": {
         "nome": "Risco ar / queimadas",
@@ -288,7 +348,7 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
     "AdaptaSUS / Guia MS": {
         "para_que_serve": "Alinhar a operação CIEVS-MT aos 6 riscos prioritários do AdaptaSUS e ao Guia MS.",
         "como_usar": "Veja cobertura estadual, risco dominante no mapa e ranking por índice de adaptação.",
-        "cuidado": "WASH/SAN ainda sem fonte — lacuna explícita, não risco zero.",
+        "cuidado": "SAN ainda sem fonte SES — lacuna explícita, não risco zero. WASH usa Censo IBGE (estrutural).",
     },
     "Sazonalidade / OR": {
         "para_que_serve": "Mostrar sazonalidade histórica e OR ecológico clima–agravos/ocupação.",
@@ -306,9 +366,9 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Inconsistências de nome/IBGE afetam mapas e joins.",
     },
     "Alertas": {
-        "para_que_serve": "Alertas multinível: ① SES · ② Regionais · ③ Municipais · ④ Vigidesastre Cuiabá — com indicadores, pred 7d e orientações.",
-        "como_usar": "Abra as quatro abas do boletim; valide a prévia no painel antes de armar SEND_ALERT / Telegram / e-mail.",
-        "cuidado": "Envio externo desligado por padrão (`SEND_ALERT_ON_LEVEL_CHANGE=false`). Validar com CIEVS antes de comunicação oficial.",
+        "para_que_serve": "Boletins CIEVS no padrão SES-MT: estadual (canal central), regionais, municipais e Vigidesastre Cuiabá.",
+        "como_usar": "Na aba Alertas, valide a prévia operacional (resumo → KPI → ações → prioritários) antes de armar o envio.",
+        "cuidado": "Canal central recebe só o estadual. Identidade visual do portal SES-MT (azul). Envio externo desligado por padrão.",
     },
     "Cálculos": {
         "para_que_serve": "Transparência metodológica: limiares, pesos e o que entra no nível.",

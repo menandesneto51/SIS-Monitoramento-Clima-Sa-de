@@ -88,7 +88,7 @@ def _call_gemini_native(api_key: str, model: str, prompt: str) -> str | None:
         headers={"Content-Type": "application/json"},
         json={
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 1200},
+            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 2048},
         },
         timeout=90,
     )
@@ -135,7 +135,7 @@ def maybe_llm_report(ctx: dict) -> str | None:
     prompt = (
         "Você é uma assessoria técnica de vigilância em saúde (CIEVS/SES-MT). "
         "Gere texto operacional objetivo, sem inventar dados, usando apenas o JSON abaixo.\n\n"
-        + json.dumps(ctx, ensure_ascii=False, default=str)[:12000]
+        + json.dumps(ctx, ensure_ascii=False, default=str)[:8000]
     )
     try:
         use_gemini = (

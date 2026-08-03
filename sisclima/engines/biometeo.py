@@ -355,6 +355,51 @@ def add_heatwave_p95_indicators(df: pd.DataFrame, settings: dict) -> pd.DataFram
     return out
 
 
+def add_coldwave_indicators(df: pd.DataFrame, settings: dict | None = None) -> pd.DataFrame:
+    """Indicadores de frio extremo a partir de Tmín (espelho operacional do calor).
+
+    Gatilhos padrão (configuráveis em limiares_calor.onda_fria):
+    - tmin_alerta: 12 °C
+    - tmin_risco: 8 °C
+    - min_dias: 2
+    """
+    if _is_empty(df) or "tmin" not in df.columns:
+        return df
+
+    out = ensure_municipality(df)
+    out = _sort_municipal(out, date_col="data")
+    cfg = ((settings or {}).get("limiares_calor") or {}).get("onda_fria") or {}
+    tmin_alerta = float(cfg.get("tmin_alerta", 12))
+    tmin_risco = float(cfg.get("tmin_risco", 8))
+    min_days = int(cfg.get("min_dias", 2))
+
+    out["tmin"] = pd.to_numeric(out["tmin"], errors="coerce")
+    out["excesso_frio_tmin"] = np.maximum(0.0, tmin_alerta - out["tmin"])
+    out["dia_abaixo_tmin_alerta"] = out["tmin"] <= tmin_alerta
+    out["dia_abaixo_tmin_risco"] = out["tmin"] <= tmin_risco
+
+    mcols = municipality_cols(out)
+    if mcols:
+        out["duracao_onda_fria_dias"] = (
+            out.groupby(mcols, group_keys=False)["dia_abaixo_tmin_alerta"].apply(_consecutive_run_lengths)
+        )
+    else:
+        out["duracao_onda_fria_dias"] = _consecutive_run_lengths(out["dia_abaixo_tmin_alerta"])
+
+    out["onda_fria_2d"] = (out["duracao_onda_fria_dias"] >= min_days).astype(int)
+    out["intensidade_onda_fria"] = np.where(
+        out["onda_fria_2d"] > 0,
+        out["excesso_frio_tmin"],
+        0.0,
+    )
+    out["severidade_onda_fria"] = 0
+    out.loc[out["onda_fria_2d"].astype(int) > 0, "severidade_onda_fria"] = 1
+    out.loc[out["intensidade_onda_fria"] >= 4.0, "severidade_onda_fria"] = 2
+    out.loc[out["tmin"] <= tmin_risco, "severidade_onda_fria"] = 3
+    out.loc[(out["tmin"] <= tmin_risco) & (out["onda_fria_2d"] > 0), "severidade_onda_fria"] = 4
+    return out
+
+
 def cumulative_heat_risk(
     df: pd.DataFrame,
     t_umbral: float = 39,
@@ -450,6 +495,7 @@ def add_biometeo_indicators(met: pd.DataFrame, settings: dict) -> pd.DataFrame:
     )
 
     df = add_heatwave_p95_indicators(df, settings)
+    df = add_coldwave_indicators(df, settings)
     df = compute_ehf_adapted(df)
 
     t_umbral = (

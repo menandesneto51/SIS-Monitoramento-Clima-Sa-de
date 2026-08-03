@@ -22,13 +22,15 @@ def run_once(*, force: bool = False, skip_cooldown: bool = False) -> dict:
 
 
 def run_loop() -> None:
-    interval_h = float(env("ALERT_INTERVAL_HOURS", "6") or 6)
+    interval_h = float(env("ALERT_INTERVAL_HOURS", "24") or 24)
     interval_s = max(300, int(interval_h * 3600))
     log.info(
-        "Agendador SIS alertas iniciado · intervalo=%.1fh · SEND_ALERT=%s · min_level=%s",
+        "Agendador SIS alertas iniciado · intervalo=%.1fh · SEND_ALERT=%s · min_level=%s · "
+        "central=somente SES · fanout=%s",
         interval_h,
         env("SEND_ALERT_ON_LEVEL_CHANGE", "false"),
         env("ALERT_MIN_LEVEL", "laranja"),
+        env("ALERT_FANOUT_ENABLED", "false"),
     )
     # Primeiro ciclo logo ao subir (respeita cooldown/fingerprint, salvo FORCE).
     force_first = as_bool(env("ALERT_SEND_ON_START", "true"), True)

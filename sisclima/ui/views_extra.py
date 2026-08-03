@@ -535,7 +535,7 @@ def render_adaptasus(resumo_filtrado: pd.DataFrame | None = None) -> None:
     )
     callout(
         "Esta aba operacionaliza o AdaptaSUS no CIEVS-MT. Não redefine metas federais. "
-        "Lacunas (WASH/SAN/frio) aparecem de forma explícita — não interprete ausência como risco zero.",
+        "WASH usa Censo IBGE 2022 (estrutural). SAN permanece lacuna explícita — ausência ≠ risco zero.",
         "info",
     )
     base_resumo = resumo_filtrado if resumo_filtrado is not None and not resumo_filtrado.empty else read_table("resumo_municipal_atual")
@@ -586,8 +586,55 @@ def render_adaptasus(resumo_filtrado: pd.DataFrame | None = None) -> None:
             callout(
                 "Lacunas explícitas: "
                 + ", ".join(lacunas["risco_nome"].astype(str).tolist())
-                + ". Aguardando fonte SES-MT/DW (Fase 2).",
+                + ". SAN/SISVAN e demais fontes SES-MT ainda em Fase 2.",
                 "warn",
+            )
+
+    # Bloco WASH estrutural
+    wash_cols = [
+        c for c in [
+            "indice_deficit_wash", "risco_wash", "cobertura_rede_agua_pct",
+            "deficit_rede_agua_pct", "cobertura_esgoto_rede_pct", "deficit_esgoto_inadequado_pct",
+        ]
+        if c in (resumo.columns if resumo is not None and not resumo.empty else [])
+    ]
+    if wash_cols:
+        st.markdown("#### WASH — déficit estrutural (Censo IBGE 2022)")
+        w1, w2, w3, w4 = st.columns(4)
+        w1.metric(
+            "Déficit WASH méd.",
+            f"{pd.to_numeric(resumo['indice_deficit_wash'], errors='coerce').mean():.0f}"
+            if "indice_deficit_wash" in resumo.columns else "—",
+        )
+        w2.metric(
+            "Risco WASH máx.",
+            f"{pd.to_numeric(resumo['risco_wash'], errors='coerce').max():.0f}"
+            if "risco_wash" in resumo.columns else "—",
+        )
+        w3.metric(
+            "Rede água méd. %",
+            f"{pd.to_numeric(resumo['cobertura_rede_agua_pct'], errors='coerce').mean():.0f}"
+            if "cobertura_rede_agua_pct" in resumo.columns else "—",
+        )
+        w4.metric(
+            "Esgoto inadequado méd. %",
+            f"{pd.to_numeric(resumo['deficit_esgoto_inadequado_pct'], errors='coerce').mean():.0f}"
+            if "deficit_esgoto_inadequado_pct" in resumo.columns else "—",
+        )
+        top_wash = resumo.copy()
+        sort_c = "risco_wash" if "risco_wash" in top_wash.columns else "indice_deficit_wash"
+        if sort_c in top_wash.columns:
+            top_wash = top_wash.sort_values(sort_c, ascending=False)
+            st.dataframe(
+                top_wash[
+                    [c for c in [
+                        "cod_ibge", "municipio", "regional_saude", sort_c,
+                        "cobertura_rede_agua_pct", "deficit_rede_agua_pct",
+                        "cobertura_esgoto_rede_pct", "deficit_esgoto_inadequado_pct",
+                    ] if c in top_wash.columns]
+                ].head(25),
+                use_container_width=True,
+                height=320,
             )
 
     if mun.empty:
