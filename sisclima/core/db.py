@@ -238,6 +238,29 @@ CREATE TABLE IF NOT EXISTS recomendacoes_operacionais (
     created_at TEXT
 )
 """,
+    """
+CREATE TABLE IF NOT EXISTS nivel_historico (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    data_referencia TEXT,
+    nivel TEXT,
+    score INTEGER,
+    motivo TEXT,
+    nivel_anterior TEXT,
+    created_at TEXT
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS alertas_validacao_humana (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TEXT,
+    data_referencia TEXT,
+    nivel TEXT,
+    usuario TEXT,
+    decisao TEXT,
+    checklist_json TEXT,
+    observacao TEXT
+)
+""",
 ]
 
 DDL_POSTGRES = [
@@ -291,6 +314,29 @@ CREATE TABLE IF NOT EXISTS recomendacoes_operacionais (
     eixo TEXT,
     recomendacao TEXT,
     created_at TEXT
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS nivel_historico (
+    id SERIAL PRIMARY KEY,
+    data_referencia TEXT,
+    nivel TEXT,
+    score INTEGER,
+    motivo TEXT,
+    nivel_anterior TEXT,
+    created_at TEXT
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS alertas_validacao_humana (
+    id SERIAL PRIMARY KEY,
+    created_at TEXT,
+    data_referencia TEXT,
+    nivel TEXT,
+    usuario TEXT,
+    decisao TEXT,
+    checklist_json TEXT,
+    observacao TEXT
 )
 """,
 ]

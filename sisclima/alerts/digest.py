@@ -86,7 +86,8 @@ STATUS_THRESHOLDS: dict[str, list[tuple[float, str]]] = {
 
 LEGENDA_RAPIDA = (
     "pontuação 0–4 (0 verde · 1 amarela · 2 laranja · 3 vermelha · 4 roxa) | "
-    "ocupação alerta ≥75% | sensação alerta >32 °C | risco 3d alerta ≥7 · intensificado ≥12 · pleno ≥18"
+    "Tmáx alerta ≥39 °C | sensação alerta >32 °C | "
+    "risco 3d alerta ≥7 · intensificado ≥12 · pleno ≥18 | ocupação alerta ≥75%"
 )
 
 
@@ -234,6 +235,7 @@ def build_orientacoes_ses_setores(payload: dict[str, Any]) -> dict[str, str]:
 
 
 def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
+    """Valor + status curto; limiares completos ficam só na legenda da seção."""
     campo = str(ind.get("campo") or "")
     if campo in {"n_municipios", "distribuicao_niveis", "cobertura_ocupacao"}:
         return None
@@ -255,19 +257,33 @@ def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
     }.get(campo, rotulo)
     valor = ind.get("valor")
     status = _status_for(campo, valor)
+    num = _parse_num(valor)
+
+    def _br(v: float, nd: int = 1) -> str:
+        return f"{v:.{nd}f}".replace(".", ",")
+
     if campo in {"score", "score_alerta_integrado"}:
-        num = _parse_num(valor)
         valor_txt = f"{int(num)}/4" if num is not None else str(valor)
     elif campo == "ocupacao_leitos_pct":
-        valor_txt = f"{valor}%" if "%" not in str(valor) else str(valor)
+        valor_txt = f"{_br(num)}%" if num is not None else str(valor)
     elif campo == "pressao_calor_pct":
-        valor_txt = f"{valor} /15"
+        valor_txt = f"{_br(num)} /15" if num is not None else f"{valor} /15"
+    elif campo in {"tmax", "utci_proxy"}:
+        valor_txt = f"{_br(num)} °C" if num is not None else str(valor)
+    elif campo == "pm25_ugm3":
+        valor_txt = f"{_br(num)} µg/m³" if num is not None else str(valor)
+    elif campo == "risco_cumulativo_3d":
+        valor_txt = _br(num) if num is not None else str(valor)
     else:
         valor_txt = str(valor)
     line = f"{icon} {short}: {valor_txt}"
     if status:
         line += f" — {status}"
     return line
+
+
+# Alias do plano (legado): valor + status, sem limiar por linha
+_fmt_indicator_line = _kpi_line
 
 
 def _priority_one_liner(m: dict[str, Any], idx: int) -> str:
@@ -325,20 +341,27 @@ def _priority_one_liner(m: dict[str, Any], idx: int) -> str:
 
 
 def _ai_is_redundant(ai_txt: str, setores: dict[str, str]) -> bool:
+    """Omite IA se for curta, sem bullets ou quase cópia do checklist setorial."""
     if not ai_txt or len(ai_txt.strip()) < 80:
         return True
-    # se a IA só ecoa os setores, omitir
     blob = " ".join(setores.values()).lower()
-    bullets = [b.strip("-• ").lower() for b in ai_txt.splitlines() if b.strip()]
+    blob_tokens = {t for t in re.findall(r"[a-zà-ú]{4,}", blob)}
+    bullets = [b.strip("-• ").lower() for b in ai_txt.splitlines() if b.strip().lstrip("-• ")]
     if not bullets:
         return True
+    # poucas linhas e eco óbvio → omitir
+    if len(bullets) < 3:
+        return True
     overlap = 0
+    token_hits = 0
     for b in bullets:
-        # similaridade grosseira: primeiras 40 chars aparecem nos setores
         key = b[:40]
         if key and key in blob:
             overlap += 1
-    return overlap >= max(3, len(bullets) - 1)
+        btoks = {t for t in re.findall(r"[a-zà-ú]{4,}", b)}
+        if btoks and len(btoks & blob_tokens) / max(len(btoks), 1) >= 0.55:
+            token_hits += 1
+    return overlap >= max(3, len(bullets) - 1) or token_hits >= max(3, len(bullets) - 1)
 
 
 def _ai_orientacao_ses(payload: dict[str, Any]) -> str | None:
@@ -956,7 +979,10 @@ def _enrich_payloads_with_ai(payloads: list[dict[str, Any]]) -> list[dict[str, A
         escopo = p.get("escopo")
         if escopo == "estadual":
             p["orientacoes_setores"] = build_orientacoes_ses_setores(p)
-            p["orientacao_ia"] = _ai_orientacao(p) if max_extra >= 0 and as_bool(env("USE_AI_ALERT_TEXT", "false"), False) else None
+            ai_on = as_bool(env("USE_AI_ALERT_TEXT", "false"), False) or as_bool(
+                env("USE_LLM_REPORT", "false"), False
+            )
+            p["orientacao_ia"] = _ai_orientacao(p) if max_extra >= 0 and ai_on else None
             continue
         if escopo == "regional":
             p["orientacoes_regionais"] = build_orientacoes_regional(p)

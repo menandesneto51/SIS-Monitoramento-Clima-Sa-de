@@ -33,16 +33,34 @@ from sisclima.engines.geospatial import (
     prepare_map_dataframe,
 )
 from sisclima.engines.panel_indicators import enrich_panel_indicators, state_indicator_summary
+from sisclima.engines.recommendations import recommendations_for_stage
+from sisclima.engines.stages import STAGE_ORDER
 from sisclima.ui import theme as ui_theme
 from sisclima.ui.alerts_sop import (
     ALERT_CHECKLIST,
     ALERT_SOP_STEPS,
+    CRITERIOS_ESCALONAMENTO,
     alert_channel_status,
     boletim_destinatario_resumo,
     format_boletim_painel,
     municipal_alert_candidates,
+    persist_checklist_validation,
+    preview_boletim_executivo_ses,
     preview_state_alert,
     recent_alert_log,
+    recent_nivel_historico,
+    recent_validacoes_humanas,
+    routing_status_summary,
+)
+from sisclima.ui.home_ops import (
+    AVISO_SINAL_VS_ATIVACAO,
+    ameaca_dominante_estado,
+    build_fonte_frescor_home,
+    explicar_nivel_municipio,
+    frescor_resumo,
+    pressao_rotulo,
+    tabela_prioridades_hoje,
+    tendencia_estado_rotulo,
 )
 from sisclima.ui.correlation import compute_spearman_pairs
 from sisclima.ui.explainers import HOW_TO_READ_PANEL, INDICATOR_GLOSSARY, LEVEL_GUIDE
@@ -781,13 +799,16 @@ prioridade_state = state_prioridade_summary(resumo_all)
 
 ui_theme.hero(
     "SIS Clima-Saúde MT",
-    "Sala de situação CIEVS — cruza clima, qualidade do ar, assistência e vigilância para priorizar a resposta territorial.",
+    "Sistema Integrado de Inteligência e Monitoramento dos Impactos Climáticos na Saúde · "
+    "SES-MT | Superintendência de Inteligência em Saúde | CIEVS-MT · "
+    f"base {backend_name()}",
     chips=[
         "SES-MT",
-        "CIEVS",
+        "CIEVS-MT",
         "AdaptaSUS",
-        "Alerta multinível",
-        f"Alertas {'ativos' if alerts_enabled() else 'em modo local'}",
+        "Sala de Situação",
+        "Alerta operacional SIS",
+        f"Envio: {'ON' if alerts_enabled() else 'OFF'}",
     ],
 )
 
@@ -830,128 +851,195 @@ ui_theme.level_banner(
     orientacao=orientacao_sentinel,
 )
 
-with st.expander("Como ler este painel (primeira visita)", expanded=False):
+ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
+
+# Frescor / cobertura (não interpretar ausência como risco zero)
+_frescor_home = build_fonte_frescor_home(resumo_all)
+_frescor_sum = frescor_resumo(_frescor_home)
+_data_proc = (
+    str(pd.to_datetime(resumo_all["data_processamento"], errors="coerce").max())
+    if "data_processamento" in resumo_all.columns
+    else "—"
+)
+_ameaca = ameaca_dominante_estado(resumo_all)
+_n_verm_rox = int(
+    resumo_all["nivel"].astype(str).str.lower().isin(["vermelha", "roxa"]).sum()
+) if "nivel" in resumo_all.columns else 0
+_n_subindo = int(intel_state.get("tendencia_subindo", 0) or 0)
+_tend_rotulo = tendencia_estado_rotulo(_n_subindo, max(len(resumo_all), 1))
+_pressao_media_top = (
+    float(pd.to_numeric(resumo_all["indice_pressao_saude"], errors="coerce").mean())
+    if "indice_pressao_saude" in resumo_all.columns
+    and pd.to_numeric(resumo_all["indice_pressao_saude"], errors="coerce").notna().any()
+    else (
+        float(pd.to_numeric(resumo_all["pressao_calor_pct"], errors="coerce").mean())
+        if "pressao_calor_pct" in resumo_all.columns
+        else None
+    )
+)
+
+ui_theme.section_title(
+    "Situação estadual",
+    f"Atualização do resumo: {_data_proc} · fontes OK {_frescor_sum['n_ok']}/{_frescor_sum['n_total']} "
+    f"({_frescor_sum['pct_ok']:.0f}%) · {_frescor_sum['n_problema']} com defasagem/parcial/indisponível",
+)
+ui_theme.insight_cards(
+    [
+        ("Nível operacional", str(nivel_estado).upper(), f"sentinela: {municipio_sentinel}"),
+        ("Municípios em alerta", str(_n_verm_rox), "vermelha + roxa"),
+        ("Principal ameaça", _ameaca[:42], "heurística transparente"),
+        ("Tendência ~7 dias", _tend_rotulo, f"{_n_subindo} mun. com piora prevista"),
+        ("Pressão sobre a saúde", pressao_rotulo(_pressao_media_top), safe_metric_value(_pressao_media_top, "", 0)),
+        ("Frescor dos dados", f"{_frescor_sum['pct_ok']:.0f}%", "fontes na janela esperada"),
+    ]
+)
+
+with st.expander("Frescor e cobertura por fonte (ausência ≠ risco zero)", expanded=False):
+    if _frescor_home.empty:
+        st.caption("Sem metadados de frescor nesta base.")
+    else:
+        show_df(_frescor_home, height=260)
+        st.caption(
+            "Fonte fora da janela esperada deve ser lida com baixa confiabilidade e não como ‘tudo bem’."
+        )
+
+# Prioridades de hoje — resposta rápida às 5 perguntas do plantão
+ui_theme.section_title(
+    "Prioridades de hoje",
+    "Até 10 municípios para contato — situação → motivo → tendência → ação",
+)
+_prio_hoje = tabela_prioridades_hoje(resumo_all, n=10)
+if _prio_hoje.empty:
+    st.info("Sem municípios para priorizar nesta rodada.")
+else:
+    show_df(_prio_hoje, height=320)
+    if "flag_persistencia_roxa" in resumo_all.columns:
+        _n_persist = int(pd.to_numeric(resumo_all["flag_persistencia_roxa"], errors="coerce").fillna(0).gt(0).sum())
+        if _n_persist:
+            st.caption(
+                f"{_n_persist} município(s) com flag de persistência roxa "
+                f"(EHF/onda ≥ limiar de dias em settings)."
+            )
+    with st.expander("Por que este nível? (município sentinela / crítico)", expanded=False):
+        st.markdown(explicar_nivel_municipio(sentinel))
+
+with st.expander("Como ler este painel (comece aqui se for sua 1ª vez)", expanded=False):
     for line in HOW_TO_READ_PANEL:
         st.markdown(f"- {line}")
     st.caption("Predição numérica do SIS ≈ 7 dias. Cenários sazonais vêm de boletins oficiais, não deste número.")
 
 metrics = state_summary_with_prediction(resumo_all, pred_v6)
-_pressao_media_top = (
-    float(pd.to_numeric(resumo_all["indice_pressao_saude"], errors="coerce").mean())
-    if "indice_pressao_saude" in resumo_all.columns
-    and pd.to_numeric(resumo_all["indice_pressao_saude"], errors="coerce").notna().any()
-    else None
-)
 _semaforo_top = (
     resumo_all["semaforo_pressao"].astype(str).str.lower().value_counts().to_dict()
     if "semaforo_pressao" in resumo_all.columns
     else {}
 )
-ui_theme.section_title(
-    "Situação geral do Estado",
-    "Valores estaduais da rodada · atual · predição 7 dias · tendência",
-)
 
-ui_theme.insight_cards(
-    [
-        (
-            "Prioridade global",
-            safe_metric_value(prioridade_state.get("media"), "", 0),
-            f"alta+ {prioridade_state.get('n_alta_ou_mais', 0)} · ↑{prioridade_state.get('tendencia_aumento', 0)}",
-        ),
-        (
-            "Tensão climática",
-            safe_metric_value(intel_state.get("indice_tensao_climatica_media"), "", 0),
-            "média estadual 0–100",
-        ),
-        (
-            "Carga em saúde",
-            safe_metric_value(intel_state.get("indice_carga_saude_media"), "", 0),
-            "média estadual 0–100",
-        ),
-        (
-            "Vigilância integrada",
-            safe_metric_value(intel_state.get("indice_vigilancia_integrada_media"), "", 0),
-            "prioridade composta",
-        ),
-        (
-            "Pressão saúde",
-            safe_metric_value(_pressao_media_top, "", 0),
-            f"G {_semaforo_top.get('verde', 0)} · A {_semaforo_top.get('amarela', 0)} · V {_semaforo_top.get('vermelha', 0)}",
-        ),
-        (
-            "Tendência ↑ em 7d",
-            str(intel_state.get("tendencia_subindo", 0)),
-            "municípios com piora prevista",
-        ),
-    ]
-)
+with st.expander("Detalhe estadual (métricas, distribuição Verde→Roxa e glossário)", expanded=False):
+    ui_theme.section_title(
+        "Situação geral do Estado — detalhe",
+        "Atual · predição 7 dias · tendência — valores estaduais da rodada",
+    )
+    ui_theme.insight_cards(
+        [
+            (
+                "Prioridade global",
+                safe_metric_value(prioridade_state.get("media"), "", 0),
+                f"alta+ {prioridade_state.get('n_alta_ou_mais', 0)} · ↑{prioridade_state.get('tendencia_aumento', 0)}",
+            ),
+            (
+                "Tensão climática",
+                safe_metric_value(intel_state.get("indice_tensao_climatica_media"), "", 0),
+                "média estadual 0–100",
+            ),
+            (
+                "Carga em saúde",
+                safe_metric_value(intel_state.get("indice_carga_saude_media"), "", 0),
+                "média estadual 0–100",
+            ),
+            (
+                "Vigilância integrada",
+                safe_metric_value(intel_state.get("indice_vigilancia_integrada_media"), "", 0),
+                "prioridade composta",
+            ),
+            (
+                "Pressão saúde",
+                safe_metric_value(_pressao_media_top, "", 0),
+                f"G {_semaforo_top.get('verde', 0)} · A {_semaforo_top.get('amarela', 0)} · V {_semaforo_top.get('vermelha', 0)}",
+            ),
+            (
+                "Tendência ↑ em 7d",
+                str(intel_state.get("tendencia_subindo", 0)),
+                "municípios com piora prevista",
+            ),
+        ]
+    )
 
-_tend_cli = metrics.get("tendencia_clima", "—")
-r1 = st.columns(8)
-metric_with_pred(
-    r1[0],
-    "Municípios",
-    metrics.get("municipios", 0),
-    metrics.get("municipios", 0),
-    _tend_cli,
-    "",
-    0,
-)
-metric_with_pred(r1[1], "Tmax máx.", metrics.get("tmax"), metrics.get("tmax_pred"), metrics.get("tendencia_tmax", _tend_cli), " °C", 1)
-metric_with_pred(r1[2], "UTCI máx.", metrics.get("utci"), metrics.get("utci_pred"), metrics.get("tendencia_utci", _tend_cli), "", 1)
-metric_with_pred(r1[3], "Risco 3d máx.", metrics.get("risco3d"), metrics.get("risco3d_pred"), metrics.get("tendencia_risco3d", _tend_cli), "", 2)
-metric_with_pred(r1[4], "Ocupação média", metrics.get("ocup_media"), pd.NA, _tend_cli, "%", 1)
-metric_with_pred(r1[5], "Pressão média", metrics.get("pressao_media"), pd.NA, _tend_cli, "%", 1)
-metric_with_pred(r1[6], "PM2.5 máx.", metrics.get("pm25_max"), pd.NA, _tend_cli, "", 1)
-metric_with_pred(r1[7], "IQA máx.", metrics.get("iqar_max"), pd.NA, _tend_cli, "", 1)
-ui_theme.glossary_expander(
-    [
-        "indice_prioridade_global",
-        "faixa_prioridade_global",
-        "tendencia_prioridade_7d",
-        "indice_tensao_climatica",
-        "indice_carga_saude",
-        "indice_vigilancia_integrada",
-        "tendencia_7d",
-        "completude_dados_pct",
-        "risco_cumulativo_3d",
-        "utci_proxy",
-        "pressao_calor_pct",
-    ]
-)
+    _tend_cli = metrics.get("tendencia_clima", "—")
+    r1 = st.columns(8)
+    metric_with_pred(
+        r1[0],
+        "Municípios",
+        metrics.get("municipios", 0),
+        metrics.get("municipios", 0),
+        _tend_cli,
+        "",
+        0,
+    )
+    metric_with_pred(r1[1], "Tmax máx.", metrics.get("tmax"), metrics.get("tmax_pred"), metrics.get("tendencia_tmax", _tend_cli), " °C", 1)
+    metric_with_pred(r1[2], "UTCI máx.", metrics.get("utci"), metrics.get("utci_pred"), metrics.get("tendencia_utci", _tend_cli), "", 1)
+    metric_with_pred(r1[3], "Risco 3d máx.", metrics.get("risco3d"), metrics.get("risco3d_pred"), metrics.get("tendencia_risco3d", _tend_cli), "", 2)
+    metric_with_pred(r1[4], "Ocupação média", metrics.get("ocup_media"), pd.NA, _tend_cli, "%", 1)
+    metric_with_pred(r1[5], "Pressão média", metrics.get("pressao_media"), pd.NA, _tend_cli, "%", 1)
+    metric_with_pred(r1[6], "PM2.5 máx.", metrics.get("pm25_max"), pd.NA, _tend_cli, "", 1)
+    metric_with_pred(r1[7], "IQA máx.", metrics.get("iqar_max"), pd.NA, _tend_cli, "", 1)
+    ui_theme.glossary_expander(
+        [
+            "indice_prioridade_global",
+            "faixa_prioridade_global",
+            "tendencia_prioridade_7d",
+            "indice_tensao_climatica",
+            "indice_carga_saude",
+            "indice_vigilancia_integrada",
+            "tendencia_7d",
+            "completude_dados_pct",
+            "risco_cumulativo_3d",
+            "utci_proxy",
+            "pressao_calor_pct",
+        ]
+    )
 
-ui_theme.section_title(
-    "Distribuição dos níveis operacionais",
-    "Atual · predição 7d · tendência do número de municípios em cada cor",
-)
-
-_pred_levels = metrics.get("pred_levels") or {}
-dist_cols = st.columns(5)
-for _idx, (_nivel, _label) in enumerate([
-    ("verde", "Verde"),
-    ("amarela", "Amarela"),
-    ("laranja", "Laranja"),
-    ("vermelha", "Vermelha"),
-    ("roxa", "Roxa"),
-]):
-    _valor = int(metrics.get(_nivel, 0) or 0)
-    _pred_n = int(_pred_levels.get(_nivel, 0) or 0)
-    _tend_n = metrics.get(f"tendencia_{_nivel}", _trend_from_counts(_valor, _pred_n))
-    _icon = _trend_icon(_tend_n)
-    _tend_txt = _trend_pt(_tend_n)
-    with dist_cols[_idx]:
-        st.markdown(
-            f"""
-            <div class="sis-level-tile" style="background:{LEVEL_COLOR_MAP[_nivel]};border:1px solid rgba(0,4,68,.12);">
-                <div class="lbl">{_label}</div>
-                <div class="val">{_valor}</div>
-                <div class="pred">7d: {_pred_n}</div>
-                <div class="trend">{_icon} {_tend_txt}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    ui_theme.section_title(
+        "Legenda rápida dos níveis",
+        "Atual · predição 7d · tendência do número de municípios em cada cor",
+    )
+    ui_theme.level_legend()
+    _pred_levels = metrics.get("pred_levels") or {}
+    dist_cols = st.columns(5)
+    for _idx, (_nivel, _label) in enumerate([
+        ("verde", "Verde"),
+        ("amarela", "Amarela"),
+        ("laranja", "Laranja"),
+        ("vermelha", "Vermelha"),
+        ("roxa", "Roxa"),
+    ]):
+        _valor = int(metrics.get(_nivel, 0) or 0)
+        _pred_n = int(_pred_levels.get(_nivel, 0) or 0)
+        _tend_n = metrics.get(f"tendencia_{_nivel}", _trend_from_counts(_valor, _pred_n))
+        _icon = _trend_icon(_tend_n)
+        _tend_txt = _trend_pt(_tend_n)
+        with dist_cols[_idx]:
+            st.markdown(
+                f"""
+                <div class="sis-level-tile" style="background:{LEVEL_COLOR_MAP[_nivel]}">
+                    <div class="lbl">{_label}</div>
+                    <div class="val">{_valor}</div>
+                    <div class="pred">7d: {_pred_n}</div>
+                    <div class="trend">{_icon} {_tend_txt}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 with st.expander("O que cada cor significa na operação", expanded=False):
     ui_theme.level_legend()
@@ -1083,6 +1171,7 @@ NAV_SECTIONS: list[str] = [
     "Visão executiva",
     "Mapas",
     "Guia do leitor",
+    "El Niño / Contingência",
     "Clima / TITAN",
     "Qualidade do ar",
     "Assistência",
@@ -1101,7 +1190,7 @@ NAV_SECTIONS: list[str] = [
     "Cálculos",
 ]
 NAV_GROUPS: dict[str, list[str]] = {
-    "Visão": ["Visão executiva", "Mapas", "Guia do leitor"],
+    "Visão": ["Visão executiva", "Mapas", "Guia do leitor", "El Niño / Contingência"],
     "Clima": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
     "Saúde": [
         "Assistência",
@@ -1200,9 +1289,11 @@ if SECTION_KEY == "Guia do leitor":
     )
 
 elif SECTION_KEY == "Visão executiva":
-    ui_theme.section_title("Visão executiva", "Mapa + priorização — SIS com TITAN incorporado")
+    ui_theme.section_title("Visão executiva", "Mapa + priorização — sequência: situação → motivo → ação")
+    ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
     ui_theme.callout(
-        "Cores no mapa = nível operacional. O alerta integrado une clima/saúde SIS com INMET, Cemaden, solo e hidro (TITAN).",
+        "Cores no mapa = classificação operacional do SIS (não ativação formal de emergência). "
+        "O alerta integrado une clima/saúde com INMET, Cemaden, solo e hidro (TITAN).",
         "info",
     )
     render_interpretacao(
@@ -1210,6 +1301,19 @@ elif SECTION_KEY == "Visão executiva":
         GUIDE_EXECUTIVO,
         lambda: narrativa_executivo(resumo, alerta_integrado),
     )
+
+    st.markdown("#### Prioridades no recorte filtrado")
+    _prio_filtro = tabela_prioridades_hoje(resumo, n=10)
+    if _prio_filtro.empty:
+        st.info("Sem municípios no filtro atual.")
+    else:
+        show_df(_prio_filtro, height=300)
+        mun_opts = _prio_filtro["Município"].astype(str).tolist()
+        if mun_opts:
+            mun_sel = st.selectbox("Detalhar ‘por que este nível’", mun_opts, key="exec_porque_nivel")
+            row = resumo[resumo["municipio"].astype(str) == str(mun_sel)]
+            if not row.empty:
+                st.markdown(explicar_nivel_municipio(row.iloc[0]))
 
     # Cards alerta integrado
     if not alerta_integrado.empty and "nivel_alerta_integrado" in alerta_integrado.columns:
@@ -1230,7 +1334,7 @@ elif SECTION_KEY == "Visão executiva":
         map_df,
         geojson_mun,
         "nivel",
-        "Nível operacional municipal",
+        "Nível operacional municipal (classificação SIS)",
         hover_cols=[
             "regional_saude", "score", "tmax", "utci_proxy", "risco_cumulativo_3d",
             "indice_vigilancia_integrada", "indice_saturacao_solo", "nivel_alerta_integrado",
@@ -1240,95 +1344,165 @@ elif SECTION_KEY == "Visão executiva":
         categorical=True,
     )
 
-    st.markdown("#### Insights rápidos do recorte filtrado")
-    intel_local = state_indicator_summary(resumo)
-    from sisclima.engines.prioridade_global import state_prioridade_summary as _prio_sum
-
-    prio_local = _prio_sum(resumo)
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Prioridade global méd.", safe_metric_value(prio_local.get("media"), "", 0))
-    c2.metric("Vigilância méd.", safe_metric_value(intel_local.get("indice_vigilancia_integrada_media"), "", 0))
-    c3.metric("Municípios ↑ 7d", intel_local.get("tendencia_subindo", 0))
-    c4.metric("Prioridade alta+", prio_local.get("n_alta_ou_mais", 0))
-
-    # Checagem Roxa × Vermelha (pós-correção do índice)
-    if "nivel" in resumo.columns and "indice_vigilancia_integrada" in resumo.columns:
-        _nv = resumo["nivel"].astype(str).str.lower()
-        _vig = pd.to_numeric(resumo["indice_vigilancia_integrada"], errors="coerce")
-        _m_verm = _vig[_nv.eq("vermelha")].mean()
-        _m_roxa = _vig[_nv.eq("roxa")].mean()
-        if pd.notna(_m_verm) and pd.notna(_m_roxa):
-            if _m_roxa + 0.05 >= _m_verm:
-                ui_theme.callout(
-                    f"Alinhamento OK: vigilância média Roxa ({_m_roxa:.1f}) ≥ Vermelha ({_m_verm:.1f}).",
-                    "info",
-                )
-            else:
-                ui_theme.callout(
-                    f"Atenção: média Roxa ({_m_roxa:.1f}) ainda < Vermelha ({_m_verm:.1f}). Revise pisos em settings.yaml.",
-                    "warn",
-                )
-
-    cand = municipal_alert_candidates(resumo)
-    if not cand.empty:
-        st.markdown("#### Fila de atenção do plantão (candidatos a alerta)")
-        st.caption("Não dispara e-mail sozinho — lista municípios laranja+/tendência subindo/vigilância alta.")
-        show_df(cand.head(15), height=280)
-
-    st.markdown("#### Municípios priorizados")
-    cols = [
-        c
-        for c in [
-            "cod_ibge",
-            "municipio",
-            "regional_saude",
-            "nivel",
-            "score",
-            "indice_prioridade_global",
-            "faixa_prioridade_global",
-            "tendencia_prioridade_7d",
-            "indice_vigilancia_integrada",
-            "indice_tensao_climatica",
-            "indice_carga_saude",
-            "indice_pressao_saude",
-            "tendencia_7d",
-            "percentil_risco_estadual",
-            "completude_prioridade_pct",
-            "tmax",
-            "utci_proxy",
-            "risco_cumulativo_3d",
-            "ocupacao_leitos_pct",
-            "pressao_calor_pct",
-            "orientacao_prioridade",
-            "orientacao_leiga",
-            "motivo",
+    with st.expander("Tabela analítica completa do recorte", expanded=False):
+        cols = [
+            c
+            for c in [
+                "cod_ibge",
+                "municipio",
+                "regional_saude",
+                "nivel",
+                "score",
+                "indice_prioridade_global",
+                "faixa_prioridade_global",
+                "tendencia_prioridade_7d",
+                "indice_vigilancia_integrada",
+                "indice_tensao_climatica",
+                "indice_carga_saude",
+                "indice_pressao_saude",
+                "tendencia_7d",
+                "percentil_risco_estadual",
+                "completude_prioridade_pct",
+                "tmax",
+                "utci_proxy",
+                "risco_cumulativo_3d",
+                "ocupacao_leitos_pct",
+                "pressao_calor_pct",
+                "orientacao_prioridade",
+                "orientacao_leiga",
+                "motivo",
+            ]
+            if c in resumo.columns
         ]
-        if c in resumo.columns
-    ]
-    sort_keys = [
-        c
-        for c in ["indice_prioridade_global", "indice_vigilancia_integrada", "score", "risco_cumulativo_3d"]
-        if c in resumo.columns
-    ]
-    show_df(
-        safe_sort(resumo, sort_keys, ascending=[False] * len(sort_keys)) if sort_keys else resumo,
-        cols,
-        height=520,
+        sort_keys = [
+            c
+            for c in ["indice_prioridade_global", "indice_vigilancia_integrada", "score", "risco_cumulativo_3d"]
+            if c in resumo.columns
+        ]
+        show_df(
+            safe_sort(resumo, sort_keys, ascending=[False] * len(sort_keys)) if sort_keys else resumo,
+            cols,
+            height=420,
+        )
+
+
+# ---------------------------------------------------------------------
+# El Niño / Plano de Contingência
+# ---------------------------------------------------------------------
+elif SECTION_KEY == "El Niño / Contingência":
+    ui_theme.section_title(
+        "El Niño — preparação e resposta",
+        "Instrumento operacional ligado ao CIEVS-MT (não substitui boletins INMET/INPE/CPTEC)",
     )
-    ui_theme.glossary_expander(
+    ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
+    ui_theme.callout(
+        "Cenário sazonal e status ENSO vêm de fontes oficiais. O SIS contribui com nível municipal, "
+        "tendência ~7d, capacidade assistencial e prioridades de contato — não com forecast climático sazonal.",
+        "info",
+    )
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Nível operacional SIS", str(nivel_estado).upper())
+    c2.metric("Municípios vermelha/roxa", _n_verm_rox)
+    c3.metric("Tendência estadual ~7d", _tend_rotulo)
+
+    st.markdown("#### Cenário oficial (referência)")
+    st.markdown(
+        """
+- **Fontes:** Painel El Niño INMET–INPE–ANA–Cemaden (boletim mensal) e notas técnicas conjuntas.
+- **Uso no CIEVS:** alinhar ameaças esperadas (calor, seca/estiagem, fumaça, hidrologia) às ações do plano estadual.
+- **No SIS:** cruzar com Prioridades de hoje e abas Clima / Qualidade do ar / Cemaden–ANA / Assistência.
+        """
+    )
+
+    st.markdown("#### Municípios prioritários (sinal SIS desta rodada)")
+    st.caption(
+        "Inclui ocupação, capacidade CNES, resiliência e lacunas de dado — "
+        "para cruzar ameaça climática com capacidade assistencial."
+    )
+    show_df(tabela_prioridades_hoje(resumo, n=10), height=300)
+
+    st.markdown("#### Matriz operacional (esqueleto do plano)")
+    st.caption(
+        "Preencha Status/Responsável/Prazo com a planilha institucional do plano. "
+        "O SIS marca a coluna ‘Gatilho SIS’ conforme o nível atual — isso **não** executa a ação automaticamente."
+    )
+    _matriz = pd.DataFrame(
         [
-            "indice_prioridade_global",
-            "faixa_prioridade_global",
-            "tendencia_prioridade_7d",
-            "nivel",
-            "score",
-            "indice_vigilancia_integrada",
-            "indice_tensao_climatica",
-            "indice_carga_saude",
-            "tendencia_7d",
-            "percentil_risco_estadual",
-            "completude_dados_pct",
+            {
+                "Meta": "Comunicação de risco",
+                "Ação": "Boletim às Regionais e municípios prioritários",
+                "Responsável": "CIEVS / Comunicação SES",
+                "Prazo": "≤2h após sinal laranja+",
+                "Prioridade": "Alta",
+                "Status": "A validar",
+                "Indicador": "Nível SIS + tendência 7d",
+                "Gatilho SIS": "laranja+" if STAGE_ORDER.get(nivel_estado, -1) >= STAGE_ORDER.get("laranja", 2) else "abaixo",
+            },
+            {
+                "Meta": "Assistência e regulação",
+                "Ação": "Checar leitos, UTI e filas SISREG nos prioritários",
+                "Responsável": "Regulação / Hospitais",
+                "Prazo": "Mesmo dia",
+                "Prioridade": "Alta",
+                "Status": "A validar",
+                "Indicador": "Ocupação / pressão saúde",
+                "Gatilho SIS": "pressão alta ou ocupação ≥75%",
+            },
+            {
+                "Meta": "Grupos vulneráveis",
+                "Ação": "Busca ativa APS (idosos, crianças, rua)",
+                "Responsável": "APS / Regionais",
+                "Prazo": "24–48h",
+                "Prioridade": "Alta",
+                "Status": "A validar",
+                "Indicador": "Nível + vulnerabilidade",
+                "Gatilho SIS": "amarela+",
+            },
+            {
+                "Meta": "Fumaça / ar",
+                "Ação": "Orientar redução de exposição e cruzar SRAG",
+                "Responsável": "Vigilância ambiental",
+                "Prazo": "Contínuo na estiagem",
+                "Prioridade": "Média",
+                "Status": "A validar",
+                "Indicador": "PM2,5 / IQA",
+                "Gatilho SIS": "PM2,5 elevado",
+            },
+            {
+                "Meta": "Hidrologia / seca",
+                "Ação": "Monitorar Cemaden/ANA e pontos críticos",
+                "Responsável": "Defesa Civil / Vigilância",
+                "Prazo": "Conforme alerta oficial",
+                "Prioridade": "Média",
+                "Status": "A validar",
+                "Indicador": "Alertas oficiais + solo",
+                "Gatilho SIS": "alerta oficial ou solo extremo",
+            },
+            {
+                "Meta": "Avaliação de ativação",
+                "Ação": "Reunião CIEVS: critérios técnicos → decisão documentada",
+                "Responsável": "Autoridade competente SES",
+                "Prazo": "Quando critérios persistirem",
+                "Prioridade": "Crítica",
+                "Status": "Humana",
+                "Indicador": "Critérios técnicos identificados (não ‘COE ativado’)",
+                "Gatilho SIS": "sinal analítico / alerta operacional",
+            },
         ]
+    )
+    show_df(_matriz, height=320)
+
+    st.markdown("#### Ligação nível → ação típica")
+    for niv in ["amarela", "laranja", "vermelha", "roxa"]:
+        recs = recommendations_for_stage(niv)
+        with st.expander(f"Nível {niv} — checklist sugerido", expanded=(niv == nivel_estado)):
+            for eixo, texto in recs[:4]:
+                st.markdown(f"- **{eixo}:** {texto}")
+
+    st.caption(
+        "Referências: docs/apresentacoes/REFERENCIAS_ABNT_6023.md · Painel El Niño INMET/INPE. "
+        "Atualize a matriz com o plano estadual vigente."
     )
 
 
@@ -2698,6 +2872,7 @@ elif SECTION_KEY == "Alertas":
         "Boletins CIEVS · padrão SES-MT",
         "Prévia no mesmo formato do Telegram/e-mail: resumo → KPI com status → ações → prioritários",
     )
+    ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
     ui_theme.callout(
         "Tema alinhado ao portal oficial SES-MT (azul institucional). "
         "Envio externo desligado por padrão (SEND_ALERT_ON_LEVEL_CHANGE=false). "
@@ -2732,6 +2907,41 @@ elif SECTION_KEY == "Alertas":
         "Regionais, municipais e Cuiabá são gerados; envio territorial só com planilha + ALERT_FANOUT_ENABLED.",
         "tip",
     )
+
+    route = routing_status_summary()
+    st.markdown("### Roteamento (central × territorial)")
+    ui_theme.callout(
+        "Canal central (CIEVS / notifica) recebe só o alerta **estadual**. "
+        "Fan-out regional/municipal exige `ALERT_FANOUT_ENABLED=true` + planilha de contatos.",
+        "tip",
+    )
+    ui_theme.insight_cards(
+        [
+            (
+                "Fan-out territorial",
+                "LIGADO" if route.get("fanout_enabled") else "DESLIGADO",
+                "ALERT_FANOUT_ENABLED",
+            ),
+            (
+                "Planilha contatos",
+                "ok" if route.get("contacts_disponivel") else "ausente",
+                f"{route.get('contacts_n', 0)} ativos",
+            ),
+            ("Caminho", str(route.get("contacts_path") or "—")[:40], "ALERT_CONTACTS_CSV"),
+            ("Modelo", "exemplo CSV", str(route.get("exemplo_csv") or "")),
+        ]
+    )
+    if not route.get("contacts_disponivel"):
+        st.caption(
+            "Copie `config/contatos_alertas.exemplo.csv` → `data/input/contatos_alertas.csv` "
+            "e preencha e-mails/Telegram reais (fora do git)."
+        )
+    elif route.get("contacts_por_tipo"):
+        st.caption("Contatos ativos por tipo: " + ", ".join(f"{k}={v}" for k, v in route["contacts_por_tipo"].items()))
+
+    st.markdown("### Critérios de escalonamento (técnico → decisão humana)")
+    ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
+    show_df(pd.DataFrame(CRITERIOS_ESCALONAMENTO), height=260)
 
     # ------------------------------------------------------------------
     # Boletins multinível no padrão SES legível
@@ -2916,9 +3126,62 @@ elif SECTION_KEY == "Alertas":
     for step in ALERT_SOP_STEPS:
         st.markdown(f"**{step['passo']}** — {step['texto']}")
 
-    with st.expander("Checklist antes de armar o envio", expanded=False):
+    with st.expander("Checklist antes de armar o envio", expanded=True):
+        chk_state: dict[str, bool] = {}
         for item in ALERT_CHECKLIST:
-            st.checkbox(item, value=False, key=f"chk_alerta_{abs(hash(item)) % 100000}")
+            key = f"chk_alerta_{abs(hash(item)) % 100000}"
+            chk_state[item] = st.checkbox(item, value=False, key=key)
+        col_u, col_d = st.columns(2)
+        usuario_val = col_u.text_input("Quem valida (iniciais/nome)", value="cievs", key="val_humana_user")
+        decisao_val = col_d.selectbox(
+            "Decisão",
+            ["validado_pronto_envio", "validado_manter_bloqueio", "precisa_revisao", "falso_alarme"],
+            key="val_humana_decisao",
+        )
+        obs_val = st.text_area("Observação (opcional)", key="val_humana_obs", height=80)
+        if st.button("Registrar validação humana", key="btn_val_humana"):
+            try:
+                persist_checklist_validation(
+                    data_referencia=str(sentinel.get("data", sentinel.get("data_referencia", ""))),
+                    nivel=str(nivel_estado),
+                    usuario=usuario_val,
+                    decisao=decisao_val,
+                    checklist_items=chk_state,
+                    observacao=obs_val or "",
+                )
+                st.success("Validação gravada em `alertas_validacao_humana` (não envia alerta).")
+            except Exception as exc:
+                st.error(f"Falha ao gravar validação: {exc}")
+
+    st.markdown("### Boletim executivo SES (prévia legível)")
+    ui_theme.callout(
+        "Prévia no padrão SES (resumo → KPI → ações → IA → prioritários) — não dispara Telegram/e-mail. "
+        "Use para sala de situação antes de armar o envio.",
+        "info",
+    )
+    if st.button("Gerar prévia do boletim SES", key="btn_boletim_ses"):
+        bol = preview_boletim_executivo_ses(
+            resumo,
+            alerta_integrado=alerta_integrado if isinstance(alerta_integrado, pd.DataFrame) else None,
+            predicao_7d=pred_v6 if isinstance(pred_v6, pd.DataFrame) else None,
+        )
+        st.session_state["boletim_ses_preview"] = bol
+    bol = st.session_state.get("boletim_ses_preview")
+    if isinstance(bol, dict) and bol.get("ok"):
+        st.caption(
+            f"{bol.get('titulo')} · nível {bol.get('nivel')} · "
+            f"{bol.get('n_municipios')} municípios no escopo"
+        )
+        st.code(bol.get("texto") or "")
+        st.download_button(
+            "Baixar boletim SES (.txt)",
+            data=str(bol.get("texto") or ""),
+            file_name="boletim_ses_preview.txt",
+            mime="text/plain",
+            key="dl_boletim_ses",
+        )
+    elif isinstance(bol, dict) and bol.get("ok") is False:
+        st.warning(bol.get("texto") or "Sem boletim.")
 
     st.markdown("### Histórico de mudança de nível (legado)")
     preview = preview_state_alert(
@@ -2940,6 +3203,36 @@ elif SECTION_KEY == "Alertas":
     else:
         st.caption(f"{len(cand)} município(s) na fila — priorize regionais e motive a comunicação.")
         show_df(cand.head(25), height=360)
+
+    st.markdown("### Histórico de nível (`nivel_historico`)")
+    hist_nivel = recent_nivel_historico(40)
+    if hist_nivel.empty:
+        st.caption("Sem leituras ainda — rode o pipeline para anexar cada atualização de `nivel_atual`.")
+    else:
+        show_df(
+            hist_nivel,
+            [
+                c
+                for c in ["created_at", "data_referencia", "nivel_anterior", "nivel", "score", "motivo"]
+                if c in hist_nivel.columns
+            ],
+            height=260,
+        )
+
+    st.markdown("### Validações humanas")
+    hist_val = recent_validacoes_humanas(20)
+    if hist_val.empty:
+        st.caption("Nenhuma validação registrada ainda.")
+    else:
+        show_df(
+            hist_val,
+            [
+                c
+                for c in ["created_at", "data_referencia", "nivel", "usuario", "decisao", "observacao"]
+                if c in hist_val.columns
+            ],
+            height=220,
+        )
 
     st.markdown("### Histórico `alertas_enviados`")
     hist_alertas = recent_alert_log(30)
@@ -2966,6 +3259,8 @@ elif SECTION_KEY == "Alertas":
         "predicao_calor_7d_municipal_v6",
         "analise_clima_saude_odds_ratio_v1",
         "alertas_enviados",
+        "nivel_historico",
+        "alertas_validacao_humana",
         "alertas_multinivel_v1",
         "inmet_alertas",
         "cemaden_alertas",

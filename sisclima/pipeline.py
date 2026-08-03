@@ -496,6 +496,9 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
         else:
             data_ref = pd.Timestamp.today().date().isoformat()
         row = {**latest, **resil, 'nivel': stage.nivel, 'score': stage.score, 'motivo': '; '.join(stage.motivos[:14]), 'data_referencia': data_ref}
+        for _k in ("flag_persistencia_roxa", "status_classificacao", "dados_suficientes_classificacao"):
+            if _k in (stage.indicadores or {}):
+                row[_k] = stage.indicadores[_k]
         rows.append(row)
     out = pd.DataFrame(rows)
     # Limpa colunas auxiliares excessivas para painel/CSV

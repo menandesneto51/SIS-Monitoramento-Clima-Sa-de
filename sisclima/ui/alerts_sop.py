@@ -6,11 +6,15 @@ from typing import Any
 
 import pandas as pd
 
-from sisclima.alerts.change_detector import alerts_enabled, build_level_change_message
+from sisclima.alerts.change_detector import (
+    alerts_enabled,
+    build_level_change_message,
+    register_human_validation,
+)
 from sisclima.alerts.contacts import summarize_contacts
 from sisclima.alerts.notifier import _email_enabled, _telegram_enabled, _webhook_enabled
 from sisclima.core.config import as_bool, env
-from sisclima.core.db import read_table
+from sisclima.core.db import init_db, read_table, table_exists
 
 ALERT_SOP_STEPS = [
     {
@@ -37,7 +41,7 @@ ALERT_SOP_STEPS = [
     },
     {
         "passo": "6. Auditoria",
-        "texto": "Todo disparo (ou bloqueio) fica em `alertas_enviados` com status `enviado`, `bloqueado_por_config` ou `registrado_sem_canal`.",
+        "texto": "Todo disparo (ou bloqueio) fica em `alertas_enviados`. Validação humana em `alertas_validacao_humana`.",
     },
     {
         "passo": "7. Desarmar se necessário",
@@ -160,6 +164,148 @@ def recent_alert_log(limit: int = 20) -> pd.DataFrame:
     return hist.head(limit)
 
 
+def recent_nivel_historico(limit: int = 40) -> pd.DataFrame:
+    """Leituras de nível estadual por rodada (`nivel_historico`)."""
+    try:
+        init_db()
+    except Exception:
+        pass
+    if not table_exists("nivel_historico"):
+        return pd.DataFrame()
+    try:
+        hist = read_table("nivel_historico")
+    except Exception:
+        return pd.DataFrame()
+    if hist.empty:
+        return hist
+    if "created_at" in hist.columns:
+        hist = hist.sort_values("created_at", ascending=False)
+    return hist.head(limit)
+
+
+def recent_validacoes_humanas(limit: int = 20) -> pd.DataFrame:
+    try:
+        init_db()
+    except Exception:
+        pass
+    if not table_exists("alertas_validacao_humana"):
+        return pd.DataFrame()
+    try:
+        hist = read_table("alertas_validacao_humana")
+    except Exception:
+        return pd.DataFrame()
+    if hist.empty:
+        return hist
+    if "created_at" in hist.columns:
+        hist = hist.sort_values("created_at", ascending=False)
+    return hist.head(limit)
+
+
+def persist_checklist_validation(
+    *,
+    data_referencia: str,
+    nivel: str,
+    usuario: str,
+    decisao: str,
+    checklist_items: dict[str, bool],
+    observacao: str = "",
+) -> None:
+    register_human_validation(
+        data_referencia=data_referencia,
+        nivel=nivel,
+        usuario=usuario,
+        decisao=decisao,
+        checklist=checklist_items,
+        observacao=observacao,
+    )
+
+
+def preview_boletim_executivo_ses(
+    resumo: pd.DataFrame | None = None,
+    *,
+    alerta_integrado: pd.DataFrame | None = None,
+    predicao_7d: pd.DataFrame | None = None,
+) -> dict[str, Any]:
+    """Gera prévia do boletim estadual SES legível (não envia)."""
+    from sisclima.alerts.digest import format_ses_telegram
+    from sisclima.engines.alertas_multinivel import build_alertas_multinivel
+
+    payloads = build_alertas_multinivel(
+        resumo if resumo is not None else pd.DataFrame(),
+        alerta_integrado=alerta_integrado,
+        predicao_7d=predicao_7d,
+        min_level="amarela",
+    )
+    ses = next((p for p in payloads if p.get("escopo") == "estadual"), None)
+    if not ses:
+        return {
+            "ok": False,
+            "titulo": "Sem boletim estadual",
+            "texto": "Não foi possível montar o pacote estadual com o resumo atual.",
+            "payload": None,
+        }
+    texto = format_ses_telegram(enrich_payload_for_preview(ses))
+    return {
+        "ok": True,
+        "titulo": str(ses.get("titulo") or "Boletim SES"),
+        "texto": texto,
+        "nivel": ses.get("nivel"),
+        "n_municipios": ses.get("n_municipios"),
+        "payload": ses,
+    }
+
+
+# Critérios técnicos de escalonamento (sinal SIS → avaliação humana).
+# Não decretam COE/emergência; documentam quando elevar à sala de situação.
+CRITERIOS_ESCALONAMENTO = [
+    {
+        "gatilho": "Nível estadual laranja+",
+        "acao": "Abrir sala de situação CIEVS; validar motivos e frescor das fontes",
+        "prazo": "≤2h",
+        "decisao_humana": "Comunicar regionais prioritárias / manter monitoramento reforçado",
+    },
+    {
+        "gatilho": "Nível vermelha ou roxa, ou flag_persistencia_roxa",
+        "acao": "Elevar à autoridade competente com critérios técnicos documentados",
+        "prazo": "Mesmo plantão",
+        "decisao_humana": "Avaliar ativação formal (COE/portaria) — fora do SIS",
+    },
+    {
+        "gatilho": "Ocupação ≥85% ou pressão assistencial alta nos prioritários",
+        "acao": "Acionar regulação/hospitais; checar CNES e IndicaSUS",
+        "prazo": "Mesmo dia",
+        "decisao_humana": "Redistribuição de leitos / reforço APS",
+    },
+    {
+        "gatilho": "PM2,5 elevado + SRAG em alta",
+        "acao": "Cruzar ar × respiratório; orientar redução de exposição",
+        "prazo": "24h",
+        "decisao_humana": "Nota técnica conjunta vigilância ambiental/epidemiológica",
+    },
+    {
+        "gatilho": "Alerta oficial Cemaden/INMET/ANA em município prioritário",
+        "acao": "Sobrepor sinal oficial ao nível SIS; contatar Defesa Civil / regional",
+        "prazo": "Imediato",
+        "decisao_humana": "Ações territoriais conforme protocolo setorial",
+    },
+]
+
+
+def routing_status_summary() -> dict[str, Any]:
+    """Status do canal central + fan-out territorial (sem enviar)."""
+    status = alert_channel_status()
+    contacts = summarize_contacts()
+    return {
+        **status,
+        "contacts_path": contacts.get("path"),
+        "contacts_disponivel": bool(contacts.get("disponivel")),
+        "contacts_n": int(contacts.get("n") or 0),
+        "contacts_por_tipo": contacts.get("por_tipo") or {},
+        "fanout_enabled": bool(contacts.get("fanout_enabled")),
+        "exemplo_csv": "config/contatos_alertas.exemplo.csv",
+    }
+
+
 def enrich_payload_for_preview(payload: dict[str, Any]) -> dict[str, Any]:
     """Aplica orientações do padrão SES legível (sem IA) para prévia no painel."""
     from sisclima.alerts.digest import (
@@ -205,4 +351,3 @@ def boletim_destinatario_resumo(escopo: str, status: dict[str, Any] | None = Non
     if esc == "cuiaba":
         return "Fan-out Vigidesastre Cuiabá (planilha) — não vai para o canal central CIEVS."
     return "Fan-out municipal (planilha) — não vai para o canal central CIEVS."
-
