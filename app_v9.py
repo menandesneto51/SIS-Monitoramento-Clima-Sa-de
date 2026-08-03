@@ -36,22 +36,29 @@ from sisclima.engines.panel_indicators import enrich_panel_indicators, state_ind
 from sisclima.engines.recommendations import recommendations_for_stage
 from sisclima.engines.stages import STAGE_ORDER
 from sisclima.ui import theme as ui_theme
-from sisclima.ui.alerts_sop import (
-    ALERT_CHECKLIST,
-    ALERT_SOP_STEPS,
-    CRITERIOS_ESCALONAMENTO,
-    alert_channel_status,
-    boletim_destinatario_resumo,
-    format_boletim_painel,
-    municipal_alert_candidates,
-    persist_checklist_validation,
-    preview_boletim_executivo_ses,
-    preview_state_alert,
-    recent_alert_log,
-    recent_nivel_historico,
-    recent_validacoes_humanas,
-    routing_status_summary,
-)
+try:
+    from sisclima.ui.alerts_sop import (
+        ALERT_CHECKLIST,
+        ALERT_SOP_STEPS,
+        CRITERIOS_ESCALONAMENTO,
+        alert_channel_status,
+        boletim_destinatario_resumo,
+        format_boletim_painel,
+        municipal_alert_candidates,
+        persist_checklist_validation,
+        preview_boletim_executivo_ses,
+        preview_state_alert,
+        recent_alert_log,
+        recent_nivel_historico,
+        recent_validacoes_humanas,
+        routing_status_summary,
+    )
+except ImportError as _alerts_imp_err:
+    st.error(
+        "Não foi possível carregar `sisclima.ui.alerts_sop`. "
+        f"Módulo: {getattr(_alerts_imp_err, 'name', '—')} · {_alerts_imp_err}"
+    )
+    raise
 from sisclima.ui.home_ops import (
     AVISO_SINAL_VS_ATIVACAO,
     ameaca_dominante_estado,

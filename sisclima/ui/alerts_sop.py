@@ -9,12 +9,30 @@ import pandas as pd
 from sisclima.alerts.change_detector import (
     alerts_enabled,
     build_level_change_message,
-    register_human_validation,
 )
-from sisclima.alerts.contacts import summarize_contacts
 from sisclima.alerts.notifier import _email_enabled, _telegram_enabled, _webhook_enabled
 from sisclima.core.config import as_bool, env
 from sisclima.core.db import init_db, read_table, table_exists
+
+# Contatos/fan-out: import defensivo (não derruba o painel se o módulo falhar no Cloud).
+try:
+    from sisclima.alerts.contacts import summarize_contacts as _summarize_contacts
+except Exception:  # noqa: BLE001
+
+    def _summarize_contacts() -> dict[str, Any]:
+        return {
+            "path": env("ALERT_CONTACTS_CSV", "data/input/contatos_alertas.csv")
+            or "data/input/contatos_alertas.csv",
+            "disponivel": False,
+            "fanout_enabled": False,
+            "n": 0,
+            "por_tipo": {},
+        }
+
+
+def summarize_contacts() -> dict[str, Any]:
+    return _summarize_contacts()
+
 
 ALERT_SOP_STEPS = [
     {
@@ -210,6 +228,8 @@ def persist_checklist_validation(
     checklist_items: dict[str, bool],
     observacao: str = "",
 ) -> None:
+    from sisclima.alerts.change_detector import register_human_validation
+
     register_human_validation(
         data_referencia=data_referencia,
         nivel=nivel,

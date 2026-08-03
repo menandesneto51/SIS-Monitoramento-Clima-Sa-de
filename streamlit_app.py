@@ -51,9 +51,26 @@ except Exception:
     pass
 
 # Entrada única do painel institucional (não usar app.py legado — tema antigo).
-for app in ["app_v9.py"]:
-    if Path(app).exists():
-        runpy.run_path(app, run_name="__main__")
-        break
-else:
-    st.error("app_v9.py não encontrado. O painel SES-MT usa exclusivamente app_v9.py.")
+try:
+    for app in ["app_v9.py"]:
+        if Path(app).exists():
+            runpy.run_path(app, run_name="__main__")
+            break
+    else:
+        st.error("app_v9.py não encontrado. O painel SES-MT usa exclusivamente app_v9.py.")
+except ImportError as exc:
+    # Streamlit Cloud reda a mensagem original; ecoamos nome do módulo sem secrets.
+    missing = getattr(exc, "name", None) or "desconhecido"
+    st.error("Falha de importação ao abrir o painel.")
+    st.code(
+        f"ImportError\n"
+        f"módulo ausente/quebrado: {missing}\n"
+        f"detalhe: {exc}\n"
+        f"Dica: confira se a branch do Cloud é painel-v9 e reinicie o app em Manage app.",
+        language="text",
+    )
+    raise
+except Exception as exc:
+    st.error(f"Erro ao iniciar o painel: {type(exc).__name__}")
+    st.code(str(exc)[:2000], language="text")
+    raise
