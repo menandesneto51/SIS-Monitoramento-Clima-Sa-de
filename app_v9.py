@@ -39,6 +39,7 @@ from sisclima.ui import theme as ui_theme
 from sisclima.ui.alerts_sop import (
     ALERT_CHECKLIST,
     ALERT_SOP_STEPS,
+    CRITERIOS_ESCALONAMENTO,
     alert_channel_status,
     municipal_alert_candidates,
     persist_checklist_validation,
@@ -47,6 +48,7 @@ from sisclima.ui.alerts_sop import (
     recent_alert_log,
     recent_nivel_historico,
     recent_validacoes_humanas,
+    routing_status_summary,
 )
 from sisclima.ui.home_ops import (
     AVISO_SINAL_VS_ATIVACAO,
@@ -2802,6 +2804,41 @@ elif SECTION_KEY == "Alertas":
         ]
     )
 
+    route = routing_status_summary()
+    st.markdown("### Roteamento (central × territorial)")
+    ui_theme.callout(
+        "Canal central (CIEVS / notifica) recebe só o alerta **estadual**. "
+        "Fan-out regional/municipal exige `ALERT_FANOUT_ENABLED=true` + planilha de contatos.",
+        "tip",
+    )
+    ui_theme.insight_cards(
+        [
+            (
+                "Fan-out territorial",
+                "LIGADO" if route.get("fanout_enabled") else "DESLIGADO",
+                "ALERT_FANOUT_ENABLED",
+            ),
+            (
+                "Planilha contatos",
+                "ok" if route.get("contacts_disponivel") else "ausente",
+                f"{route.get('contacts_n', 0)} ativos",
+            ),
+            ("Caminho", str(route.get("contacts_path") or "—")[:40], "ALERT_CONTACTS_CSV"),
+            ("Modelo", "exemplo CSV", str(route.get("exemplo_csv") or "")),
+        ]
+    )
+    if not route.get("contacts_disponivel"):
+        st.caption(
+            "Copie `config/contatos_alertas.exemplo.csv` → `data/input/contatos_alertas.csv` "
+            "e preencha e-mails/Telegram reais (fora do git)."
+        )
+    elif route.get("contacts_por_tipo"):
+        st.caption("Contatos ativos por tipo: " + ", ".join(f"{k}={v}" for k, v in route["contacts_por_tipo"].items()))
+
+    st.markdown("### Critérios de escalonamento (técnico → decisão humana)")
+    ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
+    show_df(pd.DataFrame(CRITERIOS_ESCALONAMENTO), height=260)
+
     # ------------------------------------------------------------------
     # Alertas multinível (SES / Regional / Municipal / Vigidesastre Cuiabá)
     # ------------------------------------------------------------------
@@ -2930,9 +2967,9 @@ elif SECTION_KEY == "Alertas":
             except Exception as exc:
                 st.error(f"Falha ao gravar validação: {exc}")
 
-    st.markdown("### Boletim executivo SES (prévia)")
+    st.markdown("### Boletim executivo SES (prévia legível)")
     ui_theme.callout(
-        "Prévia automática do pacote estadual — não dispara Telegram/e-mail. "
+        "Prévia no padrão SES (resumo → KPI → ações → IA → prioritários) — não dispara Telegram/e-mail. "
         "Use para sala de situação antes de armar o envio.",
         "info",
     )

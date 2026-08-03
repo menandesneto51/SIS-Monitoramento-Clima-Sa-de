@@ -209,8 +209,8 @@ def preview_boletim_executivo_ses(
     alerta_integrado: pd.DataFrame | None = None,
     predicao_7d: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
-    """Gera prévia do boletim estadual SES (não envia)."""
-    from sisclima.alerts.digest import format_payload_telegram
+    """Gera prévia do boletim estadual SES legível (não envia)."""
+    from sisclima.alerts.digest import format_ses_telegram
     from sisclima.engines.alertas_multinivel import build_alertas_multinivel
 
     payloads = build_alertas_multinivel(
@@ -227,7 +227,7 @@ def preview_boletim_executivo_ses(
             "texto": "Não foi possível montar o pacote estadual com o resumo atual.",
             "payload": None,
         }
-    texto = format_payload_telegram(ses, compact=False)
+    texto = format_ses_telegram(ses)
     return {
         "ok": True,
         "titulo": str(ses.get("titulo") or "Boletim SES"),
@@ -235,4 +235,57 @@ def preview_boletim_executivo_ses(
         "nivel": ses.get("nivel"),
         "n_municipios": ses.get("n_municipios"),
         "payload": ses,
+    }
+
+
+# Critérios técnicos de escalonamento (sinal SIS → avaliação humana).
+# Não decretam COE/emergência; documentam quando elevar à sala de situação.
+CRITERIOS_ESCALONAMENTO = [
+    {
+        "gatilho": "Nível estadual laranja+",
+        "acao": "Abrir sala de situação CIEVS; validar motivos e frescor das fontes",
+        "prazo": "≤2h",
+        "decisao_humana": "Comunicar regionais prioritárias / manter monitoramento reforçado",
+    },
+    {
+        "gatilho": "Nível vermelha ou roxa, ou flag_persistencia_roxa",
+        "acao": "Elevar à autoridade competente com critérios técnicos documentados",
+        "prazo": "Mesmo plantão",
+        "decisao_humana": "Avaliar ativação formal (COE/portaria) — fora do SIS",
+    },
+    {
+        "gatilho": "Ocupação ≥85% ou pressão assistencial alta nos prioritários",
+        "acao": "Acionar regulação/hospitais; checar CNES e IndicaSUS",
+        "prazo": "Mesmo dia",
+        "decisao_humana": "Redistribuição de leitos / reforço APS",
+    },
+    {
+        "gatilho": "PM2,5 elevado + SRAG em alta",
+        "acao": "Cruzar ar × respiratório; orientar redução de exposição",
+        "prazo": "24h",
+        "decisao_humana": "Nota técnica conjunta vigilância ambiental/epidemiológica",
+    },
+    {
+        "gatilho": "Alerta oficial Cemaden/INMET/ANA em município prioritário",
+        "acao": "Sobrepor sinal oficial ao nível SIS; contatar Defesa Civil / regional",
+        "prazo": "Imediato",
+        "decisao_humana": "Ações territoriais conforme protocolo setorial",
+    },
+]
+
+
+def routing_status_summary() -> dict[str, Any]:
+    """Status do canal central + fan-out territorial (sem enviar)."""
+    from sisclima.alerts.contacts import summarize_contacts
+
+    status = alert_channel_status()
+    contacts = summarize_contacts()
+    return {
+        **status,
+        "contacts_path": contacts.get("path"),
+        "contacts_disponivel": bool(contacts.get("disponivel")),
+        "contacts_n": int(contacts.get("n") or 0),
+        "contacts_por_tipo": contacts.get("por_tipo") or {},
+        "fanout_enabled": bool(contacts.get("fanout_enabled")),
+        "exemplo_csv": "config/contatos_alertas.exemplo.csv",
     }
