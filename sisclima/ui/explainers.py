@@ -329,9 +329,9 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
 
 HOW_TO_READ_PANEL = [
     "1. Olhe a faixa colorida e os 6 cards de Situação estadual: nível, alerta, ameaça, tendência, pressão e frescor.",
-    "2. Use Prioridades de hoje (top 10) para saber quem contatar e qual ação sugerida.",
+    "2. Use Prioridades de hoje (top 10): motivo, tendência, ocupação/CNES/resiliência, lacunas e ação.",
     "3. Lembre: sinal do SIS ≠ ativação formal de COE/emergência.",
-    "4. Use os filtros de Regional/Município só quando quiser aprofundar um território.",
+    "4. Em Alertas: registre validação humana, gere a prévia do boletim SES e só então arme o envio.",
     "5. Na Visão executiva, o mapa responde ‘onde?’ e ‘Por que este nível?’ explica o score.",
     "6. Em dúvida sobre um número, abra Frescor por fonte, Cálculos ou o Guia do leitor.",
 ]

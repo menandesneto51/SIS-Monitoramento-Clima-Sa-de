@@ -29,6 +29,8 @@ limiares_calor:
     roxa: 43
   ehf:
     positivo: 0
+    # Usado em classify_stage → flag_persistencia_roxa / score roxo quando
+    # duracao_onda_calor_dias ≥ N e (EHF>positivo ou risco_cumulativo no limiar roxo).
     persistencia_dias_emergencia: 5
   risco_cumulativo:
     t_umbral: 39

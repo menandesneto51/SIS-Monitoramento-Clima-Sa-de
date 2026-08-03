@@ -41,8 +41,12 @@ from sisclima.ui.alerts_sop import (
     ALERT_SOP_STEPS,
     alert_channel_status,
     municipal_alert_candidates,
+    persist_checklist_validation,
+    preview_boletim_executivo_ses,
     preview_state_alert,
     recent_alert_log,
+    recent_nivel_historico,
+    recent_validacoes_humanas,
 )
 from sisclima.ui.home_ops import (
     AVISO_SINAL_VS_ATIVACAO,
@@ -886,6 +890,13 @@ if _prio_hoje.empty:
     st.info("Sem municípios para priorizar nesta rodada.")
 else:
     show_df(_prio_hoje, height=320)
+    if "flag_persistencia_roxa" in resumo_all.columns:
+        _n_persist = int(pd.to_numeric(resumo_all["flag_persistencia_roxa"], errors="coerce").fillna(0).gt(0).sum())
+        if _n_persist:
+            st.caption(
+                f"{_n_persist} município(s) com flag de persistência roxa "
+                f"(EHF/onda ≥ limiar de dias em settings)."
+            )
     with st.expander("Por que este nível? (município sentinela / crítico)", expanded=False):
         st.markdown(explicar_nivel_municipio(sentinel))
 
@@ -1358,6 +1369,10 @@ elif SECTION_KEY == "El Niño / Contingência":
     )
 
     st.markdown("#### Municípios prioritários (sinal SIS desta rodada)")
+    st.caption(
+        "Inclui ocupação, capacidade CNES, resiliência e lacunas de dado — "
+        "para cruzar ameaça climática com capacidade assistencial."
+    )
     show_df(tabela_prioridades_hoje(resumo, n=10), height=300)
 
     st.markdown("#### Matriz operacional (esqueleto do plano)")
@@ -2889,8 +2904,61 @@ elif SECTION_KEY == "Alertas":
         st.markdown(f"**{step['passo']}** — {step['texto']}")
 
     with st.expander("Checklist antes de armar o envio", expanded=True):
+        chk_state: dict[str, bool] = {}
         for item in ALERT_CHECKLIST:
-            st.checkbox(item, value=False, key=f"chk_alerta_{abs(hash(item)) % 100000}")
+            key = f"chk_alerta_{abs(hash(item)) % 100000}"
+            chk_state[item] = st.checkbox(item, value=False, key=key)
+        col_u, col_d = st.columns(2)
+        usuario_val = col_u.text_input("Quem valida (iniciais/nome)", value="cievs", key="val_humana_user")
+        decisao_val = col_d.selectbox(
+            "Decisão",
+            ["validado_pronto_envio", "validado_manter_bloqueio", "precisa_revisao", "falso_alarme"],
+            key="val_humana_decisao",
+        )
+        obs_val = st.text_area("Observação (opcional)", key="val_humana_obs", height=80)
+        if st.button("Registrar validação humana", key="btn_val_humana"):
+            try:
+                persist_checklist_validation(
+                    data_referencia=str(sentinel.get("data", sentinel.get("data_referencia", ""))),
+                    nivel=str(nivel_estado),
+                    usuario=usuario_val,
+                    decisao=decisao_val,
+                    checklist_items=chk_state,
+                    observacao=obs_val or "",
+                )
+                st.success("Validação gravada em `alertas_validacao_humana` (não envia alerta).")
+            except Exception as exc:
+                st.error(f"Falha ao gravar validação: {exc}")
+
+    st.markdown("### Boletim executivo SES (prévia)")
+    ui_theme.callout(
+        "Prévia automática do pacote estadual — não dispara Telegram/e-mail. "
+        "Use para sala de situação antes de armar o envio.",
+        "info",
+    )
+    if st.button("Gerar prévia do boletim SES", key="btn_boletim_ses"):
+        bol = preview_boletim_executivo_ses(
+            resumo,
+            alerta_integrado=alerta_integrado if isinstance(alerta_integrado, pd.DataFrame) else None,
+            predicao_7d=pred_v6 if isinstance(pred_v6, pd.DataFrame) else None,
+        )
+        st.session_state["boletim_ses_preview"] = bol
+    bol = st.session_state.get("boletim_ses_preview")
+    if isinstance(bol, dict) and bol.get("ok"):
+        st.caption(
+            f"{bol.get('titulo')} · nível {bol.get('nivel')} · "
+            f"{bol.get('n_municipios')} municípios no escopo"
+        )
+        st.code(bol.get("texto") or "")
+        st.download_button(
+            "Baixar boletim SES (.txt)",
+            data=str(bol.get("texto") or ""),
+            file_name="boletim_ses_preview.txt",
+            mime="text/plain",
+            key="dl_boletim_ses",
+        )
+    elif isinstance(bol, dict) and bol.get("ok") is False:
+        st.warning(bol.get("texto") or "Sem boletim.")
 
     st.markdown("### Pré-visualização da mensagem estadual")
     preview = preview_state_alert(
@@ -2911,6 +2979,36 @@ elif SECTION_KEY == "Alertas":
     else:
         st.caption(f"{len(cand)} município(s) na fila — priorize regionais e motive a comunicação.")
         show_df(cand.head(25), height=360)
+
+    st.markdown("### Histórico de nível (`nivel_historico`)")
+    hist_nivel = recent_nivel_historico(40)
+    if hist_nivel.empty:
+        st.caption("Sem leituras ainda — rode o pipeline para anexar cada atualização de `nivel_atual`.")
+    else:
+        show_df(
+            hist_nivel,
+            [
+                c
+                for c in ["created_at", "data_referencia", "nivel_anterior", "nivel", "score", "motivo"]
+                if c in hist_nivel.columns
+            ],
+            height=260,
+        )
+
+    st.markdown("### Validações humanas")
+    hist_val = recent_validacoes_humanas(20)
+    if hist_val.empty:
+        st.caption("Nenhuma validação registrada ainda.")
+    else:
+        show_df(
+            hist_val,
+            [
+                c
+                for c in ["created_at", "data_referencia", "nivel", "usuario", "decisao", "observacao"]
+                if c in hist_val.columns
+            ],
+            height=220,
+        )
 
     st.markdown("### Histórico `alertas_enviados`")
     hist_alertas = recent_alert_log(30)
@@ -2937,6 +3035,8 @@ elif SECTION_KEY == "Alertas":
         "predicao_calor_7d_municipal_v6",
         "analise_clima_saude_odds_ratio_v1",
         "alertas_enviados",
+        "nivel_historico",
+        "alertas_validacao_humana",
         "alertas_multinivel_v1",
         "inmet_alertas",
         "cemaden_alertas",

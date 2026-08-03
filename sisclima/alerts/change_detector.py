@@ -1,7 +1,10 @@
 from __future__ import annotations
+
 import json
+from typing import Any
+
 from sisclima.core.config import as_bool, env
-from sisclima.core.db import db_conn, execute, fetchone
+from sisclima.core.db import db_conn, execute, fetchone, init_db
 from sisclima.utils.dates import now_iso
 from sisclima.alerts.notifier import dispatch_alert
 
@@ -12,7 +15,23 @@ def get_previous_level() -> str | None:
         return row["nivel"] if row else None
 
 
+def get_current_level_row() -> dict[str, Any] | None:
+    with db_conn() as conn:
+        row = fetchone(
+            conn,
+            "SELECT data_referencia, nivel, score, motivo, updated_at FROM nivel_atual WHERE id=1",
+        )
+        return dict(row) if row else None
+
+
 def update_current_level(data_referencia: str, nivel: str, score: int, motivo: str):
+    """Atualiza nivel_atual e anexa linha em nivel_historico (auditoria temporal)."""
+    try:
+        init_db()
+    except Exception:
+        pass
+    prev = get_current_level_row()
+    prev_nivel = (prev or {}).get("nivel")
     with db_conn() as conn:
         execute(
             conn,
@@ -26,7 +45,58 @@ def update_current_level(data_referencia: str, nivel: str, score: int, motivo: s
                 motivo=excluded.motivo,
                 updated_at=excluded.updated_at
             """,
-            (data_referencia, nivel, score, motivo, now_iso()),
+            (data_referencia, nivel, int(score or 0), motivo, now_iso()),
+        )
+        # Histórico: grava sempre a leitura da rodada (mesmo se nível não mudou)
+        execute(
+            conn,
+            """
+            INSERT INTO nivel_historico
+                (data_referencia, nivel, score, motivo, nivel_anterior, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                data_referencia,
+                nivel,
+                int(score or 0),
+                str(motivo or "")[:800],
+                prev_nivel,
+                now_iso(),
+            ),
+        )
+
+
+def register_human_validation(
+    *,
+    data_referencia: str,
+    nivel: str,
+    usuario: str,
+    decisao: str,
+    checklist: dict[str, Any] | list[Any] | None = None,
+    observacao: str = "",
+) -> None:
+    """Registra validação humana do alerta (não envia nada)."""
+    try:
+        init_db()
+    except Exception:
+        pass
+    with db_conn() as conn:
+        execute(
+            conn,
+            """
+            INSERT INTO alertas_validacao_humana
+                (created_at, data_referencia, nivel, usuario, decisao, checklist_json, observacao)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                now_iso(),
+                data_referencia,
+                nivel,
+                (usuario or "cievs").strip()[:120],
+                (decisao or "validado").strip()[:80],
+                json.dumps(checklist or {}, ensure_ascii=False),
+                (observacao or "").strip()[:2000],
+            ),
         )
 
 

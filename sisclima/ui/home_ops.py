@@ -261,6 +261,48 @@ def tabela_prioridades_hoje(resumo: pd.DataFrame, n: int = 10) -> pd.DataFrame:
                 return str(v)[:120]
         return "—"
 
+    def _fmt_num(v: Any, suffix: str = "") -> str:
+        try:
+            if v is None or (isinstance(v, float) and pd.isna(v)) or pd.isna(v):
+                return "—"
+            return f"{float(v):.0f}{suffix}"
+        except Exception:
+            return "—"
+
+    def _lacunas(row: pd.Series) -> str:
+        flags: list[str] = []
+        occ = row.get("ocupacao_leitos_pct")
+        fonte = str(row.get("fonte_ocupacao") or "").strip().lower()
+        if occ is None or (isinstance(occ, float) and pd.isna(occ)) or pd.isna(occ):
+            flags.append("sem ocupação")
+        elif any(x in fonte for x in ("proxy", "estim", "fallback", "estado")):
+            flags.append("ocupação estimada")
+        elif fonte in ("", "nan", "none", "indisponivel"):
+            flags.append("fonte ocupação unclear")
+        cap = row.get("indice_capacidade_cnes")
+        leitos = row.get("cnes_leitos_total")
+        if (cap is None or pd.isna(cap)) and (leitos is None or pd.isna(leitos)):
+            flags.append("CNES vazio")
+        res = row.get("indice_resiliencia")
+        if res is None or pd.isna(res):
+            res = row.get("indice_resiliencia_proxy")
+        try:
+            if res is not None and not pd.isna(res) and float(res) < 40:
+                flags.append("baixa resiliência")
+        except Exception:
+            pass
+        if int(row.get("flag_persistencia_roxa") or 0) == 1:
+            flags.append("persistência roxa")
+        return "; ".join(flags) if flags else "—"
+
+    resil_col = (
+        top["indice_resiliencia"]
+        if "indice_resiliencia" in top.columns
+        else top.get("indice_resiliencia_proxy", pd.Series([None] * len(top)))
+    )
+    cap_col = top.get("indice_capacidade_cnes", pd.Series([None] * len(top)))
+    occ_col = top.get("ocupacao_leitos_pct", pd.Series([None] * len(top)))
+
     out = pd.DataFrame(
         {
             "Município": top["municipio"].values,
@@ -270,6 +312,10 @@ def tabela_prioridades_hoje(resumo: pd.DataFrame, n: int = 10) -> pd.DataFrame:
             "Tendência": top.get("tendencia_7d", top.get("tendencia_prioridade_7d", pd.Series(["—"] * len(top))))
             .astype(str)
             .values,
+            "Ocupação": [_fmt_num(v, "%") for v in occ_col],
+            "Capacidade CNES": [_fmt_num(v) for v in cap_col],
+            "Resiliência": [_fmt_num(v) for v in resil_col],
+            "Lacunas": [_lacunas(r) for _, r in top.iterrows()],
             "Ação recomendada": [
                 acao_recomendada_nivel(str(r.get("nivel") or "cinza")) for _, r in top.iterrows()
             ],
@@ -294,14 +340,23 @@ def explicar_nivel_municipio(row: pd.Series | dict[str, Any]) -> str:
         ("Risco calor 3d", "risco_cumulativo_3d", "{:.1f}"),
         ("PM2,5", "pm25_ugm3", "{:.1f} µg/m³"),
         ("Ocupação leitos", "ocupacao_leitos_pct", "{:.1f}%"),
+        ("Fonte ocupação", "fonte_ocupacao", "{}"),
+        ("Capacidade CNES", "indice_capacidade_cnes", "{:.0f}"),
+        ("Resiliência", "indice_resiliencia", "{:.0f}"),
+        ("Persistência roxa", "flag_persistencia_roxa", "{}"),
         ("Pressão calor", "pressao_calor_pct", "{:.1f}"),
         ("Completude dados", "completude_dados_pct", "{:.0f}%"),
-        ("Fonte ocupação", "fonte_ocupacao", "{}"),
     ]:
         v = r.get(key)
+        if key == "indice_resiliencia" and (v is None or (isinstance(v, float) and pd.isna(v))):
+            v = r.get("indice_resiliencia_proxy")
         if v is None or (isinstance(v, float) and pd.isna(v)):
             continue
         try:
+            if key == "flag_persistencia_roxa":
+                if int(v or 0) == 1:
+                    lines.append("- Persistência roxa: sim (EHF/onda ≥ limiar de dias)")
+                continue
             if "{:" in fmt:
                 lines.append(f"- {label}: {fmt.format(float(v))}")
             else:

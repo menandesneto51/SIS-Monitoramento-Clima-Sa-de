@@ -430,6 +430,32 @@ def classify_stage(latest: dict, settings: dict) -> StageResult:
             motivos.append(f"Comunicação dentro da meta {lat:.1f}h")
 
     # --------------------------------------------------------
+    # Persistência de emergência (EHF / onda) — settings limiares_calor.ehf
+    # --------------------------------------------------------
+    ehf_cfg = lim_calor.get("ehf", {}) or {}
+    persist_dias = int(ehf_cfg.get("persistencia_dias_emergencia", 5) or 5)
+    ehf_pos = float(ehf_cfg.get("positivo", 0) or 0)
+    dias_onda = latest.get("duracao_onda_calor_dias")
+    ehf_val = latest.get("ehf_adaptado")
+    risco3 = latest.get("risco_cumulativo_3d")
+    lim_risco_roxa = float((lim_calor.get("risco_cumulativo") or {}).get("roxa", 18) or 18)
+    persist_ok = False
+    if _is_valid_number(dias_onda) and float(dias_onda) >= persist_dias:
+        if _is_valid_number(ehf_val) and float(ehf_val) > ehf_pos:
+            persist_ok = True
+            motivos.append(
+                f"persistência calor extremo ≥{persist_dias}d (EHF adaptado + duração de onda)"
+            )
+        elif _is_valid_number(risco3) and float(risco3) >= lim_risco_roxa:
+            persist_ok = True
+            motivos.append(
+                f"persistência calor extremo ≥{persist_dias}d (risco cumulativo no limiar roxo)"
+            )
+    indicadores["flag_persistencia_roxa"] = 1 if persist_ok else 0
+    if persist_ok:
+        candidates.append(4)
+
+    # --------------------------------------------------------
     # Bloqueio contra falso verde
     # --------------------------------------------------------
     climate_valid = _valid_any(

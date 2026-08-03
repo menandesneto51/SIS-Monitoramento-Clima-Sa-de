@@ -6,10 +6,14 @@ from typing import Any
 
 import pandas as pd
 
-from sisclima.alerts.change_detector import alerts_enabled, build_level_change_message
+from sisclima.alerts.change_detector import (
+    alerts_enabled,
+    build_level_change_message,
+    register_human_validation,
+)
 from sisclima.alerts.notifier import _email_enabled, _telegram_enabled, _webhook_enabled
 from sisclima.core.config import env
-from sisclima.core.db import read_table
+from sisclima.core.db import init_db, read_table, table_exists
 
 ALERT_SOP_STEPS = [
     {
@@ -30,7 +34,7 @@ ALERT_SOP_STEPS = [
     },
     {
         "passo": "5. Auditoria",
-        "texto": "Todo disparo (ou bloqueio) fica em `alertas_enviados` com status `enviado`, `bloqueado_por_config` ou `registrado_sem_canal`.",
+        "texto": "Todo disparo (ou bloqueio) fica em `alertas_enviados` com status `enviado`, `bloqueado_por_config` ou `registrado_sem_canal`. Validação humana em `alertas_validacao_humana`.",
     },
     {
         "passo": "6. Desarmar se necessário",
@@ -141,3 +145,94 @@ def recent_alert_log(limit: int = 20) -> pd.DataFrame:
     if "created_at" in hist.columns:
         hist = hist.sort_values("created_at", ascending=False)
     return hist.head(limit)
+
+
+def recent_nivel_historico(limit: int = 40) -> pd.DataFrame:
+    """Leituras de nível estadual por rodada (`nivel_historico`)."""
+    try:
+        init_db()
+    except Exception:
+        pass
+    if not table_exists("nivel_historico"):
+        return pd.DataFrame()
+    try:
+        hist = read_table("nivel_historico")
+    except Exception:
+        return pd.DataFrame()
+    if hist.empty:
+        return hist
+    if "created_at" in hist.columns:
+        hist = hist.sort_values("created_at", ascending=False)
+    return hist.head(limit)
+
+
+def recent_validacoes_humanas(limit: int = 20) -> pd.DataFrame:
+    try:
+        init_db()
+    except Exception:
+        pass
+    if not table_exists("alertas_validacao_humana"):
+        return pd.DataFrame()
+    try:
+        hist = read_table("alertas_validacao_humana")
+    except Exception:
+        return pd.DataFrame()
+    if hist.empty:
+        return hist
+    if "created_at" in hist.columns:
+        hist = hist.sort_values("created_at", ascending=False)
+    return hist.head(limit)
+
+
+def persist_checklist_validation(
+    *,
+    data_referencia: str,
+    nivel: str,
+    usuario: str,
+    decisao: str,
+    checklist_items: dict[str, bool],
+    observacao: str = "",
+) -> None:
+    register_human_validation(
+        data_referencia=data_referencia,
+        nivel=nivel,
+        usuario=usuario,
+        decisao=decisao,
+        checklist=checklist_items,
+        observacao=observacao,
+    )
+
+
+def preview_boletim_executivo_ses(
+    resumo: pd.DataFrame | None = None,
+    *,
+    alerta_integrado: pd.DataFrame | None = None,
+    predicao_7d: pd.DataFrame | None = None,
+) -> dict[str, Any]:
+    """Gera prévia do boletim estadual SES (não envia)."""
+    from sisclima.alerts.digest import format_payload_telegram
+    from sisclima.engines.alertas_multinivel import build_alertas_multinivel
+
+    payloads = build_alertas_multinivel(
+        resumo if resumo is not None else pd.DataFrame(),
+        alerta_integrado=alerta_integrado,
+        predicao_7d=predicao_7d,
+        min_level="amarela",
+    )
+    ses = next((p for p in payloads if p.get("escopo") == "estadual"), None)
+    if not ses:
+        return {
+            "ok": False,
+            "titulo": "Sem boletim estadual",
+            "texto": "Não foi possível montar o pacote estadual com o resumo atual.",
+            "payload": None,
+        }
+    texto = format_payload_telegram(ses, compact=False)
+    return {
+        "ok": True,
+        "titulo": str(ses.get("titulo") or "Boletim SES"),
+        "texto": texto,
+        "nivel": ses.get("nivel"),
+        "n_municipios": ses.get("n_municipios"),
+        "payload": ses,
+    }

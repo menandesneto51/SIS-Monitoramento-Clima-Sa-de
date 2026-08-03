@@ -389,21 +389,24 @@ def reclassify_resumo(resumo: pd.DataFrame) -> pd.DataFrame:
     if resumo is None or resumo.empty:
         return resumo
     out = resumo.copy()
-    niveis, scores, motivos = [], [], []
+    niveis, scores, motivos, flags_roxo = [], [], [], []
     for _, row in out.iterrows():
         try:
             result = classify_stage(row.to_dict(), SETTINGS)
             niveis.append(result.nivel)
             scores.append(int(result.score))
             motivos.append("; ".join(result.motivos[:8]) if result.motivos else str(row.get("motivo", "")))
+            flags_roxo.append(int((result.indicadores or {}).get("flag_persistencia_roxa") or 0))
         except Exception as exc:
             log.debug("Falha classify_stage: %s", exc)
             niveis.append(str(row.get("nivel", "cinza")))
             scores.append(int(STAGE_ORDER.get(str(row.get("nivel", "cinza")), 0)))
             motivos.append(str(row.get("motivo", "")))
+            flags_roxo.append(int(row.get("flag_persistencia_roxa") or 0))
     out["nivel"] = niveis
     out["score"] = scores
     out["motivo"] = motivos
+    out["flag_persistencia_roxa"] = flags_roxo
     out["data_referencia"] = pd.Timestamp.today().date().isoformat()
     return out
 
