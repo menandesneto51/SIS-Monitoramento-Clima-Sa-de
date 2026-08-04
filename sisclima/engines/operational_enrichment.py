@@ -499,39 +499,9 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
         )
     agg = pd.DataFrame(rows)
 
-    def _nivel_pred(row) -> str:
-        score = 0
-        if pd.notna(row.get("risco_cumulativo_3d_max_7d")):
-            r = float(row["risco_cumulativo_3d_max_7d"])
-            if r >= 18:
-                score = max(score, 4)
-            elif r >= 12:
-                score = max(score, 3)
-            elif r >= 7:
-                score = max(score, 2)
-            elif r >= 3:
-                score = max(score, 1)
-        if pd.notna(row.get("utci_proxy_max_7d")):
-            u = float(row["utci_proxy_max_7d"])
-            if u >= 44:
-                score = max(score, 4)
-            elif u >= 40:
-                score = max(score, 3)
-            elif u >= 36:
-                score = max(score, 2)
-            elif u >= 32:
-                score = max(score, 1)
-        if pd.notna(row.get("tmax_max_7d")):
-            t = float(row["tmax_max_7d"])
-            if t >= 40:
-                score = max(score, 3)
-            elif t >= 37:
-                score = max(score, 2)
-            elif t >= 34:
-                score = max(score, 1)
-        return LEVEL_ORDER[min(score + 1, 5)]
+    from sisclima.engines.predicao_skill_7d import nivel_pred_from_agg
 
-    agg["nivel_predicao_7d"] = agg.apply(_nivel_pred, axis=1)
+    agg["nivel_predicao_7d"] = agg.apply(nivel_pred_from_agg, axis=1)
     agg["risco_preditivo_score"] = agg["nivel_predicao_7d"].map(STAGE_ORDER).fillna(0).astype(int)
     agg["fonte_predicao"] = fonte
 
@@ -869,6 +839,19 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     pred, pred_reg = build_predicao_7d(met, resumo)
     write_df(pred, "predicao_calor_7d_municipal_v6")
     write_df(pred_reg, "predicao_calor_7d_regional_v6")
+
+    # Skill 7d + ML auxiliar (não sobrescreve o nível da regra SES)
+    try:
+        from sisclima.engines.predicao_skill_7d import run_predicao_skill
+
+        skill_meta = run_predicao_skill(met, pred)
+        log.info("Skill predição 7d: %s", {k: skill_meta.get(k) for k in ("emitidas", "n_pares", "ml_metodo", "ok")})
+        # recarrega pred com probs auxiliares se gravadas
+        pred_reload = read_table("predicao_calor_7d_municipal_v6")
+        if pred_reload is not None and not pred_reload.empty:
+            pred = pred_reload
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Skill/ML auxiliar 7d não executado: %s", exc)
 
     # Indicadores compostos do painel (tensão climática, vigilância, tendência 7d…)
     from sisclima.engines.panel_indicators import (

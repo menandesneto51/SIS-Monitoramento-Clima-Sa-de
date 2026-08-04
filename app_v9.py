@@ -712,6 +712,7 @@ met = aq = occ = press = stock = infra = ops_proxy = ops_cnes = pd.DataFrame()
 solo_sat = hidro_risco = alerta_integrado = inmet_alertas = cemaden_alertas_tab = ana_risco_tab = pd.DataFrame()
 saude_calor_serie = saude_dic = gal_pos_mun = gal_pos_serie = sim_obitos_serie = aq_estado_serie = pd.DataFrame()
 alerta_mun_v6 = alerta_reg_v6 = pred_reg_v6 = pd.DataFrame()
+pred_skill_resumo = pred_ml_aux = pd.DataFrame()
 analise_base_v8 = analise_corr_v8 = analise_or_v1 = analise_alertas_v8 = pd.DataFrame()
 sazon_mensal_v1 = sazon_heat_v1 = sazon_perfil_v1 = sazon_picos_v1 = lags_v1 = pd.DataFrame()
 validacao_v75 = v9_status = v9_validacao = v9_saude_mensal = v9_clima = pd.DataFrame()
@@ -745,6 +746,8 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "alerta_inteligente_municipal_v6",
         "alerta_inteligente_regional_v6",
         "predicao_calor_7d_regional_v6",
+        "predicao_calor_7d_skill_resumo_v1",
+        "predicao_calor_7d_ml_aux_v1",
         "analise_clima_saude_base_municipal_v8",
         "analise_clima_saude_correlacoes_v8",
         "analise_clima_saude_alertas_estatisticos_v8",
@@ -800,6 +803,8 @@ TABLE_VAR_BINDINGS: dict[str, str] = {
     "alerta_inteligente_municipal_v6": "alerta_mun_v6",
     "alerta_inteligente_regional_v6": "alerta_reg_v6",
     "predicao_calor_7d_regional_v6": "pred_reg_v6",
+    "predicao_calor_7d_skill_resumo_v1": "pred_skill_resumo",
+    "predicao_calor_7d_ml_aux_v1": "pred_ml_aux",
     "analise_clima_saude_base_municipal_v8": "analise_base_v8",
     "analise_clima_saude_correlacoes_v8": "analise_corr_v8",
     "analise_clima_saude_odds_ratio_v1": "analise_or_v1",
@@ -2716,14 +2721,87 @@ elif SECTION_KEY == "Inteligência":
                 "cod_ibge", "municipio", "regional_saude", "nivel_predicao_7d",
                 "risco_preditivo_score", "tmax_max_7d", "utci_proxy_max_7d",
                 "risco_cumulativo_3d_max_7d", "dias_onda_calor_prevista_7d",
+                "p_laranja_plus", "p_vermelha_plus", "ml_nivel_sugerido", "ml_confianca",
                 "ocupacao_leitos_pct", "pressao_calor_pct", "fonte_predicao",
             ],
             height=420,
         )
 
+    st.markdown("#### Skill da predição 7d + ML auxiliar")
+    ui_theme.callout(
+        "O nível SES (`nivel_predicao_7d`) continua pela regra. "
+        "Skill mede acerto histórico; ML só sugere probabilidade ao lado.",
+        "info",
+    )
+    if pred_skill_resumo is not None and not pred_skill_resumo.empty:
+        sk = pred_skill_resumo.copy()
+        for _, row in sk.iterrows():
+            metodo = str(row.get("metodo", "—"))
+            n = int(row.get("n_pares") or 0)
+            hit = row.get("hit_rate_exato")
+            hit1 = row.get("hit_rate_tol1")
+            mae_t = row.get("mae_tmax")
+            mae_u = row.get("mae_utci")
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric(f"{metodo} · pares", n)
+            c2.metric("Acerto exato", f"{100 * float(hit):.0f}%" if pd.notna(hit) else "—")
+            c3.metric("Acerto ±1 nível", f"{100 * float(hit1):.0f}%" if pd.notna(hit1) else "—")
+            c4.metric(
+                "MAE Tmáx / UTCI",
+                f"{float(mae_t):.1f} / {float(mae_u):.1f}" if pd.notna(mae_t) and pd.notna(mae_u) else "—",
+            )
+        show_df(sk, height=180)
+    else:
+        st.info(
+            "Skill ainda sem pares suficientes. Rode o enrichment (`regenerar_sistema_completo.py --skip-pipeline`) "
+            "com `met_biometeo` cobrindo ≥14 dias; emissões passam a ser arquivadas a cada rodada."
+        )
+
+    ml_view = pred_v6.copy() if not pred_v6.empty else pd.DataFrame()
+    if (pred_ml_aux is not None) and (not pred_ml_aux.empty) and (not ml_view.empty) and "cod_ibge" in ml_view.columns:
+        aux = pred_ml_aux.copy()
+        aux["cod_ibge"] = normalize_cod_ibge(aux["cod_ibge"])
+        drop_overlap = [c for c in aux.columns if c != "cod_ibge" and c in ml_view.columns]
+        if drop_overlap:
+            ml_view = ml_view.drop(columns=drop_overlap, errors="ignore")
+        ml_view = ml_view.merge(aux, on="cod_ibge", how="left")
+    if not ml_view.empty and any(c.startswith("p_") or c.startswith("ml_") for c in ml_view.columns):
+        metodo_ml = (
+            str(ml_view["ml_metodo"].dropna().astype(str).iloc[0])
+            if "ml_metodo" in ml_view.columns and ml_view["ml_metodo"].notna().any()
+            else "—"
+        )
+        st.caption(f"Método ML auxiliar: **{metodo_ml}** (não altera boletim SES).")
+        cols_ml = [
+            c
+            for c in (
+                "municipio",
+                "regional_saude",
+                "nivel_predicao_7d",
+                "ml_nivel_sugerido",
+                "ml_confianca",
+                "p_laranja_plus",
+                "p_vermelha_plus",
+                "p_verde",
+                "p_amarela",
+                "p_laranja",
+                "p_vermelha",
+                "p_roxa",
+            )
+            if c in ml_view.columns
+        ]
+        show_df(
+            ml_view.sort_values("p_laranja_plus", ascending=False) if "p_laranja_plus" in ml_view.columns else ml_view,
+            cols_ml,
+            height=320,
+        )
+    elif pred_v6.empty:
+        pass
+    else:
+        st.caption("Probabilidades auxiliares ainda não geradas nesta base.")
+
     st.markdown("#### Predição regional")
     show_df(pred_reg_v6, height=260)
-
     # ---------------------------------------------------------------
     # Alerta inteligente
     # ---------------------------------------------------------------

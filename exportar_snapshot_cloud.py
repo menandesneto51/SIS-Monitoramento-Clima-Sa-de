@@ -36,6 +36,8 @@ TABLES = [
     "qualidade_ar_municipal",
     "qualidade_ar_estado_serie_v6",
     "queimadas_focos_municipal",
+    "predicao_calor_7d_skill_resumo_v1",
+    "predicao_calor_7d_ml_aux_v1",
     "wash_municipal",
     "hospital_ocupacao_municipio",
     "epi_pressao_assistencial",
