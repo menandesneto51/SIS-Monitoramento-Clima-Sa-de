@@ -89,9 +89,13 @@ def build_fonte_frescor_home(resumo: pd.DataFrame | None = None) -> pd.DataFrame
         ("IndicaSUS / ocupação", "hospital_ocupacao_municipio", ["data_processamento", "ultima_movimentacao"], 24, "Cobertura local tipicamente parcial"),
         ("SISREG", "ops_sisreg_municipio", ["data_processamento", "atualizado_em"], 48, "Fila/regulação"),
         ("Predição calor ~7d", "predicao_calor_7d_municipal_v6", ["data_processamento"], 36, "Nowcast climático (não sazonal)"),
+        ("SIVEP / SRAG", "epi_sivep_srag", ["data", "data_sintomas", "data_notificacao"], 72, "Respiratório"),
+        ("Arboviroses", "epi_arboviroses_municipal", ["data", "data_referencia", "semana_epidemiologica"], 96, "Dengue/Zika/Chik"),
         ("INMET alertas", "inmet_alertas", ["inicio", "data_atualizacao", "gerado_em"], 24, "Alertas oficiais"),
         ("Cemaden", "cemaden_alertas", ["data_atualizacao", "data"], 24, "Desastres / hidrologia"),
         ("Qualidade do ar", "qualidade_ar_municipal", ["data", "data_referencia"], 48, "PM2,5 / IQA"),
+        ("Skill clima 7d", "predicao_calor_7d_skill_resumo_v1", ["avaliado_em"], 72, "Acerto da regra 7d"),
+        ("Nowcast epi", "epi_nowcast_municipal_v1", ["gerado_em"], 72, "Tendência SRAG/arbovírus auxiliar"),
     ]:
         df = read_table(tabela) if table_exists(tabela) else pd.DataFrame()
         mun = None
@@ -339,6 +343,12 @@ def explicar_nivel_municipio(row: pd.Series | dict[str, Any]) -> str:
         ("Sensação (UTCI proxy)", "utci_proxy", "{:.1f}"),
         ("Risco calor 3d", "risco_cumulativo_3d", "{:.1f}"),
         ("PM2,5", "pm25_ugm3", "{:.1f} µg/m³"),
+        ("Casos SRAG (janela)", "casos_srag", "{:.0f}"),
+        ("Z-score SRAG", "zscore_srag", "{:.2f}"),
+        ("P(aumento) SRAG aux.", "srag_p_aumento", "{:.0%}"),
+        ("Arbovírus 7d", "casos_arbovirus_7d", "{:.0f}"),
+        ("P(aumento) arbovírus aux.", "arbo_p_aumento", "{:.0%}"),
+        ("Nowcast epi", "nowcast_alerta", "{}"),
         ("Ocupação leitos", "ocupacao_leitos_pct", "{:.1f}%"),
         ("Fonte ocupação", "fonte_ocupacao", "{}"),
         ("Capacidade CNES", "indice_capacidade_cnes", "{:.0f}"),

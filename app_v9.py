@@ -712,7 +712,7 @@ met = aq = occ = press = stock = infra = ops_proxy = ops_cnes = pd.DataFrame()
 solo_sat = hidro_risco = alerta_integrado = inmet_alertas = cemaden_alertas_tab = ana_risco_tab = pd.DataFrame()
 saude_calor_serie = saude_dic = gal_pos_mun = gal_pos_serie = sim_obitos_serie = aq_estado_serie = pd.DataFrame()
 alerta_mun_v6 = alerta_reg_v6 = pred_reg_v6 = pd.DataFrame()
-pred_skill_resumo = pred_ml_aux = pd.DataFrame()
+pred_skill_resumo = pred_ml_aux = epi_nowcast = epi_nowcast_skill = pd.DataFrame()
 analise_base_v8 = analise_corr_v8 = analise_or_v1 = analise_alertas_v8 = pd.DataFrame()
 sazon_mensal_v1 = sazon_heat_v1 = sazon_perfil_v1 = sazon_picos_v1 = lags_v1 = pd.DataFrame()
 validacao_v75 = v9_status = v9_validacao = v9_saude_mensal = v9_clima = pd.DataFrame()
@@ -748,6 +748,8 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "predicao_calor_7d_regional_v6",
         "predicao_calor_7d_skill_resumo_v1",
         "predicao_calor_7d_ml_aux_v1",
+        "epi_nowcast_municipal_v1",
+        "epi_nowcast_skill_resumo_v1",
         "analise_clima_saude_base_municipal_v8",
         "analise_clima_saude_correlacoes_v8",
         "analise_clima_saude_alertas_estatisticos_v8",
@@ -805,6 +807,8 @@ TABLE_VAR_BINDINGS: dict[str, str] = {
     "predicao_calor_7d_regional_v6": "pred_reg_v6",
     "predicao_calor_7d_skill_resumo_v1": "pred_skill_resumo",
     "predicao_calor_7d_ml_aux_v1": "pred_ml_aux",
+    "epi_nowcast_municipal_v1": "epi_nowcast",
+    "epi_nowcast_skill_resumo_v1": "epi_nowcast_skill",
     "analise_clima_saude_base_municipal_v8": "analise_base_v8",
     "analise_clima_saude_correlacoes_v8": "analise_corr_v8",
     "analise_clima_saude_odds_ratio_v1": "analise_or_v1",
@@ -2799,6 +2803,68 @@ elif SECTION_KEY == "Inteligência":
         pass
     else:
         st.caption("Probabilidades auxiliares ainda não geradas nesta base.")
+
+    st.markdown("#### Nowcast epidemiológico auxiliar (SRAG / arbovírus)")
+    ui_theme.callout(
+        "Tendência de curto prazo e P(aumento) são auxiliares. "
+        "Não alteram o nível SES nem substituem boletim epidemiológico oficial.",
+        "info",
+    )
+    if epi_nowcast_skill is not None and not epi_nowcast_skill.empty:
+        sk = epi_nowcast_skill.iloc[0]
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Municípios", int(sk.get("n_municipios") or 0))
+        pct = sk.get("pct_atencao_aumento")
+        c2.metric("Atenção aumento", f"{100 * float(pct):.0f}%" if pd.notna(pct) else "—")
+        c3.metric("SRAG ↑", int(sk.get("n_srag_aumento") or 0))
+        c4.metric("Arbovírus ↑", int(sk.get("n_arbo_aumento") or 0))
+    epi_view = epi_nowcast.copy() if epi_nowcast is not None and not epi_nowcast.empty else pd.DataFrame()
+    if epi_view.empty and not resumo.empty and "nowcast_alerta" in resumo.columns:
+        epi_view = resumo[
+            [
+                c
+                for c in (
+                    "municipio",
+                    "regional_saude",
+                    "casos_srag",
+                    "srag_p_aumento",
+                    "srag_tendencia",
+                    "casos_arbovirus_7d",
+                    "arbo_p_aumento",
+                    "arbo_tendencia",
+                    "nowcast_alerta",
+                )
+                if c in resumo.columns
+            ]
+        ].copy()
+    if not epi_view.empty:
+        if "cod_ibge" in epi_view.columns and "cod_ibge" in resumo.columns:
+            epi_view["cod_ibge"] = normalize_cod_ibge(epi_view["cod_ibge"])
+            epi_view = epi_view[epi_view["cod_ibge"].isin(resumo["cod_ibge"].dropna().astype(str))]
+        show_df(
+            epi_view.sort_values("srag_p_aumento", ascending=False)
+            if "srag_p_aumento" in epi_view.columns
+            else epi_view,
+            [
+                "municipio",
+                "regional_saude",
+                "srag_casos_7d",
+                "srag_tendencia",
+                "srag_p_aumento",
+                "arbo_casos_7d",
+                "arbo_tendencia",
+                "arbo_p_aumento",
+                "nowcast_alerta",
+                "casos_srag",
+                "casos_arbovirus_7d",
+            ],
+            height=320,
+        )
+    else:
+        st.info(
+            "Nowcast epi ainda sem dados. Rode o enrichment com SIVEP/arboviroses populados "
+            "(`regenerar_sistema_completo.py`) ou use o resumo após VPN/DW."
+        )
 
     st.markdown("#### Predição regional")
     show_df(pred_reg_v6, height=260)

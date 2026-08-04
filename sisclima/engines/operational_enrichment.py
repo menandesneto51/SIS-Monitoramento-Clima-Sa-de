@@ -853,6 +853,18 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001
         log.warning("Skill/ML auxiliar 7d não executado: %s", exc)
 
+    # Nowcast epidemiológico auxiliar (SRAG/arbovírus) — não altera nível SES
+    try:
+        from sisclima.engines.epi_nowcast_skill import run_epi_nowcast
+
+        epi_meta = run_epi_nowcast(resumo)
+        log.info("Nowcast epi: %s", {k: epi_meta.get(k) for k in ("ok", "n_municipios", "merged_resumo")})
+        resumo_reload = read_table("resumo_municipal_atual")
+        if resumo_reload is not None and not resumo_reload.empty:
+            resumo = resumo_reload
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Nowcast epidemiológico não executado: %s", exc)
+
     # Indicadores compostos do painel (tensão climática, vigilância, tendência 7d…)
     from sisclima.engines.panel_indicators import (
         enrich_panel_indicators,

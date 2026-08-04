@@ -347,7 +347,7 @@ def attach_ml_aux(pred: pd.DataFrame, pares_treino: pd.DataFrame | None = None) 
                     y = train["nivel_observado"].astype(str).values
                     scaler = StandardScaler()
                     Xs = scaler.fit_transform(X)
-                    model = LogisticRegression(max_iter=400, multi_class="auto")
+                    model = LogisticRegression(max_iter=400)
                     model.fit(Xs, y)
                     classes = list(model.classes_)
                     use_sklearn = True

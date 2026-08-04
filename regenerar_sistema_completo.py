@@ -227,10 +227,11 @@ def step_validate() -> dict:
         "qualidade_ar_estado_serie_v6",
         "predicao_calor_7d_municipal_v6",
         "predicao_calor_7d_skill_resumo_v1",
+        "epi_nowcast_municipal_v1",
         "met_biometeo",
         "cemaden_alertas",
     ]
-    out: dict = {"backend": backend_name(), "tables": {}, "aq": {}, "skill": {}}
+    out: dict = {"backend": backend_name(), "tables": {}, "aq": {}, "skill": {}, "epi_nowcast": {}}
     for t in tables:
         df = read_table(t)
         out["tables"][t] = int(len(df))
@@ -243,17 +244,24 @@ def step_validate() -> dict:
             "iq_ar_nonnull": int(iq.notna().sum()) if iq is not None else 0,
             "pm25_max": float(pm.max()) if pm is not None and pm.notna().any() else None,
         }
+        if "nowcast_alerta" in resumo.columns:
+            out["epi_nowcast"]["resumo_com_alerta"] = int(resumo["nowcast_alerta"].notna().sum())
     skill = read_table("predicao_calor_7d_skill_resumo_v1")
     if skill is not None and not skill.empty:
         out["skill"] = skill.to_dict(orient="records")
     pred = read_table("predicao_calor_7d_municipal_v6")
     if pred is not None and not pred.empty:
-        out["skill"] = dict(out.get("skill") or {})
+        out["skill"] = dict(out.get("skill") or {}) if isinstance(out.get("skill"), dict) else {"rows": out.get("skill")}
+        if isinstance(out["skill"], list):
+            out["skill"] = {"resumo": out["skill"]}
         out["skill"]["pred_rows"] = int(len(pred))
         out["skill"]["has_ml"] = bool(any(c.startswith("p_") or c.startswith("ml_") for c in pred.columns))
+    epi_nc = read_table("epi_nowcast_municipal_v1")
+    if epi_nc is not None and not epi_nc.empty:
+        out["epi_nowcast"]["rows"] = int(len(epi_nc))
+        out["epi_nowcast"]["atencao"] = int((epi_nc.get("nowcast_alerta") == "atencao_aumento").sum()) if "nowcast_alerta" in epi_nc.columns else 0
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return out
-
 def main() -> int:
     ap = argparse.ArgumentParser(description="Regenera base + painel SIS Clima-Saúde")
     ap.add_argument("--skip-pipeline", action="store_true", help="Pula o pipeline bruto")
