@@ -7,11 +7,13 @@ Passos:
   2) completar_sistema_operacional (IndicaSUS + enrichment + pred 7d)
   3) SISREG live → ops_sisreg_municipio
   4) índice de pressão + alertas multinível persistidos
-  5) apresentação impacto (opcional)
+  5) export snapshot Cloud (sis_cloud_seed.db) — padrão ligado
+  6) apresentação impacto (opcional)
 
 Uso:
   .venv\\Scripts\\python.exe regenerar_sistema_completo.py
   .venv\\Scripts\\python.exe regenerar_sistema_completo.py --skip-pipeline
+  .venv\\Scripts\\python.exe regenerar_sistema_completo.py --skip-cloud-export
   .venv\\Scripts\\python.exe regenerar_sistema_completo.py --pptx
 """
 from __future__ import annotations
@@ -35,7 +37,7 @@ def _step(title: str) -> None:
 
 
 def step_pipeline(send_alerts: bool = False) -> dict:
-    _step("1/5 Pipeline completo (clima + DW + estágios)")
+    _step("1/6 Pipeline completo (clima + DW + estágios)")
     from sisclima.pipeline import run_pipeline
 
     t0 = time.time()
@@ -47,8 +49,7 @@ def step_pipeline(send_alerts: bool = False) -> dict:
 
 
 def step_enrichment() -> dict:
-    _step("2/5 Enriquecimento operacional (IndicaSUS + pred 7d + indicadores)")
-    # IndicaSUS (best-effort)
+    _step("2/6 Enriquecimento operacional (IndicaSUS + pred 7d + indicadores)")
     try:
         from atualizar_ocupacao_indicasus import main as upd_occ
 
@@ -68,7 +69,7 @@ def step_enrichment() -> dict:
 
 
 def step_sisreg() -> dict:
-    _step("3/5 SISREG (live → ops_sisreg_municipio)")
+    _step("3/6 SISREG (live → ops_sisreg_municipio)")
     from sisclima.ingestion.sisreg import atualizar_sisreg
 
     meta = atualizar_sisreg(prefer_live=True)
@@ -77,7 +78,7 @@ def step_sisreg() -> dict:
 
 
 def step_pressao_alertas() -> dict:
-    _step("4/5 Índice de pressão + alertas multinível")
+    _step("4/6 Índice de pressão + alertas multinível")
     from sisclima.core.db import read_table, write_df
     from sisclima.engines.alertas_multinivel import build_alertas_multinivel, persist_payloads
     from sisclima.engines.indice_pressao_saude import (
@@ -103,7 +104,6 @@ def step_pressao_alertas() -> dict:
         pred_7d=pred if not pred.empty else None,
         sisreg=sis if not sis.empty else None,
     )
-    # Persistir tabela dedicada + merge colunas-chave no resumo
     keep = [
         c
         for c in press.columns
@@ -122,7 +122,6 @@ def step_pressao_alertas() -> dict:
     if not cat.empty:
         write_df(cat, "catalogo_agravos_clima_pressao_v1", if_exists="replace")
 
-    # Merge no resumo para o painel já vir com pressão persistida
     merge_cols = [
         c
         for c in (
@@ -178,8 +177,31 @@ def step_pressao_alertas() -> dict:
     return out
 
 
+def step_cloud_export() -> dict:
+    _step("5/6 Snapshot Cloud (data/cloud/sis_cloud_seed.db)")
+    try:
+        from exportar_snapshot_cloud import main as export_main
+
+        export_main()
+        seed = ROOT / "data" / "cloud" / "sis_cloud_seed.db"
+        out = {
+            "ok": seed.exists(),
+            "path": str(seed),
+            "mb": round(seed.stat().st_size / (1024 * 1024), 2) if seed.exists() else 0,
+        }
+        print(json.dumps(out, ensure_ascii=False))
+        return out
+    except SystemExit as exc:
+        msg = str(exc) if str(exc) else "export abortado"
+        print(f"[AVISO] Export Cloud: {msg}")
+        return {"ok": False, "error": msg}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[AVISO] Export Cloud falhou (painel local/Postgres segue ok): {exc}")
+        return {"ok": False, "error": str(exc)}
+
+
 def step_pptx() -> str:
-    _step("5/5 Apresentação impacto com dados reais")
+    _step("6/6 Apresentação impacto com dados reais")
     from gerar_apresentacao_sis_impacto_real import build, DEFAULT_OUT
 
     path, data = build(DEFAULT_OUT)
@@ -188,6 +210,8 @@ def step_pptx() -> str:
 
 
 def step_validate() -> dict:
+    import pandas as pd
+
     from sisclima.core.db import backend_name, read_table
 
     tables = [
@@ -199,11 +223,24 @@ def step_validate() -> dict:
         "alerta_integrado_sis_titan",
         "hospital_ocupacao_municipio",
         "epi_arboviroses_municipal",
+        "qualidade_ar_municipal",
+        "qualidade_ar_estado_serie_v6",
+        "met_biometeo",
+        "cemaden_alertas",
     ]
-    out = {"backend": backend_name(), "tables": {}}
+    out: dict = {"backend": backend_name(), "tables": {}, "aq": {}}
     for t in tables:
         df = read_table(t)
         out["tables"][t] = int(len(df))
+    resumo = read_table("resumo_municipal_atual")
+    if resumo is not None and not resumo.empty:
+        pm = pd.to_numeric(resumo.get("pm25_ugm3"), errors="coerce") if "pm25_ugm3" in resumo.columns else None
+        iq = pd.to_numeric(resumo.get("iq_ar_score"), errors="coerce") if "iq_ar_score" in resumo.columns else None
+        out["aq"] = {
+            "pm25_nonnull": int(pm.notna().sum()) if pm is not None else 0,
+            "iq_ar_nonnull": int(iq.notna().sum()) if iq is not None else 0,
+            "pm25_max": float(pm.max()) if pm is not None and pm.notna().any() else None,
+        }
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return out
 
@@ -212,6 +249,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Regenera base + painel SIS Clima-Saúde")
     ap.add_argument("--skip-pipeline", action="store_true", help="Pula o pipeline bruto")
     ap.add_argument("--skip-sisreg", action="store_true")
+    ap.add_argument(
+        "--skip-cloud-export",
+        action="store_true",
+        help="Não atualiza data/cloud/sis_cloud_seed.db (padrão: exporta)",
+    )
     ap.add_argument("--pptx", action="store_true", help="Gera PPTX impacto ao final")
     ap.add_argument("--send-alerts", action="store_true", help="Permite disparo no pipeline (default: false)")
     args = ap.parse_args()
@@ -227,6 +269,10 @@ def main() -> int:
         if not args.skip_sisreg:
             report["sisreg"] = step_sisreg()
         report["pressao_alertas"] = step_pressao_alertas()
+        if not args.skip_cloud_export:
+            report["cloud_export"] = step_cloud_export()
+        else:
+            print("[INFO] Export Cloud pulado (--skip-cloud-export)")
         report["validacao"] = step_validate()
         if args.pptx:
             report["pptx"] = step_pptx()

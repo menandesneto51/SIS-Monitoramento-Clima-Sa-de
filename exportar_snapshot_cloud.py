@@ -90,41 +90,60 @@ TABLES = [
 
 
 def main() -> None:
+    """Exporta a base operacional ativa (Postgres ou SQLite) para o seed Cloud."""
     import os
+    import shutil
+    import tempfile
 
-    src_url = os.getenv("DATABASE_URL") or ""
-    if not src_url:
-        raise SystemExit("DATABASE_URL ausente no .env")
+    from sisclima.core.db import get_engine, is_sqlite, reset_engine, table_exists
 
-    src = create_engine(src_url)
+    # Garante que .env / seed fallback já foram resolvidos pelo core.
+    reset_engine()
+    src = get_engine()
+    src_url = str(src.url)
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    if OUT.exists():
-        OUT.unlink()
-    dst = create_engine(f"sqlite:///{OUT.as_posix()}")
+
+    # Se a fonte já é o próprio seed, copia via temp para evitar lock no Windows.
+    if is_sqlite() and Path(str(src.url).replace("sqlite:///", "")).resolve() == OUT.resolve():
+        print(f"[INFO] Fonte já é {OUT} — regenerando via leitura das tabelas.")
+
+    tmp_path = OUT.with_suffix(".tmp.db")
+    if tmp_path.exists():
+        tmp_path.unlink()
+    dst = create_engine(f"sqlite:///{tmp_path.as_posix()}")
 
     exported = []
     skipped = []
     with src.connect() as conn:
-        existing = {
-            r[0]
-            for r in conn.execute(
-                text(
-                    "SELECT tablename FROM pg_tables WHERE schemaname='public'"
-                    if "postgres" in src_url
-                    else "SELECT name FROM sqlite_master WHERE type='table'"
-                )
-            ).fetchall()
-        }
+        if "postgres" in src_url:
+            existing = {
+                r[0]
+                for r in conn.execute(text("SELECT tablename FROM pg_tables WHERE schemaname='public'")).fetchall()
+            }
+        else:
+            existing = {
+                r[0]
+                for r in conn.execute(text("SELECT name FROM sqlite_master WHERE type='table'")).fetchall()
+            }
         for table in TABLES:
-            if table not in existing:
+            if table not in existing and not table_exists(table):
                 skipped.append(table)
                 continue
-            df = pd.read_sql(text(f'SELECT * FROM "{table}"'), conn)
+            try:
+                df = pd.read_sql(text(f'SELECT * FROM "{table}"'), conn)
+            except Exception:
+                skipped.append(table)
+                continue
             df.to_sql(table, dst, index=False, if_exists="replace")
             exported.append((table, len(df)))
 
+    dst.dispose()
+    if OUT.exists():
+        OUT.unlink()
+    shutil.move(str(tmp_path), str(OUT))
+
     mb = OUT.stat().st_size / (1024 * 1024)
-    print(f"OK {OUT} ({mb:.1f} MB)")
+    print(f"OK {OUT} ({mb:.1f} MB) · fonte={src_url.split('://')[0]}")
     print(f"exportadas {len(exported)} · ausentes {len(skipped)}")
     for t, n in exported[:15]:
         print(f"  {t}: {n}")
@@ -132,6 +151,8 @@ def main() -> None:
         print(f"  ... +{len(exported) - 15} tabelas")
     if mb > 90:
         print("AVISO: arquivo grande para GitHub (>90 MB). Considere Postgres público no Cloud.")
+    if not exported:
+        raise SystemExit("Nenhuma tabela exportada — verifique DATABASE_URL / seed.")
 
 
 if __name__ == "__main__":

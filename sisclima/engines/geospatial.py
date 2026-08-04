@@ -18,10 +18,10 @@ LEVEL_ORDER = ["cinza", "verde", "amarela", "laranja", "vermelha", "roxa"]
 LEVEL_COLOR_MAP = {
     "cinza": "#6b7280",
     "verde": "#16803c",
-    "amarela": "#d6a100",
-    "laranja": "#f97316",
+    "amarela": "#e6b800",
+    "laranja": "#d97706",
     "vermelha": "#dc2626",
-    "roxa": "#7e22ce",
+    "roxa": "#5b21b6",
 }
 
 _COD_CANDIDATES = [

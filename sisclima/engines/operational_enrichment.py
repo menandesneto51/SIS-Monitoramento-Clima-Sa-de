@@ -349,6 +349,20 @@ def enrich_resumo_columns(resumo: pd.DataFrame) -> pd.DataFrame:
                         out[col] = out[col].fillna(m[col])
                     else:
                         out[col] = pd.to_numeric(out[col], errors="coerce").fillna(pd.to_numeric(m[col], errors="coerce"))
+        # Série estadual diária para a aba Qualidade do ar
+        try:
+            aq2 = aq.copy()
+            if "data" in aq2.columns:
+                aq2["data"] = pd.to_datetime(aq2["data"], errors="coerce").dt.date.astype(str)
+                num_cols = [c for c in ["pm25_ugm3", "pm10_ugm3", "o3_ugm3", "no2_ugm3", "iq_ar_score"] if c in aq2.columns]
+                if num_cols:
+                    for c in num_cols:
+                        aq2[c] = pd.to_numeric(aq2[c], errors="coerce")
+                    serie = aq2.groupby("data", as_index=False)[num_cols].mean(numeric_only=True)
+                    serie["fonte"] = "media_municipal_qualidade_ar"
+                    write_df(serie, "qualidade_ar_estado_serie_v6")
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Série estadual de qualidade do ar não gerada: %s", exc)
 
     # ANA risco
     ana = read_table("ana_risco_municipal")

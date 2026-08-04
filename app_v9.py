@@ -17,6 +17,7 @@ Rodar:
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -292,6 +293,48 @@ def _enrich_assistencia(resumo: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _enrich_qualidade_ar(resumo: pd.DataFrame) -> pd.DataFrame:
+    """Garante PM2,5 / IQA no resumo a partir de qualidade_ar_municipal (última data)."""
+    if resumo is None or resumo.empty or "cod_ibge" not in resumo.columns:
+        return resumo
+    out = resumo.copy()
+    need_pm = "pm25_ugm3" not in out.columns or pd.to_numeric(out.get("pm25_ugm3"), errors="coerce").isna().all()
+    need_iq = "iq_ar_score" not in out.columns or pd.to_numeric(out.get("iq_ar_score"), errors="coerce").isna().all()
+    if not need_pm and not need_iq:
+        # ainda preenche buracos pontuais
+        pass
+    try:
+        aq = load_table("qualidade_ar_municipal")
+    except Exception:
+        return out
+    if aq is None or aq.empty or "cod_ibge" not in aq.columns:
+        return out
+    aq = aq.copy()
+    aq["cod_ibge"] = normalize_cod_ibge(aq["cod_ibge"])
+    if "data" in aq.columns:
+        aq["_ord"] = pd.to_datetime(aq["data"], errors="coerce")
+        aq = aq.sort_values("_ord").drop_duplicates("cod_ibge", keep="last")
+    else:
+        aq = aq.drop_duplicates("cod_ibge", keep="last")
+    cols = [c for c in ["cod_ibge", "pm25_ugm3", "pm10_ugm3", "o3_ugm3", "no2_ugm3", "iq_ar_score", "qualidade_ar_nivel", "poluente_dominante"] if c in aq.columns]
+    if len(cols) <= 1:
+        return out
+    m = aq[cols]
+    out["cod_ibge"] = normalize_cod_ibge(out["cod_ibge"])
+    for col in cols:
+        if col == "cod_ibge":
+            continue
+        if col not in out.columns:
+            out = out.merge(m[["cod_ibge", col]], on="cod_ibge", how="left")
+        else:
+            joined = out[["cod_ibge"]].merge(m[["cod_ibge", col]], on="cod_ibge", how="left")
+            if col in ("qualidade_ar_nivel", "poluente_dominante"):
+                out[col] = out[col].fillna(joined[col])
+            else:
+                out[col] = pd.to_numeric(out[col], errors="coerce").fillna(pd.to_numeric(joined[col], errors="coerce"))
+    return out
+
+
 def prepare_resumo() -> pd.DataFrame:
     resumo = load_table("resumo_municipal_atual")
     if resumo.empty:
@@ -301,6 +344,7 @@ def prepare_resumo() -> pd.DataFrame:
     if "cod_ibge" in resumo.columns:
         resumo["cod_ibge"] = normalize_cod_ibge(resumo["cod_ibge"])
     resumo = _enrich_assistencia(resumo)
+    resumo = _enrich_qualidade_ar(resumo)
 
     resumo = coalesce_columns(
         resumo,
@@ -848,7 +892,6 @@ ui_theme.status_strip(
         ("Referência", _data_ref or "rodada atual"),
         ("Base", backend_name()),
     ],
-    note="Indicadores do topo são estaduais; mapas e tabelas respeitam o filtro territorial.",
 )
 
 ui_theme.level_banner(
@@ -1038,13 +1081,12 @@ with st.expander("Detalhe estadual (métricas, distribuição Verde→Roxa e glo
         with dist_cols[_idx]:
             st.markdown(
                 f"""
-                <div class="sis-level-tile" style="background:{LEVEL_COLOR_MAP[_nivel]}">
+                <div class="sis-level-tile sis-level-tile-{_nivel}" style="background:{LEVEL_COLOR_MAP[_nivel]};color:{'#1a1a1a' if _nivel in ('amarela','cinza') else '#fff'};">
                     <div class="lbl">{_label}</div>
                     <div class="val">{_valor}</div>
                     <div class="pred">7d: {_pred_n}</div>
                     <div class="trend">{_icon} {_tend_txt}</div>
-                </div>
-                """,
+                </div>                """,
                 unsafe_allow_html=True,
             )
 
@@ -1053,7 +1095,7 @@ with st.expander("O que cada cor significa na operação", expanded=False):
 
 # Filtros globais no topo (sempre visíveis)
 st.markdown("<div class='sis-panel soft'><div class='sis-panel-title'>Filtros territoriais</div>", unsafe_allow_html=True)
-f1, f2 = st.columns(2)
+f1, f2, f3 = st.columns([1.2, 1.2, 1.0])
 regionais_disponiveis = sorted(
     [x for x in resumo_all.get("regional_saude", pd.Series(dtype=str)).dropna().astype(str).unique() if x]
 )
@@ -1066,7 +1108,7 @@ with f1:
         regionais_disponiveis,
         default=[],
         placeholder="Todas as regionais",
-        help="Vazio = Estado inteiro. Escolha uma ou mais regionais para focar a sala de situação.",
+        help="Vazio = Estado inteiro.",
     )
 tmp = resumo_all.copy()
 if regionais_sel and "regional_saude" in tmp.columns:
@@ -1082,12 +1124,35 @@ with f2:
         municipios_filtrados,
         default=[],
         placeholder="Todos os municípios do recorte",
-        help="Opcional. Combina com a regional selecionada.",
+        help="Opcional. Combina com a regional.",
     )
+_niveis_opts = ["amarela", "laranja", "vermelha", "roxa"]
+with f3:
+    niveis_sel = st.multiselect(
+        "Nível operacional",
+        _niveis_opts,
+        default=[],
+        placeholder="Todos os níveis",
+        help="Filtra mapas/tabelas pelo nível SIS (ex.: só laranja+).",
+    )
+_so_prioritarios = st.checkbox(
+    "Só prioritários (laranja / vermelha / roxa)",
+    value=False,
+    key="filtro_so_prioritarios",
+    help="Atalho equivalente a selecionar laranja+ no filtro de nível.",
+)
 st.markdown("</div>", unsafe_allow_html=True)
 
 resumo = apply_global_filters(resumo_all, regionais_sel, municipios_sel)
 map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
+_niveis_efetivos = list(niveis_sel)
+if _so_prioritarios:
+    _niveis_efetivos = sorted(set(_niveis_efetivos) | {"laranja", "vermelha", "roxa"})
+if _niveis_efetivos:
+    if "nivel" in resumo.columns:
+        resumo = resumo[resumo["nivel"].astype(str).str.lower().isin(_niveis_efetivos)]
+    if "nivel" in map_df.columns:
+        map_df = map_df[map_df["nivel"].astype(str).str.lower().isin(_niveis_efetivos)]
 
 # Índice de pressão (IndicaSUS · SISREG · SINAN · SIM) — semáforo G/A/V
 from sisclima.engines.indice_pressao_saude import (
@@ -1122,6 +1187,8 @@ if not _pressao_full.empty and "cod_ibge" in _pressao_full.columns:
         resumo_all = resumo_all.drop(columns=drop_overlap, errors="ignore")
     resumo_all = resumo_all.merge(_merge_p, on="cod_ibge", how="left")
     resumo = apply_global_filters(resumo_all, regionais_sel, municipios_sel)
+    if _niveis_efetivos and "nivel" in resumo.columns:
+        resumo = resumo[resumo["nivel"].astype(str).str.lower().isin(_niveis_efetivos)]
     if "cod_ibge" in map_df_all.columns:
         map_base = map_df_all.copy()
         drop_m = [c for c in _merge_p.columns if c != "cod_ibge" and c in map_base.columns]
@@ -1129,7 +1196,8 @@ if not _pressao_full.empty and "cod_ibge" in _pressao_full.columns:
             map_base = map_base.drop(columns=drop_m, errors="ignore")
         map_df_all = map_base.merge(_merge_p, on="cod_ibge", how="left")
         map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
-
+        if _niveis_efetivos and "nivel" in map_df.columns:
+            map_df = map_df[map_df["nivel"].astype(str).str.lower().isin(_niveis_efetivos)]
 pressao_df = (
     apply_global_filters(_pressao_full, regionais_sel, municipios_sel)
     if not _pressao_full.empty
@@ -1140,6 +1208,8 @@ pressao_state = state_pressao_summary(pressao_df)
 # Prioridade global (camadas 0–100) — recalcula após pressão IndicaSUS/SISREG/SINAN/SIM
 resumo_all = enrich_prioridade_global(resumo_all)
 resumo = apply_global_filters(resumo_all, regionais_sel, municipios_sel)
+if _niveis_efetivos and "nivel" in resumo.columns:
+    resumo = resumo[resumo["nivel"].astype(str).str.lower().isin(_niveis_efetivos)]
 if "cod_ibge" in map_df_all.columns and "indice_prioridade_global" in resumo_all.columns:
     _prio_cols = [
         c
@@ -1160,6 +1230,8 @@ if "cod_ibge" in map_df_all.columns and "indice_prioridade_global" in resumo_all
         map_df_all = map_df_all.drop(columns=drop_m, errors="ignore")
     map_df_all = map_df_all.merge(_prio, on="cod_ibge", how="left")
     map_df = apply_global_filters(map_df_all, regionais_sel, municipios_sel)
+    if _niveis_efetivos and "nivel" in map_df.columns:
+        map_df = map_df[map_df["nivel"].astype(str).str.lower().isin(_niveis_efetivos)]
 prioridade_state = state_prioridade_summary(resumo_all)
 
 ui_theme.status_strip(
@@ -1197,31 +1269,30 @@ NAV_SECTIONS: list[str] = [
     "Cálculos",
 ]
 NAV_GROUPS: dict[str, list[str]] = {
-    "Visão": ["Visão executiva", "Mapas", "Guia do leitor", "El Niño / Contingência"],
-    "Clima": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
+    "Visão": ["Visão executiva", "Mapas", "El Niño / Contingência", "Guia do leitor"],
+    "Clima e ar": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
     "Saúde": [
         "Assistência",
         "Arboviroses",
         "SIVEP",
         "Sentinela SG",
         "AdaptaSUS / Guia MS",
-        "Correlação clima-saúde",
-        "Sazonalidade / OR",
     ],
-    "Operação": ["Operacional", "Geografia", "Inteligência", "Alertas", "Cálculos"],
+    "Análise": ["Correlação clima-saúde", "Sazonalidade / OR", "Inteligência", "Cálculos"],
+    "Operação": ["Alertas", "Operacional", "Geografia"],
 }
 ui_theme.section_title(
     "Navegação",
-    "Escolha a aba da sala de situação. Cada seção carrega só os dados necessários.",
+    "Módulos da sala de situação — cada aba carrega só o necessário.",
 )
 ui_theme.nav_label("Modo")
 _modo_nav = st.radio(
     "Modo de navegação",
-    ["Todas as abas", "Por módulo"],
+    ["Por módulo", "Todas as abas"],
     horizontal=True,
     key="nav_modo_painel",
     label_visibility="collapsed",
-    help="Padrão: todas as abas. ‘Por módulo’ reduz a lista em telas menores.",
+    help="Padrão: por módulo (menos ruído). ‘Todas as abas’ lista o menu completo.",
 )
 if _modo_nav == "Todas as abas":
     ui_theme.nav_label("Abas do painel")
@@ -1250,12 +1321,7 @@ else:
         label_visibility="collapsed",
     )
 hydrate_section_tables(SECTION_KEY)
-ui_theme.status_strip(
-    [("Aba ativa", SECTION_KEY), ("Seções", str(len(NAV_SECTIONS)))],
-    note="Ajudante CIEVS disponível em cada seção.",
-)
 ui_theme.section_guide(SECTION_KEY)
-
 
 # ---------------------------------------------------------------------
 # Seções do painel
@@ -2103,6 +2169,20 @@ elif SECTION_KEY == "Qualidade do ar":
     pm_nn = int(pd.to_numeric(resumo.get("pm25_ugm3"), errors="coerce").notna().sum()) if "pm25_ugm3" in resumo.columns else 0
     focos7 = pd.to_numeric(resumo.get("focos_queimadas_7d"), errors="coerce") if "focos_queimadas_7d" in resumo.columns else pd.Series(dtype=float)
     focos_mun = int((focos7.fillna(0) > 0).sum()) if len(focos7) else 0
+    if pm_nn == 0 and aq.empty:
+        _copernicus = str(os.getenv("USE_COPERNICUS", "")).strip().lower() in {"1", "true", "yes", "sim"}
+        if not _copernicus:
+            ui_theme.callout(
+                "PM2,5/IQA vazios: ative `USE_COPERNICUS=true` (e a chave no `.env`), rode "
+                "`regenerar_sistema_completo.py` e confirme o export Cloud. Alternativa: CSV oficial em `data/`.",
+                "warn",
+            )
+        else:
+            ui_theme.callout(
+                "USE_COPERNICUS está ligado, mas `qualidade_ar_municipal` veio vazia neste ambiente. "
+                "Rode o enrichment/orquestrador e atualize `sis_cloud_seed.db` se estiver no Cloud.",
+                "warn",
+            )
     ui_theme.insight_cards(
         [
             ("Mun. com PM2,5", pm_nn, "no recorte filtrado"),
@@ -2173,7 +2253,10 @@ elif SECTION_KEY == "Qualidade do ar":
             fig = px.line(long_estado, x="data", y="valor", color="poluente", title="Média estadual diária da qualidade do ar")
             st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Série estadual de qualidade do ar ainda não criada. Rode corrigir_resumo_final_v6.py.")
+        st.info(
+            "Série estadual de qualidade do ar ainda não criada. "
+            "Rode `regenerar_sistema_completo.py` (gera `qualidade_ar_estado_serie_v6` no enrichment)."
+        )
 
     st.markdown("#### Série municipal filtrável")
     aq_f = aq.copy()
@@ -2184,7 +2267,10 @@ elif SECTION_KEY == "Qualidade do ar":
         aq_f = aq_f[aq_f["municipio"].isin(municipios_sel)]
 
     if aq_f.empty:
-        st.info("Tabela qualidade_ar_municipal não disponível para os filtros selecionados.")
+        st.info(
+            "Tabela `qualidade_ar_municipal` indisponível para o recorte. "
+            "Confira `USE_COPERNICUS` / CSV e o seed Cloud após o orquestrador."
+        )
     else:
         aq_plot = aq_f.copy()
         if "data" in aq_plot.columns:

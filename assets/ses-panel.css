@@ -512,12 +512,18 @@ hr {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.08);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.18);
 }
-.sis-level-tile .lbl { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; opacity: 0.92; letter-spacing: 0.04em; }
+.sis-level-tile-amarela,
+.sis-level-tile-cinza {
+  text-shadow: none;
+  border: 1px solid rgba(0,4,68,0.18);
+}
+.sis-level-tile .lbl { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
 .sis-level-tile .val { font-size: 1.7rem; font-weight: 800; line-height: 1.1; margin-top: 0.15rem; }
-.sis-level-tile .pred { font-size: 0.76rem; font-weight: 600; margin-top: 0.2rem; opacity: 0.95; }
-.sis-level-tile .trend { font-size: 0.7rem; font-weight: 700; margin-top: 0.12rem; opacity: 0.92; }
+.sis-level-tile .pred { font-size: 0.8rem; font-weight: 700; margin-top: 0.2rem; }
+.sis-level-tile .trend { font-size: 0.74rem; font-weight: 700; margin-top: 0.12rem; }
 
 .sis-level-legend {
   display: grid;
