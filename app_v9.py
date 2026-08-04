@@ -2881,6 +2881,34 @@ elif SECTION_KEY == "Alertas":
     )
     ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
     ui_theme.callout(
+        "Os boletins **não buscam APIs ao vivo**: leem `resumo_municipal_atual` / "
+        "`alerta_integrado_sis_titan` já gravados. No Cloud isso é o snapshot "
+        "`sis_cloud_seed.db` até rodar pipeline + `exportar_snapshot_cloud.py` e publicar. "
+        "`gerado_em` = hora da montagem do texto; use **Dados do sistema** como frescor real.",
+        "warn",
+    )
+    _ref_resumo = None
+    if isinstance(resumo_all, pd.DataFrame) and not resumo_all.empty:
+        for _c in ("data_processamento", "data_referencia", "data"):
+            if _c in resumo_all.columns:
+                _s = pd.to_datetime(resumo_all[_c], errors="coerce")
+                if _s.notna().any():
+                    _ref_resumo = pd.Timestamp(_s.max()).strftime("%Y-%m-%d %H:%M")
+                    break
+    _ref_ai = None
+    if isinstance(alerta_integrado, pd.DataFrame) and not alerta_integrado.empty and "data_processamento" in alerta_integrado.columns:
+        _s = pd.to_datetime(alerta_integrado["data_processamento"], errors="coerce")
+        if _s.notna().any():
+            _ref_ai = pd.Timestamp(_s.max()).strftime("%Y-%m-%d %H:%M")
+    ui_theme.insight_cards(
+        [
+            ("Base ativa", backend_name(), "SQLite seed / Postgres"),
+            ("Resumo (máx.)", _ref_resumo or "—", "data no resumo municipal"),
+            ("Alerta integrado", _ref_ai or "—", "data_processamento"),
+            ("Municípios no resumo", str(len(resumo_all) if isinstance(resumo_all, pd.DataFrame) else 0), "estadual usa resumo completo"),
+        ]
+    )
+    ui_theme.callout(
         "Tema alinhado ao portal oficial SES-MT (azul institucional). "
         "Envio externo desligado por padrão (SEND_ALERT_ON_LEVEL_CHANGE=false). "
         "Valide a prévia abaixo antes de armar canais.",
@@ -2967,12 +2995,38 @@ elif SECTION_KEY == "Alertas":
             index=1,
             key="alerta_min_nivel_multi",
         )
+        # Estadual e regionais usam o recorte completo; municipais respeitam o filtro da UI.
+        _resumo_alertas = resumo_all if isinstance(resumo_all, pd.DataFrame) and not resumo_all.empty else resumo
+        if (
+            isinstance(resumo, pd.DataFrame)
+            and isinstance(resumo_all, pd.DataFrame)
+            and len(resumo) < len(resumo_all)
+        ):
+            st.caption(
+                f"Filtro ativo: {len(resumo)}/{len(resumo_all)} municípios na UI — "
+                "o boletim estadual/regionais usa o estado completo; a lista municipal abaixo segue o filtro."
+            )
         payloads = build_alertas_multinivel(
-            resumo,
+            _resumo_alertas,
             alerta_integrado=alerta_integrado if isinstance(alerta_integrado, pd.DataFrame) else None,
             predicao_7d=pred_v6 if isinstance(pred_v6, pd.DataFrame) else None,
             min_level=min_lvl,
         )
+        # Se houver filtro, regenerar só a fatia municipal a partir do resumo filtrado
+        if (
+            isinstance(resumo, pd.DataFrame)
+            and isinstance(resumo_all, pd.DataFrame)
+            and 0 < len(resumo) < len(resumo_all)
+        ):
+            payloads_filtro = build_alertas_multinivel(
+                resumo,
+                alerta_integrado=alerta_integrado if isinstance(alerta_integrado, pd.DataFrame) else None,
+                predicao_7d=pred_v6 if isinstance(pred_v6, pd.DataFrame) else None,
+                min_level=min_lvl,
+            )
+            payloads = [p for p in payloads if p.get("escopo") != "municipal"] + [
+                p for p in payloads_filtro if p.get("escopo") == "municipal"
+            ]
         tab_est, tab_reg, tab_mun, tab_cba = st.tabs(
             ["① Estadual (SES)", "② Regionais", "③ Municipais", "④ Cuiabá Vigidesastre"]
         )
@@ -3168,16 +3222,19 @@ elif SECTION_KEY == "Alertas":
     )
     if st.button("Gerar prévia do boletim SES", key="btn_boletim_ses"):
         bol = preview_boletim_executivo_ses(
-            resumo,
+            resumo_all if isinstance(resumo_all, pd.DataFrame) and not resumo_all.empty else resumo,
             alerta_integrado=alerta_integrado if isinstance(alerta_integrado, pd.DataFrame) else None,
             predicao_7d=pred_v6 if isinstance(pred_v6, pd.DataFrame) else None,
         )
         st.session_state["boletim_ses_preview"] = bol
     bol = st.session_state.get("boletim_ses_preview")
     if isinstance(bol, dict) and bol.get("ok"):
+        _payload = bol.get("payload") or {}
         st.caption(
             f"{bol.get('titulo')} · nível {bol.get('nivel')} · "
-            f"{bol.get('n_municipios')} municípios no escopo"
+            f"{bol.get('n_municipios')} municípios · "
+            f"dados {_payload.get('data_referencia') or '—'} · "
+            f"montado {_payload.get('gerado_em') or '—'}"
         )
         st.code(bol.get("texto") or "")
         st.download_button(

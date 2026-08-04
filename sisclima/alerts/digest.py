@@ -424,7 +424,8 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
         f"{ICON['estado']} {EMOJI.get(niv, '⚪')} ALERTA ESTADUAL · SES-MT / CIEVS · {LEVEL_LABEL.get(niv, niv)}",
         f"{EMOJI.get(niv, '⚪')} Classificação: {p.get('nivel_rotulo') or LEVEL_LABEL.get(niv, niv)}",
         f"🎯 Alvo: {p.get('alvo_nome')} · 🏘️ Mun.: {n_mun}",
-        f"🕒 {p.get('gerado_em')}",
+        f"📅 Dados do sistema: {p.get('data_referencia') or '—'}",
+        f"🕒 Boletim montado em: {p.get('gerado_em')}",
         "",
         f"{ICON['resumo']} Resumo executivo",
         f"🏘️ {n_mun} municípios | {dist_txt}",
@@ -617,7 +618,8 @@ def format_regional_telegram(p: dict[str, Any]) -> str:
         f"{ICON['regional']} {EMOJI.get(niv, '⚪')} ALERTA REGIONAL · {reg} · {LEVEL_LABEL.get(niv, niv)}",
         f"{EMOJI.get(niv, '⚪')} Classificação: {p.get('nivel_rotulo') or LEVEL_LABEL.get(niv, niv)}",
         f"🎯 Alvo: Regional de Saúde {reg} · 🏘️ Mun.: {n_mun}",
-        f"🕒 {p.get('gerado_em')}",
+        f"📅 Dados do sistema: {p.get('data_referencia') or '—'}",
+        f"🕒 Boletim montado em: {p.get('gerado_em')}",
         "",
         f"{ICON['resumo']} Resumo executivo",
         f"🏘️ {n_mun} municípios na jurisdição | {dist_txt}",
@@ -691,7 +693,8 @@ def format_municipal_telegram(p: dict[str, Any], *, cuiaba: bool = False) -> str
         header,
         f"{EMOJI.get(niv, '⚪')} Classificação: {p.get('nivel_rotulo') or LEVEL_LABEL.get(niv, niv)}",
         alvo,
-        f"🕒 {p.get('gerado_em')}",
+        f"📅 Dados do sistema: {p.get('data_referencia') or '—'}",
+        f"🕒 Boletim montado em: {p.get('gerado_em')}",
         "",
         f"{ICON['resumo']} Resumo executivo",
         f"{ICON['motivo']} {str(p.get('motivo') or '—')[:280]}",
@@ -1087,9 +1090,10 @@ def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict
         if p.get("escopo") == "estadual":
             nivel_est = _norm_level(p.get("nivel"))
             break
-    # Fingerprint do canal central = só SES (não reenvia estadual por mudança territorial)
+    # Fingerprint SES: nível + motivo + data dos dados (KPIs novos com mesmo texto não ficam travados)
     fp_src = "|".join(
-        f"{p.get('escopo')}:{p.get('alvo_id')}:{p.get('nivel')}:{str(p.get('motivo') or '')[:80]}"
+        f"{p.get('escopo')}:{p.get('alvo_id')}:{p.get('nivel')}:"
+        f"{p.get('data_referencia')}:{str(p.get('motivo') or '')[:80]}"
         for p in central
     ) or f"sem_ses|{nivel_est}"
     fingerprint = hashlib.sha1(fp_src.encode("utf-8")).hexdigest()[:16]

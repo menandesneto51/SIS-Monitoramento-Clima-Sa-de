@@ -53,13 +53,47 @@ def _normalize_url(url: str | None = None) -> str:
 
 
 def _sqlite_fallback_url() -> str:
-    """Preferência: snapshot Cloud versionado → SQLite operacional local."""
+    """Prefere a base SQLite com dados mais recentes (seed Cloud vs operacional local)."""
     cloud_seed = ROOT / "data" / "cloud" / "sis_cloud_seed.db"
-    if cloud_seed.exists() and cloud_seed.stat().st_size > 0:
+    local_ops = ROOT / "data" / "output" / "sis_integrado.db"
+    local_ops.parent.mkdir(parents=True, exist_ok=True)
+
+    def _ts(val: object) -> float | None:
+        t = pd.to_datetime(val, errors="coerce")
+        if pd.isna(t):
+            return None
+        return float(pd.Timestamp(t).timestamp())
+
+    def _freshness(path: Path) -> float:
+        if not path.exists() or path.stat().st_size <= 0:
+            return -1.0
+        try:
+            import sqlite3
+
+            with sqlite3.connect(path) as con:
+                for sql in (
+                    "SELECT MAX(data_processamento) FROM alerta_integrado_sis_titan",
+                    "SELECT MAX(data_referencia) FROM resumo_municipal_atual",
+                ):
+                    try:
+                        row = con.execute(sql).fetchone()
+                        if row and row[0]:
+                            ts = _ts(row[0])
+                            if ts is not None:
+                                return ts
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+        return float(path.stat().st_mtime)
+
+    c_score = _freshness(cloud_seed)
+    l_score = _freshness(local_ops)
+    if l_score > c_score:
+        return f"sqlite:///{local_ops.as_posix()}"
+    if c_score >= 0:
         return f"sqlite:///{cloud_seed.as_posix()}"
-    path = ROOT / "data" / "output" / "sis_integrado.db"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return f"sqlite:///{path.as_posix()}"
+    return f"sqlite:///{local_ops.as_posix()}"
 
 
 def get_engine(force_refresh: bool = False) -> Engine:

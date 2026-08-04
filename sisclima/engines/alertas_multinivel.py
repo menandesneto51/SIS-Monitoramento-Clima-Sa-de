@@ -297,6 +297,23 @@ def _merge_base(
     if alerta_int is not None and not alerta_int.empty and "cod_ibge" in alerta_int.columns:
         ai = alerta_int.copy()
         ai["cod_ibge"] = ai["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+        # Preferir colunas do alerta integrado (mais recente na enriquecimento) sobre
+        # valores eventualmente defasados já presentes no resumo.
+        prefer = [
+            c
+            for c in [
+                "nivel_alerta_integrado",
+                "score_alerta_integrado",
+                "componente_dominante",
+                "motivo_integrado",
+                "acao_recomendada",
+                "data_processamento",
+            ]
+            if c in ai.columns
+        ]
+        drop_overlap = [c for c in prefer if c in base.columns]
+        if drop_overlap:
+            base = base.drop(columns=drop_overlap, errors="ignore")
         keep = [c for c in ai.columns if c == "cod_ibge" or c not in base.columns]
         base = base.merge(ai[keep], on="cod_ibge", how="left")
     if pred is not None and not pred.empty and "cod_ibge" in pred.columns:
@@ -315,6 +332,24 @@ def _merge_base(
     if "nivel" not in base.columns and "nivel_alerta_integrado" in base.columns:
         base["nivel"] = base["nivel_alerta_integrado"]
     return base
+
+
+def _data_referencia_escopo(df: pd.DataFrame) -> str | None:
+    """Maior data de referência/processamento do escopo (não confundir com gerado_em)."""
+    if df is None or df.empty:
+        return None
+    for col in (
+        "data_processamento",
+        "data_referencia",
+        "atualizado_em",
+        "data",
+    ):
+        if col not in df.columns:
+            continue
+        s = pd.to_datetime(df[col], errors="coerce")
+        if s.notna().any():
+            return pd.Timestamp(s.max()).strftime("%Y-%m-%d %H:%M")
+    return None
 
 
 def _titulo(escopo: str, nivel: str, alvo: str) -> str:
@@ -340,6 +375,7 @@ def _build_payload(
     predicao: dict[str, str],
     motivo: str,
     fontes: list[str],
+    data_referencia: str | None = None,
 ) -> dict[str, Any]:
     niv = _norm_nivel(nivel)
     return {
@@ -351,6 +387,7 @@ def _build_payload(
         "nivel_rotulo": LEVEL_LABEL.get(niv, niv),
         "titulo": _titulo(escopo, niv, alvo_nome),
         "gerado_em": datetime.now().isoformat(timespec="seconds"),
+        "data_referencia": data_referencia or "—",
         "municipios_abrangidos": municipios,
         "n_municipios": len(municipios),
         "indicadores": indicadores,
@@ -632,6 +669,7 @@ def build_alertas_multinivel(
         predicao=_predicao_from_rows(base),
         motivo=_motivo_agregado(base.sort_values("_rank", ascending=False)),
         fontes=fontes,
+        data_referencia=_data_referencia_escopo(base),
     )
     est["municipios_prioritarios"] = _top_prioritarios(base, n=top_n)
     if "nivel" in base.columns:
@@ -657,6 +695,7 @@ def build_alertas_multinivel(
                 predicao=_predicao_from_rows(g),
                 motivo=_motivo_agregado(g.sort_values("_rank", ascending=False)),
                 fontes=fontes,
+                data_referencia=_data_referencia_escopo(g),
             )
             rp["municipios_prioritarios"] = _top_prioritarios(g, n=top_reg)
             rp["distribuicao"] = g["_nivel"].value_counts().to_dict()
@@ -683,6 +722,7 @@ def build_alertas_multinivel(
             },
             motivo=_motivo_em_linguagem_clara(str(row.get("motivo_integrado") or row.get("motivo") or "—")),
             fontes=fontes,
+            data_referencia=_data_referencia_escopo(pd.DataFrame([row])),
         )
         mp["regional"] = str(row.get("regional_saude") or "—")
         mp["score"] = row.get("score")
@@ -720,6 +760,7 @@ def build_alertas_multinivel(
                 str(row.get("motivo_integrado") or row.get("motivo") or "Alerta dedicado Vigidesastre Cuiabá.")
             ),
             fontes=fontes + ["Vigidesastre Cuiabá"],
+            data_referencia=_data_referencia_escopo(pd.DataFrame([row])),
         )
         cp["remetente"] = "VIGIDESASTRE CUIABÁ"
         cp["regional"] = str(row.get("regional_saude") or "Cuiabá")
