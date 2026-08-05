@@ -276,8 +276,59 @@ hr {
   color: var(--ses-muted) !important;
   font-size: 0.82rem !important;
 }
-.stAlert {
+/* --- Alertas Streamlit (st.info/success/warning/error) ---
+   Fundo claro + texto escuro. Evita azul institucional saturado
+   com texto #333 herdado (contraste ~1.7:1). */
+.stAlert,
+[data-testid="stAlert"] {
   border-radius: 0 !important;
+}
+.stAlertContainer,
+[data-testid="stAlertContainer"] {
+  border-radius: 0 !important;
+  border: 1px solid #A9C7EF !important;
+  border-left: 5px solid var(--ses-blue) !important;
+  background: #DBE8FB !important;
+  background-color: #DBE8FB !important;
+  color: #093089 !important;
+}
+.stAlertContainer,
+.stAlertContainer *,
+[data-testid="stAlertContainer"],
+[data-testid="stAlertContainer"] * {
+  color: #093089 !important;
+}
+.stAlertContainer a,
+[data-testid="stAlertContainer"] a {
+  color: var(--ses-deep) !important;
+  text-decoration: underline !important;
+}
+[data-testid="stAlertContentWarning"],
+[data-testid="stAlertContentWarning"] * {
+  color: #7c2d12 !important;
+}
+div[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) [data-testid="stAlertContainer"] {
+  background: #FFF7ED !important;
+  border-color: #FDBA74 !important;
+  border-left-color: #D97706 !important;
+}
+[data-testid="stAlertContentError"],
+[data-testid="stAlertContentError"] * {
+  color: #7f1d1d !important;
+}
+div[data-testid="stAlert"]:has([data-testid="stAlertContentError"]) [data-testid="stAlertContainer"] {
+  background: #FEF2F2 !important;
+  border-color: #FECACA !important;
+  border-left-color: #DC2626 !important;
+}
+[data-testid="stAlertContentSuccess"],
+[data-testid="stAlertContentSuccess"] * {
+  color: #14532d !important;
+}
+div[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) [data-testid="stAlertContainer"] {
+  background: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  border-left-color: #16803C !important;
 }
 
 /* Plotly / charts */
@@ -360,7 +411,14 @@ hr {
   background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 70%);
   pointer-events: none;
 }
-.sis-hero, .sis-hero * { color: #ffffff !important; }
+/* Escopo * + headings: vence o h1–h6 azul institucional injetado depois */
+.sis-hero,
+.sis-hero *,
+.sis-hero h1, .sis-hero h2, .sis-hero h3,
+.sis-hero h4, .sis-hero h5, .sis-hero h6,
+.sis-hero .sis-brand, .sis-hero a {
+  color: #ffffff !important;
+}
 .sis-brand {
   font-size: 1.55rem;
   font-weight: 800;
@@ -413,6 +471,13 @@ hr {
   font-size: 1.12rem !important;
   font-weight: 800 !important;
   line-height: 1.25 !important;
+}
+.sis-level-banner:not(.sis-level-banner-amarela):not(.sis-level-banner-cinza) .sis-level-banner-title {
+  color: #ffffff !important;
+}
+.sis-level-banner-amarela .sis-level-banner-title,
+.sis-level-banner-cinza .sis-level-banner-title {
+  color: #1a1a1a !important;
 }
 .sis-level-banner p {
   margin: 0.28rem 0 0 0;
@@ -475,17 +540,29 @@ h3[id*="nivel-operacional"] a {
 .sis-callout.info {
   background: #dbe8fb;
   border-color: #a9c7ef;
-  color: #093089;
+  color: #093089 !important;
+}
+.sis-callout.info,
+.sis-callout.info * {
+  color: #093089 !important;
 }
 .sis-callout.warn {
   background: #fff7ed;
   border-color: #fdba74;
-  color: #7c2d12;
+  color: #7c2d12 !important;
+}
+.sis-callout.warn,
+.sis-callout.warn * {
+  color: #7c2d12 !important;
 }
 .sis-callout.tip {
   background: #edf3fc;
   border-color: #b7cef0;
-  color: #1d357f;
+  color: #1d357f !important;
+}
+.sis-callout.tip,
+.sis-callout.tip * {
+  color: #1d357f !important;
 }
 
 .sis-insight-grid {
@@ -524,7 +601,7 @@ h3[id*="nivel-operacional"] a {
 }
 
 .sis-level-tile {
-  color: white;
+  color: #ffffff !important;
   border-radius: 0;
   padding: 0.85rem 0.55rem;
   text-align: center;
@@ -535,8 +612,19 @@ h3[id*="nivel-operacional"] a {
   border: 1px solid rgba(0,0,0,0.08);
   text-shadow: 0 1px 0 rgba(0,0,0,0.18);
 }
+.sis-level-tile,
+.sis-level-tile *,
+.sis-level-tile .lbl,
+.sis-level-tile .val,
+.sis-level-tile .pred,
+.sis-level-tile .trend {
+  color: #ffffff !important;
+}
 .sis-level-tile-amarela,
-.sis-level-tile-cinza {
+.sis-level-tile-amarela *,
+.sis-level-tile-cinza,
+.sis-level-tile-cinza * {
+  color: #1a1a1a !important;
   text-shadow: none;
   border: 1px solid rgba(0,4,68,0.18);
 }
@@ -554,11 +642,21 @@ h3[id*="nivel-operacional"] a {
 .sis-level-card {
   border-radius: 0;
   padding: 0.7rem 0.8rem;
-  color: #fff;
+  color: #ffffff !important;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
   min-height: 78px;
+}
+.sis-level-card,
+.sis-level-card * {
+  color: #ffffff !important;
+}
+.sis-level-card-amarela,
+.sis-level-card-amarela *,
+.sis-level-card-cinza,
+.sis-level-card-cinza * {
+  color: #1a1a1a !important;
 }
 .sis-level-card strong { font-size: 0.9rem; }
 .sis-level-card span { font-size: 0.78rem; opacity: 0.95; line-height: 1.3; }

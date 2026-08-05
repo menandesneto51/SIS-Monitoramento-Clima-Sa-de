@@ -39,7 +39,7 @@ LEVEL_COLOR_MAP = {
     "roxa": "#5b21b6",
 }
 
-LAYOUT_VERSION = "SES-MT layout 2026-08-02 · azul institucional"
+LAYOUT_VERSION = "SES-MT layout 2026-08-04 · contraste painel"
 
 
 def _strip_font_faces(css: str) -> str:
@@ -98,19 +98,56 @@ def apply_theme() -> None:
         body_css = _strip_font_faces(CSS_PATH.read_text(encoding="utf-8"))
         st.markdown(f"<style>{body_css}</style>", unsafe_allow_html=True)
 
-    # 3) Tipografia institucional sem embutir OTF (evita falha silenciosa ~240KB)
+    # 3) Tipografia + contraste (depois do CSS arquivo para vencer h1–h6 azul em fundos escuros)
     st.markdown(
         "<style>"
         "html,body,[class*=\"css\"],.stApp{"
         "font-family:Calibri,\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif!important}"
-        "h1,h2,h3,h4,h5,h6,.sis-brand,.sis-section-title,.ses-masthead-brand,.sis-insight .v{"
+        "h1,h2,h3,h4,h5,h6,.sis-section-title,.ses-masthead-brand,.sis-insight .v{"
         f"font-family:Calibri,\"Segoe UI\",sans-serif!important;color:{SES_BLUE}!important}}"
-        ".sis-level-banner,.sis-level-banner *{color:#fff!important}"
+        ".sis-hero,.sis-hero *,.sis-hero h1,.sis-hero h2,.sis-hero h3,"
+        ".sis-hero .sis-brand,.sis-brand,"
+        ".ses-topbar,.ses-topbar *,.ses-footer,.ses-footer *,"
+        ".sis-level-banner,.sis-level-banner *,"
+        ".sis-level-tile,.sis-level-tile *,"
+        ".sis-level-card,.sis-level-card *{color:#fff!important}"
         ".sis-level-banner-amarela,.sis-level-banner-amarela *,"
-        ".sis-level-banner-cinza,.sis-level-banner-cinza *{color:#1a1a1a!important}"
-        ".sis-level-banner-title{font:800 18px Calibri,Segoe UI,sans-serif!important;margin:0!important;color:#fff!important}"
+        ".sis-level-banner-cinza,.sis-level-banner-cinza *,"
+        ".sis-level-tile-amarela,.sis-level-tile-amarela *,"
+        ".sis-level-tile-cinza,.sis-level-tile-cinza *,"
+        ".sis-level-card-amarela,.sis-level-card-amarela *,"
+        ".sis-level-card-cinza,.sis-level-card-cinza *{color:#1a1a1a!important}"
+        ".sis-level-banner-title{font:800 18px Calibri,Segoe UI,sans-serif!important;"
+        "margin:0!important}"
+        ".sis-level-banner:not(.sis-level-banner-amarela):not(.sis-level-banner-cinza) "
+        ".sis-level-banner-title{color:#fff!important}"
+        ".sis-level-banner-amarela .sis-level-banner-title,"
+        ".sis-level-banner-cinza .sis-level-banner-title{color:#1a1a1a!important}"
         "h3[id*=\"nivel-operacional\"],h3[id*=\"nivel-operacional\"] span,"
         "h3[id*=\"nivel-operacional\"] a{color:#fff!important}"
+        ".stAlertContainer,[data-testid=\"stAlertContainer\"]{"
+        "background:#DBE8FB!important;background-color:#DBE8FB!important;"
+        "color:#093089!important;border-radius:0!important;"
+        "border:1px solid #A9C7EF!important;border-left:5px solid #1351B4!important}"
+        ".stAlertContainer *,[data-testid=\"stAlertContainer\"] *{color:#093089!important}"
+        "div[data-testid=\"stAlert\"]:has([data-testid=\"stAlertContentWarning\"]) "
+        "[data-testid=\"stAlertContainer\"]{background:#FFF7ED!important;"
+        "border-color:#FDBA74!important;border-left-color:#D97706!important}"
+        "[data-testid=\"stAlertContentWarning\"],[data-testid=\"stAlertContentWarning\"] *{"
+        "color:#7c2d12!important}"
+        "div[data-testid=\"stAlert\"]:has([data-testid=\"stAlertContentError\"]) "
+        "[data-testid=\"stAlertContainer\"]{background:#FEF2F2!important;"
+        "border-color:#FECACA!important;border-left-color:#DC2626!important}"
+        "[data-testid=\"stAlertContentError\"],[data-testid=\"stAlertContentError\"] *{"
+        "color:#7f1d1d!important}"
+        "div[data-testid=\"stAlert\"]:has([data-testid=\"stAlertContentSuccess\"]) "
+        "[data-testid=\"stAlertContainer\"]{background:#ECFDF5!important;"
+        "border-color:#A7F3D0!important;border-left-color:#16803C!important}"
+        "[data-testid=\"stAlertContentSuccess\"],[data-testid=\"stAlertContentSuccess\"] *{"
+        "color:#14532d!important}"
+        ".sis-callout.info,.sis-callout.info *{color:#093089!important}"
+        ".sis-callout.warn,.sis-callout.warn *{color:#7c2d12!important}"
+        ".sis-callout.tip,.sis-callout.tip *{color:#1d357f!important}"
         "</style>",
         unsafe_allow_html=True,
     )
@@ -320,15 +357,9 @@ def section_title(title: str, subtitle: str = "") -> None:
 
 
 def callout(text: str, kind: str = "info") -> None:
-    styles = {
-        "info": ("#dbe8fb", "#a9c7ef", "#093089"),
-        "warn": ("#fff7ed", "#fdba74", "#7c2d12"),
-        "tip": ("#edf3fc", "#b7cef0", "#1d357f"),
-    }
-    bg, border, color = styles.get(kind, styles["info"])
+    kind = kind if kind in {"info", "warn", "tip"} else "info"
     st.markdown(
-        f'<div style="background:{bg};border:1px solid {border};color:{color};padding:12px 14px;margin:8px 0 12px 0;">'
-        f"{html.escape(text)}</div>",
+        f'<div class="sis-callout {kind}">{html.escape(text)}</div>',
         unsafe_allow_html=True,
     )
 
@@ -370,10 +401,14 @@ def level_legend() -> None:
         if key == "cinza":
             continue
         g = level_plain(key)
+        fg = "#1a1a1a" if key in {"amarela", "cinza"} else "#ffffff"
         cards.append(
-            f'<div style="background:{color};color:#fff;padding:10px 12px;min-height:74px;">'
-            f"<strong style='font:800 14px Calibri,sans-serif;'>{html.escape(g['titulo'])}</strong>"
-            f"<div style='font:400 12px Calibri,sans-serif;opacity:.95;margin-top:4px;'>{html.escape(g['o_que_fazer'])}</div>"
+            f'<div class="sis-level-card sis-level-card-{html.escape(key)}" '
+            f'style="background:{color};color:{fg};padding:10px 12px;min-height:74px;">'
+            f"<strong style='font:800 14px Calibri,sans-serif;color:{fg} !important;'>"
+            f"{html.escape(g['titulo'])}</strong>"
+            f"<div style='font:400 12px Calibri,sans-serif;opacity:.95;margin-top:4px;"
+            f"color:{fg} !important;'>{html.escape(g['o_que_fazer'])}</div>"
             "</div>"
         )
     st.markdown(
