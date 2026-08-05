@@ -101,6 +101,54 @@ def _score_from_semaforo(sem: str) -> float:
     return {"verde": 20.0, "amarela": 55.0, "vermelha": 88.0}.get(str(sem).lower(), np.nan)
 
 
+def _score_continuous(
+    valor: float | None,
+    verde_max: float,
+    amarela_max: float,
+    *,
+    band_verde: tuple[float, float] = (0.0, 39.0),
+    band_amarela: tuple[float, float] = (39.0, 69.0),
+    band_vermelha: tuple[float, float] = (69.0, 100.0),
+) -> float:
+    """
+    Score 0–100 contínuo alinhado às faixas do semáforo.
+
+    Mantém o contrato de cores (thresholds verde_max / amarela_max) e diferencia
+    municípios dentro da mesma cor quando a métrica bruta varia.
+    """
+    if valor is None or (isinstance(valor, float) and np.isnan(valor)):
+        return np.nan
+    try:
+        v = float(valor)
+    except (TypeError, ValueError):
+        return np.nan
+    if np.isnan(v):
+        return np.nan
+
+    lo_v, hi_v = band_verde
+    lo_a, hi_a = band_amarela
+    lo_r, hi_r = band_vermelha
+
+    if v <= verde_max:
+        if verde_max <= 0:
+            return float(lo_v)
+        t = max(0.0, min(1.0, v / float(verde_max)))
+        return float(lo_v + t * (hi_v - lo_v))
+
+    if v <= amarela_max:
+        span = float(amarela_max) - float(verde_max)
+        if span <= 0:
+            return float((lo_a + hi_a) / 2.0)
+        t = max(0.0, min(1.0, (v - float(verde_max)) / span))
+        return float(lo_a + t * (hi_a - lo_a))
+
+    # Vermelha: escala log para não saturar filas/estoques grandes no mesmo teto
+    excess = v - float(amarela_max)
+    scale = float(np.log1p(max(float(amarela_max) * 10.0, 1.0)))
+    t = max(0.0, min(1.0, float(np.log1p(excess)) / scale))
+    return float(lo_r + t * (hi_r - lo_r))
+
+
 def _tendencia(atual: float | None, pred: float | None, delta_min: float = 5.0) -> str:
     if atual is None or pred is None:
         return "—"
@@ -218,16 +266,15 @@ def build_indice_pressao_municipal(
 
     # --- IndicaSUS ---
     ocup = _num(df["ocupacao_leitos_pct"]) if "ocupacao_leitos_pct" in df.columns else pd.Series(np.nan, index=df.index)
+    lim_ocup_v = float(lim_ocup.get("verde_max", 79))
+    lim_ocup_a = float(lim_ocup.get("amarela_max", 89))
     df["kpi_indicasus_valor"] = ocup.round(1)
     df["kpi_indicasus_semaforo"] = [
-        _semaforo_limiar(
-            v,
-            float(lim_ocup.get("verde_max", 79)),
-            float(lim_ocup.get("amarela_max", 89)),
-        )
-        for v in ocup
+        _semaforo_limiar(v, lim_ocup_v, lim_ocup_a) for v in ocup
     ]
-    df["kpi_indicasus_score"] = df["kpi_indicasus_semaforo"].map(_score_from_semaforo)
+    df["kpi_indicasus_score"] = [
+        _score_continuous(v, lim_ocup_v, lim_ocup_a) for v in ocup
+    ]
 
     # --- SISREG ---
     sis = _prep_sisreg(sisreg)
@@ -249,16 +296,17 @@ def build_indice_pressao_municipal(
             sols = _num(merged["solicitacoes_abertas"])
         df["kpi_sisreg_disponivel"] = fila.notna() | sols.notna()
 
+    lim_fila_v = float(lim_fila.get("verde_max", 24))
+    lim_fila_a = float(lim_fila.get("amarela_max", 72))
+    lim_sol_v = float(lim_sol.get("verde_max", 10))
+    lim_sol_a = float(lim_sol.get("amarela_max", 40))
+
     df["kpi_sisreg_fila_h"] = fila.round(1)
     df["kpi_sisreg_solicitacoes"] = sols.round(0)
-    sem_fila = [
-        _semaforo_limiar(v, float(lim_fila.get("verde_max", 24)), float(lim_fila.get("amarela_max", 72)))
-        for v in fila
-    ]
-    sem_sol = [
-        _semaforo_limiar(v, float(lim_sol.get("verde_max", 10)), float(lim_sol.get("amarela_max", 40)))
-        for v in sols
-    ]
+    sem_fila = [_semaforo_limiar(v, lim_fila_v, lim_fila_a) for v in fila]
+    sem_sol = [_semaforo_limiar(v, lim_sol_v, lim_sol_a) for v in sols]
+    score_fila = pd.Series([_score_continuous(v, lim_fila_v, lim_fila_a) for v in fila], index=df.index)
+    score_sol = pd.Series([_score_continuous(v, lim_sol_v, lim_sol_a) for v in sols], index=df.index)
     # Pior dos dois quando ambos existem
     rank = {"—": -1, "verde": 0, "amarela": 1, "vermelha": 2}
 
@@ -272,7 +320,7 @@ def build_indice_pressao_municipal(
         return a if rank.get(a, -1) >= rank.get(b, -1) else b
 
     df["kpi_sisreg_semaforo"] = [_max_sem(a, b) for a, b in zip(sem_fila, sem_sol)]
-    df["kpi_sisreg_score"] = df["kpi_sisreg_semaforo"].map(_score_from_semaforo)
+    df["kpi_sisreg_score"] = pd.concat([score_fila, score_sol], axis=1).max(axis=1, skipna=True)
 
     # --- SINAN ---
     casos7 = (
@@ -292,35 +340,46 @@ def build_indice_pressao_municipal(
         m = df[["cod_ibge"]].merge(calor_ev, on="cod_ibge", how="left")
         eventos_sinan = _num(m["eventos_sinan_calor"])
 
+    # Placeholder SRAG=0 sem arbo/zscore/eventos não conta como pilar SINAN (por município)
+    no_sinan = (
+        casos7.isna()
+        & zarb.isna()
+        & eventos_sinan.isna()
+        & (srag.isna() | (srag.fillna(0) == 0))
+    )
+    srag = srag.where(~no_sinan)
+
+    lim_z_v = float(lim_z.get("verde_max", 0.99))
+    lim_z_a = float(lim_z.get("amarela_max", 1.99))
+    lim_c7_v = float(lim_c7.get("verde_max", 4))
+    lim_c7_a = float(lim_c7.get("amarela_max", 14))
+
     df["kpi_sinan_casos_7d"] = casos7.round(0)
     df["kpi_sinan_zscore"] = zarb.round(2)
     df["kpi_sinan_srag"] = srag.round(0)
     df["kpi_sinan_eventos_calor"] = eventos_sinan.round(0)
 
-    sem_z = [
-        _semaforo_limiar(v, float(lim_z.get("verde_max", 0.99)), float(lim_z.get("amarela_max", 1.99)))
-        for v in zarb
-    ]
-    sem_c = [
-        _semaforo_limiar(v, float(lim_c7.get("verde_max", 4)), float(lim_c7.get("amarela_max", 14)))
-        for v in casos7
-    ]
+    sem_z = [_semaforo_limiar(v, lim_z_v, lim_z_a) for v in zarb]
+    sem_c = [_semaforo_limiar(v, lim_c7_v, lim_c7_a) for v in casos7]
     # SRAG: usa mesmos limiares de casos_7d como aproximação operacional
-    sem_s = [
-        _semaforo_limiar(v, float(lim_c7.get("verde_max", 4)), float(lim_c7.get("amarela_max", 14)))
-        for v in srag
-    ]
+    sem_s = [_semaforo_limiar(v, lim_c7_v, lim_c7_a) for v in srag]
+    score_z = pd.Series([_score_continuous(v, lim_z_v, lim_z_a) for v in zarb], index=df.index)
+    score_c = pd.Series([_score_continuous(v, lim_c7_v, lim_c7_a) for v in casos7], index=df.index)
+    score_s = pd.Series([_score_continuous(v, lim_c7_v, lim_c7_a) for v in srag], index=df.index)
     sinan_sem = [_max_sem(_max_sem(a, b), c) for a, b, c in zip(sem_z, sem_c, sem_s)]
     # Se tudo vazio mas há eventos calor, classifica por eventos
     for i, ev in enumerate(eventos_sinan):
         if sinan_sem[i] == "—" and pd.notna(ev):
-            sinan_sem[i] = _semaforo_limiar(
-                float(ev),
-                float(lim_c7.get("verde_max", 4)),
-                float(lim_c7.get("amarela_max", 14)),
-            )
+            sinan_sem[i] = _semaforo_limiar(float(ev), lim_c7_v, lim_c7_a)
     df["kpi_sinan_semaforo"] = sinan_sem
-    df["kpi_sinan_score"] = df["kpi_sinan_semaforo"].map(_score_from_semaforo)
+    sinan_scores = pd.concat([score_z, score_c, score_s], axis=1)
+    # eventos calor como score adicional quando presentes
+    score_ev = pd.Series(
+        [_score_continuous(v, lim_c7_v, lim_c7_a) for v in eventos_sinan],
+        index=df.index,
+    )
+    sinan_scores = pd.concat([sinan_scores, score_ev], axis=1)
+    df["kpi_sinan_score"] = sinan_scores.max(axis=1, skipna=True)
 
     # --- SIM ---
     sim_agg = _agg_sim_municipal(sim_mun)
@@ -328,15 +387,18 @@ def build_indice_pressao_municipal(
     if not sim_agg.empty:
         m = df[["cod_ibge"]].merge(sim_agg, on="cod_ibge", how="left")
         obitos = _num(m["obitos_sim_calor"])
-    # Fallback: coluna já no resumo
+    # Fallback: coluna já no resumo — ignora placeholder universal de zeros sem SIM real
     if obitos.isna().all() and "obitos_calor_suspeitos" in df.columns:
-        obitos = _num(df["obitos_calor_suspeitos"])
+        cand = _num(df["obitos_calor_suspeitos"])
+        if not (cand.fillna(0) == 0).all():
+            obitos = cand
+        elif not sim_agg.empty:
+            obitos = cand
+    lim_ob_v = float(lim_ob.get("verde_max", 0))
+    lim_ob_a = float(lim_ob.get("amarela_max", 2))
     df["kpi_sim_obitos"] = obitos.round(0)
-    df["kpi_sim_semaforo"] = [
-        _semaforo_limiar(v, float(lim_ob.get("verde_max", 0)), float(lim_ob.get("amarela_max", 2)))
-        for v in obitos
-    ]
-    df["kpi_sim_score"] = df["kpi_sim_semaforo"].map(_score_from_semaforo)
+    df["kpi_sim_semaforo"] = [_semaforo_limiar(v, lim_ob_v, lim_ob_a) for v in obitos]
+    df["kpi_sim_score"] = [_score_continuous(v, lim_ob_v, lim_ob_a) for v in obitos]
 
     # --- Índice composto (renormaliza pesos pelos pilares disponíveis) ---
     scores = []

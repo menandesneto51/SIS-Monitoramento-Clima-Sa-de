@@ -87,6 +87,60 @@ def step_pressao_alertas() -> dict:
         state_pressao_summary,
     )
 
+    # Se DW/SINAN offline, tenta popular arboviroses a partir do CSV local
+    try:
+        arbo_chk = read_table("epi_arboviroses_municipal")
+        if arbo_chk is None or arbo_chk.empty:
+            from pathlib import Path
+
+            import pandas as pd
+
+            from sisclima.engines.epidemiology import arbovirus_municipal_latest, arbovirus_summary
+
+            for cand in (
+                ROOT / "data" / "input" / "sinan_agravos.csv",
+                ROOT / "data" / "sample" / "sinan_agravos.csv",
+            ):
+                if not cand.exists():
+                    continue
+                raw = pd.read_csv(cand)
+                if "data" not in raw.columns and "data_notificacao" in raw.columns:
+                    raw = raw.rename(columns={"data_notificacao": "data"})
+                arbo = arbovirus_summary(raw)
+                arbo_mun = arbovirus_municipal_latest(arbo if not arbo.empty else raw, window_days=7)
+                if not arbo_mun.empty:
+                    write_df(arbo, "epi_arboviroses", if_exists="replace")
+                    write_df(arbo_mun, "epi_arboviroses_municipal", if_exists="replace")
+                    # injeta no resumo para o índice
+                    resumo_tmp = read_table("resumo_municipal_atual")
+                    if resumo_tmp is not None and not resumo_tmp.empty:
+                        m = arbo_mun.copy()
+                        m["cod_ibge"] = m["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+                        cols = [
+                            c
+                            for c in (
+                                "cod_ibge",
+                                "casos_arbovirus_7d",
+                                "casos_dengue_7d",
+                                "casos_zika_7d",
+                                "casos_chikungunya_7d",
+                                "zscore_arbovirus",
+                                "incidencia_arbovirus_100k",
+                            )
+                            if c in m.columns
+                        ]
+                        base = resumo_tmp.copy()
+                        base["cod_ibge"] = base["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+                        drop = [c for c in cols if c != "cod_ibge" and c in base.columns]
+                        if drop:
+                            base = base.drop(columns=drop, errors="ignore")
+                        base = base.merge(m[cols].drop_duplicates("cod_ibge"), on="cod_ibge", how="left")
+                        write_df(base, "resumo_municipal_atual", if_exists="replace")
+                    print(f"[INFO] Arboviroses bootstrap CSV: {cand.name} → {len(arbo_mun)} mun.")
+                    break
+    except Exception as exc:  # noqa: BLE001
+        print(f"[AVISO] Bootstrap arboviroses CSV: {exc}")
+
     resumo = read_table("resumo_municipal_atual")
     pred = read_table("predicao_calor_7d_municipal_v6")
     sis = read_table("ops_sisreg_municipio")

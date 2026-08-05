@@ -1,141 +1,143 @@
 ﻿cod_ibge,municipio,regional_saude,data_referencia,fila_media_h,tempo_espera_h,solicitacoes_abertas,taxa_regulacao_pct,fonte,atualizado_em
-5100102,Acorizal,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100201,Água Boa,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100250,Alta Floresta,Alta Floresta,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100300,Alto Araguaia,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100359,Alto Boa Vista,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100409,Alto Garças,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100508,Alto Paraguai,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100607,Alto Taquari,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5100805,Apiacás,Alta Floresta,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101001,Araguaiana,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101209,Araguainha,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101258,Araputanga,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101308,Arenápolis,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101407,Aripuanã,Juína,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101605,Barão de Melgaço,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101704,Barra do Bugres,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101803,Barra do Garças,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101837,Boa Esperança do Norte,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101852,Bom Jesus do Araguaia,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5101902,Brasnorte,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102504,Cáceres,Cáceres,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102603,Campinápolis,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102637,Campo Novo do Parecis,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102678,Campo Verde,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102686,Campos de Júlio,Pontes e Lacerda - Comodoro,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102694,Canabrava do Norte,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102702,Canarana,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102793,Carlinda,Alta Floresta,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5102850,Castanheira,Juína,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103007,Chapada dos Guimarães,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103056,Cláudia,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103106,Cocalinho,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103205,Colíder,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103254,Colniza,Juína,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103304,Comodoro,Pontes e Lacerda - Comodoro,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103353,Confresa,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103361,Conquista D'Oeste,Pontes e Lacerda - Comodoro,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103379,Cotriguaçu,Juína,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103403,Cuiabá,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103437,Curvelândia,Cáceres,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103452,Denise,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103502,Diamantino,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103601,Dom Aquino,Jaciara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103700,Feliz Natal,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103809,Figueirópolis D'Oeste,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103858,Gaúcha do Norte,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103908,General Carneiro,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5103957,Glória D'Oeste,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104104,Guarantã do Norte,Peixoto de Azevedo - Guarantã do Norte,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104203,Guiratinga,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104500,Indiavaí,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104526,Ipiranga do Norte,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104542,Itanhangá,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104559,Itaúba,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104609,Itiquira,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104807,Jaciara,Jaciara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5104906,Jangada,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105002,Jauru,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105101,Juara,Juara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105150,Juína,Juína,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105176,Juruena,Juína,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105200,Juscimeira,Jaciara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105234,Lambari D'Oeste,Cáceres,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105259,Lucas do Rio Verde,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105309,Luciara,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105580,Marcelândia,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105606,Matupá,Peixoto de Azevedo - Guarantã do Norte,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105622,Mirassol d'Oeste,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105903,Nobres,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106000,Nortelândia,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106109,Nossa Senhora do Livramento,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106158,Nova Bandeirantes,Alta Floresta,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106208,Nova Brasilândia,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106216,Nova Canaã do Norte,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108808,Nova Guarita,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106182,Nova Lacerda,Pontes e Lacerda - Comodoro,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108857,Nova Marilândia,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108907,Nova Maringá,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108956,Nova Monte Verde,Alta Floresta,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106224,Nova Mutum,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106174,Nova Nazaré,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106232,Nova Olímpia,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106190,Nova Santa Helena,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106240,Nova Ubiratã,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106257,Nova Xavantina,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106273,Novo Horizonte do Norte,Juara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106265,Novo Mundo,Peixoto de Azevedo - Guarantã do Norte,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106315,Novo Santo Antônio,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106281,Novo São Joaquim,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106299,Paranaíta,Alta Floresta,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106307,Paranatinga,Primavera do Leste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106372,Pedra Preta,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106422,Peixoto de Azevedo,Peixoto de Azevedo - Guarantã do Norte,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106455,Planalto da Serra,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106505,Poconé,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106653,Pontal do Araguaia,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106703,Ponte Branca,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106752,Pontes e Lacerda,Pontes e Lacerda - Comodoro,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106778,Porto Alegre do Norte,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106802,Porto dos Gaúchos,Juara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106828,Porto Esperidião,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5106851,Porto Estrela,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107040,Primavera do Leste,Primavera do Leste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107065,Querência,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107156,Reserva do Cabaçal,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107180,Ribeirão Cascalheira,Água Boa,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107198,Ribeirãozinho,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107206,Rio Branco,Cáceres,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107578,Rondolândia,Juína,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107602,Rondonópolis,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107701,Rosário Oeste,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107750,Salto do Céu,Cáceres,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107248,Santa Carmem,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107743,Santa Cruz do Xingu,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107768,Santa Rita do Trivelato,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107776,Santa Terezinha,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107263,Santo Afonso,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107792,Santo Antônio do Leste,Primavera do Leste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107859,São Félix do Araguaia,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107297,São José do Povo,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107305,São José do Rio Claro,Diamantino,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107354,São José do Xingu,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107107,São José dos Quatro Marcos,Mirassol D'oeste,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107404,São Pedro da Cipa,Jaciara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107875,Sapezal,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107883,Serra Nova Dourada,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107909,Sinop,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107925,Sorriso,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107941,Tabaporã,Juara,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5107958,Tangará da Serra,Tangará da Serra,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108006,Tapurah,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108055,Terra Nova do Norte,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108105,Tesouro,Rondonópolis,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108204,Torixoréu,Barra do Garças,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108303,União do Sul,Sinop,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108352,Vale de São Domingos,Pontes e Lacerda - Comodoro,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108402,Várzea Grande,Cuiabá,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108501,Vera,Sorriso,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5105507,Vila Bela da Santíssima Trindade,Pontes e Lacerda - Comodoro,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
-5108600,Vila Rica,Confresa - Vila Rica,2026-07-31,,,0.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-07-31T15:09:44
+5100102,Acorizal,ERS Cuiabá,2026-07-17,,,99.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100201,Água Boa,ERS Água Boa,2026-07-17,,,711.0,27.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100250,Alta Floresta,ERS Alta Floresta,2026-07-17,,,1416.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100300,Alto Araguaia,ERS Rondonópolis,2026-07-17,,,24.0,49.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100359,Alto Boa Vista,ERS São Félix do Araguaia,2026-07-17,,,12.0,35.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100409,Alto Garças,ERS Rondonópolis,2026-07-17,,,32.0,40.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100508,Alto Paraguai,ERS Diamantino,2026-07-17,,,88.0,68.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100607,Alto Taquari,ERS Rondonópolis,2026-07-17,,,23.0,53.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5100805,Apiacás,ERS Alta Floresta,2026-07-17,,,65.0,54.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101001,Araguaiana,ERS Barra do Garças,2026-07-17,,,29.0,25.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101209,Araguainha,ERS Rondonópolis,2026-07-17,,,2.0,55.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101258,Araputanga,ERS Cáceres,2026-07-17,,,78.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101308,Arenápolis,ERS Tangará da Serra,2026-07-17,,,95.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101407,Aripuanã,ERS Juína,2026-07-17,,,137.0,69.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101605,Barão de Melgaço,ERS Cuiabá,2026-07-17,,,59.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101704,Barra do Bugres,ERS Tangará da Serra,2026-07-17,,,176.0,62.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101803,Barra do Garças,ERS Barra do Garças,2026-07-17,,,1879.0,25.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101837,Boa Esperança do Norte,ERS Sinop,2026-07-17,,,58.0,8.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101852,Bom Jesus do Araguaia,ERS Água Boa,2026-07-17,,,32.0,15.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5101902,Brasnorte,ERS Juína,2026-07-17,,,82.0,60.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102504,Cáceres,ERS Cáceres,2026-07-17,,,708.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102603,Campinápolis,ERS Barra do Garças,2026-07-17,,,85.0,24.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102637,Campo Novo do Parecis,ERS Tangará da Serra,2026-07-17,,,293.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102678,Campo Verde,ERS Rondonópolis,2026-07-17,,,324.0,34.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102686,Campos de Júlio,ERS Pontes e Lacerda,2026-07-17,,,48.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102694,Canabrava do Norte,ERS Porto Alegre do Norte,2026-07-17,,,31.0,14.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102702,Canarana,ERS Água Boa,2026-07-17,,,32.0,43.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102793,Carlinda,ERS Alta Floresta,2026-07-17,,,87.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5102850,Castanheira,ERS Juína,2026-07-17,,,81.0,38.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103007,Chapada dos Guimarães,ERS Cuiabá,2026-07-17,,,1036.0,19.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103056,Cláudia,ERS Sinop,2026-07-17,,,118.0,23.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103106,Cocalinho,ERS Água Boa,2026-07-17,,,31.0,15.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103205,Colíder,ERS Colíder,2026-07-17,,,287.0,32.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103254,Colniza,ERS Juína,2026-07-17,,,156.0,72.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103304,Comodoro,ERS Pontes e Lacerda,2026-07-17,,,81.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103353,Confresa,ERS Porto Alegre do Norte,2026-07-17,,,230.0,11.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103361,Conquista D'Oeste,ERS Pontes e Lacerda,2026-07-17,,,23.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103379,Cotriguaçu,ERS Juína,2026-07-17,,,61.0,31.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103403,Cuiabá,ERS Cuiabá,2026-07-17,,,14081.0,41.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103437,Curvelândia,ERS Cáceres,2026-07-17,,,35.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103452,Denise,ERS Tangará da Serra,2026-07-17,,,72.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103502,Diamantino,ERS Diamantino,2026-07-17,,,155.0,90.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103601,Dom Aquino,ERS Rondonópolis,2026-07-17,,,160.0,53.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103700,Feliz Natal,ERS Sinop,2026-07-17,,,63.0,14.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103809,Figueirópolis D'Oeste,ERS Pontes e Lacerda,2026-07-17,,,4.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103858,Gaúcha do Norte,ERS Água Boa,2026-07-17,,,45.0,39.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103908,General Carneiro,ERS Barra do Garças,2026-07-17,,,76.0,17.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5103957,Glória D'Oeste,ERS Cáceres,2026-07-17,,,25.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104104,Guarantã do Norte,ERS Peixoto de Azevedo,2026-07-17,,,323.0,25.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104203,Guiratinga,ERS Rondonópolis,2026-07-17,,,33.0,20.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104500,Indiavaí,ERS Cáceres,2026-07-17,,,14.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104526,Ipiranga do Norte,ERS Sinop,2026-07-17,,,167.0,13.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104542,Itanhangá,ERS Sinop,2026-07-17,,,104.0,16.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104559,Itaúba,ERS Colíder,2026-07-17,,,36.0,33.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104609,Itiquira,ERS Rondonópolis,2026-07-17,,,28.0,82.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104807,Jaciara,ERS Rondonópolis,2026-07-17,,,83.0,24.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5104906,Jangada,ERS Cuiabá,2026-07-17,,,135.0,62.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105002,Jauru,ERS Pontes e Lacerda,2026-07-17,,,42.0,93.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105101,Juara,ERS Juara,2026-07-17,,,495.0,30.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105150,Juína,ERS Juína,2026-07-17,,,420.0,46.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105176,Juruena,ERS Juína,2026-07-17,,,54.0,52.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105200,Juscimeira,ERS Rondonópolis,2026-07-17,,,66.0,52.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105234,Lambari D'Oeste,ERS Cáceres,2026-07-17,,,75.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105259,Lucas do Rio Verde,ERS Sinop,2026-07-17,,,1156.0,18.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105309,Luciara,ERS São Félix do Araguaia,2026-07-17,,,6.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105507,Vila Bela da Santíssima Trindade,ERS Pontes e Lacerda,2026-07-17,,,60.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105580,Marcelândia,ERS Colíder,2026-07-17,,,95.0,42.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105606,Matupá,ERS Peixoto de Azevedo,2026-07-17,,,775.0,26.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105622,Mirassol d'Oeste,ERS Cáceres,2026-07-17,,,214.0,86.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5105903,Nobres,ERS Diamantino,2026-07-17,,,144.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106000,Nortelândia,ERS Diamantino,2026-07-17,,,56.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106109,Nossa Senhora do Livramento,ERS Cuiabá,2026-07-17,,,355.0,90.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106158,Nova Bandeirantes,ERS Alta Floresta,2026-07-17,,,71.0,67.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106174,Nova Nazaré,ERS Água Boa,2026-07-17,,,34.0,10.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106182,Nova Lacerda,ERS Pontes e Lacerda,2026-07-17,,,41.0,77.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106190,Nova Santa Helena,ERS Colíder,2026-07-17,,,33.0,29.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106208,Nova Brasilândia,ERS Cuiabá,2026-07-17,,,67.0,75.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106216,Nova Canaã do Norte,ERS Colíder,2026-07-17,,,55.0,45.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106224,Nova Mutum,ERS Sinop,2026-07-17,,,451.0,14.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106232,Nova Olímpia,ERS Tangará da Serra,2026-07-17,,,87.0,95.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106240,Nova Ubiratã,ERS Sinop,2026-07-17,,,120.0,18.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106257,Nova Xavantina,ERS Barra do Garças,2026-07-17,,,120.0,24.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106265,Novo Mundo,ERS Peixoto de Azevedo,2026-07-17,,,152.0,46.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106273,Novo Horizonte do Norte,ERS Juara,2026-07-17,,,56.0,80.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106281,Novo São Joaquim,ERS Barra do Garças,2026-07-17,,,19.0,49.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106299,Paranaíta,ERS Alta Floresta,2026-07-17,,,77.0,24.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106307,Paranatinga,ERS Rondonópolis,2026-07-17,,,77.0,39.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106315,Novo Santo Antônio,ERS São Félix do Araguaia,2026-07-17,,,9.0,24.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106372,Pedra Preta,ERS Rondonópolis,2026-07-17,,,30.0,45.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106422,Peixoto de Azevedo,ERS Peixoto de Azevedo,2026-07-17,,,925.0,21.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106455,Planalto da Serra,ERS Cuiabá,2026-07-17,,,64.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106505,Poconé,ERS Cuiabá,2026-07-17,,,305.0,50.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106653,Pontal do Araguaia,ERS Barra do Garças,2026-07-17,,,37.0,19.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106703,Ponte Branca,ERS Barra do Garças,2026-07-17,,,25.0,3.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106752,Pontes e Lacerda,ERS Pontes e Lacerda,2026-07-17,,,434.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106778,Porto Alegre do Norte,ERS Porto Alegre do Norte,2026-07-17,,,104.0,25.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106802,Porto dos Gaúchos,ERS Juara,2026-07-17,,,120.0,18.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106828,Porto Esperidião,ERS Cáceres,2026-07-17,,,89.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5106851,Porto Estrela,ERS Tangará da Serra,2026-07-17,,,16.0,86.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107008,Poxoréu,ERS Rondonópolis,2026-07-17,,,0.0,,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107040,Primavera do Leste,ERS Rondonópolis,2026-07-17,,,4925.0,29.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107065,Querência,ERS Água Boa,2026-07-17,,,98.0,35.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107107,São José dos Quatro Marcos,ERS Cáceres,2026-07-17,,,137.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107156,Reserva do Cabaçal,ERS Cáceres,2026-07-17,,,12.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107180,Ribeirão Cascalheira,ERS Água Boa,2026-07-17,,,212.0,12.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107198,Ribeirãozinho,ERS Barra do Garças,2026-07-17,,,17.0,13.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107206,Rio Branco,ERS Cáceres,2026-07-17,,,62.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107248,Santa Carmem,ERS Sinop,2026-07-17,,,29.0,17.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107263,Santo Afonso,ERS Tangará da Serra,2026-07-17,,,35.0,72.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107297,São José do Povo,ERS Rondonópolis,2026-07-17,,,10.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107305,São José do Rio Claro,ERS Diamantino,2026-07-17,,,132.0,41.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107354,São José do Xingu,ERS Porto Alegre do Norte,2026-07-17,,,34.0,13.9,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107404,São Pedro da Cipa,ERS Rondonópolis,2026-07-17,,,7.0,44.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107578,Rondolândia,ERS Pontes e Lacerda,2026-07-17,,,2.0,25.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107602,Rondonópolis,ERS Rondonópolis,2026-07-17,,,849.0,28.1,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107701,Rosário Oeste,ERS Diamantino,2026-07-17,,,141.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107743,Santa Cruz do Xingu,ERS Porto Alegre do Norte,2026-07-17,,,21.0,22.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107750,Salto do Céu,ERS Cáceres,2026-07-17,,,24.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107768,Santa Rita do Trivelato,ERS Sinop,2026-07-17,,,41.0,17.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107776,Santa Terezinha,ERS Porto Alegre do Norte,2026-07-17,,,95.0,16.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107792,Santo Antônio do Leste,ERS Rondonópolis,2026-07-17,,,20.0,46.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107800,Santo Antônio de Leverger,ERS Cuiabá,2026-07-17,,,0.0,,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107859,São Félix do Araguaia,ERS São Félix do Araguaia,2026-07-17,,,74.0,20.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107875,Sapezal,ERS Tangará da Serra,2026-07-17,,,114.0,57.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107883,Serra Nova Dourada,ERS São Félix do Araguaia,2026-07-17,,,11.0,17.8,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107909,Sinop,ERS Sinop,2026-07-17,,,4954.0,81.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107925,Sorriso,ERS Sinop,2026-07-17,,,5018.0,53.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107941,Tabaporã,ERS Juara,2026-07-17,,,69.0,39.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5107958,Tangará da Serra,ERS Tangará da Serra,2026-07-17,,,1629.0,100.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108006,Tapurah,ERS Sinop,2026-07-17,,,177.0,43.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108055,Terra Nova do Norte,ERS Peixoto de Azevedo,2026-07-17,,,225.0,10.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108105,Tesouro,ERS Rondonópolis,2026-07-17,,,8.0,49.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108204,Torixoréu,ERS Barra do Garças,2026-07-17,,,24.0,8.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108303,União do Sul,ERS Sinop,2026-07-17,,,62.0,26.4,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108352,Vale de São Domingos,ERS Pontes e Lacerda,2026-07-17,,,25.0,72.6,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108402,Várzea Grande,ERS Cuiabá,2026-07-17,,,9638.0,46.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108501,Vera,ERS Sinop,2026-07-17,,,109.0,16.3,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108600,Vila Rica,ERS Porto Alegre do Norte,2026-07-17,,,89.0,14.5,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108808,Nova Guarita,ERS Colíder,2026-07-17,,,110.0,7.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108857,Nova Marilândia,ERS Tangará da Serra,2026-07-17,,,35.0,86.0,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108907,Nova Maringá,ERS Diamantino,2026-07-17,,,47.0,55.7,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50
+5108956,Nova Monte Verde,ERS Alta Floresta,2026-07-17,,,92.0,97.2,SISREG_CSV:sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv,2026-08-04T22:52:50

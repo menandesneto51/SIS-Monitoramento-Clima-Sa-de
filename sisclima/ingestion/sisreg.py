@@ -23,17 +23,18 @@ import pandas as pd
 from sisclima.core.config import ROOT
 from sisclima.core.db import write_df
 
+_ONDAS_V16_DATA = Path(
+    r"C:\Users\Menandesneto\OneDrive\CIEVS MT"
+    r"\Monitoramento ondas de calor\v16_integrada_el_nino_saude\data"
+)
+
 DEFAULT_CSV_CANDIDATES = [
-    Path(
-        r"C:\Users\Menandesneto\OneDrive\CIEVS MT"
-        r"\Monitoramento ondas de calor\v16_integrada_el_nino_saude\data"
-        r"\sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv"
-    ),
-    Path(
-        r"C:\Users\Menandesneto\OneDrive\CIEVS MT"
-        r"\Monitoramento ondas de calor\v16_integrada_el_nino_saude\data"
-        r"\sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3.csv"
-    ),
+    # Preferir extratos V16 com fila/pendências reais (SQL Server SES).
+    _ONDAS_V16_DATA / "sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3_1_padronizada.csv",
+    _ONDAS_V16_DATA / "sisreg_pressao_regulatoria_atual_municipal_v16_2_4_3.csv",
+    _ONDAS_V16_DATA / "sisreg_pressao_regulatoria_atual_municipal_v16_2.csv",
+    _ONDAS_V16_DATA / "base_integrada_municipal_v16_1_2_sim_sisreg_real.csv",
+    # Espelho local — só usar se tiver variância (evita CSV zerado que achata o índice).
     ROOT / "data" / "sisreg" / "ops_sisreg_municipio.csv",
 ]
 
@@ -200,14 +201,62 @@ def fetch_sisreg_live() -> pd.DataFrame:
             pass
 
 
+def _csv_has_signal(path: Path) -> bool:
+    """True se o CSV tem métricas SISREG com alguma variância (não só zeros)."""
+    try:
+        probe = pd.read_csv(path, sep=None, engine="python", encoding="utf-8-sig", nrows=400)
+    except Exception:
+        return False
+    if "cod_ibge" not in probe.columns:
+        return False
+    signal_cols = [
+        "solicitacoes_abertas",
+        "amb_fila_espera_total",
+        "amb_fila_ativa_estrita_total",
+        "amb_fila_ativa_estrita_365d",
+        "hosp_pendentes_total",
+        "hosp_pendentes_365d",
+        "hosp_pendentes_recentes_ate365d",
+        "fila_media_h",
+        "amb_tempo_espera_medio_dias",
+    ]
+    for col in signal_cols:
+        if col not in probe.columns:
+            continue
+        s = pd.to_numeric(probe[col], errors="coerce")
+        if s.notna().any() and float(s.fillna(0).abs().sum()) > 0 and int(s.nunique(dropna=True)) > 1:
+            return True
+    return False
+
+
 def load_sisreg_csv(path: Path | None = None) -> pd.DataFrame:
     """Converte CSV V16 (já mapeado por IBGE) para o contrato ops_sisreg_municipio."""
     candidates = [path] if path else DEFAULT_CSV_CANDIDATES
     chosen = None
     for c in candidates:
-        if c and Path(c).exists():
-            chosen = Path(c)
-            break
+        if not c or not Path(c).exists():
+            continue
+        p = Path(c)
+        # Não aceitar espelho local zerado se houver candidato V16 com sinal.
+        if p.name == "ops_sisreg_municipio.csv" and not _csv_has_signal(p):
+            continue
+        if p.name.startswith("sisreg_pressao") or "sisreg" in p.name.lower() or "sim_sisreg" in p.name.lower():
+            if not _csv_has_signal(p) and p.suffix.lower() == ".csv":
+                # ainda assim preferir V16 bruto se tiver colunas amb_/hosp_
+                try:
+                    head = pd.read_csv(p, sep=None, engine="python", encoding="utf-8-sig", nrows=2)
+                    if not any(str(c).startswith(("amb_", "hosp_")) for c in head.columns):
+                        continue
+                except Exception:
+                    continue
+        chosen = p
+        break
+    if chosen is None:
+        # último recurso: qualquer candidato existente
+        for c in candidates:
+            if c and Path(c).exists():
+                chosen = Path(c)
+                break
     if chosen is None:
         raise FileNotFoundError("Nenhum CSV SISREG encontrado nos caminhos padrão.")
 
@@ -229,28 +278,39 @@ def load_sisreg_csv(path: Path | None = None) -> pd.DataFrame:
                 return series
         return pd.Series(float("nan"), index=df.index, dtype="float64")
 
-    # Solicitações abertas = fila ambulatorial + pendências hospitalares
-    amb = _num_col("amb_fila_espera_total", "amb_fila_ativa_estrita_total")
-    hosp = _num_col("hosp_pendentes_recentes_ate365d", "hosp_pendentes_total")
-    out["solicitacoes_abertas"] = (amb.fillna(0) + hosp.fillna(0)).round(0)
+    # Preferir fluxo recente (7d) — alinhado aos limiares live (50/300).
+    # Estoque histórico (fila_ativa total / pendentes totais) satura o semáforo.
+    flow_amb = _num_col("amb_solicitacoes_7d")
+    flow_hosp = _num_col("hosp_solicitacoes_7d")
+    if flow_amb.notna().any() or flow_hosp.notna().any():
+        out["solicitacoes_abertas"] = (flow_amb.fillna(0) + flow_hosp.fillna(0)).round(0)
+    else:
+        amb = _num_col(
+            "amb_fila_ativa_estrita_365d",
+            "amb_aguardando_regulacao_total",
+            "amb_fila_ativa_estrita_total",
+            "amb_fila_espera_total",
+            "solicitacoes_abertas",
+        )
+        hosp = _num_col(
+            "hosp_pendentes_365d",
+            "hosp_pendentes_recentes_ate365d",
+            "hosp_pendentes_total",
+        )
+        out["solicitacoes_abertas"] = (amb.fillna(0) + hosp.fillna(0)).round(0)
 
-    # Tempo médio: preferir dias recentes → horas
-    dias = _num_col("amb_tempo_espera_medio_recente_dias", "amb_tempo_espera_medio_dias")
-    hosp_dias = _num_col(
-        "hosp_tempo_espera_medio_pendencias_ate365d_dias",
-        "hosp_tempo_espera_medio_dias",
-    )
-    # média ponderada simples entre amb/hosp quando ambos existem
-    fila_h = dias * 24.0
-    fila_h_hosp = hosp_dias * 24.0
-    out["fila_media_h"] = pd.concat([fila_h, fila_h_hosp], axis=1).mean(axis=1, skipna=True)
+    # CSV V16: não usar tempo médio de estoque (mesmo "recente_*") — valores em
+    # centenas de dias satura limiares pensados para fila live em horas.
+    # O pilar SISREG no fallback CSV fica nas solicitações/fluxo 7d.
+    out["fila_media_h"] = pd.Series(float("nan"), index=df.index, dtype="float64")
     out["tempo_espera_h"] = out["fila_media_h"]
 
     # Taxa de regulação aproximada (autorizadas / solicitações) quando disponível
     auth = _num_col("amb_autorizadas_total")
     sol30 = _num_col("amb_solicitacoes_30d")
-    denom = sol30.replace(0, pd.NA)
-    taxa = (100.0 * auth / denom).replace([float("inf"), float("-inf")], pd.NA).clip(0, 100)
+    denom = sol30.where(sol30 > 0)
+    taxa = (100.0 * auth / denom).replace([float("inf"), float("-inf")], pd.NA)
+    taxa = pd.to_numeric(taxa, errors="coerce").clip(0, 100)
     out["taxa_regulacao_pct"] = taxa.round(1)
 
     out["fonte"] = f"SISREG_CSV:{chosen.name}"
