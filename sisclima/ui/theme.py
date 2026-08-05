@@ -105,6 +105,12 @@ def apply_theme() -> None:
         "font-family:Calibri,\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif!important}"
         "h1,h2,h3,h4,h5,h6,.sis-brand,.sis-section-title,.ses-masthead-brand,.sis-insight .v{"
         f"font-family:Calibri,\"Segoe UI\",sans-serif!important;color:{SES_BLUE}!important}}"
+        ".sis-level-banner,.sis-level-banner *{color:#fff!important}"
+        ".sis-level-banner-amarela,.sis-level-banner-amarela *,"
+        ".sis-level-banner-cinza,.sis-level-banner-cinza *{color:#1a1a1a!important}"
+        ".sis-level-banner-title{font:800 18px Calibri,Segoe UI,sans-serif!important;margin:0!important;color:#fff!important}"
+        "h3[id*=\"nivel-operacional\"],h3[id*=\"nivel-operacional\"] span,"
+        "h3[id*=\"nivel-operacional\"] a{color:#fff!important}"
         "</style>",
         unsafe_allow_html=True,
     )
@@ -260,34 +266,44 @@ def ses_footer() -> None:
 
 
 def level_banner(nivel: str, municipio: str, motivo: str, orientacao: str = "") -> None:
-    """Faixa do nível operacional — texto escuro em amarela; branco nos demais."""
+    """Faixa do nível operacional — texto escuro em amarela; branco nos demais.
+
+    Usa st.html (não markdown) para o Streamlit não promover o título a h3 azul SES.
+    """
     niv = str(nivel).lower()
     color = LEVEL_COLOR_MAP.get(niv, "#334155")
     fg = "#1a1a1a" if niv in {"amarela", "cinza"} else "#ffffff"
     guide = level_plain(nivel)
     extra = (
-        f"<p style='margin:.28rem 0 0;color:{fg};'><b>Em linguagem simples:</b> "
+        f"<p style='margin:.28rem 0 0;color:{fg} !important;'><b>Em linguagem simples:</b> "
         f"{html.escape(guide['o_que_fazer'])}</p>"
     )
     if orientacao:
-        extra += f"<p style='margin:.28rem 0 0;color:{fg};'>{html.escape(orientacao)}</p>"
-    st.markdown(
-        f"""
-        <div style="background:{SES_BG};padding:0 0 10px 0;margin:0;">
-          <div style="background:{color};color:{fg};padding:14px 16px;
-                      border-left:8px solid {SES_BLUE};border-right:8px solid {SES_BLUE_ACCENT};
-                      box-shadow:inset 0 0 0 1px rgba(0,4,68,.15);">
-            <h3 style="margin:0;font:800 18px Calibri,Segoe UI,sans-serif;color:{fg} !important;">
-              Nível operacional estadual · {html.escape(str(nivel).upper())}
-            </h3>
-            <p style="margin:.28rem 0 0;color:{fg};"><b>Município mais crítico:</b> {html.escape(str(municipio))}</p>
-            <p style="margin:.28rem 0 0;color:{fg};">{html.escape(str(motivo))}</p>
-            {extra}
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+        extra += (
+            f"<p style='margin:.28rem 0 0;color:{fg} !important;'>"
+            f"{html.escape(orientacao)}</p>"
+        )
+    markup = (
+        f"<div class='sis-level-banner-wrap' style='background:{SES_BG};padding:0 0 10px 0;margin:0;'>"
+        f"<div class='sis-level-banner sis-level-banner-{html.escape(niv)}' "
+        f"style='background:{color};color:{fg} !important;padding:14px 16px;"
+        f"border-left:8px solid {SES_BLUE};border-right:8px solid {SES_BLUE_ACCENT};"
+        f"box-shadow:inset 0 0 0 1px rgba(0,4,68,.15);'>"
+        f"<div class='sis-level-banner-title' style='margin:0;font:800 18px Calibri,Segoe UI,sans-serif;"
+        f"color:{fg} !important;line-height:1.25;'>"
+        f"Nível operacional estadual · {html.escape(str(nivel).upper())}"
+        f"</div>"
+        f"<p style='margin:.28rem 0 0;color:{fg} !important;'>"
+        f"<b>Município mais crítico:</b> {html.escape(str(municipio))}</p>"
+        f"<p style='margin:.28rem 0 0;color:{fg} !important;'>{html.escape(str(motivo))}</p>"
+        f"{extra}"
+        f"</div></div>"
     )
+    # st.html evita o markdown promover o título a <h3> com cor azul institucional
+    if hasattr(st, "html"):
+        st.html(markup)
+    else:
+        st.markdown(markup, unsafe_allow_html=True)
 
 
 def section_title(title: str, subtitle: str = "") -> None:

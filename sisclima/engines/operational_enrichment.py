@@ -798,6 +798,22 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
             write_df(resumo, "resumo_municipal_atual")
 
     ana_tel = read_table("ana_telemetria")
+    # Garante cod_ibge na telemetria (estações ANA costumam ter município em MAIÚSCULAS)
+    if ana_tel is not None and not ana_tel.empty and "municipio" in ana_tel.columns:
+        need_ibge = "cod_ibge" not in ana_tel.columns or pd.Series(ana_tel["cod_ibge"]).isna().all()
+        if need_ibge or (
+            "cod_ibge" in ana_tel.columns
+            and pd.Series(ana_tel["cod_ibge"]).isna().any()
+        ):
+            try:
+                from sisclima.ingestion.ana_hidroweb import map_estacoes_to_ibge
+                from sisclima.ingestion.ibge_municipios import get_municipios_operacionais
+
+                mun_ref = get_municipios_operacionais()
+                if mun_ref is not None and not mun_ref.empty:
+                    ana_tel = map_estacoes_to_ibge(ana_tel, mun_ref)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("Mapeamento IBGE na telemetria ANA falhou: %s", exc)
     hidro = compute_hidro_risco_from_ana(ana_tel)
     if hidro is None or hidro.empty:
         # Fallback leve a partir de ana_risco_municipal (nível de chuva)
@@ -812,22 +828,94 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
                 ar["score_hidro_max"] = ar["nivel_chuva"].astype(str).str.lower().map(nivel_map).fillna(0).astype(int)
                 ar["nivel_alerta_hidro"] = ar["nivel_chuva"]
                 ar["risco_predominante"] = np.where(ar["score_hidro_max"] >= 1, "chuva_ana", "sem_gatilho")
+                ar["situacao_hidro"] = np.where(
+                    ar["score_hidro_max"] >= 1, "inundacao_alta", "normal"
+                )
                 ar["fonte"] = "ANA_risco_municipal_fallback"
                 ar["data_processamento"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
                 hidro = ar
+    # Se hidro ainda não tem IBGE, mapeia por município antes do merge
+    if hidro is not None and not hidro.empty:
+        if "cod_ibge" not in hidro.columns or pd.Series(hidro["cod_ibge"]).isna().all():
+            try:
+                from sisclima.engines.hidro_risco import _fill_cod_ibge_from_municipio
+
+                hidro = _fill_cod_ibge_from_municipio(hidro)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("Preenchimento IBGE em hidro_risco falhou: %s", exc)
     write_df(hidro if hidro is not None else pd.DataFrame(), "hidro_risco_municipal")
-    if not hidro.empty and "cod_ibge" in hidro.columns:
-        hkeep = [c for c in ["cod_ibge", "nivel_alerta_hidro", "score_hidro_max", "risco_predominante"] if c in hidro.columns]
-        hm = hidro[hkeep].drop_duplicates("cod_ibge")
-        hm["cod_ibge"] = hm["cod_ibge"].astype(str)
-        resumo["cod_ibge"] = resumo["cod_ibge"].astype(str)
-        for col in hkeep:
-            if col == "cod_ibge":
-                continue
-            if col in resumo.columns:
-                resumo = resumo.drop(columns=[col])
-        resumo = resumo.merge(hm, on="cod_ibge", how="left")
-        write_df(resumo, "resumo_municipal_atual")
+    if hidro is not None and not hidro.empty:
+        merged_hidro = False
+        if "cod_ibge" in hidro.columns and hidro["cod_ibge"].notna().any():
+            hkeep = [
+                c
+                for c in [
+                    "cod_ibge",
+                    "nivel_alerta_hidro",
+                    "score_hidro_max",
+                    "score_estiagem_max",
+                    "score_cheia_max",
+                    "risco_predominante",
+                    "situacao_hidro",
+                    "cota_cm",
+                    "motivo_resumo",
+                ]
+                if c in hidro.columns
+            ]
+            hm = hidro[hkeep].dropna(subset=["cod_ibge"]).drop_duplicates("cod_ibge")
+            hm["cod_ibge"] = hm["cod_ibge"].astype(str)
+            resumo["cod_ibge"] = resumo["cod_ibge"].astype(str)
+            for col in hkeep:
+                if col == "cod_ibge":
+                    continue
+                if col in resumo.columns:
+                    resumo = resumo.drop(columns=[col])
+            resumo = resumo.merge(hm, on="cod_ibge", how="left")
+            merged_hidro = True
+        elif "municipio" in hidro.columns and "municipio" in resumo.columns:
+            import unicodedata
+
+            def _k(s: Any) -> str:
+                t = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode("ascii")
+                return t.lower().strip()
+
+            hkeep = [
+                c
+                for c in [
+                    "municipio",
+                    "nivel_alerta_hidro",
+                    "score_hidro_max",
+                    "score_estiagem_max",
+                    "score_cheia_max",
+                    "risco_predominante",
+                    "situacao_hidro",
+                    "cota_cm",
+                    "motivo_resumo",
+                ]
+                if c in hidro.columns
+            ]
+            hm = hidro[hkeep].copy()
+            hm["_k"] = hm["municipio"].map(_k)
+            hm = hm[hm["_k"].astype(str).str.len() > 0].drop_duplicates("_k", keep="first")
+            tmp = resumo[["municipio"]].copy() if "municipio" in resumo.columns else pd.DataFrame()
+            tmp["_k"] = tmp["municipio"].map(_k)
+            for col in hkeep:
+                if col == "municipio":
+                    continue
+                if col in resumo.columns:
+                    resumo = resumo.drop(columns=[col])
+            joined = tmp.merge(hm.drop(columns=["municipio"], errors="ignore"), on="_k", how="left")
+            for col in hkeep:
+                if col == "municipio":
+                    continue
+                if col in joined.columns:
+                    resumo[col] = joined[col].values
+            merged_hidro = True
+        if merged_hidro:
+            # Reclassifica após merge hidro (classify_stage lê nivel_alerta_hidro / situacao_hidro)
+            if reclassify:
+                resumo = reclassify_resumo(resumo)
+            write_df(resumo, "resumo_municipal_atual")
 
     sivep_series = read_table("epi_sivep_srag")
     arbo_mun = read_table("epi_arboviroses_municipal")
@@ -1086,6 +1174,15 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         "solo_saturacao": int(pd.to_numeric(resumo.get("indice_saturacao_solo"), errors="coerce").notna().sum()) if "indice_saturacao_solo" in resumo.columns else 0,
         "ops_cnes": len(ops_cnes_resumo) if not ops_cnes_resumo.empty else 0,
         "hidro_risco": len(hidro) if hidro is not None else 0,
+        "hidro_seca": int((hidro["situacao_hidro"].astype(str).str.lower() == "seca_baixa").sum())
+        if hidro is not None and not hidro.empty and "situacao_hidro" in hidro.columns
+        else 0,
+        "hidro_cheia": int((hidro["situacao_hidro"].astype(str).str.lower() == "inundacao_alta").sum())
+        if hidro is not None and not hidro.empty and "situacao_hidro" in hidro.columns
+        else 0,
+        "hidro_com_cota": int(pd.to_numeric(hidro["cota_cm"], errors="coerce").notna().sum())
+        if hidro is not None and not hidro.empty and "cota_cm" in hidro.columns
+        else 0,
         "alerta_integrado": len(alerta_int) if alerta_int is not None else 0,
         "predicao_7d": len(pred),
         "alerta_inteligente": len(alerta),

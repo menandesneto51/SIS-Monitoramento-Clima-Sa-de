@@ -319,13 +319,14 @@ def render_sentinela_sg() -> None:
 def render_hidrologia() -> None:
     section_title("Riscos hidrológicos", f"Cemaden + ANA + precipitação · base {backend_name()}")
     callout(
-        "Cemaden traz alertas oficiais; ANA traz telemetria de chuva/nível. Cobertura de estações é desigual — cruze com o nível operacional.",
+        "Cemaden traz alertas oficiais; ANA traz telemetria de chuva e nível de rio (seca/cheia). Cobertura de estações é desigual — cruze com o nível operacional.",
         "info",
     )
     cemaden = read_table("cemaden_alertas")
     met = read_table("met_biometeo")
     resumo = read_table("resumo_municipal_atual")
     ana_risco = read_table("ana_risco_municipal")
+    hidro = read_table("hidro_risco_municipal")
     render_interpretacao(
         "cemaden_ana",
         GUIDE_HIDRO,
@@ -343,9 +344,76 @@ def render_hidrologia() -> None:
 
     ana_tel = read_table("ana_telemetria")
     ana_est = read_table("ana_estacoes")
-    st.markdown("##### Telemetria ANA")
+    st.markdown("##### Nível de rio ANA (seca × cheia)")
+    if hidro.empty and ana_risco.empty and ana_tel.empty:
+        st.info("Sem dados ANA. Ative `USE_ANA=true` / `ANA_FETCH_SERIES=true` ou use CSV em `data/input/ana_*.csv`.")
+    else:
+        n_seca = n_cheia = n_normal = 0
+        if not hidro.empty and "situacao_hidro" in hidro.columns:
+            sit = hidro["situacao_hidro"].astype(str).str.lower()
+            n_seca = int(sit.eq("seca_baixa").sum())
+            n_cheia = int(sit.eq("inundacao_alta").sum())
+            n_normal = int(sit.eq("normal").sum())
+        elif not hidro.empty and "risco_predominante" in hidro.columns:
+            rp = hidro["risco_predominante"].astype(str).str.lower()
+            n_seca = int(rp.eq("estiagem_rio_baixo").sum())
+            n_cheia = int(rp.eq("cheia_subida_rio").sum())
+            n_normal = int(rp.isin(["misto_ou_neutro", "sem_gatilho"]).sum())
+        h1, h2, h3, h4 = st.columns(4)
+        h1.metric("Municípios em seca", n_seca)
+        h2.metric("Em risco de cheia", n_cheia)
+        h3.metric("Situação normal", n_normal)
+        h4.metric(
+            "Com cota (cm)",
+            int(pd.to_numeric(hidro["cota_cm"], errors="coerce").notna().sum())
+            if not hidro.empty and "cota_cm" in hidro.columns
+            else 0,
+        )
+        if not hidro.empty:
+            show_cols = [
+                c
+                for c in [
+                    "cod_ibge",
+                    "municipio",
+                    "situacao_hidro",
+                    "risco_predominante",
+                    "nivel_alerta_hidro",
+                    "cota_cm",
+                    "score_estiagem_max",
+                    "score_cheia_max",
+                    "motivo_resumo",
+                    "data_mais_recente",
+                ]
+                if c in hidro.columns
+            ]
+            st.dataframe(hidro[show_cols] if show_cols else hidro, use_container_width=True, height=240)
+            map_src = hidro.copy()
+            color = (
+                "situacao_hidro"
+                if "situacao_hidro" in map_src.columns
+                else ("risco_predominante" if "risco_predominante" in map_src.columns else "nivel_alerta_hidro")
+            )
+            map_df, geojson, status = prepare_map_dataframe(map_src)
+            st.caption(status)
+            if color and color in map_df.columns:
+                fig = make_choropleth_or_points(
+                    map_df,
+                    geojson,
+                    color_col=color,
+                    title="Situação hidrológica ANA (seca / cheia)",
+                    categorical=True,
+                    hover_cols=[
+                        c
+                        for c in ["cota_cm", "nivel_alerta_hidro", "risco_predominante", "situacao_hidro", "motivo_resumo"]
+                        if c in map_df.columns
+                    ],
+                )
+                if fig is not None:
+                    st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("##### Telemetria ANA (chuva)")
     if ana_risco.empty and ana_tel.empty:
-        st.info("Sem dados ANA. Ative `USE_ANA=true` ou use CSV em `data/input/ana_*.csv`.")
+        st.info("Sem telemetria/risco de chuva ANA nesta rodada.")
     else:
         a1, a2, a3 = st.columns(3)
         a1.metric("Estações", len(ana_est) if not ana_est.empty else 0)
@@ -409,11 +477,30 @@ def render_hidrologia() -> None:
             )
 
     if not resumo.empty and "motivo" in resumo.columns:
-        hits = resumo[resumo["motivo"].astype(str).str.contains("Cemaden|chuva|precip", case=False, na=False)]
+        hits = resumo[
+            resumo["motivo"].astype(str).str.contains(
+                "Cemaden|chuva|precip|Cota ANA|hidro|estiagem|cheia", case=False, na=False
+            )
+        ]
         if not hits.empty:
-            st.markdown("##### Motivos operacionais com menção a chuva/Cemaden")
+            st.markdown("##### Motivos operacionais com menção a chuva/Cemaden/rio")
             st.dataframe(
-                hits[[c for c in ["cod_ibge", "municipio", "nivel", "score", "precipitacao_mm", "motivo"] if c in hits.columns]],
+                hits[
+                    [
+                        c
+                        for c in [
+                            "cod_ibge",
+                            "municipio",
+                            "nivel",
+                            "score",
+                            "situacao_hidro",
+                            "cota_cm",
+                            "precipitacao_mm",
+                            "motivo",
+                        ]
+                        if c in hits.columns
+                    ]
+                ],
                 use_container_width=True,
                 height=240,
             )

@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 from datetime import date, timedelta
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -38,14 +39,38 @@ def _session() -> requests.Session:
 
 
 def _parse_dataset_xml(xml_text: str) -> pd.DataFrame:
+    """Extrai linhas de DiffGram/DataSet SOAP da ANA (Table ou DadosHidromet*)."""
     root = ET.fromstring(xml_text)
-    rows = []
+    rows: list[dict] = []
+    row_tags = {
+        "Table",
+        "DadosHidrometereologicos",  # ortografia histórica do serviço ANA
+        "DadosHidrometeorologicos",
+    }
+
+    def _row_from_el(el: ET.Element) -> dict:
+        return {child.tag.split("}")[-1]: child.text for child in list(el)}
+
     for el in root.iter():
-        if el.tag.endswith("Table"):
-            row = {child.tag.split("}")[-1]: child.text for child in list(el)}
+        tag = el.tag.split("}")[-1]
+        if tag in row_tags:
+            row = _row_from_el(el)
             if row:
                 rows.append(row)
+    if rows:
+        return pd.DataFrame(rows)
+
+    # Fallback: filhos diretos de DocumentElement com campos de medição
+    for el in root.iter():
+        if el.tag.split("}")[-1] != "DocumentElement":
+            continue
+        for child in list(el):
+            row = _row_from_el(child)
+            if row and any(k in row for k in ("CodEstacao", "DataHora", "Chuva", "Nivel", "Vazao")):
+                rows.append(row)
+        break
     return pd.DataFrame(rows)
+
 
 
 def _root_path(value: str | None, default: str) -> Path:
@@ -143,8 +168,12 @@ def map_estacoes_to_ibge(estacoes: pd.DataFrame, municipios: pd.DataFrame | None
     if "cod_ibge_ibge" in mapped.columns:
         mapped["cod_ibge"] = mapped["cod_ibge"].fillna(mapped["cod_ibge_ibge"])
     if "municipio_ibge" in mapped.columns:
-        mapped["municipio"] = mapped["municipio"].where(mapped["municipio"].astype(str).str.len() > 0, mapped["municipio_ibge"])
-    return mapped.drop(columns=[c for c in mapped.columns if c.endswith("_ibge") or c == "_k"], errors="ignore")
+        mapped["municipio"] = mapped["municipio"].where(
+            mapped["municipio"].astype(str).str.len() > 0, mapped["municipio_ibge"]
+        )
+    # NÃO usar endswith("_ibge"): isso apaga a própria coluna cod_ibge
+    drop_cols = [c for c in ("_k", "cod_ibge_ibge", "municipio_ibge") if c in mapped.columns]
+    return mapped.drop(columns=drop_cols, errors="ignore")
 
 
 def fetch_ana_serie_estacao(codigo_estacao: str, days: int = 7) -> pd.DataFrame:
@@ -179,6 +208,7 @@ def fetch_ana_serie_estacao(codigo_estacao: str, days: int = 7) -> pd.DataFrame:
         ("chuva", "chuva_mm"),
         ("precipitacao", "chuva_mm"),
         ("cota", "cota_cm"),
+        ("nivel", "cota_cm"),  # SOAP DadosHidrometeorologicos usa Nivel (cm)
         ("vazao", "vazao_m3s"),
         ("datahora", "data_hora"),
         ("data_hora_medicao", "data_hora"),
@@ -192,14 +222,22 @@ def fetch_ana_serie_estacao(codigo_estacao: str, days: int = 7) -> pd.DataFrame:
         cl = c.lower()
         if "chuva" in cl or "precip" in cl:
             df = df.rename(columns={c: "chuva_mm"})
-        elif "cota" in cl:
+        elif cl in ("cota", "nivel") or ("cota" in cl) or (cl == "nivel" or cl.endswith("_nivel")):
             df = df.rename(columns={c: "cota_cm"})
         elif "vazao" in cl or "vazão" in cl:
             df = df.rename(columns={c: "vazao_m3s"})
         elif "data" in cl and "hora" in cl:
             df = df.rename(columns={c: "data_hora"})
+        elif cl == "datahora":
+            df = df.rename(columns={c: "data_hora"})
     if "data_hora" in df.columns:
-        df["data_hora"] = pd.to_datetime(df["data_hora"], errors="coerce", dayfirst=True)
+        # SOAP devolve ISO (YYYY-MM-DD HH:MM:SS) — dayfirst=True inverteria mês/dia
+        raw = df["data_hora"]
+        df["data_hora"] = pd.to_datetime(raw, errors="coerce", format="ISO8601")
+        if df["data_hora"].isna().all():
+            df["data_hora"] = pd.to_datetime(raw, errors="coerce", dayfirst=False)
+        if df["data_hora"].isna().mean() > 0.5:
+            df["data_hora"] = pd.to_datetime(raw, errors="coerce", dayfirst=True)
         df["data"] = df["data_hora"].dt.date.astype(str)
     for c in ["chuva_mm", "cota_cm", "vazao_m3s"]:
         if c in df.columns:
@@ -208,12 +246,37 @@ def fetch_ana_serie_estacao(codigo_estacao: str, days: int = 7) -> pd.DataFrame:
     return df
 
 
+def _prioritize_estacoes_fluviometricas(estacoes: pd.DataFrame) -> pd.DataFrame:
+    """Prioriza estações com nome de rio (fluviométricas) antes das só pluviométricas."""
+    if estacoes is None or estacoes.empty:
+        return estacoes if estacoes is not None else pd.DataFrame()
+    out = estacoes.copy()
+    if "nome_rio" in out.columns:
+        rio = out["nome_rio"].astype(str).str.strip()
+        out["_prio"] = np.where(
+            rio.ne("") & rio.str.lower().ne("nan") & rio.str.lower().ne("none"),
+            0,
+            1,
+        )
+        # Códigos 8 dígitos típicos de fluviométricas oficiais (ex.: 15043000)
+        cod = out["codigo_estacao"].astype(str).str.replace(r"\.0$", "", regex=True)
+        out["_prio2"] = np.where(cod.str.fullmatch(r"\d{8}"), 0, 1)
+        out = out.sort_values(["_prio", "_prio2", "codigo_estacao"], kind="mergesort").drop(
+            columns=["_prio", "_prio2"]
+        )
+    return out.reset_index(drop=True)
+
+
 def fetch_ana_telemetria_mt(
     estacoes: pd.DataFrame | None = None,
     max_estacoes: int | None = None,
-    days: int = 7,
+    days: int | None = None,
 ) -> pd.DataFrame:
-    """Consulta séries de um subconjunto de estações MT."""
+    """Consulta séries de um subconjunto de estações MT (prioriza fluviométricas).
+
+    Tenta mais códigos do que o teto de sucesso, porque várias estações
+    telemétricas respondem Error/vazio no SOAP de série.
+    """
     if not as_bool(env("USE_ANA", "true"), True):
         return pd.DataFrame()
     if estacoes is None or estacoes.empty:
@@ -221,29 +284,50 @@ def fetch_ana_telemetria_mt(
     if estacoes.empty or "codigo_estacao" not in estacoes.columns:
         return pd.DataFrame()
 
+    if days is None:
+        try:
+            days = int(env("ANA_SERIES_DAYS", "21") or 21)
+        except Exception:
+            days = 21
+    days = max(7, int(days))
+
     max_env = env("ANA_MAX_ESTACOES")
     if max_estacoes is None and max_env:
         try:
             max_estacoes = int(max_env)
         except Exception:
-            max_estacoes = 15
+            max_estacoes = 35
     if max_estacoes is None:
-        max_estacoes = 15
+        max_estacoes = 35
 
-    codes = estacoes["codigo_estacao"].astype(str).drop_duplicates().head(max_estacoes).tolist()
+    # Pool de tentativa: até 3× o teto de estações com série útil
+    try_cap = max(max_estacoes * 3, max_estacoes + 10)
+    estacoes = _prioritize_estacoes_fluviometricas(estacoes)
+    codes = estacoes["codigo_estacao"].astype(str).drop_duplicates().head(try_cap).tolist()
     frames = []
+    ok = 0
     for i, cod in enumerate(codes):
+        if ok >= max_estacoes:
+            break
         serie = fetch_ana_serie_estacao(cod, days=days)
         if serie.empty:
             continue
+        # exige ao menos uma variável hidrológica
+        has_var = any(
+            c in serie.columns and pd.to_numeric(serie[c], errors="coerce").notna().any()
+            for c in ("cota_cm", "vazao_m3s", "chuva_mm")
+        )
+        if not has_var:
+            continue
         meta = estacoes[estacoes["codigo_estacao"].astype(str).eq(cod)].head(1)
-        for col in ["municipio", "cod_ibge", "nome_estacao", "lat", "lon", "uf"]:
+        for col in ["municipio", "cod_ibge", "nome_estacao", "lat", "lon", "uf", "nome_rio"]:
             if col in meta.columns:
                 serie[col] = meta.iloc[0][col]
         frames.append(serie)
+        ok += 1
         time.sleep(0.2)
-        if (i + 1) % 5 == 0:
-            log.info("ANA telemetria: %s/%s estações", i + 1, len(codes))
+        if ok % 5 == 0:
+            log.info("ANA telemetria: %s/%s estações úteis (tentativa %s, janela %sd)", ok, max_estacoes, i + 1, days)
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
@@ -278,12 +362,14 @@ def ana_risco_municipal(telemetria: pd.DataFrame) -> pd.DataFrame:
             df[c] = pd.to_numeric(df[c], errors="coerce")
 
     keys = [c for c in ["data", "cod_ibge", "municipio"] if c in df.columns]
-    if not keys:
+    if "cod_ibge" in keys and df["cod_ibge"].isna().all():
+        keys = [c for c in keys if c != "cod_ibge"]
+    if not keys or "data" not in keys:
         return pd.DataFrame()
 
     agg = {"chuva_mm": "sum", "cota_cm": "max", "vazao_m3s": "max"}
     use = {k: v for k, v in agg.items() if k in df.columns}
-    g = df.groupby(keys, as_index=False).agg(use)
+    g = df.groupby(keys, as_index=False, dropna=False).agg(use)
 
     # limiares configuráveis
     chuva_amarela = float(env("ANA_CHUVA_AMARELA_MM", "30") or 30)
@@ -299,8 +385,40 @@ def ana_risco_municipal(telemetria: pd.DataFrame) -> pd.DataFrame:
     return g
 
 
+def _ensure_telemetria_ibge(
+    tel: pd.DataFrame,
+    est: pd.DataFrame | None = None,
+    municipios: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """Propaga cod_ibge para telemetria (estação → município fuzzy ASCII)."""
+    if tel is None or tel.empty:
+        return tel if tel is not None else pd.DataFrame()
+    out = tel.copy()
+    if est is not None and not est.empty and "codigo_estacao" in out.columns and "codigo_estacao" in est.columns:
+        meta_cols = ["codigo_estacao"] + [c for c in ["cod_ibge", "municipio"] if c in est.columns]
+        meta = est[meta_cols].drop_duplicates("codigo_estacao")
+        out = out.merge(meta, on="codigo_estacao", how="left", suffixes=("", "_est"))
+        if "cod_ibge_est" in out.columns:
+            if "cod_ibge" not in out.columns:
+                out["cod_ibge"] = out["cod_ibge_est"]
+            else:
+                out["cod_ibge"] = out["cod_ibge"].fillna(out["cod_ibge_est"])
+        if "municipio_est" in out.columns:
+            if "municipio" not in out.columns:
+                out["municipio"] = out["municipio_est"]
+            else:
+                out["municipio"] = out["municipio"].where(
+                    out["municipio"].astype(str).str.len() > 0, out["municipio_est"]
+                )
+        out = out.drop(columns=[c for c in out.columns if c.endswith("_est")], errors="ignore")
+    if municipios is not None and not municipios.empty and "municipio" in out.columns:
+        out = map_estacoes_to_ibge(out, municipios)
+    return out
+
+
 def load_ana_bundle(municipios: pd.DataFrame | None = None) -> dict[str, pd.DataFrame]:
     """Carrega inventário + telemetria ANA (API) com fallback CSV."""
+    # Padrão: série live (ANA_FETCH_SERIES=true). false força CSV.
     prefer_csv = not as_bool(env("ANA_FETCH_SERIES", "true"), True)
     est = pd.DataFrame()
     tel = pd.DataFrame()
@@ -308,7 +426,7 @@ def load_ana_bundle(municipios: pd.DataFrame | None = None) -> dict[str, pd.Data
     if prefer_csv:
         est_csv, tel_csv = load_ana_csv_fallback()
         est = map_estacoes_to_ibge(est_csv, municipios) if not est_csv.empty else est_csv
-        tel = tel_csv
+        tel = _ensure_telemetria_ibge(tel_csv, est, municipios) if not tel_csv.empty else tel_csv
         if not est.empty or not tel.empty:
             log.info("ANA via CSV (ANA_FETCH_SERIES=false): est=%s tel=%s", len(est), len(tel))
             return {
@@ -329,9 +447,10 @@ def load_ana_bundle(municipios: pd.DataFrame | None = None) -> dict[str, pd.Data
         if tel.empty and not tel_csv.empty:
             tel = tel_csv
             log.info("ANA telemetria via CSV fallback: %s", len(tel))
+    tel = _ensure_telemetria_ibge(tel, est, municipios)
     risco = ana_risco_municipal(tel)
     return {
         "ana_estacoes": est,
         "ana_telemetria": tel,
-        "ana_risco_municipal": ana_risco_municipal(tel) if risco is None else risco,
+        "ana_risco_municipal": risco if risco is not None else pd.DataFrame(),
     }

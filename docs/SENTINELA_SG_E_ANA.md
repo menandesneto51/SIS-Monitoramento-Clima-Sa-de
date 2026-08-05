@@ -25,23 +25,30 @@ Catálogo: `config/indicadores_ms_sentinela_sg.yaml`
 ```env
 USE_ANA=true
 ANA_UF=MT
-ANA_FETCH_SERIES=false   # true consulta SOAP (lento); false usa CSV
-ANA_MAX_ESTACOES=10
-ANA_SSL_VERIFY=false     # se proxy corporativo
+ANA_FETCH_SERIES=true    # SOAP público (ListaEstacoes + DadosHidrometeorologicos)
+ANA_MAX_ESTACOES=35      # prioriza estações com nome_rio (fluviométricas)
+ANA_SERIES_DAYS=21       # janela para percentis de cota/vazão
+ANA_SSL_VERIFY=true      # false só se proxy corporativo exigir
+# Opcional: cotas absolutas por estação
+# ANA_COTAS_REFERENCIA_CSV=config/ana_cotas_referencia_mt.csv
 ```
 
 ### Entradas
-- API SOAP pública ANA (`ListaEstacoesTelemetricas` / `DadosHidrometeorologicos`)
+- API SOAP pública ANA (`ListaEstacoesTelemetricas` / `DadosHidrometeorologicos`) via `sisclima.core.http_client` (UA institucional)
 - Fallback: `data/input/ana_estacoes_mt.csv`, `data/input/ana_telemetria.csv`
+- Opcional: `config/ana_cotas_referencia_mt.csv` (cota_seca_cm / cota_alerta_cm / cota_emergencia_cm)
 
 ### Saídas
 - `ana_estacoes`
 - `ana_telemetria`
 - `ana_risco_municipal` (chuva/cota/nível → alimenta resumo municipal e estágio)
+- `hidro_risco_municipal` (`situacao_hidro` ∈ seca_baixa / normal / inundacao_alta; `risco_predominante` estiagem/cheia)
 
-UI: seção ANA em `pages/12_Riscos_Hidrologicos_Cemaden.py`
+UI: aba **Cemaden / ANA** e **Clima / TITAN → Hidro risco**.
 
 ### Validação
 ```bash
+# Live (respeita env já exportado; .env não sobrescreve):
+set ANA_FETCH_SERIES=true
 python validar_sentinela_ana.py
 ```

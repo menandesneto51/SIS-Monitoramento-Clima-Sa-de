@@ -357,7 +357,7 @@ def _inject_ocupacao_into_summary(summary: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, arbo=None, cemaden_alerts=None, ana_risco=None) -> pd.DataFrame:
+def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln, inmet_alerts, arbo=None, cemaden_alerts=None, ana_risco=None, hidro_risco=None) -> pd.DataFrame:
     # Base municipal preferencial: vulnerabilidade/metadata; se não houver, usa bases com dados.
     base_candidates = [vuln, met_ind, press, cap_agg, aq]
     base = pd.DataFrame()
@@ -419,6 +419,25 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
                 merged['precipitacao_mm'] = merged['precipitacao_mm'].fillna(pd.to_numeric(merged['chuva_mm'], errors='coerce'))
             elif 'chuva_mm' in merged.columns and 'precipitacao_mm' not in merged.columns:
                 merged['precipitacao_mm'] = pd.to_numeric(merged['chuva_mm'], errors='coerce')
+
+    # Hidro ANA (estiagem / cheia) — bump de estágio no classificador
+    if hidro_risco is not None and isinstance(hidro_risco, pd.DataFrame) and not hidro_risco.empty:
+        hr = hidro_risco.copy()
+        if 'data' in hr.columns or 'data_mais_recente' in hr.columns:
+            sort_col = 'data_mais_recente' if 'data_mais_recente' in hr.columns else 'data'
+            hr[sort_col] = pd.to_datetime(hr[sort_col], errors='coerce')
+            if 'cod_ibge' in hr.columns:
+                hr = hr.sort_values(sort_col).groupby('cod_ibge', as_index=False).tail(1)
+        keep_hidro = [
+            c for c in [
+                'cod_ibge', 'municipio', 'nivel_alerta_hidro', 'situacao_hidro',
+                'risco_predominante', 'cota_cm', 'score_hidro_max',
+                'score_estiagem_max', 'score_cheia_max',
+            ]
+            if c in hr.columns
+        ]
+        if keep_hidro:
+            merged = _merge(merged, hr[keep_hidro], suffix='_hidro')
 
     # Ocupação real IndicaSUS: usa município quando houver e estado como fallback.
     ocup_estado_fallback = _get_ocupacao_estado_fallback()
@@ -482,6 +501,24 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
                 f"Chuva ANA {nivel_chuva}"
                 + (f" ({float(chuva_val):.1f} mm)" if pd.notna(chuva_val) else "")
             )
+        nivel_hidro = latest.get('nivel_alerta_hidro')
+        situacao_hidro = str(latest.get('situacao_hidro') or '').lower()
+        risco_hidro = str(latest.get('risco_predominante') or '').lower()
+        if isinstance(nivel_hidro, str) and nivel_hidro.lower() in {'amarela', 'laranja', 'vermelha', 'roxa'}:
+            if situacao_hidro == 'seca_baixa' or risco_hidro == 'estiagem_rio_baixo':
+                motivo_h = 'Cota ANA baixa (estiagem)'
+            elif situacao_hidro == 'inundacao_alta' or risco_hidro == 'cheia_subida_rio':
+                motivo_h = 'Cota ANA alta (cheia)'
+            else:
+                motivo_h = f'Risco hidro ANA {nivel_hidro}'
+            cota_v = latest.get('cota_cm')
+            if pd.notna(cota_v):
+                try:
+                    motivo_h = f"{motivo_h} ({float(cota_v):.0f} cm)"
+                except Exception:
+                    pass
+            _apply_alert_motivo_to_stage(stage, motivo_h, nivel_sis=nivel_hidro)
+            extra_motivos.append(motivo_h)
         if latest.get('motivo_qualidade_ar') and pd.notna(latest.get('motivo_qualidade_ar')):
             extra_motivos.append(str(latest.get('motivo_qualidade_ar')))
         stage.motivos.extend(extra_motivos)
@@ -651,15 +688,29 @@ def run_pipeline(send_alerts: bool = True) -> dict:
 
         # ANA hidrologia / telemetria
         ana_risco = pd.DataFrame()
+        hidro_risco = pd.DataFrame()
         try:
             if as_bool(env('USE_ANA', 'true'), True):
                 ana = load_ana_bundle(municipios)
                 for table_name, frame in ana.items():
                     write_df(frame if frame is not None else pd.DataFrame(), table_name)
                 ana_risco = ana.get('ana_risco_municipal', pd.DataFrame())
+                ana_tel = ana.get('ana_telemetria', pd.DataFrame())
+                try:
+                    from sisclima.engines.hidro_risco import compute_hidro_risco_from_ana
+
+                    hidro_risco = compute_hidro_risco_from_ana(ana_tel)
+                    if hidro_risco is None:
+                        hidro_risco = pd.DataFrame()
+                    if not hidro_risco.empty:
+                        write_df(hidro_risco, 'hidro_risco_municipal')
+                except Exception as exc_hidro:
+                    print(f"[AVISO] hidro_risco_municipal não gerado no pipeline: {exc_hidro}")
+                    hidro_risco = pd.DataFrame()
         except Exception as exc:
             print(f"[AVISO] ANA/HIDROWEB não gerado: {exc}")
             ana_risco = pd.DataFrame()
+            hidro_risco = pd.DataFrame()
 
         write_df(lacen, 'lab_lacen_gal')
         write_df(sinan, 'epi_sinan_agravos')
@@ -719,6 +770,7 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         resumo_mun = _build_municipal_summary(
             met_ind, press, cap_agg, stock, infra, busca, com, sivep, lacen, sim, rumors, aq, vuln,
             inmet_alerts, arbo=arbo_mun, cemaden_alerts=cemaden_alerts, ana_risco=ana_risco,
+            hidro_risco=hidro_risco,
         )
         resumo_mun = _inject_ocupacao_into_summary(resumo_mun)
         # Queimadas INPE → colunas no resumo

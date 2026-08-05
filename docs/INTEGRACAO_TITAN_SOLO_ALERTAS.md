@@ -8,7 +8,7 @@ Camada operacional alinhada ao legado TITAN, com **código legível** e fontes o
 |-------|--------|-------------------|
 | Saturação do solo | Open-Meteo (hourly → daily) | `met_biometeo.umidade_solo_*`, `indice_saturacao_solo`, `solo_saturacao_municipal` |
 | Resiliência + CNES | DW `CNES_LEITOS` / `CNES_ESTABELECIMENTOS` | `ops_cnes_municipio`, `ops_resumo_operacional_cnes`, `indice_resiliencia` enriquecido |
-| Alertas TITAN | INMET API/CSV + Cemaden `wsAlertas2` + ANA | `inmet_alertas`, `cemaden_alertas`, `ana_risco_municipal`, `hidro_risco_municipal` |
+| Alertas TITAN | INMET API/CSV + Cemaden `wsAlertas2` + ANA SOAP | `inmet_alertas`, `cemaden_alertas`, `ana_risco_municipal`, `hidro_risco_municipal` (`situacao_hidro`: seca_baixa / inundacao_alta) |
 
 ## Índice de saturação do solo
 

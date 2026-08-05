@@ -128,8 +128,40 @@ def frescor_resumo(frescor: pd.DataFrame) -> dict[str, Any]:
     }
 
 
+# Códigos internos → linguagem de gestor (alerta integrado / TITAN)
+AMEACA_LABELS: dict[str, str] = {
+    "sis_estagio": "Classificação SIS (calor)",
+    "titan_calor": "Calor extremo (UTCI)",
+    "titan_risco3d": "Risco cumulativo 3 dias",
+    "titan_inmet": "Alerta INMET",
+    "titan_cemaden": "Alerta Cemaden",
+    "titan_solo": "Solo / estiagem ou saturação",
+    "titan_hidro": "Nível de rio ANA",
+    "estiagem_rio_baixo": "Estiagem / rio baixo (ANA)",
+    "cheia_subida_rio": "Cheia / inundação (ANA)",
+    "seca_baixa": "Seca — nível de rio baixo",
+    "inundacao_alta": "Inundação — nível de rio alto",
+    "calor": "Calor / onda de calor",
+    "fumaça": "Fumaça / qualidade do ar",
+    "ar": "Fumaça / qualidade do ar",
+}
+
+
+def rotulo_ameaca(codigo: str) -> str:
+    raw = str(codigo or "").strip()
+    if not raw:
+        return "Sem dominante claro"
+    key = raw.lower()
+    if key in AMEACA_LABELS:
+        return AMEACA_LABELS[key]
+    # já veio legível (fallback por max de indicadores)
+    if " " in raw or "/" in raw:
+        return raw[:80]
+    return AMEACA_LABELS.get(key, raw.replace("_", " ").strip()[:80])
+
+
 def ameaca_dominante_estado(resumo: pd.DataFrame) -> str:
-    """Rótulo curto da principal ameaça estadual (heurística transparente)."""
+    """Rótulo curto e legível da principal ameaça estadual."""
     if resumo is None or resumo.empty:
         return "Dados insuficientes"
     if "componente_dominante" in resumo.columns:
@@ -142,8 +174,7 @@ def ameaca_dominante_estado(resumo: pd.DataFrame) -> str:
             .dropna()
         )
         if not modo.empty:
-            top = modo.value_counts().index[0]
-            return str(top)[:80]
+            return rotulo_ameaca(str(modo.value_counts().index[0]))
     scores = {}
     for col, label in [
         ("risco_cumulativo_3d", "Calor / onda de calor"),
@@ -163,6 +194,11 @@ def ameaca_dominante_estado(resumo: pd.DataFrame) -> str:
     return max(scores, key=scores.get)
 
 
+# Escala de pressão assistencial (0–100); limiar "alta" = 70
+PRESSAO_ESCALA_MAX = 100
+PRESSAO_LIMIAR_ALTA = 70
+
+
 def pressao_rotulo(media: float | None) -> str:
     if media is None or pd.isna(media):
         return "sem dado"
@@ -170,9 +206,24 @@ def pressao_rotulo(media: float | None) -> str:
         return "baixa"
     if media < 50:
         return "moderada"
-    if media < 70:
+    if media < PRESSAO_LIMIAR_ALTA:
         return "alta"
     return "muito alta"
+
+
+def pressao_card_value(media: float | None) -> str:
+    """Ex.: '20/100' — valor na escala completa (perceptível no plantão)."""
+    if media is None or pd.isna(media):
+        return "—/100"
+    return f"{float(media):.0f}/{PRESSAO_ESCALA_MAX}"
+
+
+def pressao_card_caption(media: float | None) -> str:
+    """Ex.: 'baixa · alta a partir de 70'."""
+    rot = pressao_rotulo(media)
+    if media is None or pd.isna(media):
+        return rot
+    return f"{rot} · alta ≥{PRESSAO_LIMIAR_ALTA}"
 
 
 def tendencia_estado_rotulo(n_subindo: int, n_total: int) -> str:
@@ -187,6 +238,21 @@ def tendencia_estado_rotulo(n_subindo: int, n_total: int) -> str:
         return "estabilidade / redução"
     return "estabilidade"
 
+
+def tendencia_card_value(n_subindo: int, n_total: int) -> str:
+    """Ex.: '7/142' — municípios em piora sobre o total."""
+    if n_total <= 0:
+        return "—/—"
+    return f"{int(n_subindo)}/{int(n_total)}"
+
+
+def tendencia_card_caption(n_subindo: int, n_total: int) -> str:
+    """Ex.: '5% em piora · estabilidade (agravamento ≥15%)'."""
+    if n_total <= 0:
+        return "sem dado"
+    pct = 100.0 * n_subindo / n_total
+    rot = tendencia_estado_rotulo(n_subindo, n_total)
+    return f"{pct:.0f}% em piora · {rot} (agrava ≥15%)"
 
 def acao_recomendada_nivel(nivel: str) -> str:
     """Ação operacional sugerida — sem afirmar ativação formal de COE/emergência."""

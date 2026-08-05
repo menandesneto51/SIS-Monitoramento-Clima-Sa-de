@@ -2,12 +2,18 @@
 """Alerta integrado SIS + TITAN (clima + INMET + Cemaden + solo + ANA)."""
 from __future__ import annotations
 
+import unicodedata
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from sisclima.engines.stages import STAGE_ORDER
+
+
+def _mun_key(value: Any) -> str:
+    t = unicodedata.normalize("NFKD", str(value or "")).encode("ascii", "ignore").decode("ascii")
+    return t.lower().strip()
 
 LEVEL_ORDER = ["cinza", "verde", "amarela", "laranja", "vermelha", "roxa"]
 
@@ -95,28 +101,48 @@ def build_alerta_integrado_municipal(
         return pd.DataFrame()
 
     base = resumo.copy()
-    base["cod_ibge"] = base["cod_ibge"].astype(str)
+    if "cod_ibge" in base.columns:
+        base["cod_ibge"] = base["cod_ibge"].astype(str)
+    else:
+        base["cod_ibge"] = pd.NA
+    if "municipio" in base.columns:
+        base["municipio_key"] = base["municipio"].map(_mun_key)
+    else:
+        base["municipio_key"] = ""
 
     inmet_m = _inmet_by_municipio(inmet_alertas if inmet_alertas is not None else pd.DataFrame())
     # Match por IBGE e por nome
     inmet_ibge = inmet_m.dropna(subset=["cod_ibge"]).drop_duplicates("cod_ibge", keep="first")
     inmet_nome = inmet_m.copy()
     if "municipio" in inmet_nome.columns:
-        inmet_nome["municipio_key"] = inmet_nome["municipio"].astype(str).str.lower().str.strip()
-        inmet_nome = inmet_nome.dropna(subset=["municipio_key"]).drop_duplicates("municipio_key", keep="first")
+        inmet_nome["municipio_key"] = inmet_nome["municipio"].map(_mun_key)
+        inmet_nome = inmet_nome[inmet_nome["municipio_key"].astype(str).str.len() > 0]
+        inmet_nome = inmet_nome.drop_duplicates("municipio_key", keep="first")
 
     cem = cemaden_alertas.copy() if cemaden_alertas is not None and not cemaden_alertas.empty else pd.DataFrame()
     if not cem.empty:
         if "nivel_sis" not in cem.columns and "nivel_alerta" in cem.columns:
             cem["nivel_sis"] = cem["nivel_alerta"]
-        cem["cod_ibge"] = cem.get("cod_ibge", pd.Series(dtype=str)).astype(str)
-        cem["_ord"] = cem.get("nivel_sis", pd.Series(dtype=str)).astype(str).str.lower().map(STAGE_ORDER).fillna(-1)
-        cem = cem.sort_values("_ord", ascending=False).drop_duplicates("cod_ibge", keep="first")
+        if "cod_ibge" in cem.columns:
+            cem["cod_ibge"] = cem["cod_ibge"].astype(str)
+            cem["_ord"] = cem.get("nivel_sis", pd.Series(dtype=str)).astype(str).str.lower().map(STAGE_ORDER).fillna(-1)
+            cem = cem.sort_values("_ord", ascending=False).drop_duplicates("cod_ibge", keep="first")
+        else:
+            cem = pd.DataFrame()
 
     hidro = hidro_risco.copy() if hidro_risco is not None and not hidro_risco.empty else pd.DataFrame()
-    if not hidro.empty and "cod_ibge" in hidro.columns:
-        hidro["cod_ibge"] = hidro["cod_ibge"].astype(str)
-        hidro = hidro.drop_duplicates("cod_ibge", keep="first")
+    hidro_by_ibge = pd.DataFrame()
+    hidro_by_nome = pd.DataFrame()
+    if not hidro.empty:
+        if "cod_ibge" in hidro.columns:
+            hidro_by_ibge = hidro.copy()
+            hidro_by_ibge["cod_ibge"] = hidro_by_ibge["cod_ibge"].astype(str)
+            hidro_by_ibge = hidro_by_ibge.drop_duplicates("cod_ibge", keep="first")
+        if "municipio" in hidro.columns:
+            hidro_by_nome = hidro.copy()
+            hidro_by_nome["municipio_key"] = hidro_by_nome["municipio"].map(_mun_key)
+            hidro_by_nome = hidro_by_nome[hidro_by_nome["municipio_key"].astype(str).str.len() > 0]
+            hidro_by_nome = hidro_by_nome.drop_duplicates("municipio_key", keep="first")
 
     # INMET estadual (sem município) eleva todos se for o pior
     inmet_estado = None
@@ -146,7 +172,7 @@ def build_alerta_integrado_municipal(
             niv_in = hit["nivel_inmet"]
             motivos.append(str(hit.get("motivo_inmet") or f"INMET {niv_in}"))
         elif mun and not inmet_nome.empty:
-            key = str(mun).lower().strip()
+            key = _mun_key(mun)
             hit2 = inmet_nome[inmet_nome["municipio_key"] == key]
             if not hit2.empty:
                 niv_in = hit2.iloc[0]["nivel_inmet"]
@@ -176,15 +202,47 @@ def build_alerta_integrado_municipal(
                 componentes["titan_solo"] = "amarela"
                 motivos.append(f"Saturação do solo alta ({solo:.0f})")
 
-        # Hidro ANA
+        # Hidro ANA (seca vs cheia)
         niv_h = row.get("nivel_alerta_hidro")
-        if (not niv_h or str(niv_h) in ("nan", "None")) and not hidro.empty:
-            h = hidro[hidro["cod_ibge"].astype(str) == cod]
-            if not h.empty:
-                niv_h = h.iloc[0].get("nivel_alerta_hidro")
+        sit_h = str(row.get("situacao_hidro") or "").lower()
+        rp_h = str(row.get("risco_predominante") or "").lower()
+        cota_h = row.get("cota_cm")
+        if (not niv_h or str(niv_h) in ("nan", "None")) and (
+            not hidro_by_ibge.empty or not hidro_by_nome.empty
+        ):
+            hr0 = None
+            if not hidro_by_ibge.empty and cod not in ("", "nan", "None", "<NA>", "NaT"):
+                h = hidro_by_ibge[hidro_by_ibge["cod_ibge"].astype(str) == cod]
+                if not h.empty:
+                    hr0 = h.iloc[0]
+            if hr0 is None and not hidro_by_nome.empty:
+                mkey = row.get("municipio_key") or _mun_key(mun)
+                if mkey:
+                    h2 = hidro_by_nome[hidro_by_nome["municipio_key"] == mkey]
+                    if not h2.empty:
+                        hr0 = h2.iloc[0]
+            if hr0 is not None:
+                niv_h = hr0.get("nivel_alerta_hidro")
+                if not sit_h or sit_h in ("nan", "none"):
+                    sit_h = str(hr0.get("situacao_hidro") or "").lower()
+                if not rp_h or rp_h in ("nan", "none"):
+                    rp_h = str(hr0.get("risco_predominante") or "").lower()
+                if cota_h is None or (isinstance(cota_h, float) and pd.isna(cota_h)):
+                    cota_h = hr0.get("cota_cm")
         if isinstance(niv_h, str) and niv_h.lower() in STAGE_ORDER and niv_h.lower() != "verde":
             componentes["titan_hidro"] = niv_h.lower()
-            motivos.append(f"Hidro ANA {niv_h}")
+            cota_txt = ""
+            try:
+                if cota_h is not None and not pd.isna(cota_h):
+                    cota_txt = f" · cota {float(cota_h):.0f} cm"
+            except Exception:
+                cota_txt = ""
+            if sit_h == "seca_baixa" or rp_h == "estiagem_rio_baixo":
+                motivos.append(f"Cota ANA baixa (estiagem) — {niv_h}{cota_txt}")
+            elif sit_h == "inundacao_alta" or rp_h == "cheia_subida_rio":
+                motivos.append(f"Cota ANA alta (cheia) — {niv_h}{cota_txt}")
+            else:
+                motivos.append(f"Hidro ANA {niv_h}{cota_txt}")
 
         # Clima (reforço explícito TITAN)
         utci = pd.to_numeric(row.get("utci_proxy"), errors="coerce")

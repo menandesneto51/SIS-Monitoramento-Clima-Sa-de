@@ -66,8 +66,12 @@ from sisclima.ui.home_ops import (
     build_fonte_frescor_home,
     explicar_nivel_municipio,
     frescor_resumo,
+    pressao_card_caption,
+    pressao_card_value,
     pressao_rotulo,
     tabela_prioridades_hoje,
+    tendencia_card_caption,
+    tendencia_card_value,
     tendencia_estado_rotulo,
 )
 from sisclima.ui.correlation import compute_spearman_pairs
@@ -872,12 +876,7 @@ ui_theme.hero(
     ],
 )
 
-if backend_name() != "postgresql":
-    ui_theme.callout(
-        f"Ambiente atual: {backend_name()} (não PostgreSQL). "
-        "Se esperava Docker/Postgres, verifique DATABASE_URL. Abas incompletas podem refletir esse fallback.",
-        "warn",
-    )
+# Aviso de backend (sqlite vs Postgres) fica na aba «Fontes e qualidade» — não na home.
 
 if resumo_all.empty:
     st.error("A tabela resumo_municipal_atual não foi encontrada ou está vazia. Rode o pipeline antes de abrir o painel.")
@@ -924,8 +923,9 @@ _ameaca = ameaca_dominante_estado(resumo_all)
 _n_verm_rox = int(
     resumo_all["nivel"].astype(str).str.lower().isin(["vermelha", "roxa"]).sum()
 ) if "nivel" in resumo_all.columns else 0
+_n_mun_estado = max(len(resumo_all), 1)
 _n_subindo = int(intel_state.get("tendencia_subindo", 0) or 0)
-_tend_rotulo = tendencia_estado_rotulo(_n_subindo, max(len(resumo_all), 1))
+_tend_rotulo = tendencia_estado_rotulo(_n_subindo, _n_mun_estado)
 _pressao_media_top = (
     float(pd.to_numeric(resumo_all["indice_pressao_saude"], errors="coerce").mean())
     if "indice_pressao_saude" in resumo_all.columns
@@ -945,23 +945,30 @@ ui_theme.section_title(
 ui_theme.insight_cards(
     [
         ("Nível operacional", str(nivel_estado).upper(), f"sentinela: {municipio_sentinel}"),
-        ("Municípios em alerta", str(_n_verm_rox), "vermelha + roxa"),
-        ("Principal ameaça", _ameaca[:42], "heurística transparente"),
-        ("Tendência ~7 dias", _tend_rotulo, f"{_n_subindo} mun. com piora prevista"),
-        ("Pressão sobre a saúde", pressao_rotulo(_pressao_media_top), safe_metric_value(_pressao_media_top, "", 0)),
+        ("Municípios em alerta", f"{_n_verm_rox}/{_n_mun_estado}", "vermelha + roxa"),
+        (
+            "Principal ameaça",
+            _ameaca[:48],
+            "o que mais puxou o nível (não é ML)",
+        ),
+        (
+            "Tendência ~7 dias",
+            tendencia_card_value(_n_subindo, _n_mun_estado),
+            tendencia_card_caption(_n_subindo, _n_mun_estado),
+        ),
+        (
+            "Pressão sobre a saúde",
+            pressao_card_value(_pressao_media_top),
+            pressao_card_caption(_pressao_media_top),
+        ),
         ("Frescor dos dados", f"{_frescor_sum['pct_ok']:.0f}%", "fontes na janela esperada"),
     ]
 )
-
-with st.expander("Frescor e cobertura por fonte (ausência ≠ risco zero)", expanded=False):
-    if _frescor_home.empty:
-        st.caption("Sem metadados de frescor nesta base.")
-    else:
-        show_df(_frescor_home, height=260)
-        st.caption(
-            "Fonte fora da janela esperada deve ser lida com baixa confiabilidade e não como ‘tudo bem’."
-        )
-
+st.caption(
+    "Nível Roxa ≠ pressão hospitalar alta. Tendência usa % do estado "
+    f"(agravamento ≥15%). Pressão em escala 0–100 (alta ≥70). "
+    "Detalhe de fontes → aba **Fontes e qualidade**."
+)
 # Prioridades de hoje — resposta rápida às 5 perguntas do plantão
 ui_theme.section_title(
     "Prioridades de hoje",
@@ -994,115 +1001,114 @@ _semaforo_top = (
     else {}
 )
 
-with st.expander("Detalhe estadual (métricas, distribuição Verde→Roxa e glossário)", expanded=False):
-    ui_theme.section_title(
-        "Situação geral do Estado — detalhe",
-        "Atual · predição 7 dias · tendência — valores estaduais da rodada",
-    )
-    ui_theme.insight_cards(
-        [
-            (
-                "Prioridade global",
-                safe_metric_value(prioridade_state.get("media"), "", 0),
-                f"alta+ {prioridade_state.get('n_alta_ou_mais', 0)} · ↑{prioridade_state.get('tendencia_aumento', 0)}",
-            ),
-            (
-                "Tensão climática",
-                safe_metric_value(intel_state.get("indice_tensao_climatica_media"), "", 0),
-                "média estadual 0–100",
-            ),
-            (
-                "Carga em saúde",
-                safe_metric_value(intel_state.get("indice_carga_saude_media"), "", 0),
-                "média estadual 0–100",
-            ),
-            (
-                "Vigilância integrada",
-                safe_metric_value(intel_state.get("indice_vigilancia_integrada_media"), "", 0),
-                "prioridade composta",
-            ),
+ui_theme.section_title(
+    "Situação geral do Estado",
+    "Atual · predição 7 dias · tendência — sempre visível na home",
+)
+ui_theme.insight_cards(
+    [
+        (
+            "Prioridade global",
+            safe_metric_value(prioridade_state.get("media"), "", 0),
+            f"alta+ {prioridade_state.get('n_alta_ou_mais', 0)} · ↑{prioridade_state.get('tendencia_aumento', 0)}",
+        ),
+        (
+            "Tensão climática",
+            safe_metric_value(intel_state.get("indice_tensao_climatica_media"), "", 0),
+            "média estadual 0–100",
+        ),
+        (
+            "Carga em saúde",
+            safe_metric_value(intel_state.get("indice_carga_saude_media"), "", 0),
+            "média estadual 0–100",
+        ),
+        (
+            "Vigilância integrada",
+            safe_metric_value(intel_state.get("indice_vigilancia_integrada_media"), "", 0),
+            "prioridade composta",
+        ),
             (
                 "Pressão saúde",
-                safe_metric_value(_pressao_media_top, "", 0),
-                f"G {_semaforo_top.get('verde', 0)} · A {_semaforo_top.get('amarela', 0)} · V {_semaforo_top.get('vermelha', 0)}",
+                pressao_card_value(_pressao_media_top),
+                pressao_card_caption(_pressao_media_top)
+                + f" · G {_semaforo_top.get('verde', 0)} · A {_semaforo_top.get('amarela', 0)} · V {_semaforo_top.get('vermelha', 0)}",
             ),
             (
                 "Tendência ↑ em 7d",
-                str(intel_state.get("tendencia_subindo", 0)),
-                "municípios com piora prevista",
+                tendencia_card_value(int(intel_state.get("tendencia_subindo", 0) or 0), max(len(resumo_all), 1)),
+                tendencia_card_caption(int(intel_state.get("tendencia_subindo", 0) or 0), max(len(resumo_all), 1)),
             ),
         ]
     )
 
-    _tend_cli = metrics.get("tendencia_clima", "—")
-    r1 = st.columns(8)
-    metric_with_pred(
-        r1[0],
-        "Municípios",
-        metrics.get("municipios", 0),
-        metrics.get("municipios", 0),
-        _tend_cli,
-        "",
-        0,
-    )
-    metric_with_pred(r1[1], "Tmax máx.", metrics.get("tmax"), metrics.get("tmax_pred"), metrics.get("tendencia_tmax", _tend_cli), " °C", 1)
-    metric_with_pred(r1[2], "UTCI máx.", metrics.get("utci"), metrics.get("utci_pred"), metrics.get("tendencia_utci", _tend_cli), "", 1)
-    metric_with_pred(r1[3], "Risco 3d máx.", metrics.get("risco3d"), metrics.get("risco3d_pred"), metrics.get("tendencia_risco3d", _tend_cli), "", 2)
-    metric_with_pred(r1[4], "Ocupação média", metrics.get("ocup_media"), pd.NA, _tend_cli, "%", 1)
-    metric_with_pred(r1[5], "Pressão média", metrics.get("pressao_media"), pd.NA, _tend_cli, "%", 1)
-    metric_with_pred(r1[6], "PM2.5 máx.", metrics.get("pm25_max"), pd.NA, _tend_cli, "", 1)
-    metric_with_pred(r1[7], "IQA máx.", metrics.get("iqar_max"), pd.NA, _tend_cli, "", 1)
-    ui_theme.glossary_expander(
-        [
-            "indice_prioridade_global",
-            "faixa_prioridade_global",
-            "tendencia_prioridade_7d",
-            "indice_tensao_climatica",
-            "indice_carga_saude",
-            "indice_vigilancia_integrada",
-            "tendencia_7d",
-            "completude_dados_pct",
-            "risco_cumulativo_3d",
-            "utci_proxy",
-            "pressao_calor_pct",
-        ]
-    )
+_tend_cli = metrics.get("tendencia_clima", "—")
+r1 = st.columns(8)
+metric_with_pred(
+    r1[0],
+    "Municípios",
+    metrics.get("municipios", 0),
+    metrics.get("municipios", 0),
+    _tend_cli,
+    "",
+    0,
+)
+metric_with_pred(r1[1], "Tmax máx.", metrics.get("tmax"), metrics.get("tmax_pred"), metrics.get("tendencia_tmax", _tend_cli), " °C", 1)
+metric_with_pred(r1[2], "UTCI máx.", metrics.get("utci"), metrics.get("utci_pred"), metrics.get("tendencia_utci", _tend_cli), "", 1)
+metric_with_pred(r1[3], "Risco 3d máx.", metrics.get("risco3d"), metrics.get("risco3d_pred"), metrics.get("tendencia_risco3d", _tend_cli), "", 2)
+metric_with_pred(r1[4], "Ocupação média", metrics.get("ocup_media"), pd.NA, _tend_cli, "%", 1)
+metric_with_pred(r1[5], "Pressão média", metrics.get("pressao_media"), pd.NA, _tend_cli, "%", 1)
+metric_with_pred(r1[6], "PM2.5 máx.", metrics.get("pm25_max"), pd.NA, _tend_cli, "", 1)
+metric_with_pred(r1[7], "IQA máx.", metrics.get("iqar_max"), pd.NA, _tend_cli, "", 1)
 
-    ui_theme.section_title(
-        "Legenda rápida dos níveis",
-        "Atual · predição 7d · tendência do número de municípios em cada cor",
-    )
-    ui_theme.level_legend()
-    _pred_levels = metrics.get("pred_levels") or {}
-    dist_cols = st.columns(5)
-    for _idx, (_nivel, _label) in enumerate([
-        ("verde", "Verde"),
-        ("amarela", "Amarela"),
-        ("laranja", "Laranja"),
-        ("vermelha", "Vermelha"),
-        ("roxa", "Roxa"),
-    ]):
-        _valor = int(metrics.get(_nivel, 0) or 0)
-        _pred_n = int(_pred_levels.get(_nivel, 0) or 0)
-        _tend_n = metrics.get(f"tendencia_{_nivel}", _trend_from_counts(_valor, _pred_n))
-        _icon = _trend_icon(_tend_n)
-        _tend_txt = _trend_pt(_tend_n)
-        with dist_cols[_idx]:
-            st.markdown(
-                f"""
-                <div class="sis-level-tile sis-level-tile-{_nivel}" style="background:{LEVEL_COLOR_MAP[_nivel]};color:{'#1a1a1a' if _nivel in ('amarela','cinza') else '#fff'};">
-                    <div class="lbl">{_label}</div>
-                    <div class="val">{_valor}</div>
-                    <div class="pred">7d: {_pred_n}</div>
-                    <div class="trend">{_icon} {_tend_txt}</div>
-                </div>                """,
-                unsafe_allow_html=True,
-            )
+ui_theme.section_title(
+    "Distribuição por nível (Verde → Roxa)",
+    "Atual · predição 7d · tendência do número de municípios em cada cor",
+)
+ui_theme.level_legend()
+_pred_levels = metrics.get("pred_levels") or {}
+dist_cols = st.columns(5)
+for _idx, (_nivel, _label) in enumerate([
+    ("verde", "Verde"),
+    ("amarela", "Amarela"),
+    ("laranja", "Laranja"),
+    ("vermelha", "Vermelha"),
+    ("roxa", "Roxa"),
+]):
+    _valor = int(metrics.get(_nivel, 0) or 0)
+    _pred_n = int(_pred_levels.get(_nivel, 0) or 0)
+    _tend_n = metrics.get(f"tendencia_{_nivel}", _trend_from_counts(_valor, _pred_n))
+    _icon = _trend_icon(_tend_n)
+    _tend_txt = _trend_pt(_tend_n)
+    with dist_cols[_idx]:
+        st.markdown(
+            f"""
+            <div class="sis-level-tile sis-level-tile-{_nivel}" style="background:{LEVEL_COLOR_MAP[_nivel]};color:{'#1a1a1a' if _nivel in ('amarela','cinza') else '#fff'};">
+                <div class="lbl">{_label}</div>
+                <div class="val">{_valor}</div>
+                <div class="pred">7d: {_pred_n}</div>
+                <div class="trend">{_icon} {_tend_txt}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-with st.expander("O que cada cor significa na operação", expanded=False):
-    ui_theme.level_legend()
+ui_theme.glossary_expander(
+    [
+        "indice_prioridade_global",
+        "faixa_prioridade_global",
+        "tendencia_prioridade_7d",
+        "indice_tensao_climatica",
+        "indice_carga_saude",
+        "indice_vigilancia_integrada",
+        "tendencia_7d",
+        "completude_dados_pct",
+        "risco_cumulativo_3d",
+        "utci_proxy",
+        "pressao_calor_pct",
+    ]
+)
 
-# Filtros globais no topo (sempre visíveis)
+# Filtros territoriais (sempre visíveis)
 st.markdown("<div class='sis-panel soft'><div class='sis-panel-title'>Filtros territoriais</div>", unsafe_allow_html=True)
 f1, f2, f3 = st.columns([1.2, 1.2, 1.0])
 regionais_disponiveis = sorted(
@@ -1258,6 +1264,7 @@ ui_theme.status_strip(
 NAV_SECTIONS: list[str] = [
     "Visão executiva",
     "Mapas",
+    "Fontes e qualidade",
     "Guia do leitor",
     "El Niño / Contingência",
     "Clima / TITAN",
@@ -1278,7 +1285,7 @@ NAV_SECTIONS: list[str] = [
     "Cálculos",
 ]
 NAV_GROUPS: dict[str, list[str]] = {
-    "Visão": ["Visão executiva", "Mapas", "El Niño / Contingência", "Guia do leitor"],
+    "Visão": ["Visão executiva", "Mapas", "Fontes e qualidade", "El Niño / Contingência", "Guia do leitor"],
     "Clima e ar": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
     "Saúde": [
         "Assistência",
@@ -1368,6 +1375,46 @@ if SECTION_KEY == "Guia do leitor":
     ui_theme.callout(
         "Este guia é didático. Decisões oficiais seguem protocolos do CIEVS/SES e boletins do INMET/CPTEC.",
         "tip",
+    )
+
+elif SECTION_KEY == "Fontes e qualidade":
+    ui_theme.section_title(
+        "Fontes e qualidade",
+        "Ambiente da base, frescor e cobertura — ausência ≠ risco zero",
+    )
+    ui_theme.insight_cards(
+        [
+            ("Backend", backend_name(), "motor de dados do painel"),
+            ("Fontes OK", f"{_frescor_sum['n_ok']}/{_frescor_sum['n_total']}", f"{_frescor_sum['pct_ok']:.0f}% na janela"),
+            ("Com problema", str(_frescor_sum["n_problema"]), "defasagem / parcial / indisponível"),
+            ("Referência", _data_ref or "rodada atual", "data do resumo municipal"),
+        ]
+    )
+    if backend_name() != "postgresql":
+        ui_theme.callout(
+            f"Ambiente atual: {backend_name()} (não PostgreSQL). "
+            "Se esperava Docker/Postgres, verifique DATABASE_URL. "
+            "Abas incompletas podem refletir esse fallback (ex.: seed Cloud SQLite).",
+            "warn",
+        )
+    else:
+        ui_theme.callout(
+            "Backend PostgreSQL ativo — preferencial para operação local/VPN SES.",
+            "tip",
+        )
+    st.markdown("#### Frescor e cobertura por fonte")
+    ui_theme.callout(
+        "Fonte fora da janela esperada deve ser lida com baixa confiabilidade "
+        "e não como ‘tudo bem’. Dado ausente não é risco zero.",
+        "info",
+    )
+    if _frescor_home.empty:
+        st.info("Sem metadados de frescor nesta base. Rode o enrichment/orquestrador.")
+    else:
+        show_df(_frescor_home, height=420)
+    st.caption(
+        f"Atualização do resumo municipal: {_data_proc}. "
+        "Para regenerar: `regenerar_sistema_completo.py` (export Cloud ligado por padrão)."
     )
 
 elif SECTION_KEY == "Visão executiva":
@@ -1486,7 +1533,11 @@ elif SECTION_KEY == "El Niño / Contingência":
     c1, c2, c3 = st.columns(3)
     c1.metric("Nível operacional SIS", str(nivel_estado).upper())
     c2.metric("Municípios vermelha/roxa", _n_verm_rox)
-    c3.metric("Tendência estadual ~7d", _tend_rotulo)
+    c3.metric(
+        "Tendência estadual ~7d",
+        tendencia_card_value(_n_subindo, _n_mun_estado),
+        tendencia_card_caption(_n_subindo, _n_mun_estado),
+    )
 
     st.markdown("#### Cenário oficial (referência)")
     st.markdown(
@@ -1796,16 +1847,61 @@ elif SECTION_KEY == "Clima / TITAN":
             )
     with tab_hi:
         if hidro_risco.empty:
-            st.info("Sem hidro_risco_municipal (série ANA curta ou ausente).")
+            st.info("Sem hidro_risco_municipal (série ANA curta ou ausente). Ative ANA_FETCH_SERIES=true.")
         else:
             hi_f = hidro_risco.copy()
             if "cod_ibge" in hi_f.columns and "cod_ibge" in resumo.columns:
                 hi_f = hi_f[hi_f["cod_ibge"].astype(str).isin(resumo["cod_ibge"].dropna().astype(str))]
+            if "situacao_hidro" in hi_f.columns:
+                sit = hi_f["situacao_hidro"].astype(str).str.lower()
+                m1, m2, m3 = st.columns(3)
+                m1.metric("Seca (rio baixo)", int(sit.eq("seca_baixa").sum()))
+                m2.metric("Cheia / inundação", int(sit.eq("inundacao_alta").sum()))
+                m3.metric(
+                    "Com cota",
+                    int(pd.to_numeric(hi_f["cota_cm"], errors="coerce").notna().sum())
+                    if "cota_cm" in hi_f.columns
+                    else 0,
+                )
             show_df(
                 safe_sort(hi_f, ["score_hidro_max"] if "score_hidro_max" in hi_f.columns else [], ascending=[False]),
-                [c for c in ["cod_ibge", "municipio", "nivel_alerta_hidro", "score_hidro_max", "score_cheia_max", "score_estiagem_max", "risco_predominante", "motivo_resumo", "data_mais_recente"] if c in hi_f.columns],
+                [
+                    c
+                    for c in [
+                        "cod_ibge",
+                        "municipio",
+                        "situacao_hidro",
+                        "risco_predominante",
+                        "nivel_alerta_hidro",
+                        "cota_cm",
+                        "score_hidro_max",
+                        "score_cheia_max",
+                        "score_estiagem_max",
+                        "motivo_resumo",
+                        "data_mais_recente",
+                    ]
+                    if c in hi_f.columns
+                ],
                 height=260,
             )
+            color_hi = (
+                "situacao_hidro"
+                if "situacao_hidro" in hi_f.columns
+                else ("risco_predominante" if "risco_predominante" in hi_f.columns else None)
+            )
+            if color_hi:
+                map_df, geojson, status = prepare_map_dataframe(hi_f)
+                st.caption(status)
+                fig = make_choropleth_or_points(
+                    map_df,
+                    geojson,
+                    color_col=color_hi,
+                    title="Hidro ANA — seca vs cheia",
+                    categorical=True,
+                    hover_cols=[c for c in ["cota_cm", "nivel_alerta_hidro", "motivo_resumo"] if c in map_df.columns],
+                )
+                if fig is not None:
+                    st.plotly_chart(fig, use_container_width=True)
 
     show_df(
         safe_sort(resumo, [c for c in ["indice_tensao_climatica", "risco_cumulativo_3d", "indice_saturacao_solo"] if c in resumo.columns], ascending=[False] * min(3, len([c for c in ["indice_tensao_climatica", "risco_cumulativo_3d", "indice_saturacao_solo"] if c in resumo.columns]))),
@@ -1815,7 +1911,8 @@ elif SECTION_KEY == "Clima / TITAN":
                 "indice_tensao_climatica", "faixa_tensao_climatica",
                 "tmax", "tmedia", "umidade_media", "utci_proxy", "risco_cumulativo_3d",
                 "indice_saturacao_solo", "classe_saturacao_solo",
-                "nivel_alerta_hidro", "onda_calor_p95_2d", "tendencia_7d", "orientacao_leiga", "motivo",
+                "situacao_hidro", "nivel_alerta_hidro", "cota_cm",
+                "onda_calor_p95_2d", "tendencia_7d", "orientacao_leiga", "motivo",
             ]
             if c in resumo.columns
         ],

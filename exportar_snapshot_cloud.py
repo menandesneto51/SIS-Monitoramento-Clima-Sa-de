@@ -33,6 +33,8 @@ TABLES = [
     "inmet_alertas",
     "cemaden_alertas",
     "ana_risco_municipal",
+    "ana_telemetria",
+    "ana_estacoes",
     "qualidade_ar_municipal",
     "qualidade_ar_estado_serie_v6",
     "queimadas_focos_municipal",

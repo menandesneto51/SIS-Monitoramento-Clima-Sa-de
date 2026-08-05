@@ -390,21 +390,41 @@ hr {
 .sis-level-banner {
   border-radius: 0;
   padding: 0.95rem 1.05rem;
-  color: white !important;
+  color: #ffffff !important;
   margin: 0.3rem 0 0.85rem 0;
   border-left: 8px solid rgba(255,255,255,0.45);
 }
-.sis-level-banner h3 {
-  margin: 0;
-  font-size: 1.12rem;
-  font-weight: 800;
-  color: #fff !important;
+.sis-level-banner,
+.sis-level-banner *,
+.sis-level-banner .sis-level-banner-title,
+.sis-level-banner p,
+.sis-level-banner b,
+.sis-level-banner span {
+  color: #ffffff !important;
+}
+.sis-level-banner-amarela,
+.sis-level-banner-amarela *,
+.sis-level-banner-cinza,
+.sis-level-banner-cinza * {
+  color: #1a1a1a !important;
+}
+.sis-level-banner-title {
+  margin: 0 !important;
+  font-size: 1.12rem !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
 }
 .sis-level-banner p {
   margin: 0.28rem 0 0 0;
-  opacity: 0.96;
+  opacity: 0.98;
   font-size: 0.92rem;
-  color: #fff !important;
+}
+
+/* Streamlit às vezes promove o título a h3 azul — força branco no banner roxo/laranja/etc. */
+h3[id*="nivel-operacional"],
+h3[id*="nivel-operacional"] span,
+h3[id*="nivel-operacional"] a {
+  color: #ffffff !important;
 }
 
 .sis-section-title {

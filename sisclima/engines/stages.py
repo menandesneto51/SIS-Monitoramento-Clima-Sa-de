@@ -235,7 +235,6 @@ def classify_stage(latest: dict, settings: dict) -> StageResult:
     for key, label in [
         ("nivel_inmet", "alerta INMET"),
         ("nivel_cemaden", "alerta Cemaden"),
-        ("nivel_alerta_hidro", "risco hidro ANA"),
     ]:
         niv = latest.get(key)
         if isinstance(niv, str) and niv.lower() in STAGE_ORDER:
@@ -243,6 +242,20 @@ def classify_stage(latest: dict, settings: dict) -> StageResult:
             if sc >= 0:
                 candidates.append(sc)
                 motivos.append(f"{label} {niv.lower()}")
+
+    niv_h = latest.get("nivel_alerta_hidro")
+    if isinstance(niv_h, str) and niv_h.lower() in STAGE_ORDER:
+        sc = STAGE_ORDER[niv_h.lower()]
+        if sc >= 0:
+            candidates.append(sc)
+            sit = str(latest.get("situacao_hidro") or "").lower()
+            rp = str(latest.get("risco_predominante") or "").lower()
+            if sit == "seca_baixa" or rp == "estiagem_rio_baixo":
+                motivos.append(f"Cota ANA baixa (estiagem) {niv_h.lower()}")
+            elif sit == "inundacao_alta" or rp == "cheia_subida_rio":
+                motivos.append(f"Cota ANA alta (cheia) {niv_h.lower()}")
+            else:
+                motivos.append(f"risco hidro ANA {niv_h.lower()}")
 
     # --------------------------------------------------------
     # Bloco assistencial
