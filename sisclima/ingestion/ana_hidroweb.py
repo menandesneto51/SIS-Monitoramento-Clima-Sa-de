@@ -89,6 +89,14 @@ def fetch_hidroweb_token(force: bool = False) -> str | None:
             headers={"Identificador": ident, "Senha": senha, "accept": "*/*"},
             timeout=int(env("ANA_TIMEOUT_SECONDS", "90") or 90),
         )
+        # 417 = Expectation Failed / throttling ocasional da ANA — 1 retry
+        if r.status_code == 417:
+            time.sleep(1.5)
+            r = _session().get(
+                f"{_rest_base()}/EstacoesTelemetricas/OAUth/v1",
+                headers={"Identificador": ident, "Senha": senha, "accept": "*/*"},
+                timeout=int(env("ANA_TIMEOUT_SECONDS", "90") or 90),
+            )
         r.raise_for_status()
         payload = r.json() if r.content else {}
         items = payload.get("items") if isinstance(payload, dict) else None
