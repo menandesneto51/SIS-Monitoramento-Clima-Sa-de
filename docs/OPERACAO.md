@@ -47,10 +47,27 @@ Alternativa sem Docker Compose contínuo: cron no servidor (`0 8 * * *`) chamand
 
 ## Agendamento Windows
 
-Usar Agendador de Tarefas apontando para:
+Usar Agendador de Tarefas:
 
-```bat
-rodar_pipeline.bat
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\criar_tarefas_windows.ps1
 ```
+
+Os `.bat` na raiz apontam para:
+
+| Script | Função |
+|---|---|
+| `rodar_pipeline.bat` | `rotina_diaria_ops.py` (ANA + enrichment + SISREG/pressão + seed) |
+| `rodar_alertas_once.bat` | digest SES/CIEVS (`sisclima.alerts.scheduler --once`) |
+
+Manual (PowerShell):
+
+```powershell
+.\.venv\Scripts\python.exe rotina_diaria_ops.py
+.\.venv\Scripts\python.exe rotina_diaria_ops.py --offline
+.\.venv\Scripts\python.exe scripts\smoke_ops.py
+```
+
+Sem VPN SES, a rotina entra em modo offline automático (CSV/cache). Com VPN, omita `--offline`.
 
 Nos níveis críticos, criar segunda tarefa às 12h e 17h.

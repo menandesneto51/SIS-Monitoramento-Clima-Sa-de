@@ -1,1 +1,26 @@
 codigo_estacao,nome_estacao,municipio,cota_seca_cm,cota_alerta_cm,cota_emergencia_cm,observacao
+# Preencher cotas absolutas (cm) com régua oficial ANA / Defesa Civil / operação UHE.
+# Linhas com # são ignoradas. Barramentos ficam de fora do score (cota de reservatório).
+# Enquanto vazio, o motor usa só percentis da série (ANA_SERIES_DAYS).
+15120002,VILA BELA ST.TRINDADE,VILA BELA DA SANTÍSSIMA TRINDADE,,,,régua fluvial — preencher limiares oficiais
+15121000,PCH SALTO CORGÃO JUSANTE,NOVA LACERDA,,,,régua fluvial — preencher limiares oficiais
+15043000,UHE GUAPORÉ MONTANTE 1,JAURU,,,,régua fluvial — preencher limiares oficiais
+15044100,UHE GUAPORÉ JUSANTE,PONTES E LACERDA,,,,régua fluvial — preencher limiares oficiais
+15046000,PCH NOVA GUAPORÉ JUSANTE,PONTES E LACERDA,,,,régua fluvial — preencher limiares oficiais
+15046050,UHE GUAPORÉ CÓRREGO PALMITAL,VALE DE SÃO DOMINGOS,,,,régua fluvial — preencher limiares oficiais
+15123000,PCH ESPERANÇA JUSANTE,COMODORO,,,,régua fluvial — preencher limiares oficiais
+15123100,PCH CABIXI II JUSANTE,COMODORO,,,,régua fluvial — preencher limiares oficiais
+15124610,CGH MIRANDA ESTÂNCIA JUSANTE,COMODORO,,,,régua fluvial — preencher limiares oficiais
+15710000,PCH JUINA MONTANTE 2,JUÍNA,,,,régua fluvial — preencher limiares oficiais
+15720000,PCH JUINA MONTANTE 1,JUÍNA,,,,régua fluvial — preencher limiares oficiais
+15740000,PCH JUINA JUSANTE,JUÍNA,,,,régua fluvial — preencher limiares oficiais
+15747900,UHE DARDANELOS RIBEIRÃO TABOCA,ARIPUANÃ,,,,régua fluvial — preencher limiares oficiais
+15750500,UHE DARDANELOS MONTANTE,ARIPUANÃ,,,,régua fluvial — preencher limiares oficiais
+15750600,UHE DARDANELOS JUSANTE,ARIPUANÃ,,,,régua fluvial — preencher limiares oficiais
+15753900,PCH FAXINAL II MONTANTE,ARIPUANÃ,,,,régua fluvial — preencher limiares oficiais
+15754000,CGH FAXINAL I JUSANTE,ARIPUANÃ,,,,régua fluvial — preencher limiares oficiais
+17090400,PCH SANTA LÚCIA I E II MONTANTE 2,CAMPOS DE JÚLIO,,,,régua fluvial — preencher limiares oficiais
+17090500,PCH SANTA LÚCIA I E II MONTANTE 1,SAPEZAL,,,,régua fluvial — preencher limiares oficiais
+17090600,PCH SANTA LÚCIA I E II JUSANTE,SAPEZAL,,,,régua fluvial — preencher limiares oficiais
+17090700,PCH JESUÍTA MONTANTE,CAMPOS DE JÚLIO,,,,régua fluvial — preencher limiares oficiais
+17091030,PCH SEGREDO MONTANTE,CAMPOS DE JÚLIO,,,,régua fluvial — preencher limiares oficiais

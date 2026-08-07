@@ -77,6 +77,22 @@ def _situacao_hidro(risco_predominante: str, score_estiagem: float, score_cheia:
     return "normal"
 
 
+def _cota_regua_plausivel(series: pd.Series, nomes: pd.Series | None = None) -> pd.Series:
+    """Exclui cotas de barramento/elevação (tipicamente >5 m em escala de régua fluvial).
+
+    Estações 'BARRAMENTO' reportam cota de reservatório (dezenas de milhares de cm)
+    e distorcem o max municipal — não devem entrar no score de seca/cheia.
+    """
+    ok = pd.to_numeric(series, errors="coerce").notna()
+    vals = pd.to_numeric(series, errors="coerce")
+    ok &= vals >= 0
+    ok &= vals < 5000  # régua fluvial operacional; acima costuma ser cota de barragem
+    if nomes is not None:
+        n = nomes.astype(str).str.upper()
+        ok &= ~n.str.contains("BARRAMENTO", na=False)
+    return ok
+
+
 def load_cotas_referencia(path: str | Path | None = None) -> pd.DataFrame:
     """CSV opcional: codigo_estacao, cota_seca_cm, cota_alerta_cm, cota_emergencia_cm."""
     raw = path or env("ANA_COTAS_REFERENCIA_CSV", "config/ana_cotas_referencia_mt.csv")
@@ -176,6 +192,11 @@ def compute_hidro_risco_from_ana(telemetria: pd.DataFrame) -> pd.DataFrame:
         work = df.copy()
         work[var] = pd.to_numeric(work[var], errors="coerce")
         work = work.dropna(subset=[var])
+        if label == "cota":
+            nomes = work["nome_estacao"] if "nome_estacao" in work.columns else None
+            work = work.loc[_cota_regua_plausivel(work[var], nomes)].copy()
+            if work.empty:
+                continue
         keys = [c for c in ["cod_ibge", "municipio"] if c in work.columns]
         # pandas groupby dropna=True esconde grupos com cod_ibge nulo
         if "cod_ibge" in keys and work["cod_ibge"].isna().all():

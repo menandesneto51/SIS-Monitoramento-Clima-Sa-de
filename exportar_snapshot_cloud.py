@@ -9,6 +9,7 @@ No Streamlit Cloud, sem DATABASE_URL público, o painel usa este arquivo.
 """
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -144,9 +145,37 @@ def main() -> None:
             exported.append((table, len(df)))
 
     dst.dispose()
-    if OUT.exists():
-        OUT.unlink()
-    shutil.move(str(tmp_path), str(OUT))
+    # Windows: Streamlit/OneDrive podem manter lock no seed — tenta várias vezes
+    last_err: Exception | None = None
+    for attempt in range(1, 8):
+        try:
+            if OUT.exists():
+                try:
+                    OUT.unlink()
+                except OSError:
+                    # rename costuma funcionar quando unlink falha (handle compartilhado)
+                    bak = OUT.with_suffix(f".old{attempt}.db")
+                    if bak.exists():
+                        bak.unlink(missing_ok=True)
+                    OUT.rename(bak)
+            shutil.move(str(tmp_path), str(OUT))
+            # limpa backups residuais
+            for bak in OUT.parent.glob("sis_cloud_seed.old*.db"):
+                try:
+                    bak.unlink()
+                except OSError:
+                    pass
+            last_err = None
+            break
+        except OSError as exc:
+            last_err = exc
+            time.sleep(0.4 * attempt)
+    if last_err is not None:
+        raise OSError(
+            f"Não foi possível substituir {OUT} (arquivo em uso). "
+            f"Feche o painel Streamlit local e rode de novo. tmp={tmp_path}. "
+            f"Causa: {last_err}"
+        ) from last_err
 
     mb = OUT.stat().st_size / (1024 * 1024)
     print(f"OK {OUT} ({mb:.1f} MB) · fonte={src_url.split('://')[0]}")

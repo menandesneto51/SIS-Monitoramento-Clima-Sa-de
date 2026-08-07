@@ -54,6 +54,9 @@ Texto colado*.txt
 # Allow deploy helper scripts in local clean folder only if force-added manually
 !SUBIR_REPO_LIMPO_GITHUB_PY_V11_16.cmd
 !FORCE_PUSH_REPO_LIMPO_GITHUB_PY_V11_16.cmd
+!rodar_pipeline.bat
+!rodar_alertas_once.bat
+!scripts/criar_tarefas_windows.ps1
 
 # Contacts
 contatos_alertas.csv
