@@ -25,17 +25,22 @@ Catálogo: `config/indicadores_ms_sentinela_sg.yaml`
 ```env
 USE_ANA=true
 ANA_UF=MT
-ANA_FETCH_SERIES=true    # SOAP público (ListaEstacoes + DadosHidrometeorologicos)
-ANA_MAX_ESTACOES=35      # prioriza estações com nome_rio (fluviométricas)
-ANA_SERIES_DAYS=21       # janela para percentis de cota/vazão
+ANA_FETCH_SERIES=true    # live (REST se ativo, senão SOAP)
+ANA_MAX_ESTACOES=35      # prioriza estações fluviométricas / com régua
+ANA_SERIES_DAYS=21       # janela → enum DIAS_21 no REST
 ANA_SSL_VERIFY=true      # false só se proxy corporativo exigir
+# REST HidroWebService (credenciais só no .env local)
+ANA_USE_HIDROWEB_REST=true
+# ANA_HIDROWEB_IDENTIFICADOR=
+# ANA_HIDROWEB_SENHA=
 # Opcional: cotas absolutas por estação
 # ANA_COTAS_REFERENCIA_CSV=config/ana_cotas_referencia_mt.csv
 ```
 
 ### Entradas
-- API SOAP pública ANA (`ListaEstacoesTelemetricas` / `DadosHidrometeorologicos`) via `sisclima.core.http_client` (UA institucional)
-- Fallback: `data/input/ana_estacoes_mt.csv`, `data/input/ana_telemetria.csv`
+- Preferencial: API REST HidroWeb (`OAUth` + inventário + série adotada) com parâmetros oficiais em português
+- Fallback SOAP público (`ListaEstacoesTelemetricas` / `DadosHidrometeorologicos`) via `sisclima.core.http_client`
+- Fallback CSV: `data/input/ana_estacoes_mt.csv`, `data/input/ana_telemetria.csv`
 - Opcional: `config/ana_cotas_referencia_mt.csv` (cota_seca_cm / cota_alerta_cm / cota_emergencia_cm)
 
 ### Saídas

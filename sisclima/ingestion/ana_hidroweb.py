@@ -5,8 +5,14 @@ Fontes:
 - SOAP público: https://telemetriaws1.ana.gov.br/ServiceANA.asmx
   - ListaEstacoesTelemetricas
   - DadosHidrometeorologicos
-- Opcional REST HidroWebService (Bearer token): ANA_HIDROWEB_TOKEN
+- REST HidroWebService (OAuth Identificador/Senha):
+  - OAUth/v1 → Bearer
+  - HidroInventarioEstacoes/v1 (query: 'Unidade Federativa')
+  - HidroinfoanaSerieTelemetricaAdotada/v1
+    (query: 'Código da Estação', 'Tipo Filtro Data', 'Range Intervalo de busca')
 - Fallback CSV: data/input/ana_estacoes_mt.csv e ana_telemetria.csv
+
+Ativar REST: ANA_USE_HIDROWEB_REST=true + credenciais no .env (não versionar).
 """
 from __future__ import annotations
 
@@ -29,6 +35,10 @@ log = get_logger(__name__)
 SOAP_BASE = "https://telemetriaws1.ana.gov.br/ServiceANA.asmx"
 REST_BASE = "https://www.ana.gov.br/hidrowebservice"
 
+# Cache curto do Bearer (token ANA ~60 min)
+_REST_TOKEN: str | None = None
+_REST_TOKEN_TS: float = 0.0
+
 
 def _session() -> requests.Session:
     """Sessão ANA com User-Agent institucional (sem stealth)."""
@@ -36,6 +46,205 @@ def _session() -> requests.Session:
     s.headers.update({"User-Agent": USER_AGENT, "Accept": "application/json, text/xml, */*"})
     s.verify = ssl_verify("ANA_SSL_VERIFY", True)
     return s
+
+
+def _rest_base() -> str:
+    return (env("ANA_HIDROWEB_BASE_URL") or REST_BASE).rstrip("/")
+
+
+def _use_hidroweb_rest() -> bool:
+    return as_bool(env("ANA_USE_HIDROWEB_REST", "false"), False)
+
+
+def _dias_range_enum(days: int) -> str:
+    """Mapeia janela em dias para enum do HidroWebService."""
+    d = max(1, int(days or 21))
+    for cand in (2, 7, 14, 21, 30):
+        if d <= cand:
+            return f"DIAS_{cand}"
+    return "DIAS_30"
+
+
+def fetch_hidroweb_token(force: bool = False) -> str | None:
+    """Obtém Bearer via OAUth/v1 (headers Identificador + Senha)."""
+    global _REST_TOKEN, _REST_TOKEN_TS
+    preset = (env("ANA_HIDROWEB_TOKEN") or "").strip()
+    if preset and not force:
+        return preset
+    if (
+        not force
+        and _REST_TOKEN
+        and (time.time() - _REST_TOKEN_TS) < 45 * 60
+    ):
+        return _REST_TOKEN
+
+    ident = (env("ANA_HIDROWEB_IDENTIFICADOR") or "").strip()
+    senha = (env("ANA_HIDROWEB_SENHA") or "").strip()
+    if not ident or not senha:
+        log.warning("ANA REST: faltam ANA_HIDROWEB_IDENTIFICADOR / ANA_HIDROWEB_SENHA")
+        return None
+    try:
+        r = _session().get(
+            f"{_rest_base()}/EstacoesTelemetricas/OAUth/v1",
+            headers={"Identificador": ident, "Senha": senha, "accept": "*/*"},
+            timeout=int(env("ANA_TIMEOUT_SECONDS", "90") or 90),
+        )
+        r.raise_for_status()
+        payload = r.json() if r.content else {}
+        items = payload.get("items") if isinstance(payload, dict) else None
+        token = None
+        if isinstance(items, dict):
+            token = items.get("tokenautenticacao") or items.get("token")
+        if not token and isinstance(payload, dict):
+            token = payload.get("tokenautenticacao") or payload.get("token")
+        if not token:
+            log.warning("ANA REST OAuth sem token (status=%s)", r.status_code)
+            return None
+        _REST_TOKEN = str(token)
+        _REST_TOKEN_TS = time.time()
+        return _REST_TOKEN
+    except Exception as exc:
+        log.warning("ANA REST OAuth falhou: %s", exc)
+        return None
+
+
+def _rest_get(path: str, params: dict | None = None) -> dict | list | None:
+    token = fetch_hidroweb_token()
+    if not token:
+        return None
+    url = f"{_rest_base()}/EstacoesTelemetricas/{path.lstrip('/')}"
+    try:
+        r = _session().get(
+            url,
+            headers={"Authorization": f"Bearer {token}", "accept": "*/*"},
+            params=params or {},
+            timeout=int(env("ANA_TIMEOUT_SECONDS", "120") or 120),
+        )
+        if r.status_code == 401:
+            token = fetch_hidroweb_token(force=True)
+            if not token:
+                return None
+            r = _session().get(
+                url,
+                headers={"Authorization": f"Bearer {token}", "accept": "*/*"},
+                params=params or {},
+                timeout=int(env("ANA_TIMEOUT_SECONDS", "120") or 120),
+            )
+        r.raise_for_status()
+        return r.json() if r.content else None
+    except Exception as exc:
+        log.warning("ANA REST GET %s falhou: %s", path, exc)
+        return None
+
+
+def fetch_ana_estacoes_rest(uf: str | None = None) -> pd.DataFrame:
+    """Inventário MT via HidroInventarioEstacoes/v1 (param 'Unidade Federativa')."""
+    uf = (uf or env("ANA_UF") or APP_CONFIG.uf or "MT").strip().upper()
+    payload = _rest_get(
+        "HidroInventarioEstacoes/v1",
+        params={"Unidade Federativa": uf},
+    )
+    if not payload:
+        return pd.DataFrame()
+    items = payload.get("items") if isinstance(payload, dict) else payload
+    if not isinstance(items, list) or not items:
+        return pd.DataFrame()
+    rows = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        cod = (
+            it.get("Codigo_Adicional")
+            or it.get("Codigo_Estacao")
+            or it.get("codigoestacao")
+            or it.get("codigo_estacao")
+        )
+        if cod is None or str(cod).strip() in {"", "None", "nan"}:
+            continue
+        tipo = str(it.get("Tipo_Estacao") or "")
+        tele = str(it.get("Tipo_Estacao_Telemetrica") or it.get("Telemetrica") or "")
+        nivel = str(it.get("Tipo_Estacao_Registrador_Nivel") or it.get("Tipo_Estacao_Escala") or "")
+        rows.append(
+            {
+                "codigo_estacao": str(cod).replace(".0", "").strip(),
+                "nome_estacao": str(it.get("Estacao_Nome") or it.get("Nome_Estacao") or ""),
+                "municipio": str(it.get("Municipio_Nome") or ""),
+                "uf": str(
+                    it.get("UF_Estacao")
+                    or it.get("Responsavel_Unidade_UF")
+                    or uf
+                )
+                .strip()
+                .upper()[:2],
+                "lat": pd.to_numeric(it.get("Latitude"), errors="coerce"),
+                "lon": pd.to_numeric(it.get("Longitude"), errors="coerce"),
+                "nome_rio": str(it.get("Rio_Nome") or "").replace("N/A", "").strip(),
+                "tipo_estacao": tipo,
+                "telemetrica": tele,
+                "tem_nivel": nivel,
+                "fonte": "ANA_HIDROWEB_REST",
+            }
+        )
+    out = pd.DataFrame(rows)
+    if out.empty:
+        return out
+    t = out["tipo_estacao"].astype(str).str.lower()
+    tele = out["telemetrica"].astype(str).str.lower()
+    niv = out["tem_nivel"].astype(str).str.lower()
+    yes = {"1", "sim", "true", "s", "yes"}
+    out["_prio"] = 3
+    out.loc[t.str.contains("fluv", na=False), "_prio"] = 1
+    out.loc[tele.isin(yes) | niv.isin(yes), "_prio"] = out["_prio"].clip(upper=1)
+    out.loc[t.str.contains("pluv", na=False) & ~tele.isin(yes), "_prio"] = 2
+    # códigos 8 dígitos oficiais primeiro
+    cod = out["codigo_estacao"].astype(str)
+    out["_prio2"] = np.where(cod.str.fullmatch(r"\d{8}"), 0, 1)
+    out = out.sort_values(["_prio", "_prio2", "codigo_estacao"], kind="mergesort")
+    return out.drop(columns=["_prio", "_prio2"], errors="ignore").reset_index(drop=True)
+
+
+def fetch_ana_serie_estacao_rest(codigo_estacao: str, days: int = 21) -> pd.DataFrame:
+    """Série adotada via REST (params em português conforme OpenAPI/manual)."""
+    rng = _dias_range_enum(days)
+    payload = _rest_get(
+        "HidroinfoanaSerieTelemetricaAdotada/v1",
+        params={
+            "Código da Estação": str(codigo_estacao),
+            "Tipo Filtro Data": "DATA_LEITURA",
+            "Range Intervalo de busca": rng,
+        },
+    )
+    if not payload:
+        return pd.DataFrame()
+    items = payload.get("items") if isinstance(payload, dict) else payload
+    if not isinstance(items, list) or not items:
+        return pd.DataFrame()
+    df = pd.DataFrame(items)
+    if df.empty:
+        return df
+    rename = {
+        "Chuva_Adotada": "chuva_mm",
+        "Cota_Adotada": "cota_cm",
+        "Vazao_Adotada": "vazao_m3s",
+        "Data_Hora_Medicao": "data_hora",
+        "codigoestacao": "codigo_estacao",
+        "Codigo_Estacao": "codigo_estacao",
+    }
+    df = df.rename(columns={k: v for k, v in rename.items() if k in df.columns})
+    if "codigo_estacao" not in df.columns:
+        df["codigo_estacao"] = str(codigo_estacao)
+    else:
+        df["codigo_estacao"] = df["codigo_estacao"].astype(str)
+    if "data_hora" in df.columns:
+        df["data_hora"] = pd.to_datetime(df["data_hora"], errors="coerce")
+        df["data"] = df["data_hora"].dt.date.astype(str)
+    for c in ("chuva_mm", "cota_cm", "vazao_m3s"):
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors="coerce")
+    keep = [c for c in ("codigo_estacao", "data_hora", "data", "chuva_mm", "cota_cm", "vazao_m3s") if c in df.columns]
+    df = df[keep].copy()
+    df["fonte"] = "ANA_HIDROWEB_REST"
+    return df
 
 
 def _parse_dataset_xml(xml_text: str) -> pd.DataFrame:
@@ -93,6 +302,30 @@ def fetch_ana_estacoes_telemetricas(uf: str | None = None) -> pd.DataFrame:
     """Lista estações telemétricas ANA; filtra UF (padrão MT)."""
     if not as_bool(env("USE_ANA", "true"), True):
         return pd.DataFrame()
+    uf = (uf or env("ANA_UF") or APP_CONFIG.uf or "MT").strip().upper()
+
+    if _use_hidroweb_rest():
+        rest = fetch_ana_estacoes_rest(uf=uf)
+        if not rest.empty:
+            log.info("ANA estações via HidroWeb REST: %s", len(rest))
+            # Complementa com inventário SOAP (códigos telemétricos clássicos) sem perder REST
+            try:
+                soap = _fetch_ana_estacoes_soap(uf=uf)
+                if not soap.empty:
+                    both = pd.concat([rest, soap], ignore_index=True)
+                    both = both.drop_duplicates(subset=["codigo_estacao"], keep="first")
+                    log.info("ANA estações REST+SOAP: %s", len(both))
+                    return both.reset_index(drop=True)
+            except Exception as exc:
+                log.warning("Complemento SOAP de estações falhou: %s", exc)
+            return rest
+        log.warning("ANA REST inventário vazio — tentando SOAP")
+
+    return _fetch_ana_estacoes_soap(uf=uf)
+
+
+def _fetch_ana_estacoes_soap(uf: str | None = None) -> pd.DataFrame:
+    """Lista estações via SOAP público ListaEstacoesTelemetricas."""
     uf = (uf or env("ANA_UF") or APP_CONFIG.uf or "MT").strip().upper()
     try:
         r = _session().get(
@@ -177,7 +410,12 @@ def map_estacoes_to_ibge(estacoes: pd.DataFrame, municipios: pd.DataFrame | None
 
 
 def fetch_ana_serie_estacao(codigo_estacao: str, days: int = 7) -> pd.DataFrame:
-    """Busca série hidrometeorológica recente de uma estação (SOAP)."""
+    """Busca série hidrometeorológica recente de uma estação (REST se ativo, senão SOAP)."""
+    if _use_hidroweb_rest():
+        rest = fetch_ana_serie_estacao_rest(codigo_estacao, days=days)
+        if not rest.empty:
+            return rest
+
     fim = date.today()
     ini = fim - timedelta(days=max(1, days))
     try:
