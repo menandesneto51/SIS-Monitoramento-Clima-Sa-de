@@ -31,6 +31,26 @@ def test_diagnostico_sem_nada_configurado_orienta_a_escolher_provedor():
     assert diag.pronto is False
     assert diag.provedores_configurados == []
     assert 'Nenhum provedor' in diag.problemas[0]
+    assert any('Raiz do projeto:' in aviso for aviso in diag.avisos)
+    assert any('.env' in aviso for aviso in diag.avisos)
+
+
+def test_diagnostico_detecta_variaveis_whatsapp_no_env(tmp_path, monkeypatch):
+    env_file = tmp_path / '.env'
+    env_file.write_text('WHATSAPP_NUMERO_ERRADO=123\nMETA_TOKEN=abc\n', encoding='utf-8')
+    monkeypatch.setattr(whatsapp_agent, 'ROOT', tmp_path)
+    monkeypatch.setattr(
+        'sisclima.core.config.ENV_DOTENV_CANDIDATES',
+        (tmp_path / '.env',),
+    )
+    monkeypatch.setattr(
+        'sisclima.core.config.env_dotenv_paths',
+        lambda: [env_file],
+    )
+
+    diag = whatsapp_agent.diagnosticar()
+
+    assert any('WHATSAPP_NUMERO_ERRADO' in aviso for aviso in diag.avisos)
 
 
 def test_diagnostico_aponta_variaveis_faltantes(monkeypatch):

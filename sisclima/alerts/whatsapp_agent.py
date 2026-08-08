@@ -24,7 +24,7 @@ from dataclasses import asdict, dataclass, field
 
 from sisclima.alerts import whatsapp
 from sisclima.alerts import meta_discover
-from sisclima.core.config import env, env_name_used
+from sisclima.core.config import ROOT, env, env_dotenv_paths, env_name_used
 
 SEGREDOS = ('TOKEN', 'KEY', 'APIKEY', 'SENHA', 'PASSWORD', 'SECRET')
 
@@ -222,6 +222,61 @@ def _valor_exibivel(nome: str) -> str:
     return mascarar(valor) if _e_segredo(nome) else valor
 
 
+def _nomes_whatsapp_no_env() -> list[str]:
+    """Nomes de variáveis relacionadas a WhatsApp encontradas nos arquivos ``.env``."""
+    marcas = ('WHATSAPP', 'META_', 'EVOLUTION', 'CALLMEBOT', 'N8N_WHATSAPP')
+    nomes: list[str] = []
+    vistos: set[str] = set()
+    for caminho in env_dotenv_paths():
+        try:
+            texto = caminho.read_text(encoding='utf-8', errors='replace')
+        except OSError:
+            continue
+        for linha in texto.splitlines():
+            bruta = linha.strip()
+            if not bruta or bruta.startswith('#') or '=' not in bruta:
+                continue
+            nome = bruta.split('=', 1)[0].strip()
+            if not nome or nome in vistos:
+                continue
+            if any(marca in nome.upper() for marca in marcas):
+                vistos.add(nome)
+                nomes.append(nome)
+    return nomes
+
+
+def _dicas_sem_provedor() -> list[str]:
+    """Orientações extras quando nenhum provedor está pronto."""
+    dicas: list[str] = []
+    dicas.append(f'Raiz do projeto: {ROOT}')
+    dotenvs = env_dotenv_paths()
+    if dotenvs:
+        dicas.append('Arquivo .env encontrado: ' + ', '.join(str(p) for p in dotenvs))
+    else:
+        dicas.append(f'Nenhum .env encontrado em {ROOT} (nem na pasta pai nem no diretório atual).')
+        dicas.append(f'Crie {ROOT / ".env"} com as variáveis abaixo.')
+
+    nomes_env = _nomes_whatsapp_no_env()
+    if nomes_env:
+        dicas.append('Variáveis WhatsApp no .env (conferir nomes exatos): ' + ', '.join(nomes_env))
+    else:
+        dicas.append('Nenhuma variável WHATSAPP_* / META_* encontrada no .env.')
+
+    obrigatorias = whatsapp.VARIAVEIS_OBRIGATORIAS['meta_cloud']
+    faltantes = [nome for nome in obrigatorias if not env(nome)]
+    if faltantes:
+        dicas.append('Para Meta Cloud, ainda faltam: ' + ', '.join(faltantes))
+
+    provedor, _ = recomendar(uso='institucional')
+    dicas.append(
+        'Cole no .env o bloco gerado por: '
+        f'python -m sisclima.alerts.whatsapp_agent env --provedor {provedor} '
+        '--valor WHATSAPP_PHONE_NUMBER_ID=... --valor WHATSAPP_TOKEN=EAA... --valor WHATSAPP_TO=65992190039'
+    )
+    dicas.append('Token: use o EAA... do Explorador da Graph API (não o App Secret).')
+    return dicas
+
+
 def listar_provedores() -> list[ProvedorInfo]:
     return [CATALOGO[nome] for nome in whatsapp.ORDEM_AUTO if nome in CATALOGO]
 
@@ -285,6 +340,7 @@ def diagnosticar(provedor: str | None = None) -> Diagnostico:
         problemas.append(
             'Nenhum provedor de WhatsApp configurado. Escolha um provedor e preencha as variáveis indicadas.'
         )
+        avisos.extend(_dicas_sem_provedor())
         return Diagnostico(
             provedor=None,
             pronto=False,

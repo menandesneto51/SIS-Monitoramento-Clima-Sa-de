@@ -7,10 +7,17 @@ from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[2]
 
+ENV_DOTENV_CANDIDATES: tuple[Path, ...] = (ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env')
+
 # Carrega SEM sobrescrever variáveis já existentes do ambiente.
-for _candidate in [ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env']:
+for _candidate in ENV_DOTENV_CANDIDATES:
     if _candidate.exists():
         load_dotenv(_candidate, override=False)
+
+
+def env_dotenv_paths() -> list[Path]:
+    """Arquivos ``.env`` encontrados, na ordem em que são lidos."""
+    return [p for p in ENV_DOTENV_CANDIDATES if p.exists()]
 
 
 def _load_yaml(path: Path) -> dict:
