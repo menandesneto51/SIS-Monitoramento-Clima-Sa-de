@@ -12,6 +12,7 @@ __pycache__/
 *.env
 .env.*
 !.env.example
+!.env.producao.example
 .streamlit/secrets.toml
 secrets.toml
 *senha*
