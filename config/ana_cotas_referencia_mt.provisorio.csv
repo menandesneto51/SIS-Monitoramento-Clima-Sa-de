@@ -1,5 +1,3 @@
-# Cotas PROVISÓRIAS por percentil da série ANA (seca=P10, alerta=P75, emergência=P90).
-# Substituir por valores oficiais assim que disponíveis. Linhas com # são ignoradas pelo motor.
 codigo_estacao,nome_estacao,municipio,cota_seca_cm,cota_alerta_cm,cota_emergencia_cm,observacao
 17130000,FOZ DO JURUENA,APIACÁS,413.0,440.0,444.0,PROVISORIO_PERCENTIL — substituir por régua oficial ANA/Defesa Civil
 15747900,UHE DARDANELOS RIBEIRÃO TABOCA,ARIPUANÃ,241.2,249.0,254.0,PROVISORIO_PERCENTIL — substituir por régua oficial ANA/Defesa Civil

@@ -99,9 +99,12 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8501/healthz
 | 5.10 | Log do dia gravado em `logs/` | | | | | |
 
 ```powershell
+docker compose up -d db
+.\.venv\Scripts\python.exe scripts\carregar_seed_para_postgres.py   # se Postgres estiver vazio
 .\.venv\Scripts\python.exe validar_dw_conexao.py
-.\.venv\Scripts\python.exe rotina_diaria_ops.py
-.\.venv\Scripts\python.exe scripts\smoke_ops.py
+.\.venv\Scripts\python.exe rotina_diaria_ops.py                     # inclui smoke ao final
+.\.venv\Scripts\python.exe scripts\homologar_municipios_criticos.py
+.\.venv\Scripts\python.exe scripts\gerar_cotas_provisorias_ana.py --apply  # só se cotas oficiais ainda não existirem
 ```
 
 ---

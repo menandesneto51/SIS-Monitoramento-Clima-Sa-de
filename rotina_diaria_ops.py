@@ -109,7 +109,7 @@ def step_pressao() -> dict:
 
 
 def step_cloud() -> dict:
-    _step("5/5 Export snapshot Cloud")
+    _step("5/6 Export snapshot Cloud")
     import exportar_snapshot_cloud as exp
 
     if hasattr(exp, "main"):
@@ -122,11 +122,26 @@ def step_cloud() -> dict:
     return {"exit": 0}
 
 
+def step_smoke() -> dict:
+    _step("6/6 Smoke operacional pós-ciclo")
+    import importlib.util
+
+    path = ROOT / "scripts" / "smoke_ops.py"
+    spec = importlib.util.spec_from_file_location("smoke_ops", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"não foi possível carregar {path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    code = mod.main([])
+    return {"exit": int(code or 0), "ok": int(code or 0) == 0}
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Rotina diária SIS Clima-Saúde (ANA + ops)")
     p.add_argument("--offline", action="store_true", help="Sem DW/IndicaSUS/SISREG live")
     p.add_argument("--skip-cloud-export", action="store_true")
     p.add_argument("--skip-ana", action="store_true")
+    p.add_argument("--skip-smoke", action="store_true", help="Não roda scripts/smoke_ops.py ao final")
     args = p.parse_args(argv)
 
     probe = _probe_ses()
@@ -151,6 +166,8 @@ def main(argv: list[str] | None = None) -> int:
         report["steps"]["pressao"] = step_pressao()
         if not args.skip_cloud_export:
             report["steps"]["cloud"] = step_cloud()
+        if not args.skip_smoke:
+            report["steps"]["smoke"] = step_smoke()
     except Exception as exc:  # noqa: BLE001
         print(f"[ERRO] {exc}", file=sys.stderr)
         report["error"] = str(exc)
@@ -166,9 +183,10 @@ def main(argv: list[str] | None = None) -> int:
     logs.mkdir(exist_ok=True)
     out = logs / f"rotina_diaria_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
-    print("\n[OK] Rotina diária concluída.")
+    smoke_ok = report.get("steps", {}).get("smoke", {}).get("ok", True)
+    print("\n[OK] Rotina diária concluída." if smoke_ok else "\n[AVISO] Rotina concluída, mas smoke falhou.")
     print(f"[LOG] {out}")
-    return 0
+    return 0 if smoke_ok else 2
 
 
 if __name__ == "__main__":
