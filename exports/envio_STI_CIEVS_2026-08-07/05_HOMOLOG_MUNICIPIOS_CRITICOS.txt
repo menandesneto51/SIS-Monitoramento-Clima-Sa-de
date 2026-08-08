@@ -1,14 +1,14 @@
 Homologação municípios críticos — preencher OK/NOK na sala de situação
-Gerado: 2026-08-07T22:32:26 · backend=postgresql
+Gerado: 2026-08-07T22:38:22 · backend=postgresql
 
-[ ] Cuiabá | nivel=vermelha | pressao=67.0 | ocup=57.85997357992074 | hidro= | cota=
+[ ] Cuiabá | nivel=vermelha | pressao=78.6 | ocup=57.85997357992074 | hidro= | cota=
 [ ] Campos de Júlio | nivel=amarela | pressao=54.4 | ocup=51.977170811251526 | hidro= | cota=
-[ ] Aripuanã | nivel=vermelha | pressao=54.2 | ocup=51.977170811251526 | hidro=seca_baixa | cota=300.0
-[ ] Alta Floresta | nivel=laranja | pressao=55.6 | ocup=45.68106312292359 | hidro= | cota=
-[ ] Sinop | nivel=laranja | pressao=61.7 | ocup=51.977170811251526 | hidro= | cota=
+[ ] Aripuanã | nivel=vermelha | pressao=54.2 | ocup=51.977170811251526 | hidro= | cota=
+[ ] Alta Floresta | nivel=laranja | pressao=75.3 | ocup=45.68106312292359 | hidro= | cota=
+[ ] Sinop | nivel=laranja | pressao=77.3 | ocup=51.977170811251526 | hidro= | cota=
 [ ] Sapezal | nivel=laranja | pressao=54.3 | ocup=51.977170811251526 | hidro= | cota=
-[ ] Rondonópolis | nivel=laranja | pressao=53.5 | ocup=0.0 | hidro= | cota=
-[ ] Pontes e Lacerda | nivel=amarela | pressao=55.4 | ocup=51.977170811251526 | hidro=inundacao_alta | cota=173.0
+[ ] Rondonópolis | nivel=laranja | pressao=69.3 | ocup=0.0 | hidro= | cota=
+[ ] Pontes e Lacerda | nivel=amarela | pressao=55.4 | ocup=51.977170811251526 | hidro=seca_baixa | cota=121.0
 [ ] Vila Bela da Santíssima Trindade | nivel=laranja | pressao=54.4 | ocup=51.977170811251526 | hidro=inundacao_alta | cota=150.0
 
 Assinatura CIEVS: ______________________ Data: ____/____/________
