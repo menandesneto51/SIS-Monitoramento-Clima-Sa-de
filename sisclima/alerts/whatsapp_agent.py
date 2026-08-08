@@ -14,6 +14,7 @@ linha de comando:
     python -m sisclima.alerts.whatsapp_agent env --provedor evolution
     python -m sisclima.alerts.whatsapp_agent aplicar --valor WHATSAPP_PROVIDER=meta_cloud --valor WHATSAPP_TOKEN=EAA...
     python -m sisclima.alerts.whatsapp_agent testar --para 65999998888
+    python -m sisclima.alerts.whatsapp_agent registrar --pin 123456
     python -m sisclima.alerts.whatsapp_agent descobrir --token EAA...
 """
 from __future__ import annotations
@@ -681,6 +682,16 @@ def _cmd_testar(args: argparse.Namespace) -> int:
     return 0 if any(r.ok for r in resultados) else 1
 
 
+def _cmd_registrar(args: argparse.Namespace) -> int:
+    resultado = whatsapp.registrar_numero_meta(args.pin or '')
+    if args.json:
+        print(json.dumps(asdict(resultado), ensure_ascii=False, indent=2, default=str))
+    else:
+        marca = 'OK ' if resultado.ok else 'ERRO'
+        print(f'[{marca}] {resultado.provedor} -> {resultado.destino or "(sem destino)"}: {resultado.detalhe}')
+    return 0 if resultado.ok else 1
+
+
 def _cmd_descobrir(args: argparse.Namespace) -> int:
     token = (args.token or env('WHATSAPP_TOKEN') or '').strip()
     if not token:
@@ -758,6 +769,13 @@ def construir_parser() -> argparse.ArgumentParser:
     p_teste.add_argument('--mensagem', help='Texto alternativo para o teste.')
     p_teste.add_argument('--valor', action='append', metavar='CHAVE=VALOR', help='Aplica variáveis antes do teste.')
     p_teste.set_defaults(func=_cmd_testar)
+
+    p_reg = sub.add_parser(
+        'registrar',
+        help='Registra o número na Cloud API da Meta (corrige erro #133010).',
+    )
+    p_reg.add_argument('--pin', help='PIN de 6 dígitos (ou WHATSAPP_REGISTER_PIN no .env).')
+    p_reg.set_defaults(func=_cmd_registrar)
 
     p_desc = sub.add_parser(
         'descobrir',

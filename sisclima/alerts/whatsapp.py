@@ -48,6 +48,7 @@ VARIAVEIS_OPCIONAIS: dict[str, tuple[str, ...]] = {
         'WHATSAPP_DDI_PADRAO',
         'WHATSAPP_SSL_VERIFY',
         'WHATSAPP_CA_BUNDLE',
+        'WHATSAPP_REGISTER_PIN',
     ),
     'evolution': ('WHATSAPP_DDI_PADRAO',),
     'callmebot': ('WHATSAPP_DDI_PADRAO',),
@@ -213,6 +214,20 @@ def _detalhe_erro_rede(exc: Exception) -> str:
     return f'erro de rede: {texto}'
 
 
+def _detalhe_erro_meta(dados: dict | str, status: int) -> str:
+    if not isinstance(dados, dict):
+        return f'HTTP {status}'
+    erro = dados.get('error') or {}
+    mensagem = str(erro.get('message') or '')
+    codigo = erro.get('code')
+    if codigo == 133010 or 'not registered' in mensagem.lower():
+        return (
+            f'{mensagem or "(#133010) Account not registered"} — O número precisa ser registrado na Cloud API. '
+            'Defina um PIN de 6 dígitos e rode: python -m sisclima.alerts.whatsapp_agent registrar --pin 123456'
+        )
+    return mensagem or f'HTTP {status}'
+
+
 def _enviar_meta_cloud(texto: str, destino: str) -> ResultadoEnvio:
     phone_number_id = env('WHATSAPP_PHONE_NUMBER_ID')
     token = env('WHATSAPP_TOKEN')
@@ -258,10 +273,60 @@ def _enviar_meta_cloud(texto: str, destino: str) -> ResultadoEnvio:
     dados = _resposta_json(resposta)
     if resposta.ok:
         return ResultadoEnvio(True, 'meta_cloud', destino, 'mensagem aceita pela Cloud API', resposta.status_code, dados)
-    detalhe = ''
-    if isinstance(dados, dict):
-        detalhe = str((dados.get('error') or {}).get('message') or '')
-    return ResultadoEnvio(False, 'meta_cloud', destino, detalhe or f'HTTP {resposta.status_code}', resposta.status_code, dados)
+    return ResultadoEnvio(
+        False, 'meta_cloud', destino, _detalhe_erro_meta(dados, resposta.status_code), resposta.status_code, dados
+    )
+
+
+def registrar_numero_meta(
+    pin: str,
+    phone_number_id: str | None = None,
+    token: str | None = None,
+) -> ResultadoEnvio:
+    """Registra o número na Cloud API (obrigatório após adicionar número de produção)."""
+    phone_number_id = phone_number_id or env('WHATSAPP_PHONE_NUMBER_ID')
+    token = token or env('WHATSAPP_TOKEN')
+    pin_digitos = re.sub(r'\D', '', str(pin or env('WHATSAPP_REGISTER_PIN') or ''))
+    if not phone_number_id or not token:
+        return _erro('meta_cloud', '', 'WHATSAPP_PHONE_NUMBER_ID e WHATSAPP_TOKEN são obrigatórios.')
+    if len(pin_digitos) != 6:
+        return _erro(
+            'meta_cloud',
+            phone_number_id,
+            'Informe um PIN de 6 dígitos: --pin 123456 ou WHATSAPP_REGISTER_PIN no .env.',
+        )
+
+    versao = env('WHATSAPP_API_VERSION', VERSAO_API_META_PADRAO) or VERSAO_API_META_PADRAO
+    url = f'https://graph.facebook.com/{versao}/{phone_number_id}/register'
+    corpo: dict[str, str] = {'messaging_product': 'whatsapp', 'pin': pin_digitos}
+    try:
+        resposta = requests.post(
+            url,
+            json=corpo,
+            headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
+            **http_request_kwargs(),
+        )
+    except Exception as exc:  # noqa: BLE001
+        return _erro('meta_cloud', phone_number_id, _detalhe_erro_rede(exc))
+
+    dados = _resposta_json(resposta)
+    if resposta.ok:
+        return ResultadoEnvio(
+            True,
+            'meta_cloud',
+            phone_number_id,
+            'Número registrado na Cloud API. Rode testar para confirmar o envio.',
+            resposta.status_code,
+            dados,
+        )
+    return ResultadoEnvio(
+        False,
+        'meta_cloud',
+        phone_number_id,
+        _detalhe_erro_meta(dados, resposta.status_code),
+        resposta.status_code,
+        dados,
+    )
 
 
 def _enviar_evolution(texto: str, destino: str) -> ResultadoEnvio:

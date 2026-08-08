@@ -282,3 +282,24 @@ def test_erro_ssl_sugere_correcao(meta_configurado, monkeypatch: pytest.MonkeyPa
     resultado = whatsapp.enviar_whatsapp('teste')[0]
     assert 'WHATSAPP_CA_BUNDLE' in resultado.detalhe
     assert 'WHATSAPP_SSL_VERIFY=false' in resultado.detalhe
+
+
+def test_erro_133010_sugere_registrar(meta_configurado, cliente):
+    cliente(RespostaFalsa(400, {'error': {'code': 133010, 'message': '(#133010) Account not registered'}}))
+    resultado = whatsapp.enviar_whatsapp('teste')[0]
+    assert 'registrar' in resultado.detalhe.lower()
+
+
+def test_registrar_numero_meta(meta_configurado, cliente, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv('WHATSAPP_REGISTER_PIN', '654321')
+    falso = cliente(RespostaFalsa(200, {'success': True}))
+    resultado = whatsapp.registrar_numero_meta('')
+    assert resultado.ok is True
+    assert falso.chamadas[0]['json']['pin'] == '654321'
+    assert falso.chamadas[0]['url'].endswith('/register')
+
+
+def test_registrar_exige_pin_de_seis_digitos(meta_configurado):
+    resultado = whatsapp.registrar_numero_meta('12')
+    assert resultado.ok is False
+    assert '6 dígitos' in resultado.detalhe

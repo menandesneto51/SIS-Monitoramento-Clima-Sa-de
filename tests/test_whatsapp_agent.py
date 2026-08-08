@@ -243,3 +243,13 @@ def test_cli_env(capsys):
 def test_cli_testar_sem_configuracao(capsys):
     assert whatsapp_agent.main(['testar']) == 1
     assert 'ERRO' in capsys.readouterr().out
+
+
+def test_cli_registrar(meta_completo, capsys, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(
+        whatsapp,
+        'registrar_numero_meta',
+        lambda pin: whatsapp.ResultadoEnvio(True, 'meta_cloud', '123', 'ok'),
+    )
+    assert whatsapp_agent.main(['registrar', '--pin', '123456']) == 0
+    assert '[OK' in capsys.readouterr().out
