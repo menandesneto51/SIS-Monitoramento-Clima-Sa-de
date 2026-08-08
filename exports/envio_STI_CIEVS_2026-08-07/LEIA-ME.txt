@@ -1,0 +1,11 @@
+Pacote para envio STI / CIEVS — SIS Clima-Saúde MT
+Gerado: 2026-08-07
+Branch: painel-v9
+
+Conteudo:
+01_RELATORIO_PRONTIDAO_INSTITUCIONAL.pdf  — validacao de indicadores e prontidao
+02_STI_IMPLANTACAO_SERVIDOR_SES.pdf       — configuracoes tecnicas do servidor
+03_CHECKLIST_HOMOLOGACAO_STI.pdf          — aceite OK/NOK para preenchimento
+04_env.producao.example.txt               — modelo de .env (sem senhas)
+
+Fontes no repositorio: docs/ e .env.producao.example
