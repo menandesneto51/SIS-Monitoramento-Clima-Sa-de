@@ -51,7 +51,7 @@ def _get(url: str, token: str, params: dict | None = None) -> tuple[int, dict | 
             url,
             params=params,
             headers={'Authorization': f'Bearer {token}'},
-            timeout=TIMEOUT,
+            **whatsapp.http_request_kwargs(TIMEOUT),
         )
     except Exception as exc:  # noqa: BLE001
         return 0, str(exc)

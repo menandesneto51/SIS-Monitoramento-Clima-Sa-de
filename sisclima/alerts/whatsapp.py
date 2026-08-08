@@ -41,7 +41,14 @@ VARIAVEIS_OBRIGATORIAS: dict[str, tuple[str, ...]] = {
 }
 
 VARIAVEIS_OPCIONAIS: dict[str, tuple[str, ...]] = {
-    'meta_cloud': ('WHATSAPP_API_VERSION', 'WHATSAPP_TEMPLATE_NAME', 'WHATSAPP_TEMPLATE_LANG', 'WHATSAPP_DDI_PADRAO'),
+    'meta_cloud': (
+        'WHATSAPP_API_VERSION',
+        'WHATSAPP_TEMPLATE_NAME',
+        'WHATSAPP_TEMPLATE_LANG',
+        'WHATSAPP_DDI_PADRAO',
+        'WHATSAPP_SSL_VERIFY',
+        'WHATSAPP_CA_BUNDLE',
+    ),
     'evolution': ('WHATSAPP_DDI_PADRAO',),
     'callmebot': ('WHATSAPP_DDI_PADRAO',),
     'webhook': ('WHATSAPP_TO', 'WHATSAPP_WEBHOOK_TOKEN'),
@@ -179,6 +186,33 @@ def _erro(provedor: str, destino: str, mensagem: str) -> ResultadoEnvio:
     return ResultadoEnvio(ok=False, provedor=provedor, destino=destino, detalhe=mensagem)
 
 
+def http_verify() -> bool | str:
+    """Parâmetro ``verify`` do requests (True, False ou caminho de CA bundle)."""
+    if env_name_used('WHATSAPP_SSL_VERIFY') and not as_bool(env('WHATSAPP_SSL_VERIFY'), True):
+        log.warning('WHATSAPP_SSL_VERIFY=false: verificação SSL desativada nas chamadas WhatsApp.')
+        return False
+    bundle = (env('WHATSAPP_CA_BUNDLE') or env('REQUESTS_CA_BUNDLE') or '').strip()
+    if bundle:
+        return bundle
+    return True
+
+
+def http_request_kwargs(timeout: int | None = None) -> dict:
+    """Argumentos comuns para ``requests.get`` / ``requests.post`` do canal WhatsApp."""
+    return {'timeout': timeout or TIMEOUT_SEGUNDOS, 'verify': http_verify()}
+
+
+def _detalhe_erro_rede(exc: Exception) -> str:
+    texto = str(exc)
+    if 'certificate verify failed' in texto.lower() or 'CERTIFICATE_VERIFY_FAILED' in texto:
+        return (
+            f'erro de rede: {texto} — Rede corporativa com proxy/inspeção SSL? '
+            'Peça à TI o certificado raiz e defina WHATSAPP_CA_BUNDLE=caminho\\ca.pem no .env. '
+            'Para teste rápido (menos seguro): WHATSAPP_SSL_VERIFY=false.'
+        )
+    return f'erro de rede: {texto}'
+
+
 def _enviar_meta_cloud(texto: str, destino: str) -> ResultadoEnvio:
     phone_number_id = env('WHATSAPP_PHONE_NUMBER_ID')
     token = env('WHATSAPP_TOKEN')
@@ -216,10 +250,10 @@ def _enviar_meta_cloud(texto: str, destino: str) -> ResultadoEnvio:
             url,
             json=corpo,
             headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
-            timeout=TIMEOUT_SEGUNDOS,
+            **http_request_kwargs(),
         )
     except Exception as exc:  # noqa: BLE001 - falha de rede não deve derrubar o pipeline
-        return _erro('meta_cloud', destino, f'erro de rede: {exc}')
+        return _erro('meta_cloud', destino, _detalhe_erro_rede(exc))
 
     dados = _resposta_json(resposta)
     if resposta.ok:
@@ -241,13 +275,13 @@ def _enviar_evolution(texto: str, destino: str) -> ResultadoEnvio:
     cabecalhos = {'apikey': chave, 'Content-Type': 'application/json'}
     corpo_v2 = {'number': destino, 'text': _truncar(texto)}
     try:
-        resposta = requests.post(url, json=corpo_v2, headers=cabecalhos, timeout=TIMEOUT_SEGUNDOS)
+        resposta = requests.post(url, json=corpo_v2, headers=cabecalhos, **http_request_kwargs())
         if resposta.status_code == 400:
             # Instâncias na v1 esperam o texto aninhado em textMessage.
             corpo_v1 = {'number': destino, 'textMessage': {'text': _truncar(texto)}}
-            resposta = requests.post(url, json=corpo_v1, headers=cabecalhos, timeout=TIMEOUT_SEGUNDOS)
+            resposta = requests.post(url, json=corpo_v1, headers=cabecalhos, **http_request_kwargs())
     except Exception as exc:  # noqa: BLE001
-        return _erro('evolution', destino, f'erro de rede: {exc}')
+        return _erro('evolution', destino, _detalhe_erro_rede(exc))
 
     dados = _resposta_json(resposta)
     if resposta.ok:
@@ -264,9 +298,9 @@ def _enviar_callmebot(texto: str, destino: str) -> ResultadoEnvio:
         f'?phone=%2B{destino}&text={quote(_truncar(texto))}&apikey={quote(chave)}'
     )
     try:
-        resposta = requests.get(url, timeout=TIMEOUT_SEGUNDOS)
+        resposta = requests.get(url, **http_request_kwargs())
     except Exception as exc:  # noqa: BLE001
-        return _erro('callmebot', destino, f'erro de rede: {exc}')
+        return _erro('callmebot', destino, _detalhe_erro_rede(exc))
 
     corpo = (resposta.text or '')[:500]
     # O CallMeBot responde HTTP 200 mesmo em erro de chave, então o texto precisa ser inspecionado.
@@ -286,9 +320,9 @@ def _enviar_webhook(texto: str, destinos: list[str], extra: dict | None = None) 
     if token:
         cabecalhos['Authorization'] = f'Bearer {token}'
     try:
-        resposta = requests.post(url, json=corpo, headers=cabecalhos, timeout=TIMEOUT_SEGUNDOS)
+        resposta = requests.post(url, json=corpo, headers=cabecalhos, **http_request_kwargs())
     except Exception as exc:  # noqa: BLE001
-        return _erro('webhook', ', '.join(destinos), f'erro de rede: {exc}')
+        return _erro('webhook', ', '.join(destinos), _detalhe_erro_rede(exc))
 
     destino = ', '.join(destinos)
     if resposta.ok:
@@ -350,10 +384,10 @@ def verificar_conexao(provedor: str | None = None) -> ResultadoEnvio:
                 f'https://graph.facebook.com/{versao}/{phone_number_id}',
                 params={'fields': 'display_phone_number,verified_name,quality_rating'},
                 headers={'Authorization': f'Bearer {token}'},
-                timeout=TIMEOUT_SEGUNDOS,
+                **http_request_kwargs(),
             )
         except Exception as exc:  # noqa: BLE001
-            return _erro('meta_cloud', '', f'erro de rede: {exc}')
+            return _erro('meta_cloud', '', _detalhe_erro_rede(exc))
         dados = _resposta_json(resposta)
         if resposta.ok and isinstance(dados, dict):
             numero = dados.get('display_phone_number', '')
@@ -371,10 +405,10 @@ def verificar_conexao(provedor: str | None = None) -> ResultadoEnvio:
             resposta = requests.get(
                 f'{base}/instance/connectionState/{instancia}',
                 headers={'apikey': chave},
-                timeout=TIMEOUT_SEGUNDOS,
+                **http_request_kwargs(),
             )
         except Exception as exc:  # noqa: BLE001
-            return _erro('evolution', '', f'erro de rede: {exc}')
+            return _erro('evolution', '', _detalhe_erro_rede(exc))
         dados = _resposta_json(resposta)
         estado = ''
         if isinstance(dados, dict):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+import requests
 
 from sisclima.alerts import whatsapp
 from tests.conftest import RespostaFalsa
@@ -254,3 +255,30 @@ def test_verificar_conexao_evolution_exige_state_open(evolution_configurado, cli
 def test_send_whatsapp_devolve_booleano(meta_configurado, cliente):
     cliente(RespostaFalsa(200, {'messages': []}))
     assert whatsapp.send_whatsapp('teste') is True
+
+
+def test_http_verify_respeita_ca_bundle(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv('WHATSAPP_CA_BUNDLE', r'C:\TI\ca-corporativo.pem')
+    assert whatsapp.http_verify() == r'C:\TI\ca-corporativo.pem'
+
+
+def test_http_verify_pode_desligar_ssl(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv('WHATSAPP_SSL_VERIFY', 'false')
+    assert whatsapp.http_verify() is False
+
+
+def test_envio_meta_passa_verify(meta_configurado, cliente, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv('WHATSAPP_SSL_VERIFY', 'false')
+    falso = cliente(RespostaFalsa(200, {'messages': []}))
+    whatsapp.enviar_whatsapp('teste')
+    assert falso.chamadas[0]['verify'] is False
+
+
+def test_erro_ssl_sugere_correcao(meta_configurado, monkeypatch: pytest.MonkeyPatch):
+    def explodir(*args, **kwargs):
+        raise requests.exceptions.SSLError('[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed')
+
+    monkeypatch.setattr(whatsapp.requests, 'post', explodir)
+    resultado = whatsapp.enviar_whatsapp('teste')[0]
+    assert 'WHATSAPP_CA_BUNDLE' in resultado.detalhe
+    assert 'WHATSAPP_SSL_VERIFY=false' in resultado.detalhe
