@@ -309,7 +309,8 @@ Validação pós-ciclo:
 | 6 | Smoke `all_ok` | `scripts/smoke_ops.py` |
 | 7 | Sem senhas no repositório | revisão Git |
 
-Documento complementar de produto/qualidade: `docs/RELATORIO_PRONTIDAO_INSTITUCIONAL.md`.
+Documento complementar de produto/qualidade: `docs/RELATORIO_PRONTIDAO_INSTITUCIONAL.md`.  
+Checklist de homologação (OK/NOK): `docs/CHECKLIST_HOMOLOGACAO_STI.md` (PDF em `docs/apresentacoes/`).
 
 ---
 

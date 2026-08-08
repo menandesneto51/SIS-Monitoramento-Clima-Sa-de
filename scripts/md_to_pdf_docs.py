@@ -61,6 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     docs = [
         ROOT / "docs" / "RELATORIO_PRONTIDAO_INSTITUCIONAL.md",
         ROOT / "docs" / "STI_IMPLANTACAO_SERVIDOR_SES.md",
+        ROOT / "docs" / "CHECKLIST_HOMOLOGACAO_STI.md",
     ]
     for src in docs:
         if not src.exists():
