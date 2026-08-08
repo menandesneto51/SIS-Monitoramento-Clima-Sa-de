@@ -218,7 +218,33 @@ Teste:
 
 ```bash
 python -m sisclima.alerts.whatsapp_agent diagnostico
+python -m sisclima.alerts.whatsapp_agent status
 python -m sisclima.alerts.whatsapp_agent testar
 ```
 
 Antes do teste com número de teste: mande **"oi"** do celular para o número **From** (janela 24h).
+
+---
+
+## Conta SMB (WhatsApp Business no celular)
+
+Se `registrar --pin` retornar **"Register endpoint is not available for SMB businesses"**, o número usa o **app WhatsApp Business no celular**. A Meta **não permite** `POST /register` pela API nesse caso.
+
+### Opção A — Teste rápido (recomendado agora)
+
+1. **API Setup** → campo **From** → escolha o **número de teste** da Meta (não o +55 65 99219-0039)
+2. Copie o **Phone number ID** desse número de teste
+3. Atualize no `.env`: `WHATSAPP_PHONE_NUMBER_ID=<id_do_teste>`
+4. Em **To**, cadastre `65992190039` e confirme o código SMS
+5. `python -m sisclima.alerts.whatsapp_agent testar`
+
+### Opção B — Produção com o número real (coexistência)
+
+1. **API Setup** → **Adicionar número** ou **Conectar app WhatsApp Business**
+2. Escolha **conectar conta existente** (não criar número novo só na API)
+3. Escaneie o **QR Code** no app WhatsApp Business do celular
+4. Aceite a coexistência (app + Cloud API no mesmo número)
+5. `python -m sisclima.alerts.whatsapp_agent status` → deve mostrar `platform_type=CLOUD_API`
+6. `python -m sisclima.alerts.whatsapp_agent testar`
+
+Guia Meta: [Onboard WhatsApp Business app users](https://developers.facebook.com/docs/whatsapp/embedded-signup/custom-flows/onboarding-business-app-users/)

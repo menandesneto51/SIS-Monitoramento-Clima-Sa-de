@@ -253,3 +253,20 @@ def test_cli_registrar(meta_completo, capsys, monkeypatch: pytest.MonkeyPatch):
     )
     assert whatsapp_agent.main(['registrar', '--pin', '123456']) == 0
     assert '[OK' in capsys.readouterr().out
+
+
+def test_cli_status(meta_completo, capsys, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(
+        whatsapp,
+        'consultar_numero_meta',
+        lambda: whatsapp.ResultadoEnvio(
+            True,
+            'meta_cloud',
+            '+55 65 99999-8888',
+            'platform_type=CLOUD_API',
+            200,
+            {'platform_type': 'CLOUD_API', 'is_on_biz_app': False},
+        ),
+    )
+    assert whatsapp_agent.main(['status']) == 0
+    assert 'CLOUD_API' in capsys.readouterr().out

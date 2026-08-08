@@ -303,3 +303,27 @@ def test_registrar_exige_pin_de_seis_digitos(meta_configurado):
     resultado = whatsapp.registrar_numero_meta('12')
     assert resultado.ok is False
     assert '6 dígitos' in resultado.detalhe
+
+
+def test_registrar_smb_orienta_coexistencia(meta_configurado, cliente):
+    cliente(RespostaFalsa(400, {'error': {'message': 'Register endpoint is not available for SMB businesses.'}}))
+    resultado = whatsapp.registrar_numero_meta('123456')
+    assert resultado.ok is False
+    assert 'SMB' in resultado.detalhe
+    assert 'coexistência' in resultado.detalhe.lower() or 'TESTE' in resultado.detalhe
+
+
+def test_orientacoes_status_meta_smb():
+    orientacoes = whatsapp.orientacoes_status_meta({'platform_type': 'NOT_APPLICABLE', 'is_on_biz_app': True})
+    assert any('SMB' in item for item in orientacoes)
+
+
+def test_consultar_numero_meta(meta_configurado, cliente):
+    cliente(RespostaFalsa(200, {
+        'display_phone_number': '+55 65 99219-0039',
+        'platform_type': 'CLOUD_API',
+        'is_on_biz_app': True,
+    }))
+    resultado = whatsapp.consultar_numero_meta()
+    assert resultado.ok is True
+    assert 'CLOUD_API' in resultado.detalhe

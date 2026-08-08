@@ -15,6 +15,7 @@ linha de comando:
     python -m sisclima.alerts.whatsapp_agent aplicar --valor WHATSAPP_PROVIDER=meta_cloud --valor WHATSAPP_TOKEN=EAA...
     python -m sisclima.alerts.whatsapp_agent testar --para 65999998888
     python -m sisclima.alerts.whatsapp_agent registrar --pin 123456
+    python -m sisclima.alerts.whatsapp_agent status
     python -m sisclima.alerts.whatsapp_agent descobrir --token EAA...
 """
 from __future__ import annotations
@@ -692,6 +693,37 @@ def _cmd_registrar(args: argparse.Namespace) -> int:
     return 0 if resultado.ok else 1
 
 
+def _cmd_status(args: argparse.Namespace) -> int:
+    resultado = whatsapp.consultar_numero_meta()
+    if args.json:
+        payload = {
+            'ok': resultado.ok,
+            'destino': resultado.destino,
+            'detalhe': resultado.detalhe,
+            'dados': resultado.resposta if isinstance(resultado.resposta, dict) else {},
+            'orientacoes': whatsapp.orientacoes_status_meta(resultado.resposta)
+            if isinstance(resultado.resposta, dict)
+            else [],
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+    else:
+        marca = 'OK ' if resultado.ok else 'ERRO'
+        print(f'[{marca}] {resultado.destino or "(sem destino)"}: {resultado.detalhe}')
+        if isinstance(resultado.resposta, dict):
+            print('Campos:')
+            for chave, valor in resultado.resposta.items():
+                if chave != 'id':
+                    print(f'  - {chave}: {valor}')
+            orientacoes = whatsapp.orientacoes_status_meta(resultado.resposta)
+            if orientacoes:
+                print('Próximos passos:')
+                for item in orientacoes:
+                    print(f'  - {item}')
+        elif not resultado.ok:
+            print(resultado.detalhe)
+    return 0 if resultado.ok else 1
+
+
 def _cmd_descobrir(args: argparse.Namespace) -> int:
     token = (args.token or env('WHATSAPP_TOKEN') or '').strip()
     if not token:
@@ -776,6 +808,9 @@ def construir_parser() -> argparse.ArgumentParser:
     )
     p_reg.add_argument('--pin', help='PIN de 6 dígitos (ou WHATSAPP_REGISTER_PIN no .env).')
     p_reg.set_defaults(func=_cmd_registrar)
+
+    p_status = sub.add_parser('status', help='Consulta platform_type e orienta conta SMB vs Cloud API.')
+    p_status.set_defaults(func=_cmd_status)
 
     p_desc = sub.add_parser(
         'descobrir',

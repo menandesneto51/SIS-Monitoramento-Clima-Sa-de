@@ -191,6 +191,11 @@ def http_verify() -> bool | str:
     """Parâmetro ``verify`` do requests (True, False ou caminho de CA bundle)."""
     if env_name_used('WHATSAPP_SSL_VERIFY') and not as_bool(env('WHATSAPP_SSL_VERIFY'), True):
         log.warning('WHATSAPP_SSL_VERIFY=false: verificação SSL desativada nas chamadas WhatsApp.')
+        try:
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        except ImportError:
+            pass
         return False
     bundle = (env('WHATSAPP_CA_BUNDLE') or env('REQUESTS_CA_BUNDLE') or '').strip()
     if bundle:
@@ -214,16 +219,29 @@ def _detalhe_erro_rede(exc: Exception) -> str:
     return f'erro de rede: {texto}'
 
 
+def _orientacao_conta_smb(prefixo: str = '') -> str:
+    cabeca = f'{prefixo} — ' if prefixo else ''
+    return (
+        f'{cabeca}Conta SMB (WhatsApp Business no celular): a Meta não permite POST /register pela API. '
+        'Opção A (teste): use o número de TESTE da API Setup (já registrado) e atualize WHATSAPP_PHONE_NUMBER_ID. '
+        'Opção B (produção): API Setup → conectar app WhatsApp Business → escaneie o QR Code (coexistência). '
+        'Depois rode: python -m sisclima.alerts.whatsapp_agent status'
+    )
+
+
 def _detalhe_erro_meta(dados: dict | str, status: int) -> str:
     if not isinstance(dados, dict):
         return f'HTTP {status}'
     erro = dados.get('error') or {}
     mensagem = str(erro.get('message') or '')
     codigo = erro.get('code')
+    if 'smb' in mensagem.lower() and 'register' in mensagem.lower():
+        return _orientacao_conta_smb(mensagem)
     if codigo == 133010 or 'not registered' in mensagem.lower():
         return (
-            f'{mensagem or "(#133010) Account not registered"} — O número precisa ser registrado na Cloud API. '
-            'Defina um PIN de 6 dígitos e rode: python -m sisclima.alerts.whatsapp_agent registrar --pin 123456'
+            f'{mensagem or "(#133010) Account not registered"} — Número ainda não habilitado na Cloud API. '
+            'Rode: python -m sisclima.alerts.whatsapp_agent status — se for conta SMB, conecte pelo painel Meta '
+            '(coexistência); senão: registrar --pin 123456'
         )
     return mensagem or f'HTTP {status}'
 
@@ -327,6 +345,84 @@ def registrar_numero_meta(
         resposta.status_code,
         dados,
     )
+
+
+CAMPOS_STATUS_META = (
+    'display_phone_number,verified_name,platform_type,is_on_biz_app,'
+    'code_verification_status,quality_rating,account_mode,name_status'
+)
+
+
+def consultar_numero_meta(
+    phone_number_id: str | None = None,
+    token: str | None = None,
+) -> ResultadoEnvio:
+    """Consulta metadados do número na Graph API (somente leitura)."""
+    phone_number_id = phone_number_id or env('WHATSAPP_PHONE_NUMBER_ID')
+    token = token or env('WHATSAPP_TOKEN')
+    if not phone_number_id or not token:
+        return _erro('meta_cloud', '', 'WHATSAPP_PHONE_NUMBER_ID e WHATSAPP_TOKEN são obrigatórios.')
+
+    versao = env('WHATSAPP_API_VERSION', VERSAO_API_META_PADRAO) or VERSAO_API_META_PADRAO
+    try:
+        resposta = requests.get(
+            f'https://graph.facebook.com/{versao}/{phone_number_id}',
+            params={'fields': CAMPOS_STATUS_META},
+            headers={'Authorization': f'Bearer {token}'},
+            **http_request_kwargs(),
+        )
+    except Exception as exc:  # noqa: BLE001
+        return _erro('meta_cloud', phone_number_id, _detalhe_erro_rede(exc))
+
+    dados = _resposta_json(resposta)
+    if resposta.ok and isinstance(dados, dict):
+        numero = dados.get('display_phone_number', '')
+        plataforma = dados.get('platform_type', '?')
+        return ResultadoEnvio(
+            True,
+            'meta_cloud',
+            numero or phone_number_id,
+            f'platform_type={plataforma}, is_on_biz_app={dados.get("is_on_biz_app")}',
+            resposta.status_code,
+            dados,
+        )
+    return ResultadoEnvio(
+        False,
+        'meta_cloud',
+        phone_number_id,
+        _detalhe_erro_meta(dados, resposta.status_code),
+        resposta.status_code,
+        dados,
+    )
+
+
+def orientacoes_status_meta(dados: dict) -> list[str]:
+    """Sugere próximos passos conforme o status retornado pela Meta."""
+    orientacoes: list[str] = []
+    plataforma = str(dados.get('platform_type') or '')
+    is_biz_app = dados.get('is_on_biz_app')
+    verificacao = str(dados.get('code_verification_status') or '')
+
+    if plataforma == 'CLOUD_API':
+        orientacoes.append('Número conectado à Cloud API — pode enviar mensagens (testar).')
+    else:
+        orientacoes.append(
+            f'platform_type={plataforma or "(vazio)"}: número ainda não está na Cloud API.'
+        )
+
+    if is_biz_app is True and plataforma != 'CLOUD_API':
+        orientacoes.append(_orientacao_conta_smb('Conta SMB detectada'))
+
+    if verificacao and verificacao.upper() not in ('VERIFIED', 'NOT_VERIFIED'):
+        orientacoes.append(f'Verificação do número: {verificacao}.')
+
+    if plataforma != 'CLOUD_API':
+        orientacoes.append(
+            'Teste imediato: em API Setup escolha o número de TESTE no campo From, copie o Phone number ID '
+            'e atualize WHATSAPP_PHONE_NUMBER_ID no .env.'
+        )
+
+    return orientacoes
 
 
 def _enviar_evolution(texto: str, destino: str) -> ResultadoEnvio:
