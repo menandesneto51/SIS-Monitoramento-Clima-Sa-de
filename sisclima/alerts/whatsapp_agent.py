@@ -10,7 +10,9 @@ linha de comando:
     python -m sisclima.alerts.whatsapp_agent recomendar --tem-servidor --uso interno
     python -m sisclima.alerts.whatsapp_agent plano --provedor meta_cloud
     python -m sisclima.alerts.whatsapp_agent diagnostico
+    python -m sisclima.alerts.whatsapp_agent verificar
     python -m sisclima.alerts.whatsapp_agent env --provedor evolution
+    python -m sisclima.alerts.whatsapp_agent aplicar --valor WHATSAPP_PROVIDER=meta_cloud --valor WHATSAPP_TOKEN=EAA...
     python -m sisclima.alerts.whatsapp_agent testar --para 65999998888
     python -m sisclima.alerts.whatsapp_agent descobrir --token EAA...
 """
@@ -21,6 +23,7 @@ import json
 import os
 import sys
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 
 from sisclima.alerts import whatsapp
 from sisclima.alerts import meta_discover
@@ -448,6 +451,68 @@ def gerar_secrets_toml(provedor: str, valores: dict[str, str] | None = None) -> 
     return '\n'.join(linhas) + '\n'
 
 
+def _parse_valores(items: list[str] | None) -> dict[str, str]:
+    valores: dict[str, str] = {}
+    for item in items or []:
+        if '=' not in item:
+            raise ValueError(f'Use o formato CHAVE=valor (recebido: {item})')
+        chave, _, valor = item.partition('=')
+        valores[chave.strip()] = valor.strip()
+    return valores
+
+
+def verificar_ambiente() -> dict:
+    """Retrato detalhado de onde o SIS procura e o que encontra no ambiente."""
+    chaves = [
+        'ALERT_WHATSAPP_ENABLED',
+        'WHATSAPP_PROVIDER',
+        'WHATSAPP_PHONE_NUMBER_ID',
+        'WHATSAPP_TOKEN',
+        'WHATSAPP_TO',
+    ]
+    variaveis = {nome: _valor_exibivel(nome) or '(ausente)' for nome in chaves}
+    dotenvs = env_dotenv_paths()
+    return {
+        'raiz_projeto': str(ROOT),
+        'diretorio_atual': str(Path.cwd()),
+        'arquivos_env': [str(p) for p in dotenvs],
+        'env_encontrado': bool(dotenvs),
+        'nomes_whatsapp_no_arquivo': _nomes_whatsapp_no_env(),
+        'variaveis_lidas': variaveis,
+        'provedor_ativo': whatsapp.provedor_ativo(),
+        'provedores_configurados': whatsapp.provedores_configurados(),
+    }
+
+
+def resumo_verificacao(dados: dict) -> str:
+    linhas = [
+        f'Raiz do projeto: {dados["raiz_projeto"]}',
+        f'Diretório atual: {dados["diretorio_atual"]}',
+    ]
+    if dados['arquivos_env']:
+        linhas.append('Arquivo .env: ' + ', '.join(dados['arquivos_env']))
+    else:
+        linhas.append(f'Arquivo .env: NÃO encontrado em {dados["raiz_projeto"]}')
+    nomes = dados['nomes_whatsapp_no_arquivo']
+    if nomes:
+        linhas.append('Chaves WhatsApp no .env: ' + ', '.join(nomes))
+    else:
+        linhas.append('Chaves WhatsApp no .env: nenhuma')
+    linhas.append('Variáveis lidas pelo SIS:')
+    for nome, valor in dados['variaveis_lidas'].items():
+        linhas.append(f'  - {nome}: {valor}')
+    linhas.append(f'Provedor ativo: {dados["provedor_ativo"] or "nenhum"}')
+    if not dados['provedores_configurados']:
+        linhas.append('')
+        linhas.append('Cole no final do .env (substitua EAA... pelo token real):')
+        linhas.append('ALERT_WHATSAPP_ENABLED=true')
+        linhas.append('WHATSAPP_PROVIDER=meta_cloud')
+        linhas.append('WHATSAPP_PHONE_NUMBER_ID=1217959788063271')
+        linhas.append('WHATSAPP_TOKEN=EAA...')
+        linhas.append('WHATSAPP_TO=65992190039')
+    return '\n'.join(linhas)
+
+
 def aplicar_na_sessao(valores: dict[str, str]) -> list[str]:
     """Coloca os valores em ``os.environ`` para permitir diagnóstico e teste imediatos.
 
@@ -563,18 +628,49 @@ def _cmd_env(args: argparse.Namespace) -> int:
     if args.provedor not in CATALOGO:
         print(f'Provedor desconhecido: {args.provedor}', file=sys.stderr)
         return 2
-    valores: dict[str, str] = {}
-    for item in args.valor or []:
-        if '=' not in item:
-            print(f'Use o formato CHAVE=valor (recebido: {item})', file=sys.stderr)
-            return 2
-        chave, _, valor = item.partition('=')
-        valores[chave.strip()] = valor.strip()
+    try:
+        valores = _parse_valores(args.valor)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     print(gerar_secrets_toml(args.provedor, valores) if args.formato == 'toml' else gerar_env(args.provedor, valores))
     return 0
 
 
+def _cmd_verificar(args: argparse.Namespace) -> int:
+    dados = verificar_ambiente()
+    if args.json:
+        print(json.dumps(dados, ensure_ascii=False, indent=2))
+    else:
+        print(resumo_verificacao(dados))
+    return 0 if dados['provedores_configurados'] else 1
+
+
+def _cmd_aplicar(args: argparse.Namespace) -> int:
+    try:
+        valores = _parse_valores(args.valor)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    if not valores:
+        print('Informe ao menos uma variável: --valor WHATSAPP_PROVIDER=meta_cloud', file=sys.stderr)
+        return 2
+    aplicadas = aplicar_na_sessao(valores)
+    if args.json:
+        print(json.dumps({'aplicadas': aplicadas}, ensure_ascii=False, indent=2))
+    else:
+        print('Variáveis aplicadas nesta sessão (não grava no .env): ' + ', '.join(aplicadas))
+        print(resumo_texto(diagnosticar()))
+    return 0 if diagnosticar().pronto else 1
+
+
 def _cmd_testar(args: argparse.Namespace) -> int:
+    if args.valor:
+        try:
+            aplicar_na_sessao(_parse_valores(args.valor))
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     resultados = testar(args.provedor, args.para, args.mensagem)
     if args.json:
         print(json.dumps([asdict(r) for r in resultados], ensure_ascii=False, indent=2, default=str))
@@ -643,6 +739,13 @@ def construir_parser() -> argparse.ArgumentParser:
     p_diag.add_argument('--provedor', choices=list(CATALOGO), help='Força o provedor avaliado.')
     p_diag.set_defaults(func=_cmd_diagnostico)
 
+    p_ver = sub.add_parser('verificar', help='Mostra onde o .env é lido e o que o SIS enxerga.')
+    p_ver.set_defaults(func=_cmd_verificar)
+
+    p_apl = sub.add_parser('aplicar', help='Define variáveis só nesta sessão (teste sem editar .env).')
+    p_apl.add_argument('--valor', action='append', metavar='CHAVE=VALOR', required=True)
+    p_apl.set_defaults(func=_cmd_aplicar)
+
     p_env = sub.add_parser('env', help='Gera o bloco de configuração para .env ou secrets.toml.')
     p_env.add_argument('--provedor', required=True, choices=list(CATALOGO))
     p_env.add_argument('--formato', default='env', choices=['env', 'toml'])
@@ -653,6 +756,7 @@ def construir_parser() -> argparse.ArgumentParser:
     p_teste.add_argument('--provedor', choices=list(CATALOGO))
     p_teste.add_argument('--para', help='Destinatários separados por vírgula. Padrão: WHATSAPP_TO.')
     p_teste.add_argument('--mensagem', help='Texto alternativo para o teste.')
+    p_teste.add_argument('--valor', action='append', metavar='CHAVE=VALOR', help='Aplica variáveis antes do teste.')
     p_teste.set_defaults(func=_cmd_testar)
 
     p_desc = sub.add_parser(

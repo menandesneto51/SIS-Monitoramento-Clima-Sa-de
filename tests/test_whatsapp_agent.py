@@ -205,6 +205,29 @@ def test_cli_diagnostico_falha_sem_configuracao(capsys):
     assert 'Nenhum provedor' in capsys.readouterr().out
 
 
+def test_cli_verificar_mostra_ausencia(capsys):
+    assert whatsapp_agent.main(['verificar']) == 1
+    saida = capsys.readouterr().out
+    assert 'Raiz do projeto:' in saida
+    assert 'WHATSAPP_TOKEN' in saida
+
+
+def test_cli_aplicar_habilita_teste_na_sessao(capsys, monkeypatch):
+    monkeypatch.delenv('WHATSAPP_PHONE_NUMBER_ID', raising=False)
+    monkeypatch.delenv('WHATSAPP_TOKEN', raising=False)
+    monkeypatch.delenv('WHATSAPP_TO', raising=False)
+    codigo = whatsapp_agent.main([
+        'aplicar',
+        '--valor', 'ALERT_WHATSAPP_ENABLED=true',
+        '--valor', 'WHATSAPP_PROVIDER=meta_cloud',
+        '--valor', 'WHATSAPP_PHONE_NUMBER_ID=123',
+        '--valor', 'WHATSAPP_TOKEN=EAAG-teste',
+        '--valor', 'WHATSAPP_TO=65999998888',
+    ])
+    assert codigo == 0
+    assert 'Pronto para enviar: sim' in capsys.readouterr().out
+
+
 def test_cli_diagnostico_json_quando_pronto(capsys, meta_completo):
     assert whatsapp_agent.main(['--json', 'diagnostico']) == 0
     saida = capsys.readouterr().out

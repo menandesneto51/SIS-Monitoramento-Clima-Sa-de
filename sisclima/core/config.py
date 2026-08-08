@@ -9,10 +9,19 @@ ROOT = Path(__file__).resolve().parents[2]
 
 ENV_DOTENV_CANDIDATES: tuple[Path, ...] = (ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env')
 
+# Permite apontar explicitamente para um .env (útil no Windows/OneDrive).
+_extra_dotenv = (os.getenv('DOTENV_PATH') or os.getenv('SISCLIMA_DOTENV') or '').strip()
+if _extra_dotenv:
+    _extra_path = Path(_extra_dotenv).expanduser()
+    if not _extra_path.is_absolute():
+        _extra_path = (Path.cwd() / _extra_path).resolve()
+    ENV_DOTENV_CANDIDATES = (_extra_path,) + ENV_DOTENV_CANDIDATES
+
 # Carrega SEM sobrescrever variáveis já existentes do ambiente.
+# encoding=utf-8-sig remove BOM comum em .env editado no Bloco de Notas.
 for _candidate in ENV_DOTENV_CANDIDATES:
     if _candidate.exists():
-        load_dotenv(_candidate, override=False)
+        load_dotenv(_candidate, override=False, encoding='utf-8-sig')
 
 
 def env_dotenv_paths() -> list[Path]:
