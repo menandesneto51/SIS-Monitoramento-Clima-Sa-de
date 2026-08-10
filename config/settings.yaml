@@ -29,8 +29,6 @@ limiares_calor:
     roxa: 43
   ehf:
     positivo: 0
-    # Usado em classify_stage → flag_persistencia_roxa / score roxo quando
-    # duracao_onda_calor_dias ≥ N e (EHF>positivo ou risco_cumulativo no limiar roxo).
     persistencia_dias_emergencia: 5
   risco_cumulativo:
     t_umbral: 39
@@ -38,11 +36,6 @@ limiares_calor:
     laranja: 7
     vermelha: 12
     roxa: 18
-  saturacao_solo:
-    amarela: 70
-    laranja: 85
-    vermelha: 95
-    roxa: 100
 
 limiares_assistenciais:
   pressao_calor_pct:
@@ -60,58 +53,6 @@ limiares_assistenciais:
     laranja: 2.0
     vermelha: 3.0
     roxa: 4.0
-  zscore_srag:
-    amarela: 1.5
-    laranja: 2.0
-    vermelha: 2.5
-    roxa: 3.0
-  incidencia_srag_100k:
-    amarela: 5
-    laranja: 15
-    vermelha: 40
-    roxa: 80
-  letalidade_srag_pct:
-    amarela: 5
-    laranja: 10
-    vermelha: 20
-    roxa: 30
-  prop_uti_srag_pct:
-    amarela: 20
-    laranja: 35
-    vermelha: 50
-    roxa: 65
-  zscore_arbovirus:
-    amarela: 1.0
-    laranja: 2.0
-    vermelha: 3.0
-    roxa: 4.0
-  casos_arbovirus_7d:
-    amarela: 10
-    laranja: 30
-    vermelha: 80
-    roxa: 150
-  incidencia_arbovirus_100k:
-    amarela: 10
-    laranja: 30
-    vermelha: 80
-    roxa: 150
-
-sivep_ms:
-  usar_indicadores_ms: true
-  preferir_data_sintomas: true
-  meta_qualidade_oms_pct: 80
-
-arboviroses:
-  janela_dias: 7
-  agravos:
-    - Dengue
-    - Zika
-    - Chikungunya
-    - Febre Amarela
-    - Oropouche
-    - Mayaro
-  peso_no_estagio: true
-  agravar_se_chuva_e_calor: true
 
 limiares_operacionais:
   autonomia_insumos_dias:
@@ -143,7 +84,6 @@ data_sources:
   geo_dir: data/geo
   meteorologia_csv: meteorologia.csv
   inmet_alertas_csv: inmet_alertas.csv
-  cemaden_alertas_csv: cemaden_alertas.csv
   indicasus_csv: indicasus_leitos.csv
   sivep_csv: sivep_srag.csv
   lacen_csv: lacen_gal.csv
@@ -157,13 +97,15 @@ data_sources:
   municipios_csv: municipios_mt.csv
   populacao_csv: populacao_municipal_mt_2020_2025.csv
   qualidade_ar_csv: qualidade_ar_copernicus.csv
-  sentinela_sg_agregado_csv: sentinela_sg_agregado_semanal.csv
-  sentinela_sg_amostras_csv: sentinela_sg_amostras.csv
 
 alertas:
   enviar_mudanca_nivel: true
   cooldown_minutos: 60
   niveis_minimos_para_push: [laranja, vermelha, roxa]
+  whatsapp:
+    # Credenciais ficam no .env, nunca aqui. Ver docs/WHATSAPP_GRATUITO.md.
+    ddi_padrao: '55'
+    limite_caracteres: 4000
 
 
 qualidade_ar:
@@ -208,66 +150,4 @@ municipalizacao:
   exigir_cod_ibge: false
   usar_shapefile_quando_disponivel: true
   shapefile_mt: data/geo/municipios_mt/MT_Municipios_2025.shp
-
-# ---------------------------------------------------------------------------
-# Indicadores compostos do painel (afináveis pelo CIEVS)
-# Validação empírica em 28/07/2026 (142 mun.): ver validar_pesos_indicadores.py
-# Esquema escolhido: validado_jul2026 / validado_b
-# - Umidade seca quase sem associação com nível (ρ≈−0,06) → peso reduzido
-# - Risco cumulativo é o melhor sinal climático com cobertura plena → peso ↑
-# - PM2,5/arbovírus: correlação alta mas cobertura baixa → peso moderado (não dominar)
-# - saude_first sobe ρ com nível, mas comprime a escala (só ~9% acima de “moderada”)
-# Override opcional via .env: PANEL_W_TENSAO_RISCO=0.50 etc.
-# ---------------------------------------------------------------------------
-indicadores_painel:
-  tensao_climatica:
-    risco_cumulativo: 0.50
-    utci: 0.28
-    tmax: 0.16
-    umidade_seca: 0.06
-  carga_saude:
-    srag: 0.38
-    arbovirus: 0.20
-    pm25: 0.10
-    pressao: 0.32
-  vigilancia_integrada:
-    # bruta = tensão+carga+pressão; integrada mistura com nível oficial (score)
-    tensao: 0.42
-    carga: 0.28
-    pressao: 0.12
-    nivel_operacional: 0.18
-  aplicar_piso_nivel: true
-  pisos_nivel:
-    verde: 0
-    amarela: 12
-    laranja: 24
-    vermelha: 38
-    roxa: 48
-    cinza: 0
-  faixas:
-    baixa_max: 30
-    moderada_max: 60
-    alta_max: 80
-  notas_calibracao: >
-    Pesos validados em jul/2026. A vigilância integrada agora inclui o nível
-    operacional (18%) e pisos por cor (Roxa≥48, Vermelha≥38) para corrigir o
-    viés em que municípios Roxa com baixo calor ficavam abaixo da média Vermelha.
-    indice_vigilancia_bruta permanece disponível (só clima+saúde). Revisar após
-    IndicaSUS estável e maior cobertura de PM2,5/arbovírus.
-  # Meta-score: soma ponderada das camadas 0–100 (não soma KPIs brutos).
-  # Override: META_W_VIGILANCIA=0.30 etc.
-  meta_global:
-    pesos:
-      vigilancia: 0.30
-      pressao: 0.25
-      adaptacao: 0.20
-      fragilidade: 0.15   # 100 − indice_resiliencia
-      alerta: 0.10        # score_alerta_integrado 0–4 → 0–100
-    faixas:
-      baixa_max: 30
-      moderada_max: 60
-      alta_max: 80
-    notas: >
-      Prioridade global para ranking CIEVS. Nível Verde→Roxa permanece o estágio
-      operacional legal. Pilares ausentes são omitidos (completude_prioridade_pct).
 

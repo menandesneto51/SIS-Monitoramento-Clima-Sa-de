@@ -7,39 +7,26 @@ from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[2]
 
-def _load_env_files() -> None:
-    """Carrega .env local e, opcionalmente, DW_ENV_FILE de outro projeto CIEVS.
+ENV_DOTENV_CANDIDATES: tuple[Path, ...] = (ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env')
 
-    Mesmo padrão do Meningites / Ondas de calor: reutilizar um .env irmão
-    sem versionar senha. Variáveis já definidas no ambiente NÃO são sobrescritas.
-    """
-    candidates: list[Path] = [ROOT / ".env", ROOT.parent / ".env", Path.cwd() / ".env"]
-    # Sibling projects (Windows OneDrive / pasta CIEVS MT)
-    parent = ROOT.parent
-    candidates.extend(
-        [
-            parent / "Monitoramento ondas de calor" / ".env",
-            parent / "Meningites" / ".env",
-            parent / "SIS-Monitoramento-Clima-Saude-GITHUB-LIMPO" / ".env",
-        ]
-    )
-    dw_env = (os.getenv("DW_ENV_FILE") or "").strip()
-    if dw_env:
-        candidates.insert(0, Path(dw_env))
+# Permite apontar explicitamente para um .env (útil no Windows/OneDrive).
+_extra_dotenv = (os.getenv('DOTENV_PATH') or os.getenv('SISCLIMA_DOTENV') or '').strip()
+if _extra_dotenv:
+    _extra_path = Path(_extra_dotenv).expanduser()
+    if not _extra_path.is_absolute():
+        _extra_path = (Path.cwd() / _extra_path).resolve()
+    ENV_DOTENV_CANDIDATES = (_extra_path,) + ENV_DOTENV_CANDIDATES
 
-    seen: set[Path] = set()
-    for cand in candidates:
-        try:
-            path = cand.resolve()
-        except OSError:
-            continue
-        if path in seen or not path.is_file():
-            continue
-        seen.add(path)
-        load_dotenv(path, override=False)
+# Carrega SEM sobrescrever variáveis já existentes do ambiente.
+# encoding=utf-8-sig remove BOM comum em .env editado no Bloco de Notas.
+for _candidate in ENV_DOTENV_CANDIDATES:
+    if _candidate.exists():
+        load_dotenv(_candidate, override=False, encoding='utf-8-sig')
 
 
-_load_env_files()
+def env_dotenv_paths() -> list[Path]:
+    """Arquivos ``.env`` encontrados, na ordem em que são lidos."""
+    return [p for p in ENV_DOTENV_CANDIDATES if p.exists()]
 
 
 def _load_yaml(path: Path) -> dict:
@@ -69,17 +56,10 @@ ENV_ALIASES: dict[str, list[str]] = {
     'MUNICIPIO_KEY': ['MUNICIPIO_KEY', 'CHAVE_IBGE', 'COD_IBGE_COL', 'CODIGO_IBGE_COL'],
     'MUNICIPIOS_SOURCE': ['MUNICIPIOS_SOURCE', 'FONTE_MUNICIPIOS'],
 
-    # Also map DW_HOST explicitly (Meningites uses DW_HOST)
-    'DW_HOST': ['DW_HOST', 'DW_SERVER'],
-    'DW_ENCRYPT': ['DW_ENCRYPT', 'SQLSERVER_ENCRYPT', 'ENCRYPT'],
-    'DW_CLIENT': ['DW_CLIENT', 'SQLSERVER_CLIENT'],
-    'DW_ENV_FILE': ['DW_ENV_FILE', 'DW_DOTENV', 'DOTENV_DW'],
-    'DW_PORT': ['DW_PORT', 'SQLSERVER_PORT', 'DB_PORT'],
-
     # SQL Server / DW
     'USE_SQLSERVER': ['USE_SQLSERVER', 'USAR_SQLSERVER', 'USE_DW', 'USAR_DW', 'SQLSERVER_ENABLED', 'DW_ENABLED'],
-    'DW_SERVER': ['DW_SERVER', 'DW_HOST', 'DATAWAREHOUSE_SERVER', 'DATAWAREHOUSE_HOST', 'SQLSERVER_HOST', 'SQLSERVER_SERVER', 'SERVER_SQL', 'DB_HOST'],
-    'DW_DATABASE': ['DW_DATABASE', 'DW_DB', 'DATAWAREHOUSE_DATABASE', 'DATAWAREHOUSE_DB', 'SQLSERVER_DATABASE', 'SQLSERVER_DB', 'SQLSERVER_DATABASE_DW', 'DATABASE_DW', 'DB_NAME'],
+    'DW_SERVER': ['DW_SERVER', 'DW_HOST', 'DATAWAREHOUSE_SERVER', 'DATAWAREHOUSE_HOST', 'SQLSERVER_HOST', 'SQLSERVER_SERVER', 'SERVER_SQL', 'DB_HOST', 'INDICASUS_SERVER'],
+    'DW_DATABASE': ['DW_DATABASE', 'DW_DB', 'DATAWAREHOUSE_DATABASE', 'DATAWAREHOUSE_DB', 'SQLSERVER_DATABASE', 'SQLSERVER_DB', 'SQLSERVER_DATABASE_DW', 'DATABASE_DW', 'DB_NAME', 'INDICASUS_DATABASE'],
     'DW_USER': ['DW_USER', 'DW_LOGIN', 'DATAWAREHOUSE_USER', 'SQLSERVER_USER', 'SQLSERVER_USERNAME', 'DB_USER', 'USUARIO_DW', 'LOGIN_DW'],
     'DW_PASSWORD': ['DW_PASSWORD', 'DW_PASS', 'DATAWAREHOUSE_PASSWORD', 'SQLSERVER_PASSWORD', 'SQLSERVER_PWD', 'DB_PASSWORD', 'SENHA_DW', 'PASSWORD_DW'],
     'DW_DRIVER': ['DW_DRIVER', 'SQLSERVER_DRIVER', 'ODBC_DRIVER', 'DB_DRIVER'],
@@ -107,20 +87,6 @@ ENV_ALIASES: dict[str, list[str]] = {
     'INMET_ALERTS_URL': ['INMET_ALERTS_URL', 'INMET_ALERT_URL', 'URL_INMET_ALERTAS', 'INMET_URL_ALERTAS'],
     'INMET_STATION_CODE': ['INMET_STATION_CODE', 'INMET_ESTACAO', 'CODIGO_ESTACAO_INMET'],
 
-    # Cemaden
-    'USE_CEMADEN': ['USE_CEMADEN', 'CEMADEN_ENABLED', 'USAR_CEMADEN'],
-    'CEMADEN_ALERTS_URL': ['CEMADEN_ALERTS_URL', 'CEMADEN_URL', 'URL_CEMADEN_ALERTAS'],
-    'CEMADEN_UF': ['CEMADEN_UF', 'UF_CEMADEN'],
-    'CEMADEN_SSL_VERIFY': ['CEMADEN_SSL_VERIFY', 'ALERT_SSL_VERIFY'],
-    'CEMADEN_ALERTAS_CSV': ['CEMADEN_ALERTAS_CSV', 'CSV_CEMADEN_ALERTAS'],
-
-    # ANA
-    'USE_ANA': ['USE_ANA', 'ANA_ENABLED', 'USAR_ANA', 'USE_HIDROWEB'],
-    'ANA_UF': ['ANA_UF', 'UF_ANA'],
-    'ANA_FETCH_SERIES': ['ANA_FETCH_SERIES', 'ANA_SERIES', 'ANA_TELEMETRIA'],
-    'ANA_MAX_ESTACOES': ['ANA_MAX_ESTACOES', 'ANA_STATIONS_LIMIT'],
-    'ANA_SSL_VERIFY': ['ANA_SSL_VERIFY', 'ALERT_SSL_VERIFY'],
-
     # Alertas e relatórios
     'SEND_ALERT_ON_LEVEL_CHANGE': ['SEND_ALERT_ON_LEVEL_CHANGE', 'ENVIAR_ALERTA_MUDANCA_NIVEL'],
     'ALERT_EMAIL_ENABLED': ['ALERT_EMAIL_ENABLED', 'EMAIL_ENABLED', 'USE_EMAIL', 'USAR_EMAIL'],
@@ -133,7 +99,29 @@ ENV_ALIASES: dict[str, list[str]] = {
     'TELEGRAM_BOT_TOKEN': ['TELEGRAM_BOT_TOKEN', 'BOT_TOKEN_TELEGRAM', 'TELEGRAM_TOKEN'],
     'TELEGRAM_CHAT_ID': ['TELEGRAM_CHAT_ID', 'CHAT_ID_TELEGRAM', 'TELEGRAM_CHAT'],
     'ALERT_WEBHOOK_ENABLED': ['ALERT_WEBHOOK_ENABLED', 'WEBHOOK_ENABLED'],
-    'WEBHOOK_URL': ['WEBHOOK_URL', 'WHATSAPP_WEBHOOK_URL', 'TEAMS_WEBHOOK_URL'],
+    # WHATSAPP_WEBHOOK_URL saiu daqui ao virar chave própria do canal de WhatsApp,
+    # senão a mesma URL dispararia dois envios (webhook genérico + WhatsApp).
+    'WEBHOOK_URL': ['WEBHOOK_URL', 'TEAMS_WEBHOOK_URL'],
+
+    # WhatsApp (provedores gratuitos) — ver docs/WHATSAPP_GRATUITO.md
+    'ALERT_WHATSAPP_ENABLED': ['ALERT_WHATSAPP_ENABLED', 'WHATSAPP_ENABLED', 'USE_WHATSAPP', 'USAR_WHATSAPP'],
+    'WHATSAPP_PROVIDER': ['WHATSAPP_PROVIDER', 'WHATSAPP_PROVEDOR'],
+    'WHATSAPP_TO': ['WHATSAPP_TO', 'WHATSAPP_DESTINATARIOS', 'ALERTA_WHATSAPP_DESTINATARIOS'],
+    'WHATSAPP_DDI_PADRAO': ['WHATSAPP_DDI_PADRAO', 'WHATSAPP_DEFAULT_DDI'],
+    'WHATSAPP_PHONE_NUMBER_ID': ['WHATSAPP_PHONE_NUMBER_ID', 'META_PHONE_NUMBER_ID', 'WHATSAPP_FROM_ID'],
+    'WHATSAPP_TOKEN': ['WHATSAPP_TOKEN', 'WHATSAPP_ACCESS_TOKEN', 'META_WHATSAPP_TOKEN'],
+    'WHATSAPP_API_VERSION': ['WHATSAPP_API_VERSION', 'META_GRAPH_API_VERSION'],
+    'WHATSAPP_TEMPLATE_NAME': ['WHATSAPP_TEMPLATE_NAME', 'WHATSAPP_TEMPLATE'],
+    'WHATSAPP_TEMPLATE_LANG': ['WHATSAPP_TEMPLATE_LANG', 'WHATSAPP_TEMPLATE_IDIOMA'],
+    'WHATSAPP_SSL_VERIFY': ['WHATSAPP_SSL_VERIFY', 'WHATSAPP_VERIFY_SSL'],
+    'WHATSAPP_CA_BUNDLE': ['WHATSAPP_CA_BUNDLE', 'WHATSAPP_CA_CERT', 'WHATSAPP_CA_PATH'],
+    'EVOLUTION_API_URL': ['EVOLUTION_API_URL', 'EVOLUTION_URL', 'EVOLUTION_BASE_URL'],
+    'EVOLUTION_API_KEY': ['EVOLUTION_API_KEY', 'EVOLUTION_APIKEY', 'EVOLUTION_TOKEN'],
+    'EVOLUTION_INSTANCE': ['EVOLUTION_INSTANCE', 'EVOLUTION_INSTANCIA', 'EVOLUTION_INSTANCE_NAME'],
+    'CALLMEBOT_APIKEY': ['CALLMEBOT_APIKEY', 'CALLMEBOT_API_KEY'],
+    'CALLMEBOT_PHONE': ['CALLMEBOT_PHONE', 'CALLMEBOT_NUMERO'],
+    'WHATSAPP_WEBHOOK_URL': ['WHATSAPP_WEBHOOK_URL', 'WHATSAPP_WEBHOOK', 'N8N_WHATSAPP_WEBHOOK_URL'],
+    'WHATSAPP_WEBHOOK_TOKEN': ['WHATSAPP_WEBHOOK_TOKEN', 'WHATSAPP_WEBHOOK_SECRET'],
 
     # IA
     'USE_LLM_REPORT': ['USE_LLM_REPORT', 'USE_IA_RELATORIO', 'USAR_IA_RELATORIO'],
