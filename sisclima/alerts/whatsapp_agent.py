@@ -694,6 +694,7 @@ def _cmd_registrar(args: argparse.Namespace) -> int:
 
 
 def _cmd_status(args: argparse.Namespace) -> int:
+    phone_id_env = env('WHATSAPP_PHONE_NUMBER_ID') or '(não definido)'
     resultado = whatsapp.consultar_numero_meta()
     if args.json:
         payload = {
@@ -707,6 +708,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
     else:
+        print(f'WHATSAPP_PHONE_NUMBER_ID no .env: {phone_id_env}')
         marca = 'OK ' if resultado.ok else 'ERRO'
         print(f'[{marca}] {resultado.destino or "(sem destino)"}: {resultado.detalhe}')
         if isinstance(resultado.resposta, dict):

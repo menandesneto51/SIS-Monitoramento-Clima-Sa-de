@@ -28,6 +28,8 @@ class NumeroMeta:
     waba_name: str = ''
     business_id: str = ''
     business_name: str = ''
+    platform_type: str = ''
+    is_on_biz_app: bool | None = None
 
 
 @dataclass
@@ -42,7 +44,33 @@ class ResultadoDescoberta:
 
     @property
     def phone_number_id_sugerido(self) -> str | None:
+        for numero in self.numeros:
+            if numero.platform_type == 'CLOUD_API':
+                return numero.phone_number_id
         return self.numeros[0].phone_number_id if self.numeros else None
+
+
+def _enriquecer_numero(numero: NumeroMeta, token: str) -> NumeroMeta:
+    """Consulta platform_type de cada Phone number ID."""
+    versao = whatsapp.VERSAO_API_META_PADRAO
+    status, dados = _get(
+        f'https://graph.facebook.com/{versao}/{numero.phone_number_id}',
+        token,
+        {'fields': 'platform_type,is_on_biz_app,code_verification_status'},
+    )
+    if status == 200 and isinstance(dados, dict):
+        return NumeroMeta(
+            phone_number_id=numero.phone_number_id,
+            display=numero.display,
+            verified_name=numero.verified_name,
+            waba_id=numero.waba_id,
+            waba_name=numero.waba_name,
+            business_id=numero.business_id,
+            business_name=numero.business_name,
+            platform_type=str(dados.get('platform_type') or ''),
+            is_on_biz_app=dados.get('is_on_biz_app'),
+        )
+    return numero
 
 
 def _get(url: str, token: str, params: dict | None = None) -> tuple[int, dict | list | str]:
@@ -221,6 +249,8 @@ def descobrir(token: str) -> ResultadoDescoberta:
         resultado.erros.append(
             'Nenhum Phone number ID encontrado. Siga docs/META_ONDE_CLICAR.md → Caminho A ou C.'
         )
+    if resultado.numeros:
+        resultado.numeros = [_enriquecer_numero(numero, token) for numero in resultado.numeros]
     return resultado
 
 
@@ -229,10 +259,13 @@ def resumo_texto(resultado: ResultadoDescoberta) -> str:
     linhas.append(f'Token válido: {"sim" if resultado.token_valido else "não confirmado"}')
     linhas.append(f'Números encontrados: {len(resultado.numeros)}')
     for idx, numero in enumerate(resultado.numeros, 1):
+        plataforma = numero.platform_type or '?'
+        marca = ' ← use este para testar' if plataforma == 'CLOUD_API' else ''
+        smb = ' (app celular)' if numero.is_on_biz_app else ''
         linhas.append(
-            f'  {idx}. Phone number ID: {numero.phone_number_id}'
+            f'  {idx}. ID: {numero.phone_number_id}'
             f' | {numero.display or "(sem display)"}'
-            f' | WABA: {numero.waba_id}'
+            f' | platform_type={plataforma}{smb}{marca}'
         )
     if resultado.waba_ids:
         linhas.append(f'WABA IDs: {", ".join(resultado.waba_ids)}')
@@ -242,6 +275,10 @@ def resumo_texto(resultado: ResultadoDescoberta) -> str:
         linhas.append(f'Erro: {erro}')
     if resultado.phone_number_id_sugerido:
         linhas.append('')
-        linhas.append('Sugestão para .env:')
+        sugerido = next((n for n in resultado.numeros if n.phone_number_id == resultado.phone_number_id_sugerido), None)
+        if sugerido and sugerido.platform_type == 'CLOUD_API':
+            linhas.append('Sugestão para .env (número pronto na Cloud API):')
+        else:
+            linhas.append('Sugestão para .env (nenhum CLOUD_API encontrado — use número de teste na API Setup):')
         linhas.append(f'WHATSAPP_PHONE_NUMBER_ID={resultado.phone_number_id_sugerido}')
     return '\n'.join(linhas)

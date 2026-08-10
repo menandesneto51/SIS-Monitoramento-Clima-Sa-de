@@ -13,7 +13,7 @@ class GraphFalso:
         self.respostas = respostas
         self.urls: list[str] = []
 
-    def get(self, url: str, params=None, headers=None, timeout=None):  # noqa: ARG002
+    def get(self, url: str, params=None, headers=None, timeout=None, **kwargs):  # noqa: ARG002
         self.urls.append(url)
         for chave, resposta in self.respostas.items():
             if chave in url:
@@ -74,6 +74,10 @@ def test_descobrir_encontra_numeros_via_negocios(graph):
                 'verified_name': 'Test Number',
             }],
         }),
+        '999888777666555': RespostaFalsa(200, {
+            'platform_type': 'CLOUD_API',
+            'is_on_biz_app': False,
+        }),
     })
     resultado = meta_discover.descobrir('EAA-token-teste')
 
@@ -114,7 +118,31 @@ def test_resumo_texto_lista_ids(graph):
             }],
         }),
         'w1/phone_numbers': RespostaFalsa(200, {'data': []}),
+        'pid1': RespostaFalsa(200, {'platform_type': 'ON_PREMISE', 'is_on_biz_app': True}),
     })
     texto = meta_discover.resumo_texto(meta_discover.descobrir('tok'))
     assert 'pid1' in texto
     assert 'WHATSAPP_PHONE_NUMBER_ID=pid1' in texto
+    assert 'platform_type=ON_PREMISE' in texto
+
+
+def test_descobrir_prefere_cloud_api(graph):
+    graph({
+        'debug_token': RespostaFalsa(200, {'data': {'is_valid': True, 'scopes': []}}),
+        'me/businesses': RespostaFalsa(200, {
+            'data': [{
+                'id': 'b1',
+                'owned_whatsapp_business_accounts': {
+                    'data': [{'id': 'w1', 'phone_numbers': {'data': [
+                        {'id': 'prod', 'display_phone_number': '+55 65 9219-0039'},
+                        {'id': 'teste', 'display_phone_number': '+1 555 025 3483'},
+                    ]}}],
+                },
+            }],
+        }),
+        'w1/phone_numbers': RespostaFalsa(200, {'data': []}),
+        'prod': RespostaFalsa(200, {'platform_type': 'ON_PREMISE', 'is_on_biz_app': True}),
+        'teste': RespostaFalsa(200, {'platform_type': 'CLOUD_API', 'is_on_biz_app': False}),
+    })
+    resultado = meta_discover.descobrir('tok')
+    assert resultado.phone_number_id_sugerido == 'teste'
