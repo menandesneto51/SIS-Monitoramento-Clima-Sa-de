@@ -30,5 +30,6 @@ tzdata==2026.2
 anyio==4.14.2
 h11==0.16.0
 python-multipart==0.0.32
-websockets==17.0.1
+# streamlit 1.60 exige websockets>=12,<17 (Cloud falhava com 17.0.1)
+websockets==15.0.1
 watchdog==6.0.0
