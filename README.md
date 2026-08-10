@@ -11,6 +11,17 @@ Versão cloud preservando o painel original local.
 A pasta `data/output` contém apenas `sis_integrado.db` sanitizado, com tabelas agregadas/operacionais necessárias ao painel.  
 Não inclui `.env`, tokens, contatos, logs, histórico de envio, bases locais brutas ou credenciais.
 
+## Alertas por WhatsApp
+
+O canal de WhatsApp usa provedores gratuitos (Cloud API da Meta, Evolution API auto-hospedada,
+CallMeBot ou ponte por webhook). Para configurar, abra a página **Configurar WhatsApp** no painel
+ou rode `python -m sisclima.alerts.whatsapp_agent diagnostico`.
+
+- **Tutorial passo a passo (Meta + número no WhatsApp Business):**
+  [`docs/TUTORIAL_WHATSAPP_META_CLOUD.md`](docs/TUTORIAL_WHATSAPP_META_CLOUD.md)
+- **Não achou API Setup na Meta?** [`docs/META_ONDE_CLICAR.md`](docs/META_ONDE_CLICAR.md)
+- **Referência geral dos provedores:** [`docs/WHATSAPP_GRATUITO.md`](docs/WHATSAPP_GRATUITO.md)
+
 ## Atualização
 
 Na pasta operacional local, rode:

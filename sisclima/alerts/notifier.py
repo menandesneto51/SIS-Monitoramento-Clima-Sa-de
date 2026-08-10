@@ -2,6 +2,7 @@ from __future__ import annotations
 import smtplib
 from email.message import EmailMessage
 import requests
+from sisclima.alerts.whatsapp import send_whatsapp
 from sisclima.core.config import env, as_bool, env_name_used
 from sisclima.core.logging_utils import get_logger
 
@@ -83,6 +84,7 @@ def dispatch_alert(subject: str, message: str, payload: dict | None = None) -> d
     results = {
         'email': send_email(subject, message),
         'telegram': send_telegram(f'{subject}\n\n{message}'),
+        'whatsapp': send_whatsapp(f'{subject}\n\n{message}', payload={'subject': subject, **payload}),
         'webhook': send_webhook({'subject': subject, 'message': message, **payload})
     }
     log.info('Resultado envio alertas: %s', results)

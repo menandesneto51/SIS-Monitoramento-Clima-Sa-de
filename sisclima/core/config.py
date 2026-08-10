@@ -7,10 +7,26 @@ from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[2]
 
+ENV_DOTENV_CANDIDATES: tuple[Path, ...] = (ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env')
+
+# Permite apontar explicitamente para um .env (útil no Windows/OneDrive).
+_extra_dotenv = (os.getenv('DOTENV_PATH') or os.getenv('SISCLIMA_DOTENV') or '').strip()
+if _extra_dotenv:
+    _extra_path = Path(_extra_dotenv).expanduser()
+    if not _extra_path.is_absolute():
+        _extra_path = (Path.cwd() / _extra_path).resolve()
+    ENV_DOTENV_CANDIDATES = (_extra_path,) + ENV_DOTENV_CANDIDATES
+
 # Carrega SEM sobrescrever variáveis já existentes do ambiente.
-for _candidate in [ROOT / '.env', ROOT.parent / '.env', Path.cwd() / '.env']:
+# encoding=utf-8-sig remove BOM comum em .env editado no Bloco de Notas.
+for _candidate in ENV_DOTENV_CANDIDATES:
     if _candidate.exists():
-        load_dotenv(_candidate, override=False)
+        load_dotenv(_candidate, override=False, encoding='utf-8-sig')
+
+
+def env_dotenv_paths() -> list[Path]:
+    """Arquivos ``.env`` encontrados, na ordem em que são lidos."""
+    return [p for p in ENV_DOTENV_CANDIDATES if p.exists()]
 
 
 def _load_yaml(path: Path) -> dict:
@@ -83,7 +99,30 @@ ENV_ALIASES: dict[str, list[str]] = {
     'TELEGRAM_BOT_TOKEN': ['TELEGRAM_BOT_TOKEN', 'BOT_TOKEN_TELEGRAM', 'TELEGRAM_TOKEN'],
     'TELEGRAM_CHAT_ID': ['TELEGRAM_CHAT_ID', 'CHAT_ID_TELEGRAM', 'TELEGRAM_CHAT'],
     'ALERT_WEBHOOK_ENABLED': ['ALERT_WEBHOOK_ENABLED', 'WEBHOOK_ENABLED'],
-    'WEBHOOK_URL': ['WEBHOOK_URL', 'WHATSAPP_WEBHOOK_URL', 'TEAMS_WEBHOOK_URL'],
+    # WHATSAPP_WEBHOOK_URL saiu daqui ao virar chave própria do canal de WhatsApp,
+    # senão a mesma URL dispararia dois envios (webhook genérico + WhatsApp).
+    'WEBHOOK_URL': ['WEBHOOK_URL', 'TEAMS_WEBHOOK_URL'],
+
+    # WhatsApp (provedores gratuitos) — ver docs/WHATSAPP_GRATUITO.md
+    'ALERT_WHATSAPP_ENABLED': ['ALERT_WHATSAPP_ENABLED', 'WHATSAPP_ENABLED', 'USE_WHATSAPP', 'USAR_WHATSAPP'],
+    'WHATSAPP_PROVIDER': ['WHATSAPP_PROVIDER', 'WHATSAPP_PROVEDOR'],
+    'WHATSAPP_TO': ['WHATSAPP_TO', 'WHATSAPP_DESTINATARIOS', 'ALERTA_WHATSAPP_DESTINATARIOS'],
+    'WHATSAPP_DDI_PADRAO': ['WHATSAPP_DDI_PADRAO', 'WHATSAPP_DEFAULT_DDI'],
+    'WHATSAPP_PHONE_NUMBER_ID': ['WHATSAPP_PHONE_NUMBER_ID', 'META_PHONE_NUMBER_ID', 'WHATSAPP_FROM_ID'],
+    'WHATSAPP_TOKEN': ['WHATSAPP_TOKEN', 'WHATSAPP_ACCESS_TOKEN', 'META_WHATSAPP_TOKEN'],
+    'WHATSAPP_API_VERSION': ['WHATSAPP_API_VERSION', 'META_GRAPH_API_VERSION'],
+    'WHATSAPP_TEMPLATE_NAME': ['WHATSAPP_TEMPLATE_NAME', 'WHATSAPP_TEMPLATE'],
+    'WHATSAPP_TEMPLATE_LANG': ['WHATSAPP_TEMPLATE_LANG', 'WHATSAPP_TEMPLATE_IDIOMA'],
+    'WHATSAPP_SSL_VERIFY': ['WHATSAPP_SSL_VERIFY', 'WHATSAPP_VERIFY_SSL'],
+    'WHATSAPP_CA_BUNDLE': ['WHATSAPP_CA_BUNDLE', 'WHATSAPP_CA_CERT', 'WHATSAPP_CA_PATH'],
+    'WHATSAPP_REGISTER_PIN': ['WHATSAPP_REGISTER_PIN', 'WHATSAPP_PIN', 'META_WHATSAPP_PIN'],
+    'EVOLUTION_API_URL': ['EVOLUTION_API_URL', 'EVOLUTION_URL', 'EVOLUTION_BASE_URL'],
+    'EVOLUTION_API_KEY': ['EVOLUTION_API_KEY', 'EVOLUTION_APIKEY', 'EVOLUTION_TOKEN'],
+    'EVOLUTION_INSTANCE': ['EVOLUTION_INSTANCE', 'EVOLUTION_INSTANCIA', 'EVOLUTION_INSTANCE_NAME'],
+    'CALLMEBOT_APIKEY': ['CALLMEBOT_APIKEY', 'CALLMEBOT_API_KEY'],
+    'CALLMEBOT_PHONE': ['CALLMEBOT_PHONE', 'CALLMEBOT_NUMERO'],
+    'WHATSAPP_WEBHOOK_URL': ['WHATSAPP_WEBHOOK_URL', 'WHATSAPP_WEBHOOK', 'N8N_WHATSAPP_WEBHOOK_URL'],
+    'WHATSAPP_WEBHOOK_TOKEN': ['WHATSAPP_WEBHOOK_TOKEN', 'WHATSAPP_WEBHOOK_SECRET'],
 
     # IA
     'USE_LLM_REPORT': ['USE_LLM_REPORT', 'USE_IA_RELATORIO', 'USAR_IA_RELATORIO'],
