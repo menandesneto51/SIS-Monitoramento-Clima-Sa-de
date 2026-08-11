@@ -1,4 +1,4 @@
-# SIS-MT Clima-Saúde V4 — regra de fontes reais
+# ARARAS MT V4 — regra de fontes reais
 
 Esta versão incorpora a regra operacional definida pela SES/MT:
 

@@ -1,6 +1,8 @@
-# SIS Clima-Saúde MT
+# ARARAS MT — implantação do painel
 
-Ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.
+![ARARAS MT](assets/branding/araras-mt-logo-horizontal.png)
+
+Plataforma para monitoramento integrado de clima, ambiente, agravos e saúde, com apoio à análise e à tomada de decisão em saúde pública.
 
 ## Execução local (rápido)
 
@@ -47,14 +49,14 @@ Não subir ao GitHub arquivos com dados sensíveis, credenciais, `.env`, contato
    - `ALERT_EMAIL_TO` = `seu_email,notifica@ses.mt.gov.br`
    - `ALERT_CENTRAL_ONLY_SES` = `"true"`
    - `ALERT_FANOUT_ENABLED` = `"false"`
-   - `DATABASE_URL` apontando para um **Postgres acessível na internet** (Neon/Supabase/Railway), se quiser dados ao vivo.  
+   - `DATABASE_URL` apontando para um **Postgres acessível na internet** (Neon/Supabase/Railway), se quiser dados ao vivo.
      `localhost` / Docker da máquina **não funciona** no Cloud.
 5. Aguardar o build ficar verde e abrir o link do app.
 
-Dependências Cloud: `requirements.txt` enxuto (sem Fiona/GDAL/Google gRPC). Lista completa local: `requirements-full.txt`.  
+Dependências Cloud: `requirements.txt` enxuto (sem Fiona/GDAL/Google gRPC). Lista completa local: `requirements-full.txt`.
 **Não** use `packages.txt` com comentários — o apt do Cloud interpreta cada palavra como pacote.
 
-Sem `DATABASE_URL` no Cloud, o painel usa o snapshot `data/cloud/sis_cloud_seed.db` (KPIs/abas).  
+Sem `DATABASE_URL` no Cloud, o painel usa o snapshot `data/cloud/sis_cloud_seed.db` (KPIs/abas).
 Atualizar snapshot local: `.\\.venv\\Scripts\\python.exe exportar_snapshot_cloud.py` e push em `painel-v9`.
 
 ## Docker (servidor SES — painel + agendador diário)

@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Cria tarefas do Agendador Windows para o SIS Clima-Saúde (CIEVS/SES-MT).
+  Cria tarefas do Agendador Windows para o ARARAS MT (CIEVS/SES-MT).
 
 Rotina (docs/OPERACAO.md):
   07:30 — regeneração completa (pipeline + enrichment)
@@ -54,28 +54,28 @@ Register-SisTask `
     -Bat $PipelineBat `
     -Args "" `
     -Time "07:30" `
-    -Description "SIS Clima-Saúde: regeneração completa diária 07h30 (CIEVS/SES-MT)"
+    -Description "ARARAS MT: regeneração completa diária 07h30 (CIEVS/SES-MT)"
 
 Register-SisTask `
     -Name "SIS_Clima_Reprocess_1200" `
     -Bat $PipelineBat `
     -Args "" `
     -Time "12:00" `
-    -Description "SIS Clima-Saúde: reprocessamento 12h (níveis críticos)"
+    -Description "ARARAS MT: reprocessamento 12h (níveis críticos)"
 
 Register-SisTask `
     -Name "SIS_Clima_Reprocess_1700" `
     -Bat $PipelineBat `
     -Args "" `
     -Time "17:00" `
-    -Description "SIS Clima-Saúde: reprocessamento 17h (níveis críticos)"
+    -Description "ARARAS MT: reprocessamento 17h (níveis críticos)"
 
 Register-SisTask `
     -Name "SIS_Clima_Alertas_0815" `
     -Bat $AlertasBat `
     -Args "" `
     -Time "08:15" `
-    -Description "SIS Clima-Saúde: digest SES/CIEVS 08h15 (sem force; Docker loop também ativo)"
+    -Description "ARARAS MT: digest SES/CIEVS 08h15 (sem force; Docker loop também ativo)"
 
 Write-Host ""
 Write-Host "Tarefas registradas. Listagem:"

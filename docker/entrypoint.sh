@@ -1,12 +1,12 @@
 #!/bin/sh
 set -e
 
-echo "[SIS] backend=${DATABASE_URL:-sqlite} | DW=${USE_SQLSERVER:-false}"
+echo "[ARARAS] backend=${DATABASE_URL:-sqlite} | DW=${USE_SQLSERVER:-false}"
 
 python - <<'PY'
 from sisclima.core.db import init_db, backend_name
 init_db()
-print(f"[SIS] base operacional pronta: {backend_name()}")
+print(f"[ARARAS] base operacional pronta: {backend_name()}")
 PY
 
 case "${1:-app}" in

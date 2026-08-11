@@ -1,5 +1,5 @@
 ﻿app:
-  nome: SIS Integrado Clima-Saúde MT
+  nome: ARARAS MT
   municipio: Cuiabá
   uf: MT
   lat: -15.6014
@@ -150,4 +150,3 @@ municipalizacao:
   exigir_cod_ibge: false
   usar_shapefile_quando_disponivel: true
   shapefile_mt: data/geo/municipios_mt/MT_Municipios_2025.shp
-

@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Atualiza pressão SISREG no SIS Clima-Saúde")
+    ap = argparse.ArgumentParser(description="Atualiza pressão SISREG no ARARAS MT")
     ap.add_argument("--csv-only", action="store_true", help="Não tenta SQL Server; só CSV V16")
     ap.add_argument("--csv", type=str, default="", help="Caminho CSV opcional")
     args = ap.parse_args()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-VALIDACAO OPERACIONAL V11.7 - SIS Clima-Saúde MT
+VALIDACAO OPERACIONAL V11.7 - ARARAS MT
 
 Gera:
 - data/output/validacao_operacional_v11_7.txt
@@ -146,7 +146,7 @@ def main():
 
     lines = []
     lines.append("=" * 70)
-    lines.append("VALIDAÇÃO OPERACIONAL V11.7 - SIS CLIMA-SAÚDE MT")
+    lines.append("VALIDAÇÃO OPERACIONAL V11.7 - ARARAS CLIMA-SAÚDE MT")
     lines.append(f"Gerado em: {datetime.now():%Y-%m-%d %H:%M:%S}")
     lines.append("=" * 70)
     lines.append(df.to_string(index=False))

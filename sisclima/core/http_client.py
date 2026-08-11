@@ -14,7 +14,7 @@ import urllib3
 from sisclima.core.config import as_bool, env
 
 # Identidade explícita — TI/SES consegue auditar o tráfego.
-USER_AGENT = "SIS-Clima-Saude-MT/1.0 (+CIEVS-MT; codigo-legivel; sem-stealth)"
+USER_AGENT = "ARARAS-Clima-Saude-MT/1.0 (+CIEVS-MT; codigo-legivel; sem-stealth)"
 DEFAULT_HEADERS = {
     "User-Agent": USER_AGENT,
     "Accept": "application/json, text/plain, */*",

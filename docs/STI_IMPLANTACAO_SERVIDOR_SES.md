@@ -1,16 +1,23 @@
-# Documento Técnico STI — Implantação do SIS Clima-Saúde nos servidores SES-MT
+# Documento Técnico STI — Implantação do ARARAS MT nos servidores da SES-MT
 
-**Destinatário:** Superintendência / Coordenação de Tecnologia da Informação (STI) — SES-MT  
-**Solicitante:** CIEVS-MT  
-**Sistema:** SIS Integrado Clima-Saúde MT (Streamlit + pipeline Python + Postgres)  
-**Versão de referência:** branch `painel-v9` / repositório GitHub institucional  
-**Data:** 07/08/2026  
+<table><tr><td><img src="../assets/branding/araras-mt-logo-horizontal.png" alt="ARARAS MT" width="360"></td><td><img src="../assets/branding/governo-ses-mt-fundo-institucional.png" alt="SES-MT e Governo de Mato Grosso" width="250"></td></tr><tr><td><strong>CIEVS-MT</strong> · <img src="../assets/branding/rede-cievs.png" alt="Rede CIEVS" width="125"></td><td><img src="../assets/branding/vigidesastres.png" alt="Vigidesastres" width="60"></td></tr></table>
+
+**Destinatário:** Superintendência / Coordenação de Tecnologia da Informação (STI) — SES-MT
+**Solicitante:** CIEVS-MT
+**Sistema:** ARARAS MT — Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde
+**Lema:** Clima, ambiente e saúde em uma só visão.
+**Versão de referência:** branch de migração `araras-mt`, baseada em `painel-v9`
+**Data:** 11/08/2026
 
 ---
 
 ## 1. Objetivo
 
-Descrever, de forma operacional, **como instalar, configurar, expor e manter** o SIS nos servidores da SES, incluindo requisitos de rede, contas, portas, persistência, agendamento e segurança — para o painel e a rotina de dados ficarem sob governança da STI.
+Descrever, de forma operacional, **como instalar, configurar, expor e manter** o ARARAS MT nos servidores da SES, incluindo requisitos de rede, contas, portas, persistência, agendamento e segurança — para o painel e a rotina de dados ficarem sob governança da STI.
+
+> **Gate de produção:** a publicação institucional não deve ser homologada enquanto o painel estiver usando o seed SQLite como base principal ou apresentar fontes essenciais fora da janela de atualização. O aceite exige Postgres, rotina concluída no dia e conferência explícita da qualidade das fontes.
+
+Padrão de marca e comunicação: `docs/IDENTIDADE_VISUAL_ARARAS_MT.md`.
 
 ---
 
@@ -98,9 +105,9 @@ Manter backup e exclusão do ciclo de limpeza automática:
 
 ### 4.3 Arquivo `.env`
 
-1. Copiar `.env.producao.example` (ou `.env.example`) → `.env` no servidor.  
-2. Preencher senhas **apenas** no servidor (nunca commit).  
-3. Definir `DATABASE_URL` apontando para o Postgres do servidor.  
+1. Copiar `.env.producao.example` (ou `.env.example`) → `.env` no servidor.
+2. Preencher senhas **apenas** no servidor (nunca commit).
+3. Definir `DATABASE_URL` apontando para o Postgres do servidor.
 4. Manter `SEND_ALERT_ON_LEVEL_CHANGE=false` até homologação CIEVS.
 
 Modelo mínimo (valores ilustrativos — STI preenche):
@@ -144,7 +151,7 @@ STREAMLIT_PORT=8501
 | `dataserver-coids.inpe.br` | Queimadas |
 | `servicodados.ibge.gov.br` | Municípios / WASH / demografia |
 
-User-Agent das chamadas: **`SIS-Clima-Saude-MT/...`** (identificável pela TI — sem stealth).
+User-Agent das chamadas: **`ARARAS-Clima-Saude-MT/...`** (identificável pela TI — sem stealth).
 
 ### 5.2 Saída rede SES (VPN / VLAN)
 
@@ -174,8 +181,8 @@ Arquivos: `docker-compose.yml`, `Dockerfile`, `docker/entrypoint.sh`, `requireme
 
 ```bash
 # 1) Clone do repositório (ou artefato liberado pelo CIEVS)
-git clone <url-repo> SIS-Clima-Saude
-cd SIS-Clima-Saude
+git clone <url-repo> araras-mt
+cd araras-mt
 
 # 2) Ambiente
 cp .env.example .env
@@ -218,7 +225,7 @@ Invoke-WebRequest http://127.0.0.1:8501/healthz -UseBasicParsing
 
 ### 6.3 Observação de versões
 
-Em `requirements.txt` (Cloud/local alinhado): `streamlit==1.60.0`, **`starlette==1.3.1`** (starlette 1.4 quebra GZip do Streamlit).  
+Em `requirements.txt` (Cloud/local alinhado): `streamlit==1.60.0`, **`starlette==1.3.1`** (starlette 1.4 quebra GZip do Streamlit).
 Homologar o mesmo pin no build Docker do servidor (`requirements-docker.txt`) para evitar 500 no healthcheck.
 
 ---
@@ -241,7 +248,7 @@ Agendamento:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\criar_tarefas_windows.ps1
 ```
 
-Tarefas: pipeline 07:30 / 12:00 / 17:00; alertas conforme bat.  
+Tarefas: pipeline 07:30 / 12:00 / 17:00; alertas conforme bat.
 Scripts: `rodar_pipeline.bat` → `rotina_diaria_ops.py`; `rodar_alertas_once.bat`.
 
 ---
@@ -274,15 +281,15 @@ Validação pós-ciclo:
 
 ## 9. Segurança da informação (checklist STI)
 
-- [ ] `.env` com ACL restrita (somente conta do serviço + admin STI)  
-- [ ] Segredos fora do Git / fora de tickets em texto claro  
-- [ ] Postgres não exposto à internet  
-- [ ] Contas SQL Server somente leitura  
-- [ ] Alertas desligados até aprovação CIEVS (`SEND_ALERT_ON_LEVEL_CHANGE=false`)  
-- [ ] Proxy HTTPS + autenticação institucional no acesso ao painel (se política exigir)  
-- [ ] Backup diário do volume Postgres + retenção de logs  
-- [ ] Inventário de destinos HTTPS liberados (seção 5)  
-- [ ] Sem código ofuscado / scrapers stealth (política CIEVS/rede SES)  
+- [ ] `.env` com ACL restrita (somente conta do serviço + admin STI)
+- [ ] Segredos fora do Git / fora de tickets em texto claro
+- [ ] Postgres não exposto à internet
+- [ ] Contas SQL Server somente leitura
+- [ ] Alertas desligados até aprovação CIEVS (`SEND_ALERT_ON_LEVEL_CHANGE=false`)
+- [ ] Proxy HTTPS + autenticação institucional no acesso ao painel (se política exigir)
+- [ ] Backup diário do volume Postgres + retenção de logs
+- [ ] Inventário de destinos HTTPS liberados (seção 5)
+- [ ] Sem código ofuscado / scrapers stealth (política CIEVS/rede SES)
 
 ---
 
@@ -309,7 +316,7 @@ Validação pós-ciclo:
 | 6 | Smoke `all_ok` | `scripts/smoke_ops.py` |
 | 7 | Sem senhas no repositório | revisão Git |
 
-Documento complementar de produto/qualidade: `docs/RELATORIO_PRONTIDAO_INSTITUCIONAL.md`.  
+Documento complementar de produto/qualidade: `docs/RELATORIO_PRONTIDAO_INSTITUCIONAL.md`.
 Checklist de homologação (OK/NOK): `docs/CHECKLIST_HOMOLOGACAO_STI.md` (PDF em `docs/apresentacoes/`).
 
 ---
@@ -328,12 +335,12 @@ Checklist de homologação (OK/NOK): `docs/CHECKLIST_HOMOLOGACAO_STI.md` (PDF em
 
 ### A — Endpoints públicos usados pelo sistema
 
-- `https://api.open-meteo.com/v1/forecast`  
-- `https://painelalertas.cemaden.gov.br/wsAlertas2`  
-- `https://telemetriaws1.ana.gov.br/ServiceANA.asmx`  
-- `https://www.ana.gov.br/hidrowebservice`  
-- `https://dataserver-coids.inpe.br/queimadas/...`  
-- `https://servicodados.ibge.gov.br/api/...`  
+- `https://api.open-meteo.com/v1/forecast`
+- `https://painelalertas.cemaden.gov.br/wsAlertas2`
+- `https://telemetriaws1.ana.gov.br/ServiceANA.asmx`
+- `https://www.ana.gov.br/hidrowebservice`
+- `https://dataserver-coids.inpe.br/queimadas/...`
+- `https://servicodados.ibge.gov.br/api/...`
 
 ### B — Entrypoints Docker
 
@@ -341,11 +348,11 @@ Checklist de homologação (OK/NOK): `docs/CHECKLIST_HOMOLOGACAO_STI.md` (PDF em
 
 ### C — Documentos relacionados
 
-- `docs/DOCKER_BASE_UNICA.md`  
-- `docs/OPERACAO.md`  
-- `docs/ARQUITETURA.md`  
-- `docs/ENV_EXISTENTE_COMPATIBILIDADE.md`  
-- `docs/SENTINELA_SG_E_ANA.md`  
+- `docs/DOCKER_BASE_UNICA.md`
+- `docs/OPERACAO.md`
+- `docs/ARQUITETURA.md`
+- `docs/ENV_EXISTENTE_COMPATIBILIDADE.md`
+- `docs/SENTINELA_SG_E_ANA.md`
 
 ---
 

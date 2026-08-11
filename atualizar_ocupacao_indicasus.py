@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Atualizador definitivo da ocupação hospitalar/assistencial do IndicaSUS para o SIS Clima-Saúde.
+Atualizador definitivo da ocupação hospitalar/assistencial do IndicaSUS para o ARARAS MT.
 
 O que faz:
 1. Consulta o IndicaSUS/BdSES sem expor credenciais.

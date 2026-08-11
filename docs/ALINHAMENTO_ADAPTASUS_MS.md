@@ -1,10 +1,10 @@
-# Alinhamento SIS Clima-Saúde MT × AdaptaSUS / Guia MS
+# Alinhamento ARARAS MT × AdaptaSUS / Guia MS
 
-Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes federais de adaptação do SUS à mudança do clima.
+Documento operacional do CIEVS-MT para conectar o painel ARARAS MT às diretrizes federais de adaptação do SUS à mudança do clima.
 
 ## Fontes oficiais
 
-| Documento | Uso no SIS |
+| Documento | Uso no ARARAS MT |
 |-----------|------------|
 | [Plano Setorial de Saúde – AdaptaSUS](https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/svsa/vigilancia-ambiental/plano-setorial-de-saude-adaptasus.pdf) | 4 eixos-chave, 6 riscos prioritários, 27 metas / 93 ações (até 2035) |
 | [Guia de Mudanças Climáticas e Saúde](https://guiadoclima.saude.gov.br/) | Orientações práticas (calor, frio, ar, seca, enchentes, doenças transmissíveis, SAN) |
@@ -13,14 +13,14 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 
 ## Eixos-chave do AdaptaSUS
 
-1. Alterações nos padrões de morbidade e mortalidade de doenças sensíveis ao clima  
-2. Ampliação das demandas nos serviços de saúde  
-3. Comprometimento ou interrupção da prestação dos serviços de saúde  
-4. Emergência em saúde pública  
+1. Alterações nos padrões de morbidade e mortalidade de doenças sensíveis ao clima
+2. Ampliação das demandas nos serviços de saúde
+3. Comprometimento ou interrupção da prestação dos serviços de saúde
+4. Emergência em saúde pública
 
-## Matriz risco → SIS
+## Matriz risco → ARARAS MT
 
-| Risco prioritário | Cobertura SIS | Indicadores principais | Tabelas / motores |
+| Risco prioritário | Cobertura ARARAS | Indicadores principais | Tabelas / motores |
 |-------------------|---------------|------------------------|-------------------|
 | Extremos de temperatura (calor/frio) | Forte (calor + frio + demografia) | `tmax`, `tmin`, `utci_proxy`, `risco_cumulativo_3d`, `risco_calor_vulneravel`, `pop_vulneravel_exposta`, `indice_exposicao_vulneravel` | `met_biometeo`, IBGE Censo 2022, GeoCalor, `panel_indicators` |
 | Poluição atmosférica | Parcial | `pm25_ugm3`, `risco_ar_queimadas` | `qualidade_ar_municipal` |
@@ -29,7 +29,7 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 | WASH | Parcial (Censo IBGE 2022) | `cobertura_rede_agua_pct`, `deficit_esgoto_inadequado_pct`, `indice_deficit_wash`, `risco_wash` | `wash_municipal`, `adaptasus_intelligence` |
 | SAN | Ausente | — | Fase 2 (fonte SES/SISVAN) |
 
-## Artefatos gerados pelo SIS
+## Artefatos gerados pelo ARARAS MT
 
 | Artefato | Descrição |
 |----------|-----------|
@@ -40,16 +40,16 @@ Documento operacional do CIEVS-MT para conectar o painel SIS às diretrizes fede
 
 ## Glossário operacional CIEVS-MT
 
-- **Risco dominante**: risco AdaptaSUS com maior score no município nesta rodada.  
-- **Índice de adaptação climática**: síntese 0–100 dos riscos cobertos, penalizada por baixa completude de dados.  
-- **Lacuna explícita**: SAN sem fonte SES/SISVAN — o painel declara a ausência; não interpretar como risco zero.  
-- **WASH**: déficit estrutural do Censo IBGE 2022 (água/esgoto); amplificado em estiagem no score AdaptaSUS.  
-- **Vulnerabilidade × exposição**: demografia IBGE Censo 2022 (`idosos_pct`, crianças, rural, densidade) cruzada com tensão térmica/fumaça (`pop_vulneravel_exposta`, `indice_exposicao_vulneravel`).  
+- **Risco dominante**: risco AdaptaSUS com maior score no município nesta rodada.
+- **Índice de adaptação climática**: síntese 0–100 dos riscos cobertos, penalizada por baixa completude de dados.
+- **Lacuna explícita**: SAN sem fonte SES/SISVAN — o painel declara a ausência; não interpretar como risco zero.
+- **WASH**: déficit estrutural do Censo IBGE 2022 (água/esgoto); amplificado em estiagem no score AdaptaSUS.
+- **Vulnerabilidade × exposição**: demografia IBGE Censo 2022 (`idosos_pct`, crianças, rural, densidade) cruzada com tensão térmica/fumaça (`pop_vulneravel_exposta`, `indice_exposicao_vulneravel`).
 - **Orientação AdaptaSUS**: checklist curto “o que monitorar / o que fazer”, inspirado no Guia MS (não substitui protocolo clínico).
 
 ## Limitações honestas
 
-- Este alinhamento **operacionaliza** o AdaptaSUS no CIEVS-MT; não redefine metas federais.  
-- WASH é estrutural (Censo), não monitoramento operacional SNIS/SINISA.  
-- Indicadores SAN só entram quando houver base estadual confiável.  
-- Predição 7 dias do SIS não é forecast climático sazonal.
+- Este alinhamento **operacionaliza** o AdaptaSUS no CIEVS-MT; não redefine metas federais.
+- WASH é estrutural (Censo), não monitoramento operacional SNIS/SINISA.
+- Indicadores SAN só entram quando houver base estadual confiável.
+- Predição 7 dias do ARARAS MT não é forecast climático sazonal.

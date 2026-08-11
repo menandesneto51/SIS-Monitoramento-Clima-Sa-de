@@ -1,11 +1,14 @@
-# Checklist de Homologação STI — SIS Clima-Saúde MT
+# Checklist de Homologação STI — ARARAS MT
 
-**Servidor / ambiente:** _______________________________  
-**Data:** ____/____/________  
-**Responsável STI:** _________________________________  
-**Responsável CIEVS:** ________________________________  
-**Versão / branch:** `painel-v9`  
+<table><tr><td><img src="../assets/branding/araras-mt-logo-horizontal.png" alt="ARARAS MT" width="360"></td><td><img src="../assets/branding/governo-ses-mt-fundo-institucional.png" alt="SES-MT e Governo de Mato Grosso" width="250"></td></tr><tr><td><strong>CIEVS-MT</strong> · <img src="../assets/branding/rede-cievs.png" alt="Rede CIEVS" width="125"></td><td><img src="../assets/branding/vigidesastres.png" alt="Vigidesastres" width="60"></td></tr></table>
+
+**Servidor / ambiente:** _______________________________
+**Data:** ____/____/________
+**Responsável STI:** _________________________________
+**Responsável CIEVS:** ________________________________
+**Versão / branch:** `araras-mt` (base `painel-v9`)
 **Documento base:** `docs/STI_IMPLANTACAO_SERVIDOR_SES.md`
+**Identidade e alertas:** `docs/IDENTIDADE_VISUAL_ARARAS_MT.md`
 
 **Legenda:** `OK` = atendido · `NOK` = falhou · `N/A` = não aplicável · `PEND` = pendente
 
@@ -97,6 +100,9 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8501/healthz
 | 5.8 | Hidro ANA: tabela `hidro_risco_municipal` populada | | | | | |
 | 5.9 | Ocupação IndicaSUS presente (LIVE ou CACHE marcado) | | | | | |
 | 5.10 | Log do dia gravado em `logs/` | | | | | |
+| 5.11 | Data de referência do painel coincide com a rotina homologada | | | | | |
+| 5.12 | Fontes essenciais dentro da janela de atualização acordada | | | | | |
+| 5.13 | Indicador de qualidade não depende apenas do seed SQLite | | | | | |
 
 ```powershell
 docker compose up -d db
@@ -134,7 +140,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\criar_tarefas_window
 | 7.1 | Sem senhas em tickets / repositório | | | | | |
 | 7.2 | Contas SQL somente leitura | | | | | |
 | 7.3 | Proxy/SSO institucional na frente do painel (se política) | | | | | |
-| 7.4 | User-Agent institucional permitido (`SIS-Clima-Saude-MT/...`) | | | | | |
+| 7.4 | User-Agent institucional permitido (`ARARAS-Clima-Saude-MT/...`) | | | | | |
 | 7.5 | Sem scrapers ofuscados / bypass de WAF | | | | | |
 | 7.6 | Retenção de logs e política de purge definidas | | | | | |
 
@@ -147,6 +153,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\criar_tarefas_window
 | **Homologado para piloto interno CIEVS** | ☐ |
 | **Homologado para produção 24×7** | ☐ |
 | **Não homologado** (listar bloqueios abaixo) | ☐ |
+
+> A produção 24×7 só pode ser marcada se os itens 3.5, 5.11, 5.12 e 5.13 estiverem em `OK`.
 
 **Bloqueios / pendências:**
 

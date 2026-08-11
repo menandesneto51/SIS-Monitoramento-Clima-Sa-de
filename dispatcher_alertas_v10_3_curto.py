@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-SIS Clima-Saúde MT - Alertas V10.3 CURTO/CONSOLIDADO
+ARARAS MT - Alertas V10.3 CURTO/CONSOLIDADO
 
 AVISO (legado): preferir o digest atual em `python -m sisclima.alerts.scheduler`.
 O canal central CIEVS (ALERT_EMAIL_TO / TELEGRAM_CHAT_ID) deve receber somente o
@@ -37,11 +37,22 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, date
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 from pathlib import Path
 
 import pandas as pd
 from dotenv import load_dotenv
+
+from sisclima.alerts.notifier import send_telegram as send_telegram_araras
+from sisclima.branding import (
+    INLINE_BRAND_ASSETS,
+    SYSTEM_NAME,
+    SYSTEM_TAGLINE,
+    branded_subject,
+    html_email_shell,
+    wrap_plain_message,
+)
 
 
 DB = Path("data/output/sis_integrado.db")
@@ -372,8 +383,8 @@ def make_compact_message(df, scope_name, min_rank=2, regional=None):
     nivel_max = max_level(*affected["nivel_final"].tolist()) if not affected.empty else "verde"
     now = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-    title = f"{EMOJI.get(nivel_max)} Alerta Clima-Saúde — {scope_name} — {LEVEL_LABEL.get(nivel_max)}"
-    subject = f"{EMOJI.get(nivel_max)} Alerta Clima-Saúde {scope_name} — {LEVEL_LABEL.get(nivel_max)} — {now}"
+    title = f"{EMOJI.get(nivel_max)} Alerta ARARAS MT — {scope_name} — {LEVEL_LABEL.get(nivel_max)}"
+    subject = f"{EMOJI.get(nivel_max)} Alerta ARARAS MT {scope_name} — {LEVEL_LABEL.get(nivel_max)} — {now}"
 
     dist = base["nivel_final"].value_counts().reindex(["verde", "amarela", "laranja", "vermelha", "roxa"]).fillna(0).astype(int)
     groups = group_municipios_by_level(base, min_rank=min_rank)
@@ -382,7 +393,7 @@ def make_compact_message(df, scope_name, min_rank=2, regional=None):
 
     lines = [
         title,
-        f"SIS Clima-Saúde MT é uma ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.\nGerado em: {now}",
+        f"{SYSTEM_NAME} integra clima, ambiente e indicadores de saúde para apoiar a gestão. {SYSTEM_TAGLINE}\nGerado em: {now}",
         f"Municípios monitorados: {len(base)}",
         f"Municípios em alerta ≥ {LEVEL_LABEL.get(RANK_LEVEL.get(min_rank, 'laranja'))}: {len(affected)}",
         "",
@@ -418,7 +429,7 @@ def make_compact_message(df, scope_name, min_rank=2, regional=None):
 
     html_body = "<html><body>"
     html_body += f"<h2>{html.escape(title)}</h2>"
-    html_body += f"<p><b>SIS Clima-Saúde MT é uma ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.\nGerado em:</b> {html.escape(now)}<br><b>Monitorados:</b> {len(base)}<br><b>Em alerta:</b> {len(affected)}</p>"
+    html_body += f"<p><b>{SYSTEM_NAME} integra clima, ambiente e indicadores de saúde para apoiar a gestão. {SYSTEM_TAGLINE}<br>Gerado em:</b> {html.escape(now)}<br><b>Monitorados:</b> {len(base)}<br><b>Em alerta:</b> {len(affected)}</p>"
     html_body += "<h3>Distribuição geral</h3>"
     html_body += f"<p>🟢 Verde: {int(dist.get('verde', 0))} | 🟡 Amarela: {int(dist.get('amarela', 0))} | 🟠 Laranja: {int(dist.get('laranja', 0))} | 🔴 Vermelha: {int(dist.get('vermelha', 0))} | 🟣 Roxa: {int(dist.get('roxa', 0))}</p>"
     html_body += "<h3>Municípios por nível</h3><ul>"
@@ -474,12 +485,21 @@ def send_email(to_list, subject, html_body, txt_body):
     if not host or not sender or not user or not password:
         return False, "SMTP incompleto"
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
+    msg = MIMEMultipart("related")
+    alternative = MIMEMultipart("alternative")
+    msg.attach(alternative)
+    msg["Subject"] = branded_subject(subject)
     msg["From"] = sender
     msg["To"] = ", ".join(to_list)
-    msg.attach(MIMEText(txt_body, "plain", "utf-8"))
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
+    alternative.attach(MIMEText(wrap_plain_message(txt_body), "plain", "utf-8"))
+    alternative.attach(MIMEText(html_email_shell(html_body), "html", "utf-8"))
+    for cid, asset in INLINE_BRAND_ASSETS.items():
+        if not asset.exists():
+            continue
+        image = MIMEImage(asset.read_bytes())
+        image.add_header("Content-ID", f"<{cid}>")
+        image.add_header("Content-Disposition", "inline", filename=asset.name)
+        msg.attach(image)
 
     try:
         if use_ssl:
@@ -500,23 +520,19 @@ def send_email(to_list, subject, html_body, txt_body):
 
 
 def send_telegram(chat_ids, text):
-    token = env_first("TELEGRAM_BOT_TOKEN", "BOT_TOKEN", "TELEGRAM_TOKEN")
     if not chat_ids:
         return False, "sem chat_id"
-    if not token:
+    if not env_first("TELEGRAM_BOT_TOKEN", "BOT_TOKEN", "TELEGRAM_TOKEN"):
         return False, "token ausente"
 
     ok = 0
     errors = []
     for chat_id in chat_ids:
         try:
-            payload = urllib.parse.urlencode({"chat_id": chat_id, "text": text[:3900], "disable_web_page_preview": "true"}).encode("utf-8")
-            req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=payload)
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                if resp.status == 200:
-                    ok += 1
-                else:
-                    errors.append(f"{chat_id}: HTTP {resp.status}")
+            if send_telegram_araras(text[:3900], chat_id=str(chat_id), with_brand=True):
+                ok += 1
+            else:
+                errors.append(f"{chat_id}: falha de envio")
         except Exception as exc:
             errors.append(f"{chat_id}: {exc}")
         time.sleep(0.2)

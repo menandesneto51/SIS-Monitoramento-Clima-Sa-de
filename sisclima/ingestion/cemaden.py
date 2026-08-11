@@ -12,7 +12,7 @@ log = get_logger(__name__)
 
 DEFAULT_URL = "https://painelalertas.cemaden.gov.br/wsAlertas2"
 
-# Mapeamento operacional Cemaden → nível SIS
+# Mapeamento operacional Cemaden → nível ARARAS
 _NIVEL_MAP = {
     "muito alto": "roxa",
     "alto": "vermelha",

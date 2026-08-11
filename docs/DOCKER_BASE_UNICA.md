@@ -14,7 +14,7 @@ DW SQL Server (SES/MT)  ──leitura──▶  pipeline (Docker)
 ```
 
 - **DW**: fonte institucional (SINAN, SIM, GAL, IndicaSUS, CNES). Somente leitura.
-- **PostgreSQL**: base operacional única do SIS (resumos, arboviroses, alertas, SIVEP, auditoria).
+- **PostgreSQL**: base operacional única do ARARAS MT (resumos, arboviroses, alertas, SIVEP, auditoria).
 - **SQLite local**: fallback se `DATABASE_URL` não apontar para Postgres.
 
 ## Subir tudo

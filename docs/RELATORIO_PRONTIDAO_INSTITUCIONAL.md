@@ -1,15 +1,17 @@
-# Relatório de Prontidão Institucional — SIS Integrado Clima-Saúde MT
+# Relatório de Prontidão Institucional — ARARAS MT
 
-**Órgão:** CIEVS / SES-MT  
-**Sistema:** SIS Integrado Clima-Saúde (painel V9 / branch `painel-v9`)  
-**Data de referência:** 07/08/2026  
+<table><tr><td><img src="../assets/branding/araras-mt-logo-horizontal.png" alt="ARARAS MT" width="360"></td><td><img src="../assets/branding/governo-ses-mt-fundo-institucional.png" alt="SES-MT e Governo de Mato Grosso" width="250"></td></tr><tr><td><strong>CIEVS-MT</strong> · <img src="../assets/branding/rede-cievs.png" alt="Rede CIEVS" width="125"></td><td><img src="../assets/branding/vigidesastres.png" alt="Vigidesastres" width="60"></td></tr></table>
+
+**Órgão:** CIEVS / SES-MT
+**Sistema:** ARARAS MT (migração de identidade sobre o painel V9)
+**Data da avaliação pública:** 11/08/2026
 **Objetivo:** Demonstrar robustez operacional dos indicadores e cálculos, apontar pontos fortes e pendências para institucionalização nos servidores da SES.
 
 ---
 
 ## 1. Sumário executivo
 
-O SIS está **operacional como ferramenta de vigilância integrada clima–saúde** no âmbito municipal (142 municípios de MT), com:
+O ARARAS MT possui arquitetura e cobertura funcional para operar como ferramenta de apoio à vigilância integrada no âmbito municipal (142 municípios de MT), com:
 
 - painel Streamlit estável (`/healthz` = 200);
 - pipeline de ingestão + enriquecimento + classificação em cinco níveis (verde → roxa);
@@ -18,20 +20,20 @@ O SIS está **operacional como ferramenta de vigilância integrada clima–saúd
 - rotina diária automatizável (`rotina_diaria_ops.py` / Agendador Windows / Docker);
 - deploy documentado via Docker Compose (Postgres + app + pipeline + alertas).
 
-**Veredito para institucionalização:**  
-**Apto para piloto institucional / sala de situação CIEVS**, com ressalvas de produção listadas na seção 5 (VPN SES permanente, cotas absolutas ANA, alinhamento de pins Docker×Cloud, envio de alertas sob governança, Postgres como base oficial).
+**Veredito para institucionalização:**
+**Apto para homologação técnica controlada, mas ainda não apto para produção institucional 24×7.** Na inspeção do painel público em 11/08/2026, a data de referência exibida era 07/08/2026, o backend informado era SQLite e apenas 1 de 12 fontes aparecia como atualizada/aceitável. A migração de identidade não elimina esse bloqueio de dados.
 
-Checklist rápido (snapshot 07/08/2026):
+Checklist rápido (inspeção pública de 11/08/2026):
 
 | Critério | Status |
 |----------|--------|
-| Painel responde | OK (`healthz` 200) |
-| 142 municípios no resumo | OK |
-| Índice de pressão não flat | OK (27+ valores distintos no seed; média ~54) |
-| Hidro ANA sem cota absurda (≥5000 cm) | OK (0 suspeitas) |
-| Ocupação assistencial no resumo | OK (142 mun. com valor; média ~51%) |
-| Smoke operacional (`scripts/smoke_ops.py`) | OK (`all_ok`) |
-| VPN/DW 24×7 validada neste host | Condicional (requer rede SES) |
+| Painel responde | OK, com demora perceptível na inicialização |
+| Cobertura territorial exibida | 142 municípios |
+| Data de referência | 07/08/2026 — defasada em quatro dias na avaliação |
+| Fontes em condição aceitável | 1/12 (8%) |
+| Backend exibido | SQLite — contingência, não base oficial de produção |
+| Envio de alertas | OFF — estado seguro para homologação |
+| VPN/DW 24×7 validada | Não demonstrada no ambiente público |
 
 ---
 
@@ -55,7 +57,7 @@ Cores: **verde < amarela < laranja < vermelha < roxa**.
 | Estágio operacional | `stages.py` | `nivel`, `score`, `motivos` | Distribuição tipicamente heterogênea (ex.: 95 laranja / 28 vermelha / 4 roxa) |
 | Biometeo / TITAN | `biometeo.py` | `met_biometeo` (UTCI proxy, HI, risco 3d) | Alimenta classificação e predição |
 | Hidrologia ANA | `hidro_risco.py` + `ana_hidroweb.py` | `hidro_risco_municipal` (`situacao_hidro`) | REST+SOAP; barramento excluído; 13 mun. com seca/cheia no último refresh |
-| Alerta integrado | `alerta_integrado.py` | `alerta_integrado_sis_titan` | Une SIS + INMET + Cemaden + solo + hidro |
+| Alerta integrado | `alerta_integrado.py` | `alerta_integrado_sis_titan` | Une ARARAS + INMET + Cemaden + solo + hidro |
 | Predição 7d | `predicao_skill_7d.py` | `predicao_calor_7d_*` | Regra principal + ML auxiliar |
 | IndicaSUS / hospital | `hospital.py` + script ocupação | `ocupacao_leitos_pct`, fonte LIVE/CACHE | 142 mun. no snapshot local |
 | SISREG | `sisreg.py` | `ops_sisreg_municipio` | Live na VPN; CSV V16 offline |
@@ -99,7 +101,7 @@ Critérios do smoke: HTTP 200, ≥100 mun. no seed, pressão não flat (~20), hi
 1. **Cobertura estadual municipalizada** — 141/142 municípios com chave IBGE e classificação operacional.
 2. **Rastreabilidade** — motivos textuais por município; fontes marcadas (LIVE / CACHE / CSV / ANA_REST / ANA_SOAP).
 3. **Robustez offline** — sem VPN o sistema degrada para CSV/cache sem derrubar o painel; com VPN recompõe DW/IndicaSUS/SISREG.
-4. **Hidrologia com governança técnica** — SOAP público + REST HidroWeb autenticado; exclusão de cotas de barramento; User-Agent institucional (`SIS-Clima-Saude-MT/...`).
+4. **Hidrologia com governança técnica** — SOAP público + REST HidroWeb autenticado; exclusão de cotas de barramento; User-Agent institucional (`ARARAS-Clima-Saude-MT/...`).
 5. **Índice de pressão corrigido** — scoring contínuo evita o artefato “todos em 20”.
 6. **Empacotamento servidor** — Docker Compose (`db`, `app`, `pipeline`, `alerts-scheduler`); rotina diária e tarefas Windows.
 7. **Segurança básica de repositório** — `.env` fora do Git; alertas com `SEND_ALERT_ON_LEVEL_CHANGE=false` por padrão; credenciais ANA só locais.
@@ -109,19 +111,19 @@ Critérios do smoke: HTTP 200, ≥100 mun. no seed, pressão não flat (~20), hi
 
 ---
 
-## 4. Evidências do snapshot (07/08/2026)
+## 4. Evidências observadas no painel público (11/08/2026)
 
 | Indicador | Evidência |
 |-----------|-----------|
-| Painel | `GET /healthz` → 200 |
-| Resumo municipal | 142 linhas |
-| Níveis (exemplo local) | verde 1 · amarela 14 · laranja 95 · vermelha 28 · roxa 4 |
-| Pressão saúde | média ~54; máximo ~67; múltiplos valores distintos |
-| Ocupação | 142 municípios com `ocupacao_leitos_pct` (média ~51%) |
-| Hidro ANA | 13 municípios (10 cheia / 3 seca); telemetria ~17k leituras |
-| Smoke | `all_ok: true` |
+| Painel | Carregou e permitiu navegação entre módulos |
+| Resumo municipal | 142 municípios exibidos |
+| Situação estadual | Roxa; 32 municípios em vermelha/roxa |
+| Data de referência | 07/08/2026 |
+| Qualidade das fontes | 1/12 em condição aceitável (8%) |
+| Backend | SQLite |
+| Alertas | Envio OFF |
 
-*Nota:* o backend local no momento da medição pode ser SQLite de desenvolvimento; **produção SES deve usar Postgres** (`DATABASE_URL`).
+*Nota:* a situação de risco exibida deve ser lida junto com a qualidade e a atualidade das fontes. **Produção SES deve usar Postgres** (`DATABASE_URL`) e bloquear ou identificar claramente indicadores cuja fonte esteja vencida.
 
 ---
 
@@ -135,6 +137,7 @@ Critérios do smoke: HTTP 200, ≥100 mun. no seed, pressão não flat (~20), hi
 | C2 | Postgres oficial no servidor (não depender só do seed SQLite) | `docker compose up -d db` + `DATABASE_URL` | STI |
 | C3 | Credenciais de serviço (não pessoais) no `.env` do servidor | Trocar usuários pessoais por conta institucional | STI + gestores de sistemas |
 | C4 | Agendamento confiável da rotina | `alerts-scheduler` + `rotina_diaria_ops` / tarefas Windows | STI + CIEVS |
+| C5 | Atualidade e cobertura insuficientes no painel público (1/12 fontes) | Reprocessar fontes, registrar timestamps e impedir publicação de síntese sem dados mínimos | STI + CIEVS + responsáveis pelas fontes |
 
 ### 5.2 Importante (qualidade dos alertas)
 
@@ -190,6 +193,7 @@ Critérios do smoke: HTTP 200, ≥100 mun. no seed, pressão não flat (~20), hi
 - `docs/DOCKER_BASE_UNICA.md`
 - `docs/SENTINELA_SG_E_ANA.md`
 - `docs/STI_IMPLANTACAO_SERVIDOR_SES.md` *(pacote técnico STI)*
+- `docs/IDENTIDADE_VISUAL_ARARAS_MT.md`
 - `config/indice_pressao_semaforo.yaml`, `config/settings.yaml`
 - `scripts/smoke_ops.py`, `rotina_diaria_ops.py`, `regenerar_sistema_completo.py`
 

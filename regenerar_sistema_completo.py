@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Regenera a base operacional completa do SIS Clima-Saúde e prepara o painel.
+Regenera a base operacional completa do ARARAS MT e prepara o painel.
 
 Passos:
   1) pipeline (fontes clima/saúde/DW) → Postgres
@@ -317,7 +317,7 @@ def step_validate() -> dict:
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return out
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Regenera base + painel SIS Clima-Saúde")
+    ap = argparse.ArgumentParser(description="Regenera base + painel ARARAS MT")
     ap.add_argument("--skip-pipeline", action="store_true", help="Pula o pipeline bruto")
     ap.add_argument("--skip-sisreg", action="store_true")
     ap.add_argument(

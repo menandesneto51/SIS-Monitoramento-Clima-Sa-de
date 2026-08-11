@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Alertas multinível do SIS Clima-Saúde MT.
+Alertas multinível do ARARAS MT.
 
 Quatro escopos de disparo (com o mesmo núcleo de indicadores):
   1. estadual  → SES-MT / CIEVS estadual
@@ -360,7 +360,7 @@ def _titulo(escopo: str, nivel: str, alvo: str) -> str:
         "regional": f"ALERTA REGIONAL · {alvo}",
         "municipal": f"ALERTA MUNICIPAL · {alvo}",
         "cuiaba": "ALERTA VIGIDESASTRE CUIABÁ",
-    }.get(escopo, "ALERTA SIS")
+    }.get(escopo, "ALERTA ARARAS")
     return f"{icon} {prefix} · {lab}"
 
 
@@ -649,7 +649,7 @@ def build_alertas_multinivel(
         "Copernicus/CAMS (quando disponível)",
         "SINAN/SIVEP/SIM/IndicaSUS (DW)",
         "SISREG (regulação/fila)",
-        "SIS Clima-Saúde MT",
+        "ARARAS MT",
     ]
 
     payloads: list[dict[str, Any]] = []
@@ -835,7 +835,7 @@ def render_payload_markdown(p: dict[str, Any]) -> str:
         "## Fontes",
         ", ".join(p.get("fontes") or []),
         "",
-        "_SIS Clima-Saúde MT · CIEVS/SES-MT · validar no painel antes do envio externo._",
+        "_ARARAS MT · CIEVS-MT / SES-MT · Rede CIEVS · Vigidesastres · validar no painel antes do envio externo._",
     ]
     return "\n".join(lines)
 

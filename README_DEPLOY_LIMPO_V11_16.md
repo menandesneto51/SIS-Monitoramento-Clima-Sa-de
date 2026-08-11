@@ -1,4 +1,4 @@
-# SIS Clima-Saúde MT
+# ARARAS MT
 
 Ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.
 

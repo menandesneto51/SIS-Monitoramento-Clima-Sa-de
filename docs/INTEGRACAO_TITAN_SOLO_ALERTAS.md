@@ -2,7 +2,7 @@
 
 Camada operacional alinhada ao legado TITAN, com **código legível** e fontes oficiais (sem ofuscação / sem scrapers stealth — política SES).
 
-## O que entra no SIS
+## O que entra no ARARAS MT
 
 | Bloco | Fonte | Tabelas / colunas |
 |-------|--------|-------------------|
@@ -26,7 +26,7 @@ Camada operacional alinhada ao legado TITAN, com **código legível** e fontes o
 
 Consolidados na aba **Clima / TITAN** e, de forma unificada, na aba **Alertas**:
 
-- Tabela `alerta_integrado_sis_titan`: `nivel_alerta_integrado = max(SIS, INMET, Cemaden, solo, hidro, calor)`.
+- Tabela legada `alerta_integrado_sis_titan`: `nivel_alerta_integrado = max(ARARAS, INMET, Cemaden, solo, hidro, calor)`.
 - Ajudante de interpretação (padrão Meningites): guia + justificativa + download `.md`.
 
 ## Fora de escopo

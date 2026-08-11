@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Indicadores compostos para o painel SIS (leitura leiga + priorização).
+Indicadores compostos para o painel ARARAS (leitura leiga + priorização).
 
 Pesos e faixas: config/settings.yaml → indicadores_painel
 Override opcional via env PANEL_W_* (ex.: PANEL_W_TENSAO_RISCO=0.40).

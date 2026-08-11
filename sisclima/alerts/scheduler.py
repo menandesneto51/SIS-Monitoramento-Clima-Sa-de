@@ -25,7 +25,7 @@ def run_loop() -> None:
     interval_h = float(env("ALERT_INTERVAL_HOURS", "24") or 24)
     interval_s = max(300, int(interval_h * 3600))
     log.info(
-        "Agendador SIS alertas iniciado · intervalo=%.1fh · SEND_ALERT=%s · min_level=%s · "
+        "Agendador ARARAS alertas iniciado · intervalo=%.1fh · SEND_ALERT=%s · min_level=%s · "
         "central=somente SES · fanout=%s",
         interval_h,
         env("SEND_ALERT_ON_LEVEL_CHANGE", "false"),
@@ -45,7 +45,7 @@ def run_loop() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="Agendador de alertas SIS Clima-Saúde")
+    p = argparse.ArgumentParser(description="Agendador de alertas ARARAS MT")
     p.add_argument("--once", action="store_true", help="Disparo único e sai")
     p.add_argument("--loop", action="store_true", help="Loop contínuo (serviço Docker)")
     p.add_argument("--force", action="store_true", help="Força envio (ignora gate/cooldown/idêntico)")

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Visão operacional do SIS Clima-Saúde MT (CIEVS/SES-MT).
+"""Visão operacional do ARARAS MT (CIEVS/SES-MT).
 
 Documento vivo: o que o sistema deve entregar a gestores e ao setor saúde.
 """
@@ -12,7 +12,7 @@ com **análises estatísticas** e **alertas multinível** acionáveis, e um
 
 ## 2. Bloco clima / ambiente (insights)
 
-| Fonte | Papel no SIS |
+| Fonte | Papel no ARARAS MT |
 |-------|----------------|
 | Open-Meteo | Tmáx/Tmín, umidade, vento, precipitação, **solo** |
 | Copernicus / CAMS | Qualidade do ar (PM2,5 e correlatos), quando credenciais OK |
@@ -45,15 +45,15 @@ Motor: `sisclima/engines/indice_pressao_saude.py` · Config: `config/indice_pres
 | SINAN | arbovírus 7d, z-score, SRAG, agravos calor | limiares de casos/z-score |
 | SIM | óbitos CID sensíveis ao calor | 0 / 1–2 / ≥3 na janela |
 
-Cada KPI traz: **valor atual**, **predição ~7d**, **tendência** (↑ alta / → estável / ↓ queda) e cor **verde / amarela / vermelha**.  
-O índice composto (0–100) renormaliza pesos pelos pilares disponíveis.  
+Cada KPI traz: **valor atual**, **predição ~7d**, **tendência** (↑ alta / → estável / ↓ queda) e cor **verde / amarela / vermelha**.
+O índice composto (0–100) renormaliza pesos pelos pilares disponíveis.
 **Distinto** do nível operacional de 5 cores (verde→roxa).
 
 Agravos monitorados têm evidência climática citada no YAML (OMS, IPCC AR6, AdaptaSUS/MS).
 
 ## 4. Análises estatísticas
 
-| Família | Status no SIS | Uso |
+| Família | Status no ARARAS MT | Uso |
 |---------|---------------|-----|
 | Incidência / letalidade / mortalidade | Parcial → expandir | Epidemiologia descritiva |
 | Correlação clima–saúde | Existe (Spearman/lags) | Priorização ecológica |
@@ -82,8 +82,8 @@ Cada boletim inclui:
 - fontes e carimbo de geração;
 - prévia no painel **antes** do envio.
 
-Modelo de contatos: `config/contatos_alertas.exemplo.csv` → `data/input/contatos_alertas.csv`.  
-Flag segura: `SEND_ALERT_ON_LEVEL_CHANGE=false` até validação.  
+Modelo de contatos: `config/contatos_alertas.exemplo.csv` → `data/input/contatos_alertas.csv`.
+Flag segura: `SEND_ALERT_ON_LEVEL_CHANGE=false` até validação.
 Agendador diário: serviço Docker `alerts-scheduler` (`ALERT_INTERVAL_HOURS=24`), independente do notebook.
 
 ## 6. Painel de consulta e validação
@@ -107,4 +107,4 @@ Entrada: `streamlit_app.py` → `app_v9.py`.
 
 ## 8. Princípio de operação
 
-> O SIS **informa e prioriza**; a **decisão** de ativar COE, portarias ou comunicação pública permanece com a gestão (SES/SMS/regionais), apoiada pelo Plano de Contingência seca/estiagem.
+> O ARARAS MT **informa e prioriza**; a **decisão** de ativar COE, portarias ou comunicação pública permanece com a gestão (SES/SMS/regionais), apoiada pelo Plano de Contingência seca/estiagem.

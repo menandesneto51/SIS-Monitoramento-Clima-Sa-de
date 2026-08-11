@@ -9,7 +9,7 @@
 | Nota Técnica Conjunta nº 01/257/2025 SVSA/SAPS/SAES/MS | Uso operacional de SIVEP-Gripe para SRAG e ênfase em notificação oportuna |
 | [Dados Abertos SUS — SRAG / SIVEP-Gripe](https://dadosabertos.saude.gov.br/dataset/srag-2019-a-2026) | Modelo de variáveis e curva por SE |
 
-## O que foi importado no SIS
+## O que foi importado no ARARAS MT
 
 Catálogo em `config/indicadores_ms_sivep.yaml` (SRAG-01 … SRAG-12).
 

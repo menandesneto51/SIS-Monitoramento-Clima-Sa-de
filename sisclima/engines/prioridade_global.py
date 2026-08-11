@@ -92,7 +92,7 @@ def _pillar_series(df: pd.DataFrame, name: str) -> pd.Series:
             return pd.Series(np.nan, index=idx)
         return _num(df["indice_pressao_saude"])
     if name == "adaptacao":
-        # No SIS, índice adaptação deriva dos riscos AdaptaSUS (maior = mais pressão).
+        # No ARARAS, índice adaptação deriva dos riscos AdaptaSUS (maior = mais pressão).
         if "indice_adaptacao_climatica" not in df.columns:
             return pd.Series(np.nan, index=idx)
         return _num(df["indice_adaptacao_climatica"])

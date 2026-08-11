@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Apresentação IMPACTO — dados e alertas reais do SIS Clima-Saúde MT.
+Apresentação IMPACTO — dados e alertas reais do ARARAS MT.
 
 Lê Postgres/SQLite operacional, gera alertas multinível ao vivo e monta PPTX.
 Uso:
@@ -102,7 +102,7 @@ def _header_bar(slide, title, subtitle=""):
 
 
 def _footer(slide, n, total):
-    _textbox(slide, 0.5, 7.1, 10, 0.3, "SIS Clima-Saúde MT · CIEVS/SES-MT · dados reais do painel", size=10, color=MUTED)
+    _textbox(slide, 0.5, 7.1, 10, 0.3, "ARARAS MT · CIEVS/SES-MT · dados reais do painel", size=10, color=MUTED)
     _textbox(slide, 11.2, 7.1, 1.6, 0.3, f"{n}/{total}", size=10, color=MUTED, align=PP_ALIGN.RIGHT)
 
 
@@ -239,7 +239,7 @@ def build(out: Path) -> tuple[Path, dict]:
     accent.fill.fore_color.rgb = RED
     accent.line.fill.background()
     _textbox(s, 0.7, 1.3, 12, 0.4, "CIEVS-MT · SES-MT · LEITURA AO VIVO DO PAINEL", size=14, color=GREEN_SOFT)
-    _textbox(s, 0.7, 1.9, 12, 1.0, "SIS Clima-Saúde MT", size=42, bold=True, color=WHITE)
+    _textbox(s, 0.7, 1.9, 12, 1.0, "ARARAS MT", size=42, bold=True, color=WHITE)
     _textbox(
         s,
         0.7,
@@ -511,7 +511,7 @@ def build(out: Path) -> tuple[Path, dict]:
             "Manter atualizar_sisreg_pressao.py na carga diária (VPN SES)",
             "Completar CSV de contatos estadual/regional/municipal/Cuiabá",
             "Validar boletins na prévia do painel; só então SEND_ALERT=true",
-            "Articular gatilhos do SIS aos níveis do Plano de Contingência seca/estiagem",
+            "Articular gatilhos do ARARAS aos níveis do Plano de Contingência seca/estiagem",
         ],
         size=16,
     )

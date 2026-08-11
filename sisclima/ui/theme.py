@@ -15,11 +15,20 @@ from pathlib import Path
 
 import streamlit as st
 
+from sisclima.branding import (
+    ARARAS_LOGO_PATH,
+    GOV_SES_LOGO_PATH,
+    REDE_CIEVS_LOGO_PATH,
+    SYSTEM_EXPANSION,
+    SYSTEM_NAME,
+    SYSTEM_TAGLINE,
+    VIGIDESASTRES_LOGO_PATH,
+)
 from sisclima.ui.explainers import INDICATOR_GLOSSARY, level_plain, section_plain
 
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "assets"
-LOGO_PATH = ASSETS / "ses-logo.jpg"
+LOGO_PATH = GOV_SES_LOGO_PATH
 CSS_PATH = ASSETS / "ses-panel.css"
 FONT_REG = ASSETS / "fonts" / "uni-neue-regular.otf"
 FONT_HEAVY = ASSETS / "fonts" / "uni-neue-heavy.otf"
@@ -39,7 +48,7 @@ LEVEL_COLOR_MAP = {
     "roxa": "#5b21b6",
 }
 
-LAYOUT_VERSION = "SES-MT layout 2026-08-04 · contraste painel"
+LAYOUT_VERSION = "ARARAS MT layout institucional 2026-08-11"
 
 
 def _strip_font_faces(css: str) -> str:
@@ -155,15 +164,15 @@ def apply_theme() -> None:
     # 4) Selo discreto (sem faixa azul dominante / canário de versão)
     st.markdown(
         f'<div style="color:{SES_BLUE_DEEP};font:600 11px Calibri,Segoe UI,sans-serif;'
-        f'margin:0 0 6px 0;opacity:.85;">SES-MT · CIEVS · SIS Clima-Saúde</div>',
+        f'margin:0 0 6px 0;opacity:.85;">ARARAS MT · SES-MT · CIEVS-MT · Rede CIEVS · Vigidesastres</div>',
         unsafe_allow_html=True,
     )
 
 
 def ses_masthead(
     *,
-    sistema: str = "SIS Clima-Saúde MT",
-    subtitulo: str = "Sala de situação clima–saúde · CIEVS / SES-MT",
+    sistema: str = SYSTEM_NAME,
+    subtitulo: str = SYSTEM_TAGLINE,
     base: str = "",
 ) -> None:
     """Chrome institucional no padrão do portal saude.mt.gov.br (estilos INLINE)."""
@@ -187,35 +196,42 @@ def ses_masthead(
         unsafe_allow_html=True,
     )
 
-    c_logo, c_title, c_meta = st.columns([1.15, 3.35, 1.7], vertical_alignment="center")
+    c_logo, c_title, c_meta = st.columns([1.25, 3.45, 1.65], vertical_alignment="center")
     with c_logo:
         if LOGO_PATH.exists():
-            st.image(str(LOGO_PATH), width=176)
+            st.image(str(LOGO_PATH), width=215)
         else:
             st.markdown("**SES-MT**")
     with c_title:
+        if ARARAS_LOGO_PATH.exists():
+            st.image(str(ARARAS_LOGO_PATH), use_container_width=True)
         st.markdown(
-            f"""
-            <div style="background:#fff;border-bottom:10px solid {SES_BLUE_ACCENT};padding:6px 0 10px 0;">
-              <div style="font:800 22px Calibri,Segoe UI,sans-serif;color:{SES_BLUE};line-height:1.15;">{html.escape(sistema)}</div>
-              <div style="color:#57595A;font:400 14px Calibri,Segoe UI,sans-serif;margin-top:4px;">{html.escape(subtitulo)}</div>
-              <span style="display:inline-block;margin-top:8px;background:{SES_BLUE_ACCENT};color:#fff;padding:3px 8px;
-                           font:700 11px Calibri,Segoe UI,sans-serif;letter-spacing:.04em;text-transform:uppercase;">Sala de situação</span>
-            </div>
-            """,
+            f'<div style="color:#57595A;font:400 13px Calibri,Segoe UI,sans-serif;margin-top:-8px;">'
+            f'{html.escape(SYSTEM_EXPANSION)}</div>'
+            f'<span style="display:inline-block;margin-top:6px;background:{SES_BLUE_ACCENT};color:#fff;padding:3px 8px;'
+            f'font:700 11px Calibri,Segoe UI,sans-serif;letter-spacing:.04em;text-transform:uppercase;">'
+            f'Sala de situação</span>',
             unsafe_allow_html=True,
         )
     with c_meta:
         st.markdown(
-            f"""
-            <div style="text-align:right;color:#57595A;font:400 12px Calibri,Segoe UI,sans-serif;line-height:1.45;">
-              <span style="display:block;font:800 15px Calibri,Segoe UI,sans-serif;color:{SES_BLUE};">SES-MT · CIEVS</span>
-              Vigilância integrada clima–saúde
-              {f"<br/><span style='display:inline-block;margin-top:6px;background:#EDF3FC;color:{SES_BLUE_DEEP};border:1px solid #B7CEF0;padding:2px 8px;font:700 11px Calibri,sans-serif;'>Base {html.escape(base)}</span>" if base else ""}
-            </div>
-            """,
+            f'<div style="text-align:center;color:{SES_BLUE};font:800 14px Calibri,Segoe UI,sans-serif;">CIEVS-MT</div>',
             unsafe_allow_html=True,
         )
+        c_rede, c_vigi = st.columns([1.8, 1], vertical_alignment="center")
+        with c_rede:
+            if REDE_CIEVS_LOGO_PATH.exists():
+                st.image(str(REDE_CIEVS_LOGO_PATH), use_container_width=True)
+        with c_vigi:
+            if VIGIDESASTRES_LOGO_PATH.exists():
+                st.image(str(VIGIDESASTRES_LOGO_PATH), width=60)
+        if base:
+            st.markdown(
+                f"<div style='text-align:center;margin-top:2px'><span style='display:inline-block;background:#EDF3FC;"
+                f"color:{SES_BLUE_DEEP};border:1px solid #B7CEF0;padding:2px 8px;font:700 11px Calibri,sans-serif;'>"
+                f"Base {html.escape(base)}</span></div>",
+                unsafe_allow_html=True,
+            )
 
 
 def hero(brand: str, kicker: str, chips: list[str] | None = None) -> None:
@@ -290,7 +306,7 @@ def ses_footer() -> None:
               Cuiabá-MT · CEP 78049-902 · Tel. (65) 3613-5387
             </div>
             <div>
-              <strong style="font-weight:800;">CIEVS / SIS Clima-Saúde</strong><br/>
+              <strong style="font-weight:800;">CIEVS-MT / ARARAS MT</strong><br/>
               Uso interno da sala de situação · validar antes de comunicação oficial<br/>
               <a href="https://www.saude.mt.gov.br/ouvidoria" target="_blank" rel="noopener" style="color:#fff;">Ouvidoria</a>
               · Contato: notifica@ses.mt.gov.br

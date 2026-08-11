@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-SIS Integrado Clima-Saúde MT - Dashboard V6
+ARARAS MT - Dashboard V6
 
 Melhorias da V6:
 - Filtros globais por Regional de Saúde e Município.
@@ -38,7 +38,7 @@ DB_PATH = Path("data/output/sis_integrado.db")
 
 
 st.set_page_config(
-    page_title="SIS Integrado Clima-Saúde MT",
+    page_title="ARARAS MT",
     page_icon="🌡️",
     layout="wide",
 )
@@ -372,7 +372,8 @@ for df in [met, aq, occ, press, stock, infra, ops_cnes, saude_calor_mun, gal_pos
 # Header
 # ---------------------------------------------------------------------
 
-st.title("🌡️ SIS Integrado Clima-Saúde MT")
+st.title("ARARAS MT")
+st.caption("Clima, ambiente e saúde em uma só visão.")
 st.caption("Monitoramento municipalizado: TITAN + SENTINELA + AESOP + SIVEP + LACEN + IndicaSUS + Copernicus/CAMS + INMET + Vigidesastres")
 
 if resumo_all.empty:

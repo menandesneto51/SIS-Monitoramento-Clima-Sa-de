@@ -7,7 +7,7 @@ from sisclima.utils.municipios import ensure_municipality, municipality_cols
 
 
 # ============================================================
-# SIS MT CLIMA-SAÚDE
+# ARARAS MT CLIMA-SAÚDE
 # Arquivo: sisclima/engines/biometeo.py
 #
 # Versão consolidada para substituir o arquivo existente.
