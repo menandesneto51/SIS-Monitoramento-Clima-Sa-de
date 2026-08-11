@@ -13,8 +13,9 @@ SYSTEM_EXPANSION = "Análise, Resposta e Acompanhamento de Riscos, Agravos e Sa�
 SYSTEM_TAGLINE = "Clima, ambiente e saúde em uma só visão."
 SYSTEM_OWNER = "Secretaria de Estado de Saúde de Mato Grosso · CIEVS-MT"
 PROJECT_DESCRIPTION = (
-    "Plataforma de inteligência e apoio à gestão da SES-MT que integra clima, ambiente e saúde. "
-    "Complementa os sistemas do SUS e não substitui protocolos, notificações ou decisões da autoridade sanitária."
+    f"{SYSTEM_NAME} ({SYSTEM_EXPANSION}) é a plataforma oficial de inteligência e apoio à gestão da SES-MT "
+    "para integrar clima, ambiente e saúde. Complementa os sistemas do SUS e não substitui protocolos, "
+    "notificação nem decisão da autoridade."
 )
 
 ARARAS_LOGO_PATH = BRAND_ASSETS / "araras-mt-logo-horizontal.png"
@@ -57,50 +58,20 @@ def wrap_plain_message(body: str) -> str:
 
 
 def html_email_shell(body_html: str) -> str:
-    """Envolve qualquer boletim HTML com o cabeçalho institucional e CIDs das marcas."""
+    """Envolve o conteúdo integral do alerta com uma única assinatura institucional."""
     content = str(body_html or "").strip()
     return f"""
     <div style="margin:0;padding:20px;background:#eef5f5;font-family:Segoe UI,Arial,sans-serif;color:#12354e">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
              style="max-width:920px;margin:0 auto;background:#ffffff;border-collapse:collapse;border:1px solid #d7e2e5">
         <tr>
-          <td style="padding:16px 20px;border-bottom:4px solid #087f82">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse">
-              <tr>
-                <td style="width:52%;vertical-align:middle;padding-right:14px">
-                  <img src="cid:araras-logo" alt="ARARAS MT — {html.escape(SYSTEM_TAGLINE)}"
-                       style="display:block;max-width:430px;width:100%;height:auto" />
-                </td>
-                <td style="vertical-align:middle;text-align:right">
-                  <img src="cid:governo-ses-logo" alt="SES-MT e Governo de Mato Grosso"
-                       style="display:inline-block;max-width:235px;width:100%;height:auto;margin-bottom:8px" /><br />
-                  <span style="display:inline-block;color:#073f67;font-size:13px;font-weight:800;margin-right:10px">CIEVS-MT</span>
-                  <img src="cid:rede-cievs-logo" alt="Rede CIEVS"
-                       style="display:inline-block;vertical-align:middle;width:92px;height:auto;margin-right:10px" />
-                  <img src="cid:vigidesastres-logo" alt="Vigidesastres"
-                       style="display:inline-block;vertical-align:middle;width:46px;height:auto" />
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:14px 20px;background:#f4f8f8;border-bottom:1px solid #d7e2e5;font-size:13px;line-height:1.5">
-            <strong>{html.escape(SYSTEM_NAME)} — {html.escape(SYSTEM_EXPANSION)}</strong><br />
-            {html.escape(PROJECT_DESCRIPTION)}
+          <td style="padding:16px 20px;text-align:center;border-bottom:4px solid #087f82">
+            <img src="cid:institucional-card"
+                 alt="ARARAS MT · SES-MT · Governo de Mato Grosso · CIEVS-MT · Rede CIEVS · Vigidesastres"
+                 style="display:block;max-width:800px;width:100%;height:auto;margin:0 auto" />
           </td>
         </tr>
         <tr><td style="padding:20px">{content}</td></tr>
-        <tr>
-          <td style="padding:12px 20px 18px;border-top:1px solid #d7e2e5;text-align:center">
-            <div style="margin-bottom:8px;color:#073f67;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase">
-              Assinatura institucional do projeto
-            </div>
-            <img src="cid:institucional-card"
-                 alt="ARARAS MT · SES-MT · CIEVS-MT · Rede CIEVS · Vigidesastres"
-                 style="display:block;max-width:760px;width:100%;height:auto;margin:0 auto" />
-          </td>
-        </tr>
         <tr>
           <td style="padding:13px 20px;background:#073f67;color:#ffffff;font-size:12px;line-height:1.45">
             <strong>{html.escape(SYSTEM_NAME)}</strong> · CIEVS-MT / SES-MT · Rede CIEVS · Vigidesastres<br />
@@ -113,9 +84,5 @@ def html_email_shell(body_html: str) -> str:
 
 
 INLINE_BRAND_ASSETS = {
-    "araras-logo": ARARAS_LOGO_PATH,
-    "governo-ses-logo": GOV_SES_LOGO_PATH,
-    "rede-cievs-logo": REDE_CIEVS_LOGO_PATH,
-    "vigidesastres-logo": VIGIDESASTRES_LOGO_PATH,
     "institucional-card": ALERT_BRAND_CARD_PATH,
 }

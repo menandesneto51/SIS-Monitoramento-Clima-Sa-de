@@ -40,6 +40,8 @@ import pandas as pd
 
 from sisclima.branding import (
     INLINE_BRAND_ASSETS,
+    PROJECT_DESCRIPTION,
+    SYSTEM_EXPANSION,
     SYSTEM_NAME,
     SYSTEM_TAGLINE,
     branded_subject,
@@ -281,6 +283,11 @@ def build_payload(con: sqlite3.Connection) -> dict[str, Any]:
         "municipio": MUNICIPIO,
         "cod_ibge": COD_IBGE_CUIABA,
         "gerado_em": datetime.now().strftime("%d/%m/%Y %H:%M"),
+        "dados_atualizados_em": (
+            datetime.fromtimestamp(DB.stat().st_mtime).strftime("%d/%m/%Y %H:%M")
+            if DB.exists() else datetime.now().strftime("%d/%m/%Y %H:%M")
+        ),
+        "emitido_em": datetime.now().strftime("%d/%m/%Y %H:%M"),
         "nivel_operacional": nivel,
         "nivel_predicao_7d": nivel_pred,
         "nivel_alerta_inteligente": nivel_ai,
@@ -420,8 +427,9 @@ def compose_text(payload: dict[str, Any]) -> str:
 
     lines = []
     lines.append(f"{emoji} Alerta ARARAS MT — Cuiabá — {payload['nivel_final'].capitalize()}")
-    lines.append(f"{SYSTEM_NAME} integra clima, ambiente e indicadores de saúde para apoiar a gestão. {SYSTEM_TAGLINE}")
-    lines.append(f"Gerado em: {payload['gerado_em']}")
+    lines.append(PROJECT_DESCRIPTION)
+    lines.append(f"Dados atualizados em: {payload['dados_atualizados_em']}")
+    lines.append(f"Emitido em: {payload['emitido_em']}")
     lines.append("")
     lines.append("Município: Cuiabá")
     lines.append("Código IBGE: 5103403")
