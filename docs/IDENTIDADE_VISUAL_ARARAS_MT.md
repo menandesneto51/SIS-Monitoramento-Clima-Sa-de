@@ -38,7 +38,7 @@
 
 ### Telegram
 
-- Enviar primeiro o cartão visual ARARAS MT.
+- Enviar primeiro o cartão institucional com ARARAS MT, SES/Governo MT, CIEVS-MT, Rede CIEVS e Vigidesastres.
 - Enviar em seguida o texto do boletim, iniciado por `ARARAS MT` e pelo lema.
 - Respeitar o roteamento estadual, regional e municipal; não duplicar o alerta central.
 

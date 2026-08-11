@@ -15,6 +15,7 @@ SYSTEM_OWNER = "Secretaria de Estado de Saúde de Mato Grosso · CIEVS-MT"
 
 ARARAS_LOGO_PATH = BRAND_ASSETS / "araras-mt-logo-horizontal.png"
 ARARAS_SYMBOL_PATH = BRAND_ASSETS / "araras-mt-simbolo.png"
+ALERT_BRAND_CARD_PATH = BRAND_ASSETS / "araras-mt-cartao-institucional.png"
 GOV_SES_LOGO_PATH = BRAND_ASSETS / "governo-ses-mt-fundo-institucional.png"
 REDE_CIEVS_LOGO_PATH = BRAND_ASSETS / "rede-cievs.png"
 VIGIDESASTRES_LOGO_PATH = BRAND_ASSETS / "vigidesastres.png"

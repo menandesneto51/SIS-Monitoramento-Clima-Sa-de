@@ -9,7 +9,7 @@ import requests
 
 from sisclima.alerts.whatsapp import send_whatsapp
 from sisclima.branding import (
-    ARARAS_LOGO_PATH,
+    ALERT_BRAND_CARD_PATH,
     INLINE_BRAND_ASSETS,
     SYSTEM_NAME,
     SYSTEM_TAGLINE,
@@ -113,10 +113,10 @@ def send_telegram_brand_card(*, chat_id: str | None = None) -> bool:
         return False
     token = env('TELEGRAM_BOT_TOKEN')
     destination = chat_id or env('TELEGRAM_CHAT_ID')
-    if not token or not destination or not ARARAS_LOGO_PATH.exists():
+    if not token or not destination or not ALERT_BRAND_CARD_PATH.exists():
         return False
     try:
-        with ARARAS_LOGO_PATH.open('rb') as logo:
+        with ALERT_BRAND_CARD_PATH.open('rb') as logo:
             r = requests.post(
                 f'https://api.telegram.org/bot{token}/sendPhoto',
                 data={
@@ -126,7 +126,7 @@ def send_telegram_brand_card(*, chat_id: str | None = None) -> bool:
                         'SES-MT · CIEVS-MT · Rede CIEVS · Vigidesastres'
                     ),
                 },
-                files={'photo': (ARARAS_LOGO_PATH.name, logo, 'image/png')},
+                files={'photo': (ALERT_BRAND_CARD_PATH.name, logo, 'image/png')},
                 timeout=30,
             )
         return r.ok
