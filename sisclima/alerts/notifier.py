@@ -11,10 +11,13 @@ from sisclima.alerts.whatsapp import send_whatsapp
 from sisclima.branding import (
     ALERT_BRAND_CARD_PATH,
     INLINE_BRAND_ASSETS,
+    PROJECT_DESCRIPTION,
+    SYSTEM_EXPANSION,
     SYSTEM_NAME,
     SYSTEM_TAGLINE,
     branded_subject,
     html_email_shell,
+    plain_header,
     wrap_plain_message,
 )
 from sisclima.core.config import env, as_bool, env_name_used
@@ -122,7 +125,8 @@ def send_telegram_brand_card(*, chat_id: str | None = None) -> bool:
                 data={
                     'chat_id': destination,
                     'caption': (
-                        f'{SYSTEM_NAME} · {SYSTEM_TAGLINE}\n'
+                        f'{SYSTEM_NAME} — {SYSTEM_EXPANSION}\n'
+                        f'{SYSTEM_TAGLINE}\n{PROJECT_DESCRIPTION}\n'
                         'SES-MT · CIEVS-MT · Rede CIEVS · Vigidesastres'
                     ),
                 },
@@ -145,8 +149,8 @@ def send_telegram(text: str, *, chat_id: str | None = None, with_brand: bool = T
     if with_brand:
         send_telegram_brand_card(chat_id=destination)
     message = str(text or '').strip()
-    if not message.startswith(SYSTEM_NAME):
-        message = f'{SYSTEM_NAME} · {SYSTEM_TAGLINE}\n\n{message}'
+    if PROJECT_DESCRIPTION not in message:
+        message = f'{plain_header()}\n\n{message}'
     try:
         r = requests.post(
             f'https://api.telegram.org/bot{token}/sendMessage',
@@ -180,10 +184,17 @@ def dispatch_alert(subject: str, message: str, payload: dict | None = None) -> d
         'email': send_email(branded, message),
         'telegram': send_telegram(f'{branded}\n\n{message}', with_brand=True),
         'whatsapp': send_whatsapp(
-            f'{SYSTEM_NAME} · {SYSTEM_TAGLINE}\n\n{branded}\n\n{message}',
+            f'{plain_header()}\n\n{branded}\n\n{message}',
             payload={'subject': branded, **payload},
         ),
-        'webhook': send_webhook({'subject': branded, 'message': message, **payload})
+        'webhook': send_webhook({
+            'system_name': SYSTEM_NAME,
+            'system_expansion': SYSTEM_EXPANSION,
+            'project_description': PROJECT_DESCRIPTION,
+            'subject': branded,
+            'message': message,
+            **payload,
+        })
     }
     log.info('Resultado envio alertas: %s', results)
     return results
