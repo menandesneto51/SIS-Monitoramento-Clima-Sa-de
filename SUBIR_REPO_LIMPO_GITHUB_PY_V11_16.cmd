@@ -47,7 +47,7 @@ git status --short
 echo.
 pause
 
-git commit -m "SIS Clima-Saude MT - versao limpa para Streamlit"
+git commit -m "ARARAS MT - versao limpa para Streamlit"
 if errorlevel 1 (
     echo AVISO: commit pode nao ter ocorrido, talvez nao haja mudancas.
 )

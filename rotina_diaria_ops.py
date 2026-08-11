@@ -137,7 +137,7 @@ def step_smoke() -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="Rotina diária SIS Clima-Saúde (ANA + ops)")
+    p = argparse.ArgumentParser(description="Rotina diária ARARAS MT (ANA + ops)")
     p.add_argument("--offline", action="store_true", help="Sem DW/IndicaSUS/SISREG live")
     p.add_argument("--skip-cloud-export", action="store_true")
     p.add_argument("--skip-ana", action="store_true")

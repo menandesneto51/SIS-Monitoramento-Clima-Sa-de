@@ -1,6 +1,6 @@
-# Análise OR e sazonalidade (SIS Clima-Saúde MT)
+# Análise OR e sazonalidade (ARARAS MT)
 
-Esta camada adiciona ao SIS um módulo inspirado no painel de meningites para:
+Esta camada adiciona ao ARARAS MT um módulo inspirado no painel de meningites para:
 
 - **Odds Ratio (OR) ecológico** clima–agravos/ocupação
 - **Sazonalidade histórica** (índice mensal, heatmap SE×ano, perfil semanal e picos)
@@ -12,7 +12,7 @@ Esta camada adiciona ao SIS um módulo inspirado no painel de meningites para:
 - `Meningites/21_sazonalidade_meningites_v23.py`
 - `Meningites/06_clima_casos_meningites_v17.py`
 
-## Tabelas geradas no SIS
+## Tabelas geradas no ARARAS MT
 
 - `analise_clima_saude_odds_ratio_v1`
 - `sazonalidade_indice_mensal_v1`
@@ -33,4 +33,3 @@ Esta camada adiciona ao SIS um módulo inspirado no painel de meningites para:
 1. Verificar mês e semanas de maior risco sazonal.
 2. Priorizar municípios com OR elevado e consistente com pressão assistencial.
 3. Cruzar com níveis operacionais e com a aba AdaptaSUS para ação coordenada.
-

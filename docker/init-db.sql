@@ -1,2 +1,2 @@
--- Base única operacional SIS Clima-Saúde MT
+-- Base única operacional ARARAS MT
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

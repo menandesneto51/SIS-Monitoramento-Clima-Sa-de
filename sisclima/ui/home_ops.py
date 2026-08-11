@@ -15,7 +15,7 @@ from sisclima.engines.stages import STAGE_ORDER
 
 
 AVISO_SINAL_VS_ATIVACAO = (
-    "**Sinal do SIS ≠ ativação formal.** O nível e o boletim são critérios técnicos "
+    "**Sinal do ARARAS MT ≠ ativação formal.** O nível e o boletim são critérios técnicos "
     "para avaliação do CIEVS/Sala de Situação. Não decretam COE, portaria nem emergência — "
     "isso depende de decisão documentada da autoridade competente."
 )
@@ -130,7 +130,7 @@ def frescor_resumo(frescor: pd.DataFrame) -> dict[str, Any]:
 
 # Códigos internos → linguagem de gestor (alerta integrado / TITAN)
 AMEACA_LABELS: dict[str, str] = {
-    "sis_estagio": "Classificação SIS (calor)",
+    "sis_estagio": "Classificação ARARAS (calor)",
     "titan_calor": "Calor extremo (UTCI)",
     "titan_risco3d": "Risco cumulativo 3 dias",
     "titan_inmet": "Alerta INMET",

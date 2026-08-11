@@ -275,7 +275,7 @@ def preview_boletim_executivo_ses(
     }
 
 
-# Critérios técnicos de escalonamento (sinal SIS → avaliação humana).
+# Critérios técnicos de escalonamento (sinal ARARAS → avaliação humana).
 # Não decretam COE/emergência; documentam quando elevar à sala de situação.
 CRITERIOS_ESCALONAMENTO = [
     {
@@ -288,7 +288,7 @@ CRITERIOS_ESCALONAMENTO = [
         "gatilho": "Nível vermelha ou roxa, ou flag_persistencia_roxa",
         "acao": "Elevar à autoridade competente com critérios técnicos documentados",
         "prazo": "Mesmo plantão",
-        "decisao_humana": "Avaliar ativação formal (COE/portaria) — fora do SIS",
+        "decisao_humana": "Avaliar ativação formal (COE/portaria) — fora do ARARAS",
     },
     {
         "gatilho": "Ocupação ≥85% ou pressão assistencial alta nos prioritários",
@@ -304,7 +304,7 @@ CRITERIOS_ESCALONAMENTO = [
     },
     {
         "gatilho": "Alerta oficial Cemaden/INMET/ANA em município prioritário",
-        "acao": "Sobrepor sinal oficial ao nível SIS; contatar Defesa Civil / regional",
+        "acao": "Sobrepor sinal oficial ao nível ARARAS; contatar Defesa Civil / regional",
         "prazo": "Imediato",
         "decisao_humana": "Ações territoriais conforme protocolo setorial",
     },

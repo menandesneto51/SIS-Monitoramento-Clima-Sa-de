@@ -13,6 +13,7 @@ import pandas as pd
 
 from sisclima.alerts.contacts import fanout_enabled, recipients_for, summarize_contacts
 from sisclima.alerts.notifier import send_email, send_telegram
+from sisclima.branding import SYSTEM_NAME, SYSTEM_TAGLINE
 from sisclima.core.config import as_bool, env
 from sisclima.core.db import db_conn, execute, fetchone, read_table, table_exists
 from sisclima.core.logging_utils import get_logger
@@ -765,7 +766,7 @@ def format_municipal_telegram(p: dict[str, Any], *, cuiaba: bool = False) -> str
     footer = (
         "Relatório dedicado Vigidesastre Cuiabá · validar no território."
         if cuiaba
-        else "Fonte: SIS Clima-Saúde MT · validar no território."
+        else "Fonte: ARARAS MT · validar no território."
     )
     lines += ["", f"{ICON['rodape']} {footer}"]
     return "\n".join(lines)
@@ -1140,8 +1141,8 @@ def _send_telegram_batches(payloads: list[dict[str, Any]], *, chat_id: str | Non
     ordered = sorted(payloads, key=lambda p: (order.get(str(p.get("escopo")), 9), str(p.get("alvo_nome") or "")))
     for p in ordered:
         txt = format_payload_telegram(p, compact=False)
-        for chunk in _split_telegram(txt):
-            if send_telegram(chunk, chat_id=chat_id):
+        for chunk_index, chunk in enumerate(_split_telegram(txt)):
+            if send_telegram(chunk, chat_id=chat_id, with_brand=(chunk_index == 0)):
                 ok_any = True
             time.sleep(0.35)
     return ok_any
@@ -1154,17 +1155,18 @@ def _send_email_pack(payloads: list[dict[str, Any]], meta: dict, *, to: str | li
     only_ses = len(payloads) == 1 and payloads[0].get("escopo") == "estadual"
     if only_ses:
         p = payloads[0]
-        subject = f"[SIS] {ICON['estado']} Alerta SES-MT / CIEVS — {LEVEL_LABEL.get(niv, niv)}"
+        subject = f"[ARARAS MT] {ICON['estado']} Alerta SES-MT / CIEVS — {LEVEL_LABEL.get(niv, niv)}"
         plain = format_ses_telegram(p)
         return send_email(subject, plain, html_body=format_ses_html(p), to=to)
 
     subject = (
-        f"[SIS Clima-Saúde] {EMOJI.get(niv, '⚪')} Boletim · "
+        f"[ARARAS MT] {EMOJI.get(niv, '⚪')} Boletim · "
         f"{niv.upper()} · {len(payloads)} alerta(s)"
     )
     body_html = f"""
     <div style="font-family:Segoe UI,Arial,sans-serif;max-width:860px;margin:0 auto;background:#f8fafc;padding:18px">
-      <h1 style="margin:0 0 6px">{ICON['titulo']} SIS Clima-Saúde MT</h1>
+      <h1 style="margin:0 0 6px">{ICON['titulo']} {SYSTEM_NAME}</h1>
+      <p style="margin:0 0 6px;color:#0f766e;font-weight:700">{SYSTEM_TAGLINE}</p>
       <p style="margin:0 0 16px;color:#334155">Boletim operacional · gerado em {html.escape(now_iso())}</p>
       {''.join(format_payload_html(p) for p in payloads)}
     </div>
@@ -1206,14 +1208,14 @@ def _fanout_territorial(payloads: list[dict[str, Any]]) -> dict[str, Any]:
             continue
         txt = format_payload_telegram(p, compact=False)
         html_body = format_payload_html(p)
-        subject = f"[SIS] {p.get('titulo') or p.get('alvo_nome')}"
+        subject = f"[ARARAS MT] {p.get('titulo') or p.get('alvo_nome')}"
         if emails:
             if send_email(subject, txt, html_body=html_body, to=emails):
                 enviados += 1
             time.sleep(0.2)
         for chat in chats:
-            for chunk in _split_telegram(txt):
-                if send_telegram(chunk, chat_id=chat):
+            for chunk_index, chunk in enumerate(_split_telegram(txt)):
+                if send_telegram(chunk, chat_id=chat, with_brand=(chunk_index == 0)):
                     enviados += 1
                 time.sleep(0.35)
 
@@ -1300,7 +1302,7 @@ def send_digest(
                 now_iso(),
                 (last or {}).get("nivel"),
                 nivel,
-                f"[SIS] SES/CIEVS {EMOJI.get(nivel,'⚪')} {nivel.upper()}",
+                f"[ARARAS MT] SES/CIEVS {EMOJI.get(nivel,'⚪')} {nivel.upper()}",
                 (
                     f"central_ses={len(central)}; gerados={meta.get('n_gerados')}; "
                     f"regionais={meta.get('n_regionais')}; municipais={meta.get('n_municipais')}; "
@@ -1316,7 +1318,7 @@ def send_digest(
 
 def build_digest_message(resumo: pd.DataFrame | None = None) -> tuple[str, str, str, dict]:
     payloads, fingerprint, meta = build_multilevel_pack(resumo)
-    subject = f"[SIS Clima-Saúde] {EMOJI.get(meta['nivel'],'⚪')} SES/CIEVS {meta['nivel'].upper()}"
+    subject = f"[ARARAS MT] {EMOJI.get(meta['nivel'],'⚪')} SES/CIEVS {meta['nivel'].upper()}"
     ses = next((p for p in payloads if p.get("escopo") == "estadual"), None)
     message = format_ses_telegram(ses) if ses else "Sem alerta estadual gerado."
     return subject, message, fingerprint, meta

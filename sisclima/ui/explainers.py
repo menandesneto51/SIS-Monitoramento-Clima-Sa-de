@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Textos explicativos para leitores leigos do painel SIS."""
+"""Textos explicativos para leitores leigos do painel ARARAS."""
 from __future__ import annotations
 
 LEVEL_GUIDE: dict[str, dict[str, str]] = {
@@ -29,7 +29,7 @@ LEVEL_GUIDE: dict[str, dict[str, str]] = {
     },
     "roxa": {
         "titulo": "Roxa — situação excepcional",
-        "o_que_e": "Nível máximo do SIS: múltiplos gatilhos ao mesmo tempo.",
+        "o_que_e": "Nível máximo do ARARAS: múltiplos gatilhos ao mesmo tempo.",
         "o_que_fazer": "Mobilização plena do CIEVS e articulação estadual.",
         "analogia": "Prioridade absoluta nesta rodada do painel.",
     },
@@ -129,7 +129,7 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
     },
     "indice_tensao_climatica": {
         "nome": "Índice de tensão climática (0–100)",
-        "leigo": "Nota nova do SIS que resume calor + umidade + risco acumulado em uma escala fácil.",
+        "leigo": "Nota nova do ARARAS que resume calor + umidade + risco acumulado em uma escala fácil.",
         "como_ler": "0–30 baixo · 31–60 moderado · 61–80 alto · >80 muito alto.",
     },
     "indice_carga_saude": {
@@ -189,7 +189,7 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
     },
     "indice_adaptacao_climatica": {
         "nome": "Índice de adaptação climática (0–100)",
-        "leigo": "Síntese dos riscos prioritários do AdaptaSUS cobertos pelo SIS nesta rodada.",
+        "leigo": "Síntese dos riscos prioritários do AdaptaSUS cobertos pelo ARARAS nesta rodada.",
         "como_ler": "Quanto maior, maior a pressão climática–saúde agregada. Baixa completude penaliza o índice.",
     },
     "risco_adaptasus_dominante": {
@@ -278,8 +278,8 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "como_ler": "Não substitui resiliência operacional; mostra ‘quanto tem na rede’.",
     },
     "nivel_alerta_integrado": {
-        "nome": "Alerta integrado SIS+TITAN",
-        "leigo": "Nível único que une estágio SIS com INMET, Cemaden, solo e hidro.",
+        "nome": "Alerta integrado ARARAS",
+        "leigo": "Nível único que une estágio ARARAS com INMET, Cemaden, solo e hidro.",
         "como_ler": "É o max das camadas. Veja o componente dominante para saber o que puxou o alerta.",
     },
 }
@@ -381,8 +381,8 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Textos didáticos não substituem protocolos oficiais do CIEVS/SES.",
     },
     "El Niño / Contingência": {
-        "para_que_serve": "Vincular o monitoramento do SIS ao Plano de Contingência / preparação El Niño.",
-        "como_usar": "Veja cenário oficial, prioridades municipais do SIS e a matriz Meta→Ação→Responsável→Status.",
+        "para_que_serve": "Vincular o monitoramento do ARARAS ao Plano de Contingência / preparação El Niño.",
+        "como_usar": "Veja cenário oficial, prioridades municipais do ARARAS e a matriz Meta→Ação→Responsável→Status.",
         "cuidado": "Sinal do painel não ativa COE nem decreta emergência — decisão é da autoridade competente.",
     },
 }
@@ -390,7 +390,7 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
 HOW_TO_READ_PANEL = [
     "1. Olhe a faixa colorida e os 6 cards de Situação estadual: nível, alerta, ameaça, tendência, pressão e frescor.",
     "2. Use Prioridades de hoje (top 10): motivo, tendência, ocupação/CNES/resiliência, lacunas e ação.",
-    "3. Lembre: sinal do SIS ≠ ativação formal de COE/emergência.",
+    "3. Lembre: sinal do ARARAS ≠ ativação formal de COE/emergência.",
     "4. Em Alertas: registre validação humana, gere a prévia do boletim SES e só então arme o envio.",
     "5. Na Visão executiva, o mapa responde ‘onde?’ e ‘Por que este nível?’ explica o score.",
     "6. Em dúvida sobre um número, abra Frescor por fonte, Cálculos ou o Guia do leitor.",

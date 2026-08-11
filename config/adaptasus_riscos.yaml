@@ -138,7 +138,7 @@ riscos:
     indicadores_sis: []
     gatilhos: {}
     acoes_guia:
-      - Lacuna no SIS — aguardar fonte SES-MT
+      - Lacuna no ARARAS MT — aguardar fonte SES-MT
       - Priorizar articulação com assistência social em estiagens prolongadas
 
 pesos_indice_adaptacao:

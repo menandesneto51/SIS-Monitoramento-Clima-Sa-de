@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Gera apresentação ~20 min: SIS Clima-Saúde MT (CIEVS/SES-MT).
+Gera apresentação ~20 min: ARARAS MT (CIEVS/SES-MT).
 
 Contexto: articula o painel operacional ao Plano de Contingência para
 Emergência em Saúde Pública por Seca e Estiagem (MT 2026-2027).
@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parent
 OUT_DIR = ROOT / "docs" / "apresentacoes"
 DEFAULT_OUT = OUT_DIR / "Apresentacao_SIS_Clima_Saude_20min.pptx"
 
-# Paleta institucional (painel SIS)
+# Paleta institucional (painel ARARAS)
 GREEN_DARK = RGBColor(0x08, 0x35, 0x2E)
 GREEN = RGBColor(0x0F, 0x6E, 0x56)
 GREEN_SOFT = RGBColor(0x1A, 0x8A, 0x6E)
@@ -122,7 +122,7 @@ def _footer(slide, page: int, total: int):
         7.1,
         10,
         0.3,
-        "CIEVS-MT · SIS Clima-Saúde · Código legível · Fontes oficiais",
+        "CIEVS-MT · ARARAS MT · Código legível · Fontes oficiais",
         size=10,
         color=MUTED,
     )
@@ -203,7 +203,7 @@ def build(out: Path) -> Path:
     accent.fill.fore_color.rgb = GREEN_SOFT
     accent.line.fill.background()
     _textbox(s, 0.7, 1.6, 11.5, 0.4, "CIEVS-MT · SES-MT", size=16, color=GREEN_SOFT)
-    _textbox(s, 0.7, 2.2, 11.5, 1.2, "SIS Clima-Saúde MT", size=44, bold=True, color=WHITE)
+    _textbox(s, 0.7, 2.2, 11.5, 1.2, "ARARAS MT", size=44, bold=True, color=WHITE)
     _textbox(
         s,
         0.7,
@@ -226,7 +226,7 @@ def build(out: Path) -> Path:
     )
     _notes(
         s,
-        "ROTEIRO (1 min): Apresente-se (CIEVS). Diga que o SIS é a ferramenta de monitoramento "
+        "ROTEIRO (1 min): Apresente-se (CIEVS). Diga que o ARARAS é a ferramenta de monitoramento "
         "que alimenta a leitura de risco clima–saúde alinhada ao Plano de Contingência seca/estiagem 2026-2027.",
     )
     slides_meta.append(s)
@@ -243,7 +243,7 @@ def build(out: Path) -> Path:
         5.2,
         [
             "Por que clima e saúde juntos em Mato Grosso? (3 min)",
-            "O que é o SIS Clima-Saúde e o que ele NÃO é (3 min)",
+            "O que é o ARARAS MT e o que ele NÃO é (3 min)",
             "Fontes, níveis operacionais e mapas municipais (5 min)",
             "TITAN, solo, alertas e AdaptaSUS no plantão (5 min)",
             "Governança técnica, próximos passos e perguntas (4 min)",
@@ -278,7 +278,7 @@ def build(out: Path) -> Path:
         1.5,
         4.6,
         4.6,
-        "Papel do SIS",
+        "Papel do ARARAS",
         "Traduz clima, ar, água, solo, assistência e agravos em um nível operacional municipal "
         "para o CIEVS decidir com a mesma lógica de preparação/resposta do Plano.",
         accent=GREEN,
@@ -287,7 +287,7 @@ def build(out: Path) -> Path:
     _notes(
         s,
         "ROTEIRO (3 min): Use o PPT do Plano (DOC-WA) como âncora política. Não releia o plano — "
-        "diga que o SIS é o radar diário que sustenta aqueles eixos e níveis.",
+        "diga que o ARARAS é o radar diário que sustenta aqueles eixos e níveis.",
     )
     slides_meta.append(s)
 
@@ -305,7 +305,7 @@ def build(out: Path) -> Path:
     # 5 O que é
     s = prs.slides.add_slide(blank)
     _add_bg(s, CREAM)
-    _header_bar(s, "O que é o SIS Clima-Saúde", "Painel único de vigilância integrada — CIEVS-MT")
+    _header_bar(s, "O que é o ARARAS MT", "Painel único de vigilância integrada — CIEVS-MT")
     _bullets(
         s,
         0.55,
@@ -345,7 +345,7 @@ def build(out: Path) -> Path:
     _footer(s, 6, total)
     _notes(
         s,
-        "ROTEIRO (2,5 min): Enfatize política SES: sem scrapers ofuscados; User-Agent SIS-Clima-Saude-MT. "
+        "ROTEIRO (2,5 min): Enfatize política SES: sem scrapers ofuscados; User-Agent ARARAS-Clima-Saude-MT. "
         "DW quando a rede permitir; fallback CSV/sample documentado.",
     )
     slides_meta.append(s)
@@ -353,7 +353,7 @@ def build(out: Path) -> Path:
     # 7 Níveis
     s = prs.slides.add_slide(blank)
     _add_bg(s, CREAM)
-    _header_bar(s, "Níveis operacionais do SIS", "Leitura compatível com a lógica de resposta do Plano")
+    _header_bar(s, "Níveis operacionais do ARARAS", "Leitura compatível com a lógica de resposta do Plano")
     y = 1.35
     for name, desc, color in LEVELS:
         bar = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.55), Inches(y), Inches(12.2), Inches(0.95))
@@ -437,7 +437,7 @@ def build(out: Path) -> Path:
     _add_bg(s, CREAM)
     _header_bar(s, "TITAN + alerta integrado", "Calor, solo, hidrologia e canais oficiais no mesmo máximo")
     _card(s, 0.5, 1.4, 6.0, 4.9, "Camada TITAN", "UTCI/proxy, ondas de calor, saturação do solo (Open-Meteo), resiliência de leitos (IndicaSUS+CNES), risco hidro (ANA).", accent=GREEN)
-    _card(s, 6.8, 1.4, 6.0, 4.9, "Alerta integrado", "nivel_alerta_integrado = máximo entre SIS, INMET, Cemaden, solo, hidro e calor — com justificativa em linguagem de plantão.", accent=ORANGE)
+    _card(s, 6.8, 1.4, 6.0, 4.9, "Alerta integrado", "nivel_alerta_integrado = máximo entre ARARAS, INMET, Cemaden, solo, hidro e calor — com justificativa em linguagem de plantão.", accent=ORANGE)
     _footer(s, 10, total)
     _notes(s, "ROTEIRO (3 min): Explique o ‘máximo’ como regra conservadora de segurança sanitária.")
     slides_meta.append(s)
@@ -461,7 +461,7 @@ def build(out: Path) -> Path:
         size=17,
     )
     _footer(s, 11, total)
-    _notes(s, "ROTEIRO (2 min): Deixe claro: o SIS apoia; a decisão clínica/gestora continua humana.")
+    _notes(s, "ROTEIRO (2 min): Deixe claro: o ARARAS apoia; a decisão clínica/gestora continua humana.")
     slides_meta.append(s)
 
     # 12 Governança
@@ -486,15 +486,15 @@ def build(out: Path) -> Path:
     _notes(s, "ROTEIRO (1,5 min): Mensagem para TI: tráfego auditável reduz risco de bloqueio.")
     slides_meta.append(s)
 
-    # 13 Ponte Plano ↔ SIS
+    # 13 Ponte Plano ↔ ARARAS
     s = prs.slides.add_slide(blank)
     _add_bg(s, CREAM)
-    _header_bar(s, "Ponte operacional: Plano × SIS", "Correspondência prudente — não é equivalência jurídica automática")
+    _header_bar(s, "Ponte operacional: Plano × ARARAS", "Correspondência prudente — não é equivalência jurídica automática")
     rows = [
-        ("Plano Nível 0", "SIS Verde", "Rotina / monitoramento"),
-        ("Plano Nível I", "SIS Amarela–Laranja", "Mobilização / atenção"),
-        ("Plano Nível II", "SIS Laranja–Vermelha", "Alerta / pressão"),
-        ("Plano Nível III–IV", "SIS Vermelha–Roxa", "Emergência / articulação plena"),
+        ("Plano Nível 0", "ARARAS Verde", "Rotina / monitoramento"),
+        ("Plano Nível I", "ARARAS Amarela–Laranja", "Mobilização / atenção"),
+        ("Plano Nível II", "ARARAS Laranja–Vermelha", "Alerta / pressão"),
+        ("Plano Nível III–IV", "ARARAS Vermelha–Roxa", "Emergência / articulação plena"),
     ]
     y = 1.4
     for a, b, c in rows:
@@ -506,14 +506,14 @@ def build(out: Path) -> Path:
         1.5,
         7.8,
         5.0,
-        "Use o SIS para priorizar município/regional e alimentar a Sala de Situação.\n\n"
+        "Use o ARARAS para priorizar município/regional e alimentar a Sala de Situação.\n\n"
         "A ativação formal de COE/Portarias continua nos fluxos do Plano e da gestão.\n\n"
         "O painel entrega: nível, motivo, orientação leiga, mapa e fila de atenção.",
         size=16,
         color=INK,
     )
     _footer(s, 13, total)
-    _notes(s, "ROTEIRO (2 min): Mostre o DOC-WA nos níveis e diga que o SIS é o radar diário.")
+    _notes(s, "ROTEIRO (2 min): Mostre o DOC-WA nos níveis e diga que o ARARAS é o radar diário.")
     slides_meta.append(s)
 
     # 14 Checklist plantão 5 min
@@ -589,7 +589,7 @@ def build(out: Path) -> Path:
             "Validar boletins multinível no painel antes de armar SEND_ALERT.",
             "Completar CSV de contatos (estadual/regional/municipal/Cuiabá).",
             "Expandir nowcasting/forecasting e séries SIM/GAL/GeoCalor no Postgres.",
-            "Articular indicadores do SIS aos gatilhos do Plano de Contingência.",
+            "Articular indicadores do ARARAS aos gatilhos do Plano de Contingência.",
         ],
         size=17,
     )
@@ -607,7 +607,7 @@ def build(out: Path) -> Path:
         3.0,
         12,
         1.5,
-        "SIS Clima-Saúde MT — vigilância para decidir a tempo.\n"
+        "ARARAS MT — vigilância para decidir a tempo.\n"
         "Perguntas e encaminhamentos.",
         size=20,
         color=RGBColor(0xD7, 0xEB, 0xE3),
@@ -631,7 +631,7 @@ def build(out: Path) -> Path:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Gera apresentação SIS ~20 min")
+    ap = argparse.ArgumentParser(description="Gera apresentação ARARAS ~20 min")
     ap.add_argument("--out", type=str, default=str(DEFAULT_OUT))
     ap.add_argument("--also-downloads", action="store_true", help="Copia também para Downloads")
     args = ap.parse_args()
@@ -645,11 +645,11 @@ def main() -> int:
     # roteiro texto
     roteiro = OUT_DIR / "ROTEIRO_APRESENTACAO_SIS_20min.md"
     roteiro.write_text(
-        """# Roteiro — SIS Clima-Saúde (~20 min)
+        """# Roteiro — ARARAS MT (~20 min)
 
 | Min | Slide | Fala-chave |
 |-----|-------|------------|
-| 0–1 | Capa | CIEVS; SIS apoia plantão + Plano de Contingência |
+| 0–1 | Capa | CIEVS; ARARAS apoia plantão + Plano de Contingência |
 | 1–2 | Roteiro | Cinco blocos; sem tour infinito |
 | 2–5 | Contexto | Plano seca/estiagem 2026–2027 |
 | 5–7 | Problema | Silos × tempo do plantão × resposta escalonada |
@@ -657,7 +657,7 @@ def main() -> int:
 | 10–12 | Níveis + Snapshot | Verde→roxa; demo do estado atual |
 | 12–14 | Mapas + TITAN | Cloropletas; alerta integrado (máximo) |
 | 14–16 | AdaptaSUS + Governança | Guia MS; TI/rede SES |
-| 16–18 | Ponte Plano×SIS + Checklist | Correspondência prudente; rotina 5 min |
+| 16–18 | Ponte Plano×ARARAS + Checklist | Correspondência prudente; rotina 5 min |
 | 18–20 | Abas + Alertas 4 níveis + próximos | SES / Regional / Municipal / Cuiabá; validação no painel |
 
 ## Demo ao vivo (90 s)

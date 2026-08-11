@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _http(url: str, timeout: float = 15.0) -> tuple[int, int]:
-    req = urllib.request.Request(url, headers={"User-Agent": "SIS-Clima-Saude-MT/smoke"})
+    req = urllib.request.Request(url, headers={"User-Agent": "ARARAS-Clima-Saude-MT/smoke"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         body = resp.read()
         return int(resp.status), len(body)

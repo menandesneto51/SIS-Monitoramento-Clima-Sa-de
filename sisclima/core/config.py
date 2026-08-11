@@ -38,7 +38,7 @@ def _load_yaml(path: Path) -> dict:
 SETTINGS = _load_yaml(ROOT / 'config' / 'settings.yaml')
 
 # Compatibilidade com os nomes de variáveis usados nos projetos anteriores
-# TITAN/AESOP/LACEN/Monitora Hospitalar/SIVEP e com a V4 do SIS.
+# TITAN/AESOP/LACEN/Monitora Hospitalar/SIVEP e com a V4 do ARARAS.
 ENV_ALIASES: dict[str, list[str]] = {
     # Geral
     'RUN_MODE': ['RUN_MODE', 'MODO_PRODUCAO', 'MODO_EXECUCAO', 'AMBIENTE'],

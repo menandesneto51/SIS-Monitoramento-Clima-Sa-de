@@ -6,7 +6,7 @@ import pandas as pd
 
 
 # ============================================================
-# SIS MT CLIMA-SAÚDE
+# ARARAS MT CLIMA-SAÚDE
 # Arquivo: sisclima/engines/epidemiology.py
 #
 # Versão consolidada para substituir o arquivo existente.

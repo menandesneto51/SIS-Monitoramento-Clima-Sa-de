@@ -1,6 +1,6 @@
 # Uso do `.env` existente
 
-Esta versão não exige recriar o `.env`. O carregador de configuração reconhece os nomes de variáveis usados nos projetos anteriores do TITAN, AESOP, LACEN, Monitora Hospitalar, SIVEP e na V4 do SIS-MT.
+Esta versão não exige recriar o `.env`. O carregador de configuração reconhece os nomes de variáveis usados nos projetos anteriores do TITAN, AESOP, LACEN, Monitora Hospitalar, SIVEP e nas versões legadas anteriores ao ARARAS MT.
 
 ## Regra operacional
 

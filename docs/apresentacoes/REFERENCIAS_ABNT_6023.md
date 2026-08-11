@@ -1,6 +1,6 @@
 # Referências (ABNT NBR 6023:2018)
 
-Documento de apoio à apresentação *SIS Clima-Saúde MT — El Niño 2026 e cenário operacional ago.–set./2026*.  
+Documento de apoio à apresentação *ARARAS MT — El Niño 2026 e cenário operacional ago.–set./2026*.
 Acesso às URLs em: 27 jul. 2026.
 
 ## Fontes climáticas e ENSO
@@ -21,11 +21,11 @@ INPE; INMET; FUNCEME; CENSIPAM. *Nota técnica conjunta*: El Niño 2026. Brasíl
 
 MATO GROSSO. Secretaria de Estado de Saúde. *Distribuição da ocorrência de focos de queimadas e internação por doenças respiratórias no Estado de Mato Grosso, de 2021 a 2023*. Cuiabá: SES-MT, [2024?]. Disponível em: https://www.saude.mt.gov.br/storage/files/86gf81aesK0OcsNFg1ZMptsqlkUag8fAnyb2JIt3.pdf. Acesso em: 27 jul. 2026.
 
-## Dados operacionais do SIS (fonte primária desta apresentação)
+## Dados operacionais do ARARAS MT (fonte primária desta apresentação)
 
-CIEVS-MT. *SIS Integrado Clima-Saúde Mato Grosso*: base operacional `resumo_municipal_atual`, `predicao_calor_7d_municipal_v6`, `analise_clima_saude_correlacoes_v8` e séries `met_biometeo` (Open-Meteo). Extração em 27 jul. 2026. Sistema institucional de monitoramento. Não publicado como artigo científico.
+CIEVS-MT. *ARARAS MT Mato Grosso*: base operacional `resumo_municipal_atual`, `predicao_calor_7d_municipal_v6`, `analise_clima_saude_correlacoes_v8` e séries `met_biometeo` (Open-Meteo). Extração em 27 jul. 2026. Sistema institucional de monitoramento. Não publicado como artigo científico.
 
-OPEN-METEO. *Weather Forecast API*: documentação técnica. Disponível em: https://open-meteo.com/en/docs. Acesso em: 27 jul. 2026. (Fonte meteorológica de curto prazo utilizada pelo SIS.)
+OPEN-METEO. *Weather Forecast API*: documentação técnica. Disponível em: https://open-meteo.com/en/docs. Acesso em: 27 jul. 2026. (Fonte meteorológica de curto prazo utilizada pelo ARARAS MT.)
 
 ## Norma de citação
 

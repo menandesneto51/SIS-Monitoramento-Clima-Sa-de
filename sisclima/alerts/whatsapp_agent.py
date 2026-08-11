@@ -170,7 +170,7 @@ CATALOGO: dict[str, ProvedorInfo] = {
         custo='Depende da ferramenta: n8n auto-hospedado é gratuito; Make e Zapier têm plano free limitado.',
         indicado_para='Quem já tem automação montada e só quer que o VIGIA dispare o gatilho.',
         limitacoes=(
-            'O envio de fato acontece fora do SIS; o status retornado é só o do webhook.',
+            'O envio de fato acontece fora do ARARAS; o status retornado é só o do webhook.',
             'Planos gratuitos de SaaS limitam execuções por mês.',
         ),
         documentacao='https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/',
@@ -178,10 +178,10 @@ CATALOGO: dict[str, ProvedorInfo] = {
             Passo(1, 'Criar o fluxo com gatilho de webhook',
                   'No n8n/Make/Zapier, crie um fluxo que comece com um webhook POST e termine no envio do WhatsApp.'),
             Passo(2, 'Copiar a URL do webhook',
-                  'O SIS envia JSON com as chaves canal, para, mensagem e os dados do alerta.',
+                  'O ARARAS envia JSON com as chaves canal, para, mensagem e os dados do alerta.',
                   ('WHATSAPP_WEBHOOK_URL',)),
             Passo(3, 'Proteger a URL (recomendado)',
-                  'Configure um token no fluxo; o SIS o envia no cabeçalho Authorization: Bearer.',
+                  'Configure um token no fluxo; o ARARAS o envia no cabeçalho Authorization: Bearer.',
                   ('WHATSAPP_WEBHOOK_TOKEN',)),
         ),
     ),
@@ -464,7 +464,7 @@ def _parse_valores(items: list[str] | None) -> dict[str, str]:
 
 
 def verificar_ambiente() -> dict:
-    """Retrato detalhado de onde o SIS procura e o que encontra no ambiente."""
+    """Retrato detalhado de onde o ARARAS procura e o que encontra no ambiente."""
     chaves = [
         'ALERT_WHATSAPP_ENABLED',
         'WHATSAPP_PROVIDER',
@@ -500,7 +500,7 @@ def resumo_verificacao(dados: dict) -> str:
         linhas.append('Chaves WhatsApp no .env: ' + ', '.join(nomes))
     else:
         linhas.append('Chaves WhatsApp no .env: nenhuma')
-    linhas.append('Variáveis lidas pelo SIS:')
+    linhas.append('Variáveis lidas pelo ARARAS:')
     for nome, valor in dados['variaveis_lidas'].items():
         linhas.append(f'  - {nome}: {valor}')
     linhas.append(f'Provedor ativo: {dados["provedor_ativo"] or "nenhum"}')
@@ -533,7 +533,7 @@ def aplicar_na_sessao(valores: dict[str, str]) -> list[str]:
 
 def mensagem_de_teste() -> str:
     return (
-        '[SIS Clima-Saúde MT / VIGIA] Teste de configuração do canal WhatsApp. '
+        '[ARARAS MT] Teste de configuração do canal WhatsApp. '
         'Se você recebeu esta mensagem, os alertas de mudança de nível já podem ser enviados por aqui.'
     )
 
@@ -761,7 +761,7 @@ def _cmd_descobrir(args: argparse.Namespace) -> int:
 def construir_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='python -m sisclima.alerts.whatsapp_agent',
-        description='Agente de configuração do canal de WhatsApp gratuito do SIS Clima-Saúde MT.',
+        description='Agente de configuração do canal de WhatsApp gratuito do ARARAS MT.',
     )
     parser.add_argument('--json', action='store_true', help='Saída em JSON.')
     sub = parser.add_subparsers(dest='comando', required=True)
@@ -782,7 +782,7 @@ def construir_parser() -> argparse.ArgumentParser:
     p_diag.add_argument('--provedor', choices=list(CATALOGO), help='Força o provedor avaliado.')
     p_diag.set_defaults(func=_cmd_diagnostico)
 
-    p_ver = sub.add_parser('verificar', help='Mostra onde o .env é lido e o que o SIS enxerga.')
+    p_ver = sub.add_parser('verificar', help='Mostra onde o .env é lido e o que o ARARAS enxerga.')
     p_ver.set_defaults(func=_cmd_verificar)
 
     p_apl = sub.add_parser('aplicar', help='Define variáveis só nesta sessão (teste sem editar .env).')

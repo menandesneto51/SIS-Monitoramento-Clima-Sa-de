@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-SIS Integrado Clima-Saúde MT - Dashboard V9
+ARARAS MT - Dashboard V9
 
 Melhorias da V6:
 - Filtros globais por Regional de Saúde e Município.
@@ -112,6 +112,7 @@ from sisclima.ui.views_extra import (
     render_sivep,
 )
 from sisclima.alerts.change_detector import alerts_enabled
+from sisclima.branding import ARARAS_SYMBOL_PATH, SYSTEM_EXPANSION, SYSTEM_NAME, SYSTEM_TAGLINE
 
 
 DB_PATH = Path("data/output/sis_integrado.db")
@@ -119,8 +120,8 @@ DB_PATH = Path("data/output/sis_integrado.db")
 
 try:
     st.set_page_config(
-        page_title="SES-MT · CIEVS · SIS Clima-Saúde",
-        page_icon=str(Path("assets/ses-logo.jpg")) if Path("assets/ses-logo.jpg").exists() else None,
+        page_title=f"{SYSTEM_NAME} · {SYSTEM_TAGLINE}",
+        page_icon=str(ARARAS_SYMBOL_PATH) if ARARAS_SYMBOL_PATH.exists() else None,
         layout="wide",
         initial_sidebar_state="collapsed",
     )
@@ -128,8 +129,8 @@ except Exception:
     pass
 ui_theme.apply_theme()
 ui_theme.ses_masthead(
-    sistema="SIS Clima-Saúde MT",
-    subtitulo="Sala de situação clima–saúde · boletins operacionais CIEVS",
+    sistema=SYSTEM_NAME,
+    subtitulo=SYSTEM_TAGLINE,
     base=backend_name(),
 )
 
@@ -862,16 +863,16 @@ prioridade_state = state_prioridade_summary(resumo_all)
 # ---------------------------------------------------------------------
 
 ui_theme.hero(
-    "SIS Clima-Saúde MT",
-    "Sistema Integrado de Inteligência e Monitoramento dos Impactos Climáticos na Saúde · "
-    "SES-MT | Superintendência de Inteligência em Saúde | CIEVS-MT · "
+    SYSTEM_NAME,
+    f"{SYSTEM_EXPANSION} · "
+    "SES-MT | CIEVS-MT | Rede CIEVS | Vigidesastres · "
     f"base {backend_name()}",
     chips=[
         "SES-MT",
         "CIEVS-MT",
         "AdaptaSUS",
         "Sala de Situação",
-        "Alerta operacional SIS",
+        "Alerta operacional ARARAS",
         f"Envio: {'ON' if alerts_enabled() else 'OFF'}",
     ],
 )
@@ -992,7 +993,7 @@ else:
 with st.expander("Como ler este painel (comece aqui se for sua 1ª vez)", expanded=False):
     for line in HOW_TO_READ_PANEL:
         st.markdown(f"- {line}")
-    st.caption("Predição numérica do SIS ≈ 7 dias. Cenários sazonais vêm de boletins oficiais, não deste número.")
+    st.caption("Predição numérica do ARARAS ≈ 7 dias. Cenários sazonais vêm de boletins oficiais, não deste número.")
 
 metrics = state_summary_with_prediction(resumo_all, pred_v6)
 _semaforo_top = (
@@ -1148,7 +1149,7 @@ with f3:
         _niveis_opts,
         default=[],
         placeholder="Todos os níveis",
-        help="Filtra mapas/tabelas pelo nível SIS (ex.: só laranja+).",
+        help="Filtra mapas/tabelas pelo nível ARARAS (ex.: só laranja+).",
     )
 _so_prioritarios = st.checkbox(
     "Só prioritários (laranja / vermelha / roxa)",
@@ -1421,7 +1422,7 @@ elif SECTION_KEY == "Visão executiva":
     ui_theme.section_title("Visão executiva", "Mapa + priorização — sequência: situação → motivo → ação")
     ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
     ui_theme.callout(
-        "Cores no mapa = classificação operacional do SIS (não ativação formal de emergência). "
+        "Cores no mapa = classificação operacional do ARARAS (não ativação formal de emergência). "
         "O alerta integrado une clima/saúde com INMET, Cemaden, solo e hidro (TITAN).",
         "info",
     )
@@ -1452,7 +1453,7 @@ elif SECTION_KEY == "Visão executiva":
         n_int = int((pd.to_numeric(ai_f.get("score_alerta_integrado"), errors="coerce").fillna(0) >= 2).sum())
         ui_theme.insight_cards(
             [
-                ("Alerta integrado ≥ laranja", n_int, "SIS+TITAN"),
+                ("Alerta integrado ≥ laranja", n_int, "ARARAS MT"),
                 ("Solo méd.", safe_metric_value(pd.to_numeric(resumo.get("indice_saturacao_solo"), errors="coerce").mean() if "indice_saturacao_solo" in resumo.columns else None, "", 0), "0–100"),
                 ("INMET registros", len(inmet_alertas), "oficiais"),
                 ("Cemaden registros", len(cemaden_alertas_tab), "oficiais"),
@@ -1463,7 +1464,7 @@ elif SECTION_KEY == "Visão executiva":
         map_df,
         geojson_mun,
         "nivel",
-        "Nível operacional municipal (classificação SIS)",
+        "Nível operacional municipal (classificação ARARAS)",
         hover_cols=[
             "regional_saude", "score", "tmax", "utci_proxy", "risco_cumulativo_3d",
             "indice_vigilancia_integrada", "indice_saturacao_solo", "nivel_alerta_integrado",
@@ -1525,13 +1526,13 @@ elif SECTION_KEY == "El Niño / Contingência":
     )
     ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
     ui_theme.callout(
-        "Cenário sazonal e status ENSO vêm de fontes oficiais. O SIS contribui com nível municipal, "
+        "Cenário sazonal e status ENSO vêm de fontes oficiais. O ARARAS contribui com nível municipal, "
         "tendência ~7d, capacidade assistencial e prioridades de contato — não com forecast climático sazonal.",
         "info",
     )
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Nível operacional SIS", str(nivel_estado).upper())
+    c1.metric("Nível operacional ARARAS", str(nivel_estado).upper())
     c2.metric("Municípios vermelha/roxa", _n_verm_rox)
     c3.metric(
         "Tendência estadual ~7d",
@@ -1544,11 +1545,11 @@ elif SECTION_KEY == "El Niño / Contingência":
         """
 - **Fontes:** Painel El Niño INMET–INPE–ANA–Cemaden (boletim mensal) e notas técnicas conjuntas.
 - **Uso no CIEVS:** alinhar ameaças esperadas (calor, seca/estiagem, fumaça, hidrologia) às ações do plano estadual.
-- **No SIS:** cruzar com Prioridades de hoje e abas Clima / Qualidade do ar / Cemaden–ANA / Assistência.
+- **No ARARAS:** cruzar com Prioridades de hoje e abas Clima / Qualidade do ar / Cemaden–ANA / Assistência.
         """
     )
 
-    st.markdown("#### Municípios prioritários (sinal SIS desta rodada)")
+    st.markdown("#### Municípios prioritários (sinal ARARAS desta rodada)")
     st.caption(
         "Inclui ocupação, capacidade CNES, resiliência e lacunas de dado — "
         "para cruzar ameaça climática com capacidade assistencial."
@@ -1558,7 +1559,7 @@ elif SECTION_KEY == "El Niño / Contingência":
     st.markdown("#### Matriz operacional (esqueleto do plano)")
     st.caption(
         "Preencha Status/Responsável/Prazo com a planilha institucional do plano. "
-        "O SIS marca a coluna ‘Gatilho SIS’ conforme o nível atual — isso **não** executa a ação automaticamente."
+        "O ARARAS marca a coluna ‘Gatilho ARARAS’ conforme o nível atual — isso **não** executa a ação automaticamente."
     )
     _matriz = pd.DataFrame(
         [
@@ -1569,8 +1570,8 @@ elif SECTION_KEY == "El Niño / Contingência":
                 "Prazo": "≤2h após sinal laranja+",
                 "Prioridade": "Alta",
                 "Status": "A validar",
-                "Indicador": "Nível SIS + tendência 7d",
-                "Gatilho SIS": "laranja+" if STAGE_ORDER.get(nivel_estado, -1) >= STAGE_ORDER.get("laranja", 2) else "abaixo",
+                "Indicador": "Nível ARARAS + tendência 7d",
+                "Gatilho ARARAS": "laranja+" if STAGE_ORDER.get(nivel_estado, -1) >= STAGE_ORDER.get("laranja", 2) else "abaixo",
             },
             {
                 "Meta": "Assistência e regulação",
@@ -1580,7 +1581,7 @@ elif SECTION_KEY == "El Niño / Contingência":
                 "Prioridade": "Alta",
                 "Status": "A validar",
                 "Indicador": "Ocupação / pressão saúde",
-                "Gatilho SIS": "pressão alta ou ocupação ≥75%",
+                "Gatilho ARARAS": "pressão alta ou ocupação ≥75%",
             },
             {
                 "Meta": "Grupos vulneráveis",
@@ -1590,7 +1591,7 @@ elif SECTION_KEY == "El Niño / Contingência":
                 "Prioridade": "Alta",
                 "Status": "A validar",
                 "Indicador": "Nível + vulnerabilidade",
-                "Gatilho SIS": "amarela+",
+                "Gatilho ARARAS": "amarela+",
             },
             {
                 "Meta": "Fumaça / ar",
@@ -1600,7 +1601,7 @@ elif SECTION_KEY == "El Niño / Contingência":
                 "Prioridade": "Média",
                 "Status": "A validar",
                 "Indicador": "PM2,5 / IQA",
-                "Gatilho SIS": "PM2,5 elevado",
+                "Gatilho ARARAS": "PM2,5 elevado",
             },
             {
                 "Meta": "Hidrologia / seca",
@@ -1610,7 +1611,7 @@ elif SECTION_KEY == "El Niño / Contingência":
                 "Prioridade": "Média",
                 "Status": "A validar",
                 "Indicador": "Alertas oficiais + solo",
-                "Gatilho SIS": "alerta oficial ou solo extremo",
+                "Gatilho ARARAS": "alerta oficial ou solo extremo",
             },
             {
                 "Meta": "Avaliação de ativação",
@@ -1620,7 +1621,7 @@ elif SECTION_KEY == "El Niño / Contingência":
                 "Prioridade": "Crítica",
                 "Status": "Humana",
                 "Indicador": "Critérios técnicos identificados (não ‘COE ativado’)",
-                "Gatilho SIS": "sinal analítico / alerta operacional",
+                "Gatilho ARARAS": "sinal analítico / alerta operacional",
             },
         ]
     )
@@ -1726,8 +1727,8 @@ elif SECTION_KEY == "Mapas":
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "Clima / TITAN":
     ui_theme.section_title(
-        "Clima / TITAN (incorporado ao SIS)",
-        "Calor, saturação do solo e alertas oficiais — o SIS incorpora a camada TITAN",
+        "Clima / TITAN (incorporado ao ARARAS)",
+        "Calor, saturação do solo e alertas oficiais — o ARARAS incorpora a camada TITAN",
     )
     ui_theme.callout(
         "Fontes oficiais e código legível (sem scrapers ofuscados). Solo via Open-Meteo; alertas via INMET/Cemaden/ANA.",
@@ -3443,7 +3444,7 @@ elif SECTION_KEY == "Alertas":
     except Exception as exc:
         st.error(f"Falha ao montar alertas multinível: {exc}")
 
-    st.markdown("### Alerta integrado municipal (SIS + TITAN) — apoio à leitura")
+    st.markdown("### Alerta integrado municipal ARARAS MT — apoio à leitura")
     ai = alerta_integrado.copy() if isinstance(alerta_integrado, pd.DataFrame) else pd.DataFrame()
     if not ai.empty and "cod_ibge" in ai.columns and "cod_ibge" in resumo.columns:
         ai = ai[ai["cod_ibge"].astype(str).isin(resumo["cod_ibge"].dropna().astype(str))]
@@ -3472,7 +3473,7 @@ elif SECTION_KEY == "Alertas":
                 map_plot,
                 geojson_mun,
                 "nivel",
-                "Alerta integrado SIS+TITAN",
+                "Alerta integrado ARARAS",
                 hover_cols=[
                     c
                     for c in [

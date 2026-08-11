@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Alerta integrado SIS + TITAN (clima + INMET + Cemaden + solo + ANA)."""
+"""Alerta integrado ARARAS MT (clima, saúde, INMET, Cemaden, solo e ANA)."""
 from __future__ import annotations
 
 import unicodedata
@@ -18,7 +18,7 @@ def _mun_key(value: Any) -> str:
 LEVEL_ORDER = ["cinza", "verde", "amarela", "laranja", "vermelha", "roxa"]
 
 ACAO = {
-    "verde": "Monitoramento de rotina SIS+TITAN.",
+    "verde": "Monitoramento de rotina ARARAS MT.",
     "amarela": "Atenção — reforçar vigilância climática e checar alertas oficiais.",
     "laranja": "Alerta — articular regional, assistência e acompanhar INMET/Cemaden.",
     "vermelha": "Resposta intensificada — sala de situação e comunicação à população.",
@@ -93,7 +93,7 @@ def build_alerta_integrado_municipal(
     hidro_risco: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """
-    Une estágio SIS (clima/saúde) com camadas TITAN oficiais:
+    Une estágio ARARAS (clima/saúde) com camadas TITAN oficiais:
     INMET + Cemaden + saturação do solo + risco hidro ANA.
     nivel_alerta_integrado = max(componentes).
     """
@@ -163,7 +163,7 @@ def build_alerta_integrado_municipal(
         niv_sis = str(row.get("nivel") or "cinza").lower()
         componentes["sis_estagio"] = niv_sis
         if niv_sis not in ("verde", "cinza"):
-            motivos.append(f"SIS estágio {niv_sis}")
+            motivos.append(f"Estágio ARARAS {niv_sis}")
 
         # INMET
         niv_in = None
@@ -281,7 +281,7 @@ def build_alerta_integrado_municipal(
                 "componentes_json": str(componentes),
                 "motivo_integrado": "; ".join(motivos[:8]) if motivos else "sem gatilho integrado",
                 "acao_recomendada": ACAO.get(nivel, ACAO["cinza"]),
-                "fonte": "SIS+TITAN",
+                "fonte": "ARARAS MT",
                 "indice_saturacao_solo": row.get("indice_saturacao_solo"),
                 "utci_proxy": row.get("utci_proxy"),
                 "risco_cumulativo_3d": row.get("risco_cumulativo_3d"),
@@ -294,7 +294,7 @@ def build_alerta_integrado_municipal(
     out = pd.DataFrame(rows)
     out["data_processamento"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
     out["nota_tecnica"] = (
-        "Alerta integrado SIS+TITAN: max(estágio SIS, INMET, Cemaden, solo, hidro, calor). "
+        "Alerta integrado ARARAS: máximo entre classificação operacional, INMET, Cemaden, solo, hidro e calor. "
         "Ecológico/operacional — validar com CIEVS antes de comunicação oficial."
     )
     return out.sort_values(["score_alerta_integrado", "municipio"], ascending=[False, True])

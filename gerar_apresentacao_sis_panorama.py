@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Apresentação panorâmica SIS Clima-Saúde MT
+Apresentação panorâmica ARARAS MT
 - Alinhada ao Plano de Contingência (DOC-20260611-WA0013)
 - Dados reais do Postgres + prints do painel
 - Prévia do alerta Telegram/e-mail (envio OFF)
@@ -108,7 +108,7 @@ def _header(slide, title, subtitle=""):
 
 
 def _footer(slide, n, total):
-    _txt(slide, 0.45, 7.15, 10, 0.25, "SIS Clima-Saúde MT · CIEVS/SES-MT · dados reais Postgres", size=9, color=MUTED)
+    _txt(slide, 0.45, 7.15, 10, 0.25, "ARARAS MT · CIEVS/SES-MT · dados reais Postgres", size=9, color=MUTED)
     _txt(slide, 11.2, 7.15, 1.7, 0.25, f"{n}/{total}", size=9, color=MUTED, align=PP_ALIGN.RIGHT)
 
 
@@ -224,7 +224,7 @@ def load_bundle() -> dict:
         "md_est": md_est,
         "md_cui": md_cui,
         "tg_body": tg_body,
-        "email_subject": f"[SIS Clima-Saúde / CIEVS] {est.get('titulo')}",
+        "email_subject": f"[ARARAS MT / CIEVS] {est.get('titulo')}",
         "email_body": md_est,
         "legacy_subject": subj_legacy,
         "legacy_body": msg_legacy,
@@ -263,7 +263,7 @@ def build(out: Path) -> tuple[Path, dict]:
     accent.fill.fore_color.rgb = PURPLE
     accent.line.fill.background()
     _txt(s, 0.6, 1.4, 12, 0.35, "CIEVS-MT · SES-MT · Plano de Contingência seca/estiagem 2026-2027", size=13, color=GREEN_SOFT)
-    _txt(s, 0.6, 1.9, 12, 0.9, "SIS Clima-Saúde MT", size=40, bold=True, color=WHITE)
+    _txt(s, 0.6, 1.9, 12, 0.9, "ARARAS MT", size=40, bold=True, color=WHITE)
     _txt(
         s, 0.6, 3.0, 12, 1.2,
         "Panorama do projeto · Indicadores · Abas do painel · Alertas reais\n"
@@ -281,7 +281,7 @@ def build(out: Path) -> tuple[Path, dict]:
     # 2 Panorama
     s = new()
     _bg(s, CREAM)
-    _header(s, "Panorama do projeto", "O que é o SIS e para que serve na decisão")
+    _header(s, "Panorama do projeto", "O que é o ARARAS e para que serve na decisão")
     _bullets(
         s, 0.5, 1.25, 12.3, 5.5,
         [
@@ -289,7 +289,7 @@ def build(out: Path) -> tuple[Path, dict]:
             "Une fontes oficiais: Open-Meteo/TITAN, INMET, Cemaden, ANA, SINAN, SIVEP, SIM, IndicaSUS, SISREG.",
             "Produz níveis operacionais (Verde→Roxa), índice de pressão G/A/V e predição ~7 dias.",
             "Gera alertas em 4 níveis: estadual (SES), regional, municipal e Vigidesastre Cuiabá.",
-            "Apoia o Plano de Contingência seca/estiagem — o SIS informa e prioriza; a gestão decide COE/portarias.",
+            "Apoia o Plano de Contingência seca/estiagem — o ARARAS informa e prioriza; a gestão decide COE/portarias.",
             "Código legível (sem ofuscação); painel em http://localhost:8501 (Docker Postgres).",
             f"Nesta rodada: Roxa {dist.get('roxa',0)} · Vermelha {dist.get('vermelha',0)} · "
             f"Laranja {dist.get('laranja',0)} · Amarela {dist.get('amarela',0)} · Verde {dist.get('verde',0)}.",
@@ -298,10 +298,10 @@ def build(out: Path) -> tuple[Path, dict]:
     )
     _footer(s, n, total)
 
-    # 3 Plano × SIS
+    # 3 Plano × ARARAS
     s = new()
     _bg(s, CREAM)
-    _header(s, "Tabela Plano × SIS (template DOC-20260611-WA0013)", "Níveis Zero→IV ↔ Verde→Roxa")
+    _header(s, "Tabela Plano × ARARAS (template DOC-20260611-WA0013)", "Níveis Zero→IV ↔ Verde→Roxa")
     _card(s, 0.4, 1.2, 12.5, 5.5, "Ponte operacional",
           "Zero — Normalidade  ↔  Verde / Amarela baixa  → rotina\n"
           "I — Mobilização  ↔  Amarela / Laranja  → boletim e articulação regional\n"
@@ -344,7 +344,7 @@ def build(out: Path) -> tuple[Path, dict]:
     # 5 Indicadores criados
     s = new()
     _bg(s, CREAM)
-    _header(s, "Indicadores já criados no SIS", "Catálogo operacional do painel")
+    _header(s, "Indicadores já criados no ARARAS", "Catálogo operacional do painel")
     _bullets(
         s, 0.5, 1.25, 12.3, 5.5,
         [
@@ -355,7 +355,7 @@ def build(out: Path) -> tuple[Path, dict]:
             "Epidemiologia: arboviroses 7d/incidência/z-score; SRAG/SIVEP; óbitos SIM calor/cardiorrespiratório.",
             "Compostos: índice_tensao_climatica, indice_carga_saude, indice_vigilancia_integrada, AdaptaSUS.",
             "Estatística: correlação clima–saúde, Odds Ratio, sazonalidade, lags; predição ~7d municipal/regional.",
-            "Alertas: nível SIS, alerta integrado SIS+TITAN, alertas multinível (4 escopos).",
+            "Alertas: nível ARARAS, alerta integrado ARARAS e alertas multinível (4 escopos).",
         ],
         size=14,
     )

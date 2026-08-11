@@ -111,8 +111,10 @@ def build_level_change_message(
     new: str,
     motivos: list[str],
 ) -> tuple[str, str]:
-    subject = f"[SIS Clima-Saúde] Mudança de nível: {old or 'sem registro'} -> {new}"
+    subject = f"[ARARAS MT] Mudança de nível: {old or 'sem registro'} -> {new}"
     message = (
+        "ARARAS MT — Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde\n"
+        "Clima, ambiente e saúde em uma só visão.\n\n"
         f"Data de referência: {data_referencia}\n"
         f"Nível anterior: {old or 'sem registro'}\n"
         f"Novo nível: {new}\n\nMotivos principais:\n- "

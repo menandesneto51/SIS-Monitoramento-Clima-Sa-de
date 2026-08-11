@@ -1,4 +1,4 @@
-# SIS-MT Clima-Saúde — Implementação real para Mato Grosso
+# ARARAS MT — Implementação real para Mato Grosso
 
 Esta versão foi reorganizada para produção real. O ciclo principal não depende de dados simulados. Os dados de exemplo ficam restritos ao script `criar_dados_exemplo.py` e servem apenas para validação local.
 

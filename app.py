@@ -7,7 +7,7 @@ from sisclima.core.db import read_table
 from sisclima.engines.geospatial import make_choropleth_or_points, prepare_map_dataframe
 from sisclima.pipeline import run_pipeline
 
-st.set_page_config(page_title='SIS Integrado Clima-Saúde MT', page_icon='🌡️', layout='wide')
+st.set_page_config(page_title='ARARAS MT', page_icon='🌡️', layout='wide')
 
 STAGE_COLORS = {'verde':'#2E7D32','amarela':'#F9A825','laranja':'#EF6C00','vermelha':'#C62828','roxa':'#6A1B9A'}
 
@@ -22,7 +22,8 @@ def load(name):
 def metric_card(label, value, delta=None):
     st.metric(label, value if value is not None else '—', delta=delta)
 
-st.title('🌡️ SIS Integrado Clima-Saúde MT')
+st.title('ARARAS MT')
+st.caption('Clima, ambiente e saúde em uma só visão.')
 st.caption('Monitoramento municipalizado: TITAN + SENTINELA + AESOP + SIVEP + LACEN + IndicaSUS + Copernicus/CAMS + INMET + Vigidesastres')
 
 with st.sidebar:

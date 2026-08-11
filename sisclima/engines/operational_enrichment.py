@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Enriquecimento operacional do SIS Clima-Saúde MT.
+Enriquecimento operacional do ARARAS MT.
 
 Completa o resumo municipal e tabelas de inteligência quando fontes
 assistenciais (IndicaSUS) ou scripts V6–V8 estão ausentes:
@@ -1095,7 +1095,7 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001
         log.warning("Indicadores de frio não mesclados: %s", exc)
 
-    # Alerta integrado SIS + TITAN antes do alerta inteligente (para compor extras)
+    # Alerta integrado ARARAS + TITAN antes do alerta inteligente (para compor extras)
     inmet_tab = read_table("inmet_alertas")
     cemaden_tab = read_table("cemaden_alertas")
     alerta_int = build_alerta_integrado_municipal(resumo, inmet_tab, cemaden_tab, hidro)

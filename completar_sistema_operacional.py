@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Completa o SIS para operação: pressão proxy, correlações, predição 7d,
+Completa o ARARAS para operação: pressão proxy, correlações, predição 7d,
 alerta inteligente e gaps de SIVEP/arboviroses/ar/ANA no resumo.
 
 Uso:

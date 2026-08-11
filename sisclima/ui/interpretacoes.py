@@ -31,7 +31,7 @@ def _fecho(txt: str) -> str:
     return (
         txt
         + "\n\n> Texto de apoio à vigilância. **Validar com a equipe CIEVS** antes de comunicação oficial. "
-        "Associação/correlação ≠ causalidade. TITAN = camada climática/alertas oficiais incorporada ao SIS. "
+        "Associação/correlação ≠ causalidade. TITAN = camada climática/alertas oficiais incorporada ao ARARAS. "
         "Padrão de leitura alinhado ao painel de Meningites (guia + achados + o que não concluir)."
     )
 
@@ -46,7 +46,7 @@ GUIDE_EXECUTIVO = guide_card(
     [
         "<b>Nível operacional</b>: semáforo estadual (Verde→Roxa) pelo município mais crítico.",
         "<b>Prioridade global</b>: nota 0–100 que soma vigilância + pressão saúde + AdaptaSUS + fragilidade + alerta.",
-        "<b>Alerta integrado SIS+TITAN</b>: une estágio SIS com INMET, Cemaden, solo e hidro.",
+        "<b>Alerta integrado ARARAS</b>: une a classificação operacional com INMET, Cemaden, solo e hidro.",
         "<b>Não é boletim oficial</b>: use como priorização de plantão e valide no território.",
     ],
 )
@@ -57,14 +57,14 @@ GUIDE_CLIMA_TITAN = guide_card(
         "<b>Calor</b>: Tmax, UTCI proxy e risco cumulativo 3 dias — calor que ‘acumula’.",
         "<b>Solo</b>: índice 0–100 de saturação (Open-Meteo). Alta/crítica ≠ saturação de leitos.",
         "<b>Alertas oficiais</b>: INMET + Cemaden + ANA — APIs públicas, sem scrapers ofuscados.",
-        "<b>Integração</b>: o SIS incorpora o TITAN; o nível integrado aparece também na aba Alertas.",
+        "<b>Integração</b>: o ARARAS incorpora o TITAN; o nível integrado aparece também na aba Alertas.",
     ],
 )
 
 GUIDE_ALERTAS = guide_card(
     "Como ler Alertas integrados",
     [
-        "<b>Alerta integrado</b>: max(SIS, INMET, Cemaden, solo, hidro, calor TITAN).",
+        "<b>Alerta integrado</b>: max(ARARAS, INMET, Cemaden, solo, hidro, calor TITAN).",
         "<b>Componente dominante</b>: qual camada puxou o nível (ex.: titan_inmet, sis_estagio).",
         "<b>SOP</b>: envio externo fica desligado por padrão até validar a prévia.",
         "<b>Fila municipal</b>: priorize laranja+ e municípios com vários componentes ativos.",
@@ -226,7 +226,7 @@ def narrativa_executivo(resumo: pd.DataFrame, alerta_int: pd.DataFrame | None = 
     achados = [
         f"- Municípios no recorte: **{_fmt(n, 0)}**.",
         f"- Laranja ou mais (score≥2): **{_fmt(crit, 0)}**.",
-        f"- Distribuição de nível SIS: {', '.join(f'{k}={v}' for k, v in list(niveis.items())[:6]) or '—'}.",
+        f"- Distribuição de nível ARARAS: {', '.join(f'{k}={v}' for k, v in list(niveis.items())[:6]) or '—'}.",
     ]
     if "indice_prioridade_global" in resumo.columns:
         p = pd.to_numeric(resumo["indice_prioridade_global"], errors="coerce")
@@ -250,7 +250,7 @@ def narrativa_executivo(resumo: pd.DataFrame, alerta_int: pd.DataFrame | None = 
     if alerta_int is not None and not alerta_int.empty and "nivel_alerta_integrado" in alerta_int.columns:
         ai = alerta_int["nivel_alerta_integrado"].value_counts().to_dict()
         top = alerta_int.sort_values("score_alerta_integrado", ascending=False).head(3)
-        achados.append(f"- Alerta integrado SIS+TITAN: {', '.join(f'{k}={v}' for k, v in ai.items())}.")
+        achados.append(f"- Alerta integrado ARARAS: {', '.join(f'{k}={v}' for k, v in ai.items())}.")
         if not top.empty:
             nomes = ", ".join(f"{r.get('municipio')} ({r.get('nivel_alerta_integrado')})" for _, r in top.iterrows())
             achados.append(f"- Prioridade imediata (alerta): {nomes}.")
@@ -277,7 +277,7 @@ def narrativa_executivo(resumo: pd.DataFrame, alerta_int: pd.DataFrame | None = 
 def narrativa_clima_titan(resumo: pd.DataFrame, solo: pd.DataFrame | None = None) -> str:
     olhar = [
         "- Priorize UTCI, risco cumulativo 3d e saturação do solo juntos — um isolado engana.",
-        "- Alertas INMET/Cemaden/ANA são oficiais; o SIS só os incorpora.",
+        "- Alertas INMET/Cemaden/ANA são oficiais; o ARARAS só os incorpora.",
     ]
     lines = []
     if resumo is not None and not resumo.empty:
@@ -350,7 +350,7 @@ def narrativa_alertas(alerta_int: pd.DataFrame, resumo: pd.DataFrame | None = No
     ]
     prox = ["- Revisar SOP e checklist da aba Alertas para os 5 primeiros da fila."]
     txt = (
-        "**Justificativa (Alertas SIS+TITAN)**\n\n"
+        "**Justificativa (Alertas ARARAS)**\n\n"
         + _bloco("O que olhar", olhar)
         + _bloco("Achados desta rodada", lines)
         + _bloco("O que não concluir", nao)

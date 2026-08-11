@@ -1,6 +1,13 @@
-# SIS-MT Clima-Saúde — Sistema Integrado Real para Mato Grosso
+# ARARAS MT
 
-Sistema Python/Streamlit para monitoramento em tempo real de risco climático-sanitário no Estado de Mato Grosso, consolidando componentes usados nos projetos TITAN, SENTINELA, AESOP, SIVEP/SRAG, LACEN/GAL, SINAN, SIM, CNES/IndicaSUS e Vigidesastres.
+![ARARAS MT](assets/branding/araras-mt-logo-horizontal.png)
+
+**Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde.**
+**Clima, ambiente e saúde em uma só visão.**
+
+Plataforma Python/Streamlit de apoio à gestão em Mato Grosso. Integra indicadores de clima, ambiente, agravos, assistência e capacidade de resposta, consolidando componentes usados nos projetos TITAN, SENTINELA, AESOP, SIVEP/SRAG, LACEN/GAL, SINAN, SIM, CNES/IndicaSUS e Vigidesastres.
+
+> O ARARAS MT apoia a análise e a priorização. Não substitui sistemas oficiais, protocolos, validação técnica nem decisão da autoridade sanitária.
 
 ## O que esta versão faz
 

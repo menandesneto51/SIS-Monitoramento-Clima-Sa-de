@@ -12,6 +12,8 @@ import os
 import runpy
 import streamlit as st
 
+from sisclima.branding import ARARAS_SYMBOL_PATH
+
 ROOT = Path(__file__).resolve().parent
 
 # Carrega .env local sem sobrescrever DATABASE_URL já definida (Docker/Compose).
@@ -39,10 +41,10 @@ _seed = ROOT / "data" / "cloud" / "sis_cloud_seed.db"
 if not os.getenv("DATABASE_URL") and _seed.exists() and _seed.stat().st_size > 0:
     os.environ["DATABASE_URL"] = f"sqlite:///{_seed.as_posix()}"
 
-_logo = ROOT / "assets" / "ses-logo.jpg"
+_logo = ARARAS_SYMBOL_PATH
 try:
     st.set_page_config(
-        page_title="SES-MT · CIEVS · SIS Clima-Saúde",
+        page_title="ARARAS MT · Clima, ambiente e saúde em uma só visão",
         page_icon=str(_logo) if _logo.exists() else None,
         layout="wide",
         initial_sidebar_state="collapsed",
@@ -57,7 +59,7 @@ try:
             runpy.run_path(app, run_name="__main__")
             break
     else:
-        st.error("app_v9.py não encontrado. O painel SES-MT usa exclusivamente app_v9.py.")
+        st.error("app_v9.py não encontrado. O painel ARARAS MT usa exclusivamente app_v9.py.")
 except ImportError as exc:
     # Streamlit Cloud reda a mensagem original; ecoamos nome do módulo sem secrets.
     missing = getattr(exc, "name", None) or "desconhecido"

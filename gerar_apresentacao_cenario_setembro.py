@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Gera apresentação CIEVS — cenário operacional setembro/2026 a partir do SIS.
+Gera apresentação CIEVS — cenário operacional setembro/2026 a partir do ARARAS.
 
 Limite técnico explícito: predição numérica ~7 dias ≠ forecast climático mensal.
 O cenário de setembro é leitura sazonal/prospectiva apoiada nos indicadores atuais.
@@ -83,7 +83,7 @@ def _lvl_counts(series: pd.Series) -> pd.Series:
 
 
 def load_metrics() -> dict:
-    """Extrai métricas reais do Postgres SIS para a apresentação."""
+    """Extrai métricas reais do Postgres ARARAS para a apresentação."""
     resumo = read_table("resumo_municipal_atual")
     pred = read_table("predicao_calor_7d_municipal_v6")
     corr = read_table("analise_clima_saude_correlacoes_v8")
@@ -189,7 +189,7 @@ def make_charts(m: dict) -> dict[str, Path]:
         vals = [int(niveis.get(x.lower(), 0)) for x in labels]
         colors = [LEVEL_COLORS.get(lb.lower(), "#334155") for lb in labels]
         ax.bar(labels, vals, color=colors)
-        ax.set_title("SIS — municípios por nível operacional")
+        ax.set_title("ARARAS — municípios por nível operacional")
         ax.set_ylabel("Municípios")
         for i, v in enumerate(vals):
             ax.text(i, v + 0.5, str(v), ha="center", va="bottom", fontsize=9)
@@ -205,7 +205,7 @@ def make_charts(m: dict) -> dict[str, Path]:
         fig, ax = plt.subplots(figsize=(8.5, 5))
         ax.barh(plot["municipio"].astype(str), _safe_numeric(plot["score"]).fillna(0), color="#0b3d34")
         ax.set_xlabel("Score operacional")
-        ax.set_title("SIS — ranking municípios críticos (score)")
+        ax.set_title("ARARAS — ranking municípios críticos (score)")
         fig.tight_layout()
         p = ASSETS / "ranking_score.png"
         fig.savefig(p, dpi=160)
@@ -219,7 +219,7 @@ def make_charts(m: dict) -> dict[str, Path]:
         vals = [int(pred_dist.get(x.lower(), 0)) for x in labels]
         colors = [LEVEL_COLORS.get(lb.lower(), "#334155") for lb in labels]
         ax.bar(labels, vals, color=colors)
-        ax.set_title("SIS — predição operacional ~7 dias (não sazonal)")
+        ax.set_title("ARARAS — predição operacional ~7 dias (não sazonal)")
         ax.set_ylabel("Municípios")
         fig.tight_layout()
         p = ASSETS / "predicao_7d_dist.png"
@@ -235,7 +235,7 @@ def make_charts(m: dict) -> dict[str, Path]:
         fig, ax = plt.subplots(figsize=(9, 4.8))
         ax.barh(plot["par"], plot["abs_rho"], color="#0f6e56")
         ax.set_xlabel("|ρ| Spearman (exploratório)")
-        ax.set_title("SIS — correlação clima–saúde (não causal)")
+        ax.set_title("ARARAS — correlação clima–saúde (não causal)")
         fig.tight_layout()
         p = ASSETS / "correlacoes_top.png"
         fig.savefig(p, dpi=160)
@@ -248,7 +248,7 @@ def make_charts(m: dict) -> dict[str, Path]:
         fig, ax = plt.subplots(figsize=(8.5, 4.6))
         ax.barh(plot["municipio"].astype(str), _safe_numeric(plot["casos_srag"]).fillna(0), color="#9f1239")
         ax.set_xlabel("Casos SRAG")
-        ax.set_title("SIS — municípios com mais casos SRAG")
+        ax.set_title("ARARAS — municípios com mais casos SRAG")
         fig.tight_layout()
         p = ASSETS / "srag_top.png"
         fig.savefig(p, dpi=160)
@@ -352,7 +352,7 @@ def build_presentation(template: Path, out_path: Path) -> Path:
     # --- 1 Capa ---
     add_title_slide(
         prs,
-        "SIS Clima-Saúde MT",
+        "ARARAS MT",
         "Cenário operacional setembro 2026\n"
         "CIEVS-MT · Vigilância integrada clima–saúde\n"
         f"Extração {ACCESS.strftime('%d/%m/%Y')} · {mun_n} municípios",
@@ -363,22 +363,22 @@ def build_presentation(template: Path, out_path: Path) -> Path:
         prs,
         "Objetivo e disclaimer metodológico",
         [
-            "Objetivo: apresentar o cenário operacional prospectivo para set/2026 com o que o SIS já produz.",
-            "DISCLAIMER: a predição numérica do SIS cobre cerca de 7 dias — não é forecast climático mensal. "
+            "Objetivo: apresentar o cenário operacional prospectivo para set/2026 com o que o ARARAS já produz.",
+            "DISCLAIMER: a predição numérica do ARARAS cobre cerca de 7 dias — não é forecast climático mensal. "
             + CITE["sis"]
             + " "
             + CITE["om"],
-            "O ‘cenário de setembro’ = (1) achados atuais do SIS + (2) riscos sazonais típicos de setembro no MT "
+            "O ‘cenário de setembro’ = (1) achados atuais do ARARAS + (2) riscos sazonais típicos de setembro no MT "
             "+ (3) o que o painel passará a vigiar no mês.",
             "Associações clima–saúde são ecológicas/exploratórias — não causalidade individual. " + CITE["sis"],
             "Roteiro de fala: ‘7 dias = número do sistema; setembro = leitura sazonal operacional’.",
         ],
     )
 
-    # --- 3 O que o SIS integra ---
+    # --- 3 O que o ARARAS integra ---
     add_two_content_slide(
         prs,
-        "O que o SIS integra",
+        "O que o ARARAS integra",
         [
             "Clima/biometeo (Open-Meteo): Tmax, umidade, UTCI, risco cumulativo, onda de calor P95.",
             "Saúde: SIVEP/SRAG, arboviroses, Sentinela SG, GeoCalor.",
@@ -403,7 +403,7 @@ def build_presentation(template: Path, out_path: Path) -> Path:
     # --- 4 Situação atual ---
     add_two_content_slide(
         prs,
-        "Situação atual do Estado (baseline SIS)",
+        "Situação atual do Estado (baseline ARARAS)",
         [
             f"Municípios monitorados: {mun_n}.",
             f"Distribuição por nível: {nivel_txt}. " + CITE["sis"],
@@ -432,7 +432,7 @@ def build_presentation(template: Path, out_path: Path) -> Path:
     top_lines.append("Mapa detalhado: painel Situação / Mapas (shapefile municipal).")
     add_two_content_slide(
         prs,
-        "Municípios mais críticos (ranking SIS)",
+        "Municípios mais críticos (ranking ARARAS)",
         top_lines,
         right_image=charts.get("ranking"),
     )
@@ -448,12 +448,12 @@ def build_presentation(template: Path, out_path: Path) -> Path:
             + CITE["painel"]
             + " "
             + CITE["inpe_not"],
-            "Indicadores atuais do SIS já apontam pressão térmica e SRAG concentrada em polos urbanos. "
+            "Indicadores atuais do ARARAS já apontam pressão térmica e SRAG concentrada em polos urbanos. "
             + CITE["sis"],
             "Queimadas × internações respiratórias: leitura de preparação estadual, não previsão de casos. "
             + CITE["sesmt"],
             "Arboviroses: calor e irregularidade hídrica favoráveis ao vetor — monitorar via painel, sem extrapolar epidemia só do clima.",
-            "O SIS não ‘prevê setembro’: ele organiza vigilância contínua para o mês.",
+            "O ARARAS não ‘prevê setembro’: ele organiza vigilância contínua para o mês.",
         ],
         font_pt=14,
     )
@@ -548,7 +548,7 @@ def build_presentation(template: Path, out_path: Path) -> Path:
             f"IndicaSUS / ocupação de leitos: {cov.get('ocupacao_leitos_pct', 0)}/{mun_n} nesta rodada "
             "(indisponível sem credenciais válidas) — painel usa proxy clima+saúde com ressalva.",
             f"Qualidade do ar: cobertura parcial ({cov.get('pm25_ugm3', 0)} mun.) — não generalizar ao estado todo.",
-            "Não há modelo climático mensal (ECMWF/seasonal) no SIS — fora de escopo desta entrega.",
+            "Não há modelo climático mensal (ECMWF/seasonal) no ARARAS — fora de escopo desta entrega.",
             "Próximos passos: validar IndicaSUS; manter pipeline diário; regenerar slides após atualizar o banco.",
             "Comando: python gerar_apresentacao_cenario_setembro.py",
             "Referências oficiais (El Niño/JAS): docs/apresentacoes/REFERENCIAS_ABNT_6023.md",
@@ -560,7 +560,7 @@ def build_presentation(template: Path, out_path: Path) -> Path:
     add_title_slide(
         prs,
         "Obrigado",
-        "CIEVS-MT · SIS Integrado Clima-Saúde\n"
+        "CIEVS-MT · ARARAS MT\n"
         "Cenário operacional setembro 2026\n"
         "Painel Streamlit · predicao 7d ≠ forecast mensal\n"
         f"Extração {ACCESS.strftime('%d/%m/%Y')}",
@@ -571,7 +571,7 @@ def build_presentation(template: Path, out_path: Path) -> Path:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Gera PPTX cenário setembro a partir do SIS")
+    parser = argparse.ArgumentParser(description="Gera PPTX cenário setembro a partir do ARARAS")
     parser.add_argument("--template", default=None, help="Caminho do Slide Padrão.pptx")
     parser.add_argument("--out", default=str(DEFAULT_OUT), help="Arquivo PPTX de saída")
     args = parser.parse_args()

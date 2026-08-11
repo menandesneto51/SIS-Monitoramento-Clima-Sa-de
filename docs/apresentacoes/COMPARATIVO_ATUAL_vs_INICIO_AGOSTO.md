@@ -1,8 +1,8 @@
 # Comparativo real — cenário atual × início de agosto/2026
 
-**Extração:** 27 jul. 2026  
-**Backend SIS:** PostgreSQL  
-**Fonte meteorológica de curto prazo:** Open-Meteo via tabela `met_biometeo` (CIEVS-MT, 2026; OPEN-METEO, 2026)  
+**Extração:** 27 jul. 2026
+**Backend ARARAS:** PostgreSQL
+**Fonte meteorológica de curto prazo:** Open-Meteo via tabela `met_biometeo` (CIEVS-MT, 2026; OPEN-METEO, 2026)
 **Último pipeline:** 27 jul. 2026, 08:41:22 — status `success` — mensagem “Nível roxa”
 
 ---
@@ -19,7 +19,7 @@
 | UTCI proxy | 32,46 | 32,89 | +0,43 | 31,19 |
 | Risco cumulativo 3d | 5,70 | 10,13 | **+4,44** | 8,30 |
 
-**Extremos em 01/08/2026 (Open-Meteo/SIS):**
+**Extremos em 01/08/2026 (Open-Meteo/ARARAS):**
 
 | Indicador | Mín. | Máx. | P90 |
 |---|---:|---:|---:|
@@ -34,13 +34,13 @@
 
 ### Leitura operacional (sem extrapolação indevida)
 
-- Do dia **27/07** para **01/08**, o SIS indica **ligeiro aumento de Tmax** e **queda relevante de umidade** (~11 p.p.), com **chuva quase nula** — quadro de **estiagem relativa** no curto prazo.
+- Do dia **27/07** para **01/08**, o ARARAS MT indica **ligeiro aumento de Tmax** e **queda relevante de umidade** (~11 p.p.), com **chuva quase nula** — quadro de **estiagem relativa** no curto prazo.
 - O **risco cumulativo 3d médio sobe** (~5,7 → ~10,1), coerente com persistência de calor.
 - Em **02/08** a série sugere **alguma recuperação de umidade** e chuva média ~1,6 mm (ainda localizada; máx. municipal 15,6 mm) — horizonte curto, sujeito a atualização do Open-Meteo.
 
 ---
 
-## 2. Situação operacional do SIS (resumo municipal atual)
+## 2. Situação operacional do ARARAS MT (resumo municipal atual)
 
 | Item | Valor real |
 |---|---|
@@ -56,19 +56,19 @@
 
 **Top correlações Spearman (exploratórias, não causais):**
 
-1. `risco_cumulativo_3d` → `pressao_calor_pct` (ρ ≈ 0,84; n = 142)  
-2. `risco_calor_diario` → `pressao_calor_pct` (ρ ≈ 0,79; n = 142)  
+1. `risco_cumulativo_3d` → `pressao_calor_pct` (ρ ≈ 0,84; n = 142)
+2. `risco_calor_diario` → `pressao_calor_pct` (ρ ≈ 0,79; n = 142)
 3. `utci_proxy` → `pressao_calor_pct` (ρ ≈ 0,72; n = 142)
 
 ---
 
-## 3. O que é projeção do SIS vs. cenário sazonal oficial
+## 3. O que é projeção do ARARAS MT vs. cenário sazonal oficial
 
 | Tipo | Horizonte | Fonte | O que afirma |
 |---|---|---|---|
-| Comparativo 27/07 → 01–02/08 | Curto (~7 dias) | Open-Meteo / `met_biometeo` (SIS) | Números da tabela acima |
-| Predição operacional 7d | ~7 dias | SIS (`predicao_calor_7d_*`) | Níveis Verde→Roxa por município |
-| Cenário ago.–set. (chuva/temp. sazonal) | Trimestre JAS/2026 | Painel El Niño INMET–CPTEC–INPE | Chuva abaixo da média no centro-norte; temperatura acima da média; potencial de queimadas — **não** é output numérico do SIS |
+| Comparativo 27/07 → 01–02/08 | Curto (~7 dias) | Open-Meteo / `met_biometeo` (ARARAS) | Números da tabela acima |
+| Predição operacional 7d | ~7 dias | ARARAS (`predicao_calor_7d_*`) | Níveis Verde→Roxa por município |
+| Cenário ago.–set. (chuva/temp. sazonal) | Trimestre JAS/2026 | Painel El Niño INMET–CPTEC–INPE | Chuva abaixo da média no centro-norte; temperatura acima da média; potencial de queimadas — **não** é output numérico do ARARAS MT |
 
 ---
 
@@ -78,7 +78,7 @@ Lista completa em [`REFERENCIAS_ABNT_6023.md`](REFERENCIAS_ABNT_6023.md).
 
 Principais:
 
-- CIEVS-MT (2026) — dados operacionais SIS (extração 27 jul. 2026).  
-- OPEN-METEO (2026) — API de previsão de curto prazo.  
-- INMET et al. (2026a) — Painel El Niño 2026-2027, boletim mensal n.º 01.  
+- CIEVS-MT (2026) — dados operacionais ARARAS MT (extração 27 jul. 2026).
+- OPEN-METEO (2026) — API de previsão de curto prazo.
+- INMET et al. (2026a) — Painel El Niño 2026-2027, boletim mensal n.º 01.
 - NOAA (2026); IRI (2026) — status ENSO / El Niño.

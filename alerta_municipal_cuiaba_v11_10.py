@@ -31,11 +31,21 @@ import sys
 import unicodedata
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+
+from sisclima.branding import (
+    INLINE_BRAND_ASSETS,
+    SYSTEM_NAME,
+    SYSTEM_TAGLINE,
+    branded_subject,
+    html_email_shell,
+    wrap_plain_message,
+)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -409,8 +419,8 @@ def compose_text(payload: dict[str, Any]) -> str:
     recs = recommendations(payload)
 
     lines = []
-    lines.append(f"{emoji} Alerta Clima-Saúde — Cuiabá — {payload['nivel_final'].capitalize()}")
-    lines.append("SIS Clima-Saúde MT é uma ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.")
+    lines.append(f"{emoji} Alerta ARARAS MT — Cuiabá — {payload['nivel_final'].capitalize()}")
+    lines.append(f"{SYSTEM_NAME} integra clima, ambiente e indicadores de saúde para apoiar a gestão. {SYSTEM_TAGLINE}")
     lines.append(f"Gerado em: {payload['gerado_em']}")
     lines.append("")
     lines.append("Município: Cuiabá")
@@ -490,12 +500,21 @@ def send_email(to: str, subject: str, text: str, html: str) -> tuple[bool, str]:
     if not host or not port or not user or not password or not sender:
         return False, "Configuração SMTP incompleta no .env."
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
+    msg = MIMEMultipart("related")
+    alternative = MIMEMultipart("alternative")
+    msg.attach(alternative)
+    msg["Subject"] = branded_subject(subject)
     msg["From"] = sender
     msg["To"] = to
-    msg.attach(MIMEText(text, "plain", "utf-8"))
-    msg.attach(MIMEText(html, "html", "utf-8"))
+    alternative.attach(MIMEText(wrap_plain_message(text), "plain", "utf-8"))
+    alternative.attach(MIMEText(html_email_shell(html), "html", "utf-8"))
+    for cid, asset in INLINE_BRAND_ASSETS.items():
+        if not asset.exists():
+            continue
+        image = MIMEImage(asset.read_bytes())
+        image.add_header("Content-ID", f"<{cid}>")
+        image.add_header("Content-Disposition", "inline", filename=asset.name)
+        msg.attach(image)
 
     try:
         if use_ssl:
@@ -538,7 +557,7 @@ def main() -> None:
     preview_txt.write_text(text, encoding="utf-8")
     preview_html.write_text(html, encoding="utf-8")
 
-    subject = f"{EMOJI.get(payload['nivel_final'], '⚪')} Alerta Clima-Saúde Cuiabá — {payload['nivel_final'].capitalize()} — {datetime.now():%d/%m/%Y}"
+    subject = f"{EMOJI.get(payload['nivel_final'], '⚪')} Alerta ARARAS MT Cuiabá — {payload['nivel_final'].capitalize()} — {datetime.now():%d/%m/%Y}"
 
     print("============================================================")
     print("ALERTA MUNICIPAL CUIABÁ V11.10")

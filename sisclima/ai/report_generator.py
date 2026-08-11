@@ -56,7 +56,7 @@ def deterministic_report(ctx: dict) -> str:
         linhas_rec.append("- Validar fontes de dados e manter rotina de monitoramento até novo ciclo.")
     return textwrap.dedent(
         f"""
-    BOLETIM OPERACIONAL SIS-MT CLIMA-SAÚDE
+    BOLETIM OPERACIONAL ARARAS-MT CLIMA-SAÚDE
     Data de referência: {data}
 
     1. SITUAÇÃO GERAL
@@ -159,7 +159,7 @@ def generate_daily_report(send: bool = False) -> Path:
     out = out_dir / f"boletim_sis_mt_clima_saude_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
     out.write_text(body, encoding="utf-8")
     if send:
-        subject = f"SIS-MT Clima-Saúde | Boletim {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        subject = f"ARARAS-MT Clima-Saúde | Boletim {datetime.now().strftime('%d/%m/%Y %H:%M')}"
         send_email(subject, body)
         send_telegram(body[:3900])
     return out

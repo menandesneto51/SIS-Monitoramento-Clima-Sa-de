@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Canal de WhatsApp para os alertas do SIS Clima-Saúde / VIGIA.
+"""Canal de WhatsApp para os alertas do ARARAS MT.
 
 Reúne apenas provedores que operam sem custo de licença:
 
