@@ -135,7 +135,7 @@ def send_telegram_brand_card(*, chat_id: str | None = None) -> bool:
         return False
 
 
-def send_telegram(text: str, *, chat_id: str | None = None, with_brand: bool = False) -> bool:
+def send_telegram(text: str, *, chat_id: str | None = None, with_brand: bool = True) -> bool:
     if not _telegram_enabled(chat_id):
         return False
     token = env('TELEGRAM_BOT_TOKEN')

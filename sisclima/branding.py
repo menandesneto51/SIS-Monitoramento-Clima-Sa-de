@@ -81,6 +81,16 @@ def html_email_shell(body_html: str) -> str:
         </tr>
         <tr><td style="padding:20px">{content}</td></tr>
         <tr>
+          <td style="padding:12px 20px 18px;border-top:1px solid #d7e2e5;text-align:center">
+            <div style="margin-bottom:8px;color:#073f67;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase">
+              Assinatura institucional do projeto
+            </div>
+            <img src="cid:institucional-card"
+                 alt="ARARAS MT · SES-MT · CIEVS-MT · Rede CIEVS · Vigidesastres"
+                 style="display:block;max-width:760px;width:100%;height:auto;margin:0 auto" />
+          </td>
+        </tr>
+        <tr>
           <td style="padding:13px 20px;background:#073f67;color:#ffffff;font-size:12px;line-height:1.45">
             <strong>{html.escape(SYSTEM_NAME)}</strong> · CIEVS-MT / SES-MT · Rede CIEVS · Vigidesastres<br />
             Ferramenta de apoio à gestão. Validar no painel e no território antes da comunicação oficial.
@@ -96,4 +106,5 @@ INLINE_BRAND_ASSETS = {
     "governo-ses-logo": GOV_SES_LOGO_PATH,
     "rede-cievs-logo": REDE_CIEVS_LOGO_PATH,
     "vigidesastres-logo": VIGIDESASTRES_LOGO_PATH,
+    "institucional-card": ALERT_BRAND_CARD_PATH,
 }

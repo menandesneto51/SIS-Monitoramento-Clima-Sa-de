@@ -24,6 +24,7 @@
 | SES-MT e Governo de Mato Grosso | `assets/branding/governo-ses-mt.png` |
 | Rede CIEVS | `assets/branding/rede-cievs.png` |
 | Vigidesastres | `assets/branding/vigidesastres.png` |
+| Cartão institucional dos alertas | `assets/branding/araras-mt-cartao-institucional.png` |
 
 > A identificação CIEVS-MT permanece tipográfica no painel e nos alertas até o fornecimento do arquivo oficial da marca estadual. Não criar ou distorcer uma marca oficial sem o arquivo de origem.
 
@@ -33,12 +34,13 @@
 
 - Assunto: `[ARARAS MT] <tipo e nível do alerta>`.
 - Cabeçalho HTML: ARARAS MT + SES-MT/Governo MT + CIEVS-MT + Rede CIEVS + Vigidesastres.
+- Assinatura visual: cartão institucional completo exibido no fim do corpo e anexado inline.
 - Corpo em texto simples sempre disponível como alternativa acessível.
 - Rodapé: ferramenta de apoio à gestão e orientação de validação no painel e no território.
 
 ### Telegram
 
-- Enviar primeiro o cartão institucional com ARARAS MT, SES/Governo MT, CIEVS-MT, Rede CIEVS e Vigidesastres.
+- Enviar sempre, antes do primeiro bloco textual de cada boletim, o cartão institucional com ARARAS MT, SES/Governo MT, CIEVS-MT, Rede CIEVS e Vigidesastres.
 - Enviar em seguida o texto do boletim, iniciado por `ARARAS MT` e pelo lema.
 - Respeitar o roteamento estadual, regional e municipal; não duplicar o alerta central.
 
