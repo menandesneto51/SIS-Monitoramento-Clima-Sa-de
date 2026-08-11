@@ -26,7 +26,7 @@ Padrão de marca e comunicação: `docs/IDENTIDADE_VISUAL_ARARAS_MT.md`.
 | Componente | Função | Tecnologia |
 |------------|--------|------------|
 | **App** | Painel municipal (Streamlit) | Python 3.12, porta **8501** |
-| **Pipeline** | Ingestão + indicadores + classificação | Python batch / container |
+| **ETL scheduler** | Ingestão + indicadores + classificação periódica | Python batch / container contínuo |
 | **DB** | Base operacional única | **PostgreSQL 16** |
 | **Alertas** | Digest periódico (opcional) | Scheduler em loop 24 h |
 | **Seed** | Contingência / demo | SQLite `data/cloud/sis_cloud_seed.db` |
@@ -37,7 +37,10 @@ Arquitetura lógica: Bronze (fontes) → Silver (padronização) → Gold (indic
 [DW/IndicaSUS/SISREG]──VPN SES──┐
 [Open-Meteo/Cemaden/ANA/INPE]──HTTPS──┤──► Pipeline ──► Postgres ──► Streamlit :8501
 [CSV locais / SIVEP]──────────────────┘         │
-                                                └──► alerts-scheduler (opcional)
+                                      etl-scheduler (6 h)
+                                                │
+                                                ├──► Postgres / Streamlit
+                                                └──► alerts-scheduler (apenas com ETL fresca)
 ```
 
 ---
@@ -132,6 +135,11 @@ ANA_FETCH_SERIES=true
 ANA_USE_HIDROWEB_REST=true
 ANA_HIDROWEB_IDENTIFICADOR=<cpf_ou_id_ana>
 ANA_HIDROWEB_SENHA=<senha_ana>
+ETL_INTERVAL_HOURS=6
+ETL_RETRY_MINUTES=15
+ETL_RUN_ON_START=true
+ALERT_REQUIRE_FRESH_ETL=true
+ALERT_MAX_ETL_AGE_HOURS=12
 SEND_ALERT_ON_LEVEL_CHANGE=false
 STREAMLIT_PORT=8501
 ```
@@ -191,9 +199,9 @@ cp .env.example .env
 # 3) Subir banco
 docker compose up -d db
 
-# 4) Build e serviços
-docker compose up -d --build app
-# pipeline sob demanda:
+# 4) Build e serviços permanentes
+docker compose up -d --build db etl-scheduler app
+# rodada extraordinária sob demanda:
 docker compose run --rm pipeline
 # alertas (após homologação):
 # docker compose up -d alerts-scheduler
@@ -206,7 +214,8 @@ Serviços Compose:
 | `db` | `sis_clima_db` | unless-stopped |
 | `app` | `sis_clima_app` | unless-stopped |
 | `pipeline` | `sis_clima_pipeline` | sob demanda |
-| `alerts-scheduler` | `sis_clima_alerts` | unless-stopped (opcional) |
+| `etl-scheduler` | `sis_clima_etl` | unless-stopped |
+| `alerts-scheduler` | `sis_clima_alerts` | unless-stopped (opcional; exige ETL fresca) |
 
 Painel: `http://<servidor>:8501` (ou URL do proxy STI).
 
@@ -260,7 +269,8 @@ Scripts: `rodar_pipeline.bat` → `rotina_diaria_ops.py`; `rodar_alertas_once.ba
 | 07:30 | `rotina_diaria_ops.py` (ANA + enrichment + SISREG/pressão + seed) |
 | 08:15 | Digest de alertas (se habilitado) |
 | 12:00 / 17:00 | Reprocessamento em níveis críticos |
-| Contínuo | Container `app` + `db` |
+| A cada 6 h | `etl-scheduler` executa pipeline; falha tenta novamente em 15 min |
+| Contínuo | Containers `app` + `db` + `etl-scheduler` |
 
 Comando:
 
@@ -315,6 +325,7 @@ Validação pós-ciclo:
 | 5 | 142 municípios no resumo após regeneração | consulta SQL / painel |
 | 6 | Smoke `all_ok` | `scripts/smoke_ops.py` |
 | 7 | Sem senhas no repositório | revisão Git |
+| 8 | ETL automática saudável e dentro da janela | `logs/etl_scheduler_health.json` + `pipeline_runs` |
 
 Documento complementar de produto/qualidade: `docs/RELATORIO_PRONTIDAO_INSTITUCIONAL.md`.
 Checklist de homologação (OK/NOK): `docs/CHECKLIST_HOMOLOGACAO_STI.md` (PDF em `docs/apresentacoes/`).
@@ -344,7 +355,7 @@ Checklist de homologação (OK/NOK): `docs/CHECKLIST_HOMOLOGACAO_STI.md` (PDF em
 
 ### B — Entrypoints Docker
 
-`app` | `pipeline` | `pipeline-alerts` | `alert-once` | `alert-scheduler` | `validate-dw`
+`app` | `pipeline` | `pipeline-alerts` | `etl-scheduler` | `alert-once` | `alert-scheduler` | `validate-dw`
 
 ### C — Documentos relacionados
 
