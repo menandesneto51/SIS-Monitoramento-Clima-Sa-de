@@ -12,6 +12,10 @@ SYSTEM_NAME = "ARARAS MT"
 SYSTEM_EXPANSION = "Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde"
 SYSTEM_TAGLINE = "Clima, ambiente e saúde em uma só visão."
 SYSTEM_OWNER = "Secretaria de Estado de Saúde de Mato Grosso · CIEVS-MT"
+PROJECT_DESCRIPTION = (
+    "Plataforma de inteligência e apoio à gestão da SES-MT que integra clima, ambiente e saúde. "
+    "Complementa os sistemas do SUS e não substitui protocolos, notificações ou decisões da autoridade sanitária."
+)
 
 ARARAS_LOGO_PATH = BRAND_ASSETS / "araras-mt-logo-horizontal.png"
 ARARAS_SYMBOL_PATH = BRAND_ASSETS / "araras-mt-simbolo.png"
@@ -33,6 +37,7 @@ def plain_header() -> str:
     return (
         f"{SYSTEM_NAME} · {SYSTEM_TAGLINE}\n"
         f"{SYSTEM_EXPANSION}\n"
+        f"{PROJECT_DESCRIPTION}\n"
         f"{SYSTEM_OWNER} · Rede CIEVS · Vigidesastres"
     )
 
@@ -46,7 +51,7 @@ def plain_footer() -> str:
 
 def wrap_plain_message(body: str) -> str:
     text = str(body or "").strip()
-    if text.startswith(SYSTEM_NAME):
+    if PROJECT_DESCRIPTION in text:
         return text
     return f"{plain_header()}\n\n{text}\n\n{plain_footer()}".strip()
 
@@ -77,6 +82,12 @@ def html_email_shell(body_html: str) -> str:
                 </td>
               </tr>
             </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:14px 20px;background:#f4f8f8;border-bottom:1px solid #d7e2e5;font-size:13px;line-height:1.5">
+            <strong>{html.escape(SYSTEM_NAME)} — {html.escape(SYSTEM_EXPANSION)}</strong><br />
+            {html.escape(PROJECT_DESCRIPTION)}
           </td>
         </tr>
         <tr><td style="padding:20px">{content}</td></tr>
