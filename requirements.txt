@@ -1,3 +1,4 @@
+# Implantação visual ARARAS MT — atualização 2026-08-11
 altair==5.5.0
 beautifulsoup4==4.14.3
 folium==0.16.0
