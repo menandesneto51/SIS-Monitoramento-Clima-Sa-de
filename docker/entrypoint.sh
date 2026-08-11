@@ -19,6 +19,9 @@ case "${1:-app}" in
   pipeline-alerts)
     exec python -c "from sisclima.pipeline import run_pipeline; r=run_pipeline(send_alerts=True); print(r)"
     ;;
+  etl-scheduler)
+    exec python -m sisclima.etl_scheduler --loop
+    ;;
   alert-once)
     exec python -m sisclima.alerts.scheduler --once --force
     ;;
