@@ -146,7 +146,7 @@ def main():
 
     lines = []
     lines.append("=" * 70)
-    lines.append("VALIDAÇÃO OPERACIONAL V11.7 - ARARAS CLIMA-SAÚDE MT")
+    lines.append("VALIDAÇÃO OPERACIONAL V11.7 - ARARAS MT")
     lines.append(f"Gerado em: {datetime.now():%Y-%m-%d %H:%M:%S}")
     lines.append("=" * 70)
     lines.append(df.to_string(index=False))

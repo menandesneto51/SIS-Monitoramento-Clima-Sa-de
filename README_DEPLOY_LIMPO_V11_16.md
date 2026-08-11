@@ -1,6 +1,6 @@
 # ARARAS MT
 
-Ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.
+Plataforma para análise integrada de clima, ambiente, agravos e saúde, com apoio à tomada de decisão em saúde pública.
 
 ## Execução local
 
