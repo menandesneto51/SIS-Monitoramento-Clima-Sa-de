@@ -20,7 +20,8 @@ Plataforma Python/Streamlit de apoio à gestão em Mato Grosso. Integra indicado
 - Envia **alerta estadual** (SES/CIEVS) por e-mail/Telegram/webhook; regionais/municipais/Cuiabá são gerados e aguardam planilha de contatos para fan-out.
 - Gera boletim operacional auditável com camada opcional de IA.
 - Apresenta painel Streamlit com situação estadual, municípios prioritários, qualidade do ar, assistência, leitos, infraestrutura, insumos, busca ativa, recomendações e auditoria.
-- Mantém agendador Docker diário (`alerts-scheduler`) independente do notebook.
+- Mantém agendador Docker da ETL (`etl-scheduler`) com intervalo configurável, retry e trava contra sobreposição.
+- Mantém agendador Docker diário (`alerts-scheduler`) independente do notebook e bloqueado quando a ETL estiver defasada.
 
 ## Instalação rápida no Windows
 
@@ -65,8 +66,30 @@ A base operacional única fica no Postgres (`sis_clima_saude`). O DW continua s�
 
 ```powershell
 copy .env.example .env
-docker compose up -d db
-docker compose up -d --build
+docker compose up -d --build db etl-scheduler app
+# Alertas permanecem desligados até homologação:
+# docker compose up -d alerts-scheduler
+```
+
+A ETL executa uma rodada ao iniciar e repete, por padrão, a cada 6 horas. Em falha,
+tenta novamente em 15 minutos. Os alertas só são liberados quando o arquivo
+`logs/etl_scheduler_health.json` registra uma execução bem-sucedida dentro da
+janela configurada.
+
+```env
+ETL_INTERVAL_HOURS=6
+ETL_RETRY_MINUTES=15
+ETL_RUN_ON_START=true
+ALERT_REQUIRE_FRESH_ETL=true
+ALERT_MAX_ETL_AGE_HOURS=12
+```
+
+Operação e diagnóstico:
+
+```powershell
+docker compose ps
+docker compose logs -f etl-scheduler
+docker compose run --rm pipeline
 ```
 
 Detalhes: `docs/DOCKER_BASE_UNICA.md`.

@@ -3,14 +3,17 @@
 ## Arquitetura
 
 ```text
-DW SQL Server (SES/MT)  ──leitura──▶  pipeline (Docker)
-                                          │
-                                          ▼
-                               PostgreSQL (base única)
-                               sis_clima_saude
-                                          │
-                                          ▼
-                               Streamlit app (Docker)
+DW/IndicaSUS/SISREG + fontes públicas
+                 │
+                 ▼
+       etl-scheduler (a cada 6 h)
+                 │
+                 ▼
+       PostgreSQL (base única)
+          ┌──────┴────────┐
+          ▼               ▼
+    Streamlit app   alerts-scheduler
+                    (somente com ETL fresca)
 ```
 
 - **DW**: fonte institucional (SINAN, SIM, GAL, IndicaSUS, CNES). Somente leitura.
@@ -48,14 +51,61 @@ $env:DATABASE_URL="postgresql+psycopg2://sisclima:SENHA@localhost:5432/sis_clima
 .\.venv\Scripts\python.exe -m streamlit run app_v9.py
 ```
 
-5. (Opcional) Suba app+pipeline em containers:
+5. Suba o painel e a ETL automática:
 
 ```powershell
-docker compose up -d --build
+docker compose up -d --build db etl-scheduler app
 ```
+
+6. Depois da homologação funcional, suba o agendador de alertas:
+
+```powershell
+docker compose up -d alerts-scheduler
+```
+
+O serviço `etl-scheduler` executa uma rodada imediatamente e repete a cada
+`ETL_INTERVAL_HOURS` (padrão: 6 horas). Uma falha gera nova tentativa após
+`ETL_RETRY_MINUTES` (padrão: 15 minutos). O estado da última rodada fica em
+`logs/etl_scheduler_health.json`.
+
+O `alerts-scheduler` verifica esse arquivo antes de comunicar. Com
+`ALERT_REQUIRE_FRESH_ETL=true`, nenhuma mensagem é enviada se a ETL estiver
+ausente, com erro ou mais antiga que `ALERT_MAX_ETL_AGE_HOURS`.
 
 Painel: http://localhost:8501
 
+
+## Operação e diagnóstico
+
+```powershell
+# Situação dos containers
+docker compose ps
+
+# Acompanhar cada ciclo da ETL
+docker compose logs -f etl-scheduler
+
+# Rodada manual extraordinária
+docker compose run --rm pipeline
+
+# Estado consumido pelo gate dos alertas
+Get-Content .\logs\etl_scheduler_health.json
+```
+
+Variáveis principais:
+
+```env
+ETL_INTERVAL_HOURS=6
+ETL_RETRY_MINUTES=15
+ETL_RUN_ON_START=true
+ETL_HEALTH_FILE=logs/etl_scheduler_health.json
+ETL_LOCK_FILE=logs/etl_scheduler.lock
+ALERT_REQUIRE_FRESH_ETL=true
+ALERT_MAX_ETL_AGE_HOURS=12
+```
+
+A trava em `logs/etl_scheduler.lock` impede sobreposição entre instâncias do
+agendador que compartilham o mesmo volume. O histórico técnico detalhado continua
+sendo gravado na tabela `pipeline_runs`.
 
 ## Observações de rede
 
