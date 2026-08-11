@@ -38,6 +38,34 @@ services:
         condition: service_healthy
     command: ["pipeline"]
 
+
+  etl-scheduler:
+    build: .
+    container_name: sis_clima_etl
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+      ETL_INTERVAL_HOURS: ${ETL_INTERVAL_HOURS:-6}
+      ETL_RETRY_MINUTES: ${ETL_RETRY_MINUTES:-15}
+      ETL_RUN_ON_START: ${ETL_RUN_ON_START:-true}
+      ETL_HEALTH_FILE: ${ETL_HEALTH_FILE:-logs/etl_scheduler_health.json}
+      ETL_LOCK_FILE: ${ETL_LOCK_FILE:-logs/etl_scheduler.lock}
+    volumes:
+      - ./sisclima:/app/sisclima:ro
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./sql:/app/sql
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["python", "-m", "sisclima.etl_scheduler"]
+    command: ["--loop"]
+
   app:
     build: .
     container_name: sis_clima_app
@@ -85,6 +113,10 @@ services:
       ALERT_FANOUT_ENABLED: ${ALERT_FANOUT_ENABLED:-false}
       ALERT_CONTACTS_CSV: ${ALERT_CONTACTS_CSV:-data/input/contatos_alertas.csv}
       ALERT_LAYERS: ${ALERT_LAYERS:-ses,regionais,municipais,cuiaba}
+      # Não comunicar usando uma ETL ausente, com erro ou fora da janela.
+      ALERT_REQUIRE_FRESH_ETL: ${ALERT_REQUIRE_FRESH_ETL:-true}
+      ALERT_MAX_ETL_AGE_HOURS: ${ALERT_MAX_ETL_AGE_HOURS:-12}
+      ETL_HEALTH_FILE: ${ETL_HEALTH_FILE:-logs/etl_scheduler_health.json}
       # No loop Docker, o 1º ciclo respeita cooldown/fingerprint (já enviamos no start manual).
       ALERT_SEND_ON_START: ${ALERT_SEND_ON_START:-false}
     volumes:
@@ -96,6 +128,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      etl-scheduler:
+        condition: service_started
     entrypoint: ["python", "-m", "sisclima.alerts.scheduler"]
     command: ["--loop"]
 
