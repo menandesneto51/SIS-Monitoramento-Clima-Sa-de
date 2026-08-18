@@ -193,6 +193,16 @@ GUIDE_HIDRO = guide_card(
     ],
 )
 
+GUIDE_VIGIBARRAGENS = guide_card(
+    "Como ler VigiBarragens",
+    [
+        "<b>ZAS</b>: Zona de Autossalvamento — população a jusante exposta ao rompimento.",
+        "<b>CRI / DPA</b>: Categoria de Risco e Dano Potencial Associado (SIGBM/ANM).",
+        "<b>NE1/NE2/NE3</b>: nível de emergência → laranja/vermelha/roxa no SIS.",
+        "<b>Cruze</b>: com chuva (Cemaden/ANA) e capacidade assistencial do município.",
+    ],
+)
+
 GUIDE_GEO = guide_card(
     "Como ler Geografia",
     [
@@ -614,6 +624,31 @@ def narrativa_hidro(cemaden: pd.DataFrame, ana: pd.DataFrame | None = None) -> s
     if ana is not None and not ana.empty:
         achados.append(f"- Municípios risco ANA: **{_fmt(len(ana), 0)}**.")
     return _narr("Cemaden/ANA", olhar, achados, prox=["- Cruzar com alerta integrado e solo saturado."])
+
+
+def narrativa_vigibarragens(barragens: pd.DataFrame, risco: pd.DataFrame | None = None) -> str:
+    olhar = [
+        "- Barragens de mineração cadastradas (SIGBM/ANM) e população exposta na ZAS.",
+        "- Nível de emergência (NE1/NE2/NE3) eleva o nível operacional do município.",
+    ]
+    n_barr = len(barragens) if barragens is not None else 0
+    achados = [f"- Barragens monitoradas: **{_fmt(n_barr, 0)}**."]
+    if risco is not None and not risco.empty:
+        achados.append(f"- Municípios com exposição: **{_fmt(len(risco), 0)}**.")
+        if "populacao_zas_total" in risco.columns:
+            pop = pd.to_numeric(risco["populacao_zas_total"], errors="coerce").fillna(0).sum()
+            achados.append(f"- População estimada na ZAS: **{_fmt(pop, 0)}** hab.")
+        if "n_em_emergencia" in risco.columns:
+            emerg = int(pd.to_numeric(risco["n_em_emergencia"], errors="coerce").fillna(0).sum())
+            if emerg:
+                achados.append(f"- Barragens em emergência (NE1/NE2/NE3): **{_fmt(emerg, 0)}**.")
+    return _narr(
+        "VigiBarragens",
+        olhar,
+        achados,
+        nao=["- Cadastro/amostra ≠ inspeção de segurança; confirme com ANM/Defesa Civil."],
+        prox=["- Cruzar ZAS com plano de contingência e leitos do município a jusante."],
+    )
 
 
 def narrativa_geo(resumo: pd.DataFrame, status: str = "") -> str:

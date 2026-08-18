@@ -280,6 +280,11 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "como_usar": "Cruze alertas com precipitação e nível operacional do município.",
         "cuidado": "Cobertura de estações é desigual no território.",
     },
+    "VigiBarragens": {
+        "para_que_serve": "Vigilância de populações expostas a barragens de mineração (SIGBM/ANM): CRI, DPA, nível de emergência e população na ZAS.",
+        "como_usar": "Veja os municípios com maior população exposta e o nível de emergência; cruze com chuva (Cemaden/ANA) e capacidade assistencial.",
+        "cuidado": "Cadastro/amostra não substitui inspeção de segurança nem o plano de contingência da Defesa Civil/ANM.",
+    },
     "Inteligência": {
         "para_que_serve": "Predição 7 dias, alerta inteligente e indicadores compostos AdaptaSUS.",
         "como_usar": "Use para a semana seguinte; cruze com a aba AdaptaSUS / Guia MS.",

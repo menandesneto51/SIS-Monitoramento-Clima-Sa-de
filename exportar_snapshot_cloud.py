@@ -33,6 +33,8 @@ TABLES = [
     "inmet_alertas",
     "cemaden_alertas",
     "ana_risco_municipal",
+    "vigibarragens_barragens",
+    "vigibarragens_exposicao_municipal",
     "qualidade_ar_municipal",
     "qualidade_ar_estado_serie_v6",
     "hospital_ocupacao_municipio",

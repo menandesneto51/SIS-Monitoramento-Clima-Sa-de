@@ -1,0 +1,11 @@
+cod_barragem,nome_barragem,empreendedor,cod_ibge,municipio,uf,lat,lon,minerio,categoria_risco,dano_potencial,nivel_emergencia,populacao_zas,situacao_pnsb,data_atualizacao
+SIGBM-MT-0001,Barragem Rejeito Poconé I,Mineradora Poconé Ltda,5106505,Poconé,MT,-16.2567,-56.6228,Ouro,Alto,Alto,Nível 2,3200,Regularizada,2026-07-15
+SIGBM-MT-0002,Barragem Rejeito Poconé II,Mineradora Poconé Ltda,5106505,Poconé,MT,-16.2701,-56.6510,Ouro,Médio,Alto,Sem emergência,1400,Regularizada,2026-07-15
+SIGBM-MT-0003,Dique Livramento Norte,Aurífera Livramento SA,5106109,Nossa Senhora do Livramento,MT,-15.7719,-56.3406,Ouro,Médio,Alto,Nível 1,860,Regularizada,2026-07-10
+SIGBM-MT-0004,Barragem Manganês Nortelândia,Mineração Nortelândia SA,5106000,Nortelândia,MT,-14.4544,-56.8028,Manganês,Alto,Médio,Sem emergência,540,Regularizada,2026-06-30
+SIGBM-MT-0005,Barragem Guaporé Jauru,Cooperativa Garimpeira Jauru,5105002,Jauru,MT,-15.5661,-58.8781,Ouro,Médio,Médio,Sem emergência,210,Em regularização,2026-06-22
+SIGBM-MT-0006,Barragem Rejeito Vila Bela,Mineradora Serra Azul Ltda,5105507,Vila Bela da Santíssima Trindade,MT,-15.0056,-59.9506,Ouro,Alto,Alto,Nível 3,2750,Regularizada,2026-07-20
+SIGBM-MT-0007,Dique Cáceres Sul,Calcário Cáceres SA,5102504,Cáceres,MT,-16.0728,-57.6818,Calcário,Baixo,Médio,Sem emergência,120,Regularizada,2026-05-18
+SIGBM-MT-0008,Barragem Alto Paraguai,Extrativa Alto Paraguai Ltda,5100508,Alto Paraguai,MT,-14.5119,-56.4869,Ouro,Médio,Baixo,Sem emergência,90,Em regularização,2026-06-05
+SIGBM-MT-0009,Dique de Contenção Barão,Agromineral Pantanal Ltda,5101605,Barão de Melgaço,MT,-16.1947,-55.9675,Fosfato,Baixo,Alto,Sem emergência,410,Regularizada,2026-04-28
+SIGBM-MT-0010,Barragem Rejeito Livramento Sul,Aurífera Livramento SA,5106109,Nossa Senhora do Livramento,MT,-15.8123,-56.2988,Ouro,Alto,Médio,Sem emergência,320,Regularizada,2026-07-10

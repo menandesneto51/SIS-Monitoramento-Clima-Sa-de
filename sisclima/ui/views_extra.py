@@ -21,12 +21,14 @@ from sisclima.ui.interpretacoes import (
     GUIDE_HIDRO,
     GUIDE_SENTINELA,
     GUIDE_SIVEP,
+    GUIDE_VIGIBARRAGENS,
     narrativa_adaptasus,
     narrativa_arbo,
     narrativa_geocalor,
     narrativa_hidro,
     narrativa_sentinela,
     narrativa_sivep,
+    narrativa_vigibarragens,
     render_interpretacao,
 )
 
@@ -417,6 +419,108 @@ def render_hidrologia() -> None:
                 use_container_width=True,
                 height=240,
             )
+
+
+def render_vigibarragens() -> None:
+    section_title(
+        "VigiBarragens",
+        f"Populações expostas a barragens de mineração (SIGBM/ANM) · base {backend_name()}",
+    )
+    callout(
+        "VigiBarragens acompanha a Zona de Autossalvamento (ZAS) a jusante de barragens de rejeito. "
+        "Nível de emergência (NE1/NE2/NE3) eleva o nível operacional; cruze com chuva e capacidade assistencial.",
+        "info",
+    )
+    barragens = read_table("vigibarragens_barragens")
+    risco = read_table("vigibarragens_exposicao_municipal")
+    render_interpretacao(
+        "vigibarragens",
+        GUIDE_VIGIBARRAGENS,
+        lambda: narrativa_vigibarragens(barragens, risco),
+    )
+
+    if barragens.empty and risco.empty:
+        st.info(
+            "Sem dados VigiBarragens. Ative `USE_VIGIBARRAGENS=true` e coloque o cadastro em "
+            "`data/input/vigibarragens_barragens.csv` (amostra em `data/sample/`), depois rode o pipeline."
+        )
+        return
+
+    pop_zas = (
+        pd.to_numeric(risco.get("populacao_zas_total"), errors="coerce").fillna(0).sum()
+        if not risco.empty
+        else pd.to_numeric(barragens.get("populacao_zas"), errors="coerce").fillna(0).sum()
+    )
+    n_emerg = (
+        int(pd.to_numeric(risco.get("n_em_emergencia"), errors="coerce").fillna(0).sum())
+        if not risco.empty and "n_em_emergencia" in risco.columns
+        else 0
+    )
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Barragens", len(barragens))
+    c2.metric("Municípios expostos", int(risco["cod_ibge"].nunique()) if not risco.empty and "cod_ibge" in risco.columns else 0)
+    c3.metric("População na ZAS", f"{int(pop_zas):,}".replace(",", "."))
+    c4.metric("Barragens em emergência", n_emerg)
+
+    if not risco.empty:
+        st.markdown("##### Exposição municipal (ZAS)")
+        rank = risco.copy()
+        for col in ["populacao_zas_total", "n_barragens", "n_dpa_alto", "n_cri_alto", "n_em_emergencia"]:
+            if col in rank.columns:
+                rank[col] = pd.to_numeric(rank[col], errors="coerce")
+        rank = rank.sort_values("populacao_zas_total", ascending=False) if "populacao_zas_total" in rank.columns else rank
+        try:
+            st.dataframe(rank, width="stretch", height=280)
+        except TypeError:
+            st.dataframe(rank, use_container_width=True, height=280)
+
+        map_df, geojson, status = prepare_map_dataframe(rank)
+        st.caption(status)
+        color_col = "nivel_sis" if "nivel_sis" in map_df.columns else ("populacao_zas_total" if "populacao_zas_total" in map_df.columns else None)
+        if color_col:
+            fig = make_choropleth_or_points(
+                map_df,
+                geojson,
+                color_col=color_col,
+                title="VigiBarragens — nível de exposição por município",
+                categorical=color_col == "nivel_sis",
+                hover_cols=[c for c in ["n_barragens", "populacao_zas_total", "nivel_emergencia_max", "n_dpa_alto", "n_cri_alto"] if c in map_df.columns],
+            )
+            if fig is not None:
+                st.plotly_chart(fig, use_container_width=True)
+
+        if "municipio" in rank.columns and "populacao_zas_total" in rank.columns:
+            st.plotly_chart(
+                px.bar(
+                    rank.head(20),
+                    x="municipio",
+                    y="populacao_zas_total",
+                    color="nivel_sis" if "nivel_sis" in rank.columns else None,
+                    title="População exposta na ZAS por município",
+                ),
+                use_container_width=True,
+            )
+
+    st.markdown("##### Cadastro de barragens (SIGBM/ANM)")
+    if barragens.empty:
+        st.info("Sem cadastro de barragens nesta rodada.")
+    else:
+        cols = [
+            c for c in [
+                "cod_barragem", "nome_barragem", "empreendedor", "municipio", "uf",
+                "minerio", "categoria_risco", "dano_potencial", "nivel_emergencia",
+                "nivel_emergencia_sis", "populacao_zas", "situacao_pnsb", "fonte",
+            ]
+            if c in barragens.columns
+        ]
+        try:
+            st.dataframe(barragens[cols] if cols else barragens, width="stretch", height=320)
+        except TypeError:
+            st.dataframe(barragens[cols] if cols else barragens, use_container_width=True, height=320)
+        st.caption(
+            "Fonte: SIGBM/ANM (Sistema Integrado de Gestão de Segurança de Barragens de Mineração). "
+            "Sem `VIGIBARRAGENS_URL`, o painel usa CSV local/amostra — não substitui inspeção oficial."
+        )
 
 
 def render_geocalor() -> None:
