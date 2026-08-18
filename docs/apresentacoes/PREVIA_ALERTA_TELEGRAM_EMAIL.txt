@@ -1,0 +1,112 @@
+=== PRÉVIA — NÃO ENVIADO (SEND_ALERT_ON_LEVEL_CHANGE=false) ===
+
+ASSUNTO E-MAIL:
+[ARARAS MT / CIEVS] 🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena
+
+CORPO TELEGRAM/E-MAIL (markdown):
+# 🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena
+
+**Escopo:** estadual · **Alvo:** Estado de Mato Grosso · SES/CIEVS · **Municípios:** 142
+**Gerado em:** 2026-07-28T23:02:06
+
+## Motivo
+ARARAS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2
+
+## Indicadores
+- **Municípios no escopo:** 142
+- **Distribuição de níveis:** laranja:64, amarela:32, vermelha:26, roxa:20
+- **Nível ARARAS:** roxa
+- **Nível integrado ARARAS+TITAN:** roxa
+- **Score operacional:** 4
+- **Score alerta integrado:** 4
+- **Tmáx (°C):** 34.4
+- **UTCI/proxy:** 33.4
+- **Risco acumulado 3d:** 13.2
+- **Ocupação leitos (%):** 52.2
+- **Pressão assistencial (%):** 6.1
+- **Índice saturação solo:** 39.4
+- **Classe solo:** baixa
+- **Incid. arbovírus /100 mil:** 8.3
+- **Z-score arboviroses:** 4.3
+- **Casos SRAG:** 0
+- **Incid. SRAG /100 mil:** 0
+- **Tensão climática:** 62.7
+- **Carga em saúde:** 16.9
+- **Vigilância integrada:** 55.1
+- **Tendência 7d:** descendo
+- **Nível predito 7d:** vermelha
+- **Componente dominante:** sis_estagio
+- **Motivo ARARAS:** UTCI/proxy 33.4 entre 32 e 38; Tmax 34.4 sem gatilho; risco cumulativo 3d 13.15 atingiu vermelha; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 39.40 sem gatilho; pressão assistencial 6.10 atingiu laranja; ocupação de leitos 52.22 sem gatilho; z-score assistencial indisponível
+- **Motivo integrado:** ARARAS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2
+
+## Predição (~7 dias)
+🟣 Horizonte ~7 dias: nível predito predominante Roxa — mobilização plena. Municípios com tendência de piora: 74.
+
+## Orientações
+### Gestor
+Comando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.
+
+### Profissionais de saúde
+Protocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.
+
+### População
+Emergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário.
+
+## Fontes
+Open-Meteo, INMET, Cemaden, ANA, Copernicus/CAMS (quando disponível), SINAN/SIVEP/SIM/IndicaSUS (DW), SISREG (regulação/fila), ARARAS MT
+
+_ARARAS MT · CIEVS/SES-MT · validar no painel antes do envio externo._
+
+--- CUIABÁ ---
+# 🟣 ALERTA VIGIDESASTRE CUIABÁ · Roxa — mobilização plena
+
+**Escopo:** cuiaba · **Alvo:** Cuiabá · Vigidesastre · **Municípios:** 1
+**Gerado em:** 2026-07-28T23:02:06
+
+## Motivo
+ARARAS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cumulativo 3d 10.0
+
+## Indicadores
+- **Nível ARARAS:** roxa
+- **Nível integrado ARARAS+TITAN:** roxa
+- **Score operacional:** 4
+- **Score alerta integrado:** 4
+- **Tmáx (°C):** 35.6
+- **UTCI/proxy:** 34.0
+- **Risco acumulado 3d:** 10.0
+- **Ocupação leitos (%):** 57.9
+- **Pressão assistencial (%):** 7.2
+- **PM2,5:** 40.3
+- **Índice saturação solo:** 19.8
+- **Classe solo:** baixa
+- **Incid. arbovírus /100 mil:** 0.3
+- **Z-score arboviroses:** 4.4
+- **Casos SRAG:** 53
+- **Incid. SRAG /100 mil:** 7.7
+- **Letalidade (%):** 0
+- **Tensão climática:** 56.3
+- **Carga em saúde:** 33.1
+- **Vigilância integrada:** 58.1
+- **Tendência 7d:** estável
+- **Nível predito 7d:** roxa
+- **Componente dominante:** sis_estagio
+- **Motivo ARARAS:** UTCI/proxy 34.0 entre 32 e 38; Tmax 35.6 sem gatilho; risco cumulativo 3d 9.96 atingiu laranja; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 19.80 sem gatilho; pressão assistencial 7.16 atingiu vermelha; ocupação de leitos 57.86 sem gatilho; z-score assistencial indisponível
+- **Motivo integrado:** ARARAS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cumulativo 3d 10.0
+
+## Predição (~7 dias)
+🟣 Predição ~7d Cuiabá: Roxa — mobilização plena
+
+## Orientações
+### Gestor
+Comando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.
+
+### Profissionais de saúde
+Protocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.
+
+### População
+Emergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário.
+
+## Fontes
+Open-Meteo, INMET, Cemaden, ANA, Copernicus/CAMS (quando disponível), SINAN/SIVEP/SIM/IndicaSUS (DW), SISREG (regulação/fila), ARARAS MT, Vigidesastre Cuiabá
+
+_ARARAS MT · CIEVS/SES-MT · validar no painel antes do envio externo._

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ARARAS MT — Clima, ambiente e saúde em uma só visão</title>
+  <meta name="description" content="Plataforma de apoio à gestão que integra informações climáticas, ambientais e de saúde em Mato Grosso.">
+  <link rel="icon" href="assets/araras-marca.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="site-shell">
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+  <div class="government-bar">
+    <div class="container government-inner">
+      <div class="government-identity">
+        <span class="mt-mark" aria-hidden="true">MT</span>
+        <span>Governo de Mato Grosso</span>
+        <span class="government-divider" aria-hidden="true"></span>
+        <strong>Secretaria de Estado de Saúde</strong>
+      </div>
+      <div class="accessibility-tools" aria-label="Recursos de acessibilidade">
+        <span>Acessibilidade</span>
+        <button type="button" id="font-decrease" aria-label="Diminuir tamanho do texto">A−</button>
+        <button type="button" id="font-increase" aria-label="Aumentar tamanho do texto">A+</button>
+        <button type="button" id="contrast-toggle" class="contrast-button" aria-pressed="false" aria-label="Alternar alto contraste">Alto contraste</button>
+        <a href="https://www.saude.mt.gov.br/ouvidoria" target="_blank" rel="noreferrer">Ouvidoria</a>
+      </div>
+    </div>
+  </div>
+  <header class="site-header">
+    <div class="container institutional-brand-row">
+      <a class="government-logo-link" href="https://www.saude.mt.gov.br/" target="_blank" rel="noreferrer" aria-label="Portal da SES-MT">
+        <img src="assets/governo-ses-mt.png" alt="SES — Secretaria de Estado de Saúde. Governo de Mato Grosso" width="787" height="225">
+      </a>
+      <a class="brand" href="#inicio" aria-label="ARARAS MT — início">
+        <img src="assets/araras-marca.png" alt="" width="58" height="60">
+        <span class="brand-copy"><strong>ARARAS MT</strong><small>Inteligência em clima, ambiente e saúde</small></span>
+      </a>
+      <div class="header-network-logos" aria-label="Redes e programas integrados">
+        <a class="header-cievs-mark" href="https://www.saude.mt.gov.br/unidade/centro-de-informacao-estrategicas-de-vigilancia-em-saude" target="_blank" rel="noreferrer" aria-label="CIEVS Mato Grosso"><strong>CIEVS</strong><span>MT</span></a>
+        <a href="https://www.gov.br/saude/pt-br/composicao/svsa/cievs" target="_blank" rel="noreferrer" aria-label="Rede CIEVS"><img src="assets/rede-cievs.png" alt="Rede CIEVS"></a>
+        <span class="header-vigidesastres-mark"><img src="assets/vigidesastres.png" alt="Vigidesastres"></span>
+      </div>
+    </div>
+    <div class="primary-navigation">
+      <div class="container header-inner">
+        <nav class="desktop-nav" aria-label="Navegação principal">
+          <a href="#sobre">Sobre</a><a href="#acessos">Acessos</a><a href="#paineis">Painéis</a><a href="#biomas">Biomas</a><a href="#metodologia">Metodologia</a><a href="#transparencia">Transparência</a><a href="#rede">Rede institucional</a>
+        </nav>
+        <a class="header-cta" href="#acessos">Acessar a plataforma</a>
+        <details class="mobile-menu"><summary aria-label="Abrir menu">Menu</summary>
+          <nav aria-label="Navegação móvel">
+            <a href="#sobre">Sobre</a><a href="#acessos">Acessos</a><a href="#paineis">Painéis</a><a href="#biomas">Biomas</a><a href="#metodologia">Metodologia</a><a href="#transparencia">Transparência</a><a href="#rede">Rede institucional</a>
+          </nav>
+        </details>
+      </div>
+    </div>
+  </header>
+  <div class="breadcrumb-bar" aria-label="Trilha de navegação">
+    <div class="container breadcrumb">
+      <a href="https://www.saude.mt.gov.br/" target="_blank" rel="noreferrer">SES-MT</a><span aria-hidden="true">/</span><span>Inteligência em Saúde</span><span aria-hidden="true">/</span><strong>ARARAS MT</strong>
+    </div>
+  </div>
+  <section class="hero" id="inicio" aria-labelledby="hero-title">
+    <img class="hero-art" src="assets/araras-biomas-hero.png" alt="Ilustração dos biomas Amazônia, Cerrado e Pantanal conectados ao mapa de Mato Grosso">
+    <div class="hero-wash"></div>
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow">Plataforma de apoio à gestão do SUS em Mato Grosso</span>
+        <h1 id="hero-title">Clima, ambiente e saúde em uma só visão.</h1>
+        <p>O ARARAS MT integra informações do território para analisar riscos, acompanhar agravos e apoiar respostas mais oportunas da gestão estadual de saúde.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#acessos">Acessar painéis públicos</a>
+          <a class="button button-ghost" href="#sobre">Conhecer a plataforma</a>
+        </div>
+        <span class="implementation-badge">Em implantação institucional</span>
+      </div>
+    </div>
+  </section>
+  <section class="signal-strip" aria-label="Princípios do ARARAS MT">
+    <div class="container signal-grid">
+      <div><strong>3 biomas</strong><span>integrados pelo território</span></div>
+      <div><strong>1 visão estadual</strong><span>de clima, ambiente e saúde</span></div>
+      <div><strong>Gestão orientada</strong><span>por indicadores e evidências</span></div>
+    </div>
+  </section>
+  <div id="conteudo">
+    <section class="section access-section" id="acessos">
+      <div class="container">
+        <div class="section-heading centered">
+          <span class="section-kicker">Acesso à plataforma</span>
+          <h2>Informação adequada para cada perfil de uso.</h2>
+          <p>Inspirado na organização do SIEGES, o ARARAS MT diferencia a informação pública do ambiente técnico destinado à gestão.</p>
+        </div>
+        <div class="access-grid">
+          <article class="access-card public-access">
+            <span class="access-icon" aria-hidden="true">P</span>
+            <div>
+              <span class="card-label">Acesso público</span>
+              <h3>Painéis e informações para a sociedade</h3>
+              <p>Indicadores consolidados, mapas, análises territoriais e orientações de interesse público, sem dados pessoais.</p>
+              <ul><li>Consulta aberta e responsiva</li><li>Recortes por território e período</li><li>Fontes e datas de atualização identificadas</li></ul>
+              <a class="text-link" href="#paineis">Ver painéis previstos →</a>
+            </div>
+          </article>
+          <article class="access-card restricted-access">
+            <span class="access-icon" aria-hidden="true">R</span>
+            <div>
+              <span class="card-label">Acesso restrito</span>
+              <h3>Ambiente técnico para gestores e equipes</h3>
+              <p>Recursos de acompanhamento, configuração de alertas e apoio à resposta, conforme perfil autorizado e regras de segurança.</p>
+              <ul><li>Autenticação institucional</li><li>Perfis e trilhas de auditoria</li><li>Proteção de dados e acesso controlado</li></ul>
+              <span class="status-pill">Em implantação</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="sobre">
+      <div class="container two-column">
+        <div class="section-heading"><span class="section-kicker">Sobre o ARARAS MT</span><h2>Inteligência territorial para antecipar riscos e proteger pessoas.</h2></div>
+        <div class="intro-copy">
+          <p>Mudanças no clima e no ambiente alteram exposições, riscos e necessidades de saúde. O ARARAS MT organiza essas informações em uma leitura comum, acessível e orientada à ação.</p>
+          <p>A plataforma é um instrumento de apoio à gestão: fortalece a análise e complementa os sistemas, protocolos e fluxos oficiais já existentes no SUS.</p>
+        </div>
+      </div>
+      <div class="container pillars">
+        <article><span class="card-index">01</span><h3>Integra</h3><p>Conecta sinais do clima, do ambiente e da saúde em um mesmo contexto territorial.</p></article>
+        <article><span class="card-index">02</span><h3>Interpreta</h3><p>Transforma indicadores dispersos em tendências e sinais de atenção para a gestão.</p></article>
+        <article><span class="card-index">03</span><h3>Orienta</h3><p>Oferece subsídios para priorização, comunicação de risco e respostas oportunas.</p></article>
+      </div>
+    </section>
+    <section class="section panels-section" id="paineis">
+      <div class="container">
+        <div class="panels-heading">
+          <div class="section-heading light"><span class="section-kicker">Painéis e monitoramentos</span><h2>Dados que se transformam em leitura territorial.</h2></div>
+          <p>Módulos temáticos organizam os indicadores prioritários e facilitam a leitura integrada entre clima, ambiente e saúde.</p>
+        </div>
+        <div class="panel-grid">
+          <article class="panel-card panel-climate"><div class="panel-card-top"><span>CE</span><span class="panel-status">Em implantação</span></div><h3>Clima e eventos extremos</h3><p>Temperatura, chuva, umidade, estiagens e outros sinais relevantes para o planejamento em saúde.</p></article>
+          <article class="panel-card panel-air"><div class="panel-card-top"><span>AR</span><span class="panel-status">Em implantação</span></div><h3>Ambiente e qualidade do ar</h3><p>Focos de calor, queimadas, fumaça e condições ambientais que podem ampliar exposições e riscos.</p></article>
+          <article class="panel-card panel-health"><div class="panel-card-top"><span>AS</span><span class="panel-status">Em implantação</span></div><h3>Agravos e saúde</h3><p>Indicadores epidemiológicos e assistenciais contextualizados pelas condições do território.</p></article>
+          <article class="panel-card panel-response"><div class="panel-card-top"><span>RT</span><span class="panel-status">Em implantação</span></div><h3>Resposta territorial</h3><p>Sínteses, alertas e prioridades para apoiar decisões oportunas nos diferentes níveis de gestão.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section biomes-section" id="biomas">
+      <div class="container">
+        <div class="biomes-intro">
+          <div class="section-heading light"><span class="section-kicker">Presença territorial</span><h2>Um olhar que atravessa os três biomas de Mato Grosso.</h2></div>
+          <p>Amazônia, Cerrado e Pantanal formam paisagens distintas, mas interligadas. As araras são o símbolo dessa presença ampla; o sistema transforma dados dessas paisagens em uma visão comum.</p>
+        </div>
+        <div class="biome-grid">
+          <article class="biome-card amazonia"><span>01</span><div><h3>Amazônia</h3><p>Chuvas, umidade, rios e cobertura vegetal compõem uma leitura essencial das relações entre território e saúde.</p></div></article>
+          <article class="biome-card cerrado"><span>02</span><div><h3>Cerrado</h3><p>Calor, estiagens, queimadas e qualidade do ar orientam o acompanhamento de pressões sazonais sobre a saúde.</p></div></article>
+          <article class="biome-card pantanal"><span>03</span><div><h3>Pantanal</h3><p>Ciclos de cheia e seca, fumaça, acesso territorial e eventos extremos exigem atenção integrada e oportuna.</p></div></article>
+        </div>
+        <aside class="sentinel-note"><div class="sentinel-mark" aria-hidden="true">A</div><div><strong>Araras como sentinelas simbólicas</strong><p>Elas não coletam dados diretamente. Representam o olhar atento sobre um território vivo; o monitoramento técnico é realizado pelo ARARAS MT.</p></div></aside>
+      </div>
+    </section>
+    <section class="section process-section" id="metodologia">
+      <div class="container">
+        <div class="process-heading"><div class="section-heading"><span class="section-kicker">Metodologia</span><h2>Do dado territorial ao apoio à decisão.</h2></div><p>Um fluxo contínuo transforma informações de diferentes áreas em leitura técnica, acompanhamento e apoio à resposta.</p></div>
+        <ol class="process-list">
+          <li><span class="step-number">1</span><h3>Reúne</h3><p>Indicadores climáticos, ambientais e epidemiológicos.</p></li>
+          <li><span class="step-number">2</span><h3>Integra</h3><p>Informações de diferentes fontes em uma visão territorial.</p></li>
+          <li><span class="step-number">3</span><h3>Analisa</h3><p>Tendências, riscos e possíveis impactos sobre a saúde.</p></li>
+          <li><span class="step-number">4</span><h3>Acompanha</h3><p>Indicadores prioritários e mudanças relevantes no cenário.</p></li>
+          <li><span class="step-number">5</span><h3>Apoia respostas</h3><p>Alertas e subsídios para decisões da gestão em saúde.</p></li>
+        </ol>
+      </div>
+    </section>
+    <section class="section acronym-section" id="acronimo">
+      <div class="container acronym-layout">
+        <div><img src="assets/araras-acronimo.png" alt="Significado da sigla ARARAS: Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde"></div>
+        <div>
+          <div class="section-heading"><span class="section-kicker">O nome</span><h2>Cada letra traduz uma capacidade da plataforma.</h2></div>
+          <p><strong>ARARAS</strong> significa Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde.</p>
+          <div class="acronym-grid" aria-label="Significado da sigla ARARAS">
+            <div><span>A</span><strong>Análise</strong></div><div><span>R</span><strong>Resposta</strong></div><div><span>A</span><strong>Acompanhamento</strong></div>
+            <div><span>R</span><strong>Riscos</strong></div><div><span>A</span><strong>Agravos</strong></div><div><span>S</span><strong>Saúde</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="transparencia">
+      <div class="container governance-layout">
+        <div class="section-heading"><span class="section-kicker">Governança e transparência</span><h2>Informação pública com fonte, contexto e responsabilidade.</h2><p>A implantação do ARARAS MT prevê critérios institucionais para atualização, segurança, privacidade, rastreabilidade e uso dos dados.</p></div>
+        <div class="governance-list">
+          <article><span>01</span><div><h3>Fontes identificadas</h3><p>Origem, periodicidade e data de atualização visíveis em cada indicador.</p></div></article>
+          <article><span>02</span><div><h3>Proteção de dados</h3><p>Acessos definidos por perfil e tratamento conforme a legislação aplicável.</p></div></article>
+          <article><span>03</span><div><h3>Uso responsável</h3><p>Indicadores apoiam a decisão, sem substituir análise técnica, protocolos ou sistemas oficiais.</p></div></article>
+        </div>
+      </div>
+    </section>
+    <section class="section network-section" id="rede">
+      <div class="container">
+        <div class="network-heading">
+          <div class="section-heading"><span class="section-kicker">Integração institucional</span><h2>Vigilância, alerta e resposta conectados ao território.</h2></div>
+          <p>O ARARAS MT se insere no ecossistema de vigilância em saúde e aproxima inteligência climática, monitoramento de riscos e capacidade de resposta no SUS.</p>
+        </div>
+        <div class="institutional-logo-grid">
+          <a class="institutional-logo-card" href="https://www.saude.mt.gov.br/" target="_blank" rel="noreferrer"><span class="logo-card-label">Governo e Secretaria</span><img src="assets/governo-ses-mt.png" alt="SES-MT"></a>
+          <a class="institutional-logo-card" href="https://www.saude.mt.gov.br/unidade/centro-de-informacao-estrategicas-de-vigilancia-em-saude" target="_blank" rel="noreferrer"><span class="logo-card-label">Unidade estadual</span><span class="cievs-mt-lockup" aria-hidden="true"><span class="cievs-orbit"><i></i><i></i><i></i></span><span><strong>CIEVS</strong> <b style="color:#e87722">MT</b><small>Centro de Informações Estratégicas em Vigilância em Saúde</small></span></span></a>
+          <a class="institutional-logo-card" href="https://www.gov.br/saude/pt-br/composicao/svsa/cievs" target="_blank" rel="noreferrer"><span class="logo-card-label">Rede nacional</span><img src="assets/rede-cievs.png" alt="Rede CIEVS"></a>
+          <div class="institutional-logo-card"><span class="logo-card-label">Vigilância em desastres</span><img src="assets/vigidesastres.png" alt="Vigidesastres"></div>
+        </div>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="faq-title">
+      <div class="container faq-layout">
+        <div class="section-heading"><span class="section-kicker">Dúvidas frequentes</span><h2 id="faq-title">Entenda o papel do ARARAS MT.</h2></div>
+        <div class="faq-list">
+          <details><summary>O ARARAS MT substitui sistemas oficiais de saúde?</summary><p>Não. A plataforma integra e contextualiza indicadores para apoiar a análise e a gestão, preservando os sistemas e fluxos oficiais.</p></details>
+          <details><summary>Quem poderá acessar a plataforma?</summary><p>Haverá conteúdos públicos e recursos restritos a gestores e equipes autorizadas, conforme o perfil de acesso e a política institucional.</p></details>
+          <details><summary>Os alertas representam diagnóstico ou decisão automática?</summary><p>Não. Alertas são sinais para investigação e resposta técnica. Toda decisão deve considerar protocolos, evidências e contexto local.</p></details>
+          <details><summary>Como os alertas são enviados?</summary><p>Após validação e liberação operacional, os alertas podem ser publicados no painel e enviados por e-mail institucional, canais técnicos homologados e WhatsApp Business API oficial sob ativos da SES-MT, com registro de auditoria.</p></details>
+        </div>
+      </div>
+    </section>
+    <section class="institutional-cta">
+      <div class="container institutional-cta-inner">
+        <div><span>Ecossistema estadual de informação em saúde</span><h2>Conheça também o SIEGES.</h2><p>Serviço de Inteligência Estratégica para Gestão Estadual do SUS.</p></div>
+        <a class="button button-light" href="https://sieges.saude.mt.gov.br/" target="_blank" rel="noreferrer">Acessar o SIEGES</a>
+      </div>
+    </section>
+  </div>
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div>
+        <a class="footer-brand" href="#inicio"><img src="assets/araras-marca.png" alt=""><span><strong>ARARAS MT</strong><small>Clima, ambiente e saúde em uma só visão.</small></span></a>
+        <p>Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde.</p>
+        <span class="footer-status">Em implantação institucional</span>
+      </div>
+      <div class="footer-column">
+        <h2>Institucional</h2>
+        <a href="https://www.saude.mt.gov.br/" target="_blank" rel="noreferrer">Portal SES-MT</a>
+        <a href="https://sieges.saude.mt.gov.br/" target="_blank" rel="noreferrer">SIEGES</a>
+        <a href="https://www.saude.mt.gov.br/unidade/centro-de-informacao-estrategicas-de-vigilancia-em-saude" target="_blank" rel="noreferrer">CIEVS-MT</a>
+        <a href="https://www.gov.br/saude/pt-br/composicao/svsa/cievs" target="_blank" rel="noreferrer">Rede CIEVS</a>
+        <a href="https://www.saude.mt.gov.br/ouvidoria" target="_blank" rel="noreferrer">Ouvidoria</a>
+      </div>
+      <div class="footer-column">
+        <h2>Secretaria de Estado de Saúde</h2>
+        <address>Palácio Paiaguás — Rua D, s/n, Bloco 5<br>Centro Político Administrativo<br>Cuiabá–MT, CEP 78049-902</address>
+        <p>Atendimento: 8h às 18h<br>Telefone: (65) 3613-5387</p>
+      </div>
+    </div>
+    <div class="footer-bottom"><div class="container"><span>© <span id="year">2026</span> Secretaria de Estado de Saúde de Mato Grosso</span><span>Ambiente institucional em articulação com a STI/SES-MT e o CIEVS-MT</span></div></div>
+  </footer>
+</main>
+<script src="app.js" defer></script>
+</body>
+</html>

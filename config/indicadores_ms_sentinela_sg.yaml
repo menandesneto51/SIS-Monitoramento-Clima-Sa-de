@@ -1,0 +1,68 @@
+# Catálogo — Vigilância Sentinela de Síndrome Gripal (MS)
+# Referências: Caderno de Análise de Indicadores MS (2024); NT vigilância sentinela SG;
+# Guia de Vigilância Integrada MS/SVSA (2024). Metas OMS: >80% = meta atingida.
+
+fonte_oficial: Ministerio da Saude / SVSA — Vigilância Sentinela de SG
+sistema: SIVEP-Gripe (agregado semanal + amostras US)
+meta_qualidade_oms_pct: 80
+meta_amostras_por_se: 10
+
+indicadores:
+  - id: SG-01
+    nome: Percentual de SE com envio de dados agregados
+    tipo: processo
+    unidade: "%"
+  - id: SG-02
+    nome: Percentual de SE com coletas de amostras de SG em US
+    tipo: processo
+    unidade: "%"
+  - id: SG-03
+    nome: Media de amostras de SG em US por SE
+    tipo: processo
+    unidade: amostras/SE
+  - id: SG-04
+    nome: Homogeneidade do envio de amostras no periodo
+    tipo: processo
+    unidade: "%"
+  - id: SG-05
+    nome: Percentual de registros que atendem definicao de caso de SG
+    tipo: qualidade
+    unidade: "%"
+  - id: SG-06
+    nome: Preenchimento de raca/cor, escolaridade e antiviral
+    tipo: qualidade
+    unidade: "%"
+  - id: SG-07
+    nome: Percentual de amostras processadas por RT-PCR
+    tipo: qualidade
+    unidade: "%"
+  - id: SG-08
+    nome: Percentual com resultado RT-PCR em ate 10 dias
+    tipo: qualidade
+    unidade: "%"
+  - id: SG-09
+    nome: Percentual de casos encerrados ate 60 dias
+    tipo: qualidade
+    unidade: "%"
+  - id: SG-10
+    nome: Proporcao de atendimentos SG / atendimentos gerais por SE
+    tipo: resultado
+    unidade: "%"
+  - id: SG-11
+    nome: Proporcao de positividade dos virus testados
+    tipo: resultado
+    unidade: "%"
+  - id: SG-12
+    nome: Distribuicao viral por SE de inicio de sintomas
+    tipo: resultado
+    unidade: casos
+  - id: SG-13
+    nome: Distribuicao da circulacao viral por faixa etaria
+    tipo: resultado
+    unidade: casos
+
+classificacao_oms:
+  meta_atingida: ">=80"
+  baixo: "21-80"
+  baixissimo: "1-20"
+  silencioso: "0"

@@ -1,0 +1,52 @@
+BOLETIM OPERACIONAL ARARAS MT — CIEVS/SES-MT
+    Clima, saúde, prontidão e povos/territórios vulneráveis
+    Data de referência: 2026-08-15
+    Recorte: 142 municípios IBGE-MT
+
+    1. SITUAÇÃO GERAL
+    Nível estadual consolidado: ROXA. Município sentinela mais crítico: nan.
+
+    2. PRINCIPAIS GATILHOS
+    UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 14.80 sem gatilho; pressão assistencial 0.84 sem gatilho; ocupação de leitos 51.32 sem gatilho; z-score assistencial indisponível; z-score arboviroses 4.59 atingiu roxa
+
+    3. PRONTIDÃO CLIMÁTICA (cenário dominante)
+    seca estiagem: 78, queimadas fumaca: 58, chuva enchente: 5, pos chuva vetores: 1
+    Fase 1 MT: seca/estiagem, baixa umidade e queimadas/fumaça. A IA só aplica a matriz validada — não prescreve medicamento.
+
+    4. POVOS E TERRITÓRIOS VULNERÁVEIS (Vigibarragens)
+    116 município(s) com território tradicional (659 aldeias FUNAI. 73 quilombos Palmares. 372 assentamentos INCRA. ~62.465 famílias). 29 município(s) com barragem de DPA alto. Articular SESAI/DSEI, APS rural e Defesa Civil conforme o cenário climático. Distância ao eixo de barragem não é cota de inundação.
+    Municípios com maior carga territorial:
+    - nan: 75 aldeias, 0 quilombos, 3 assent. (queimadas_fumaca)
+    - nan: 60 aldeias, 0 quilombos, 1 assent. (queimadas_fumaca)
+    - nan: 54 aldeias, 0 quilombos, 5 assent. (queimadas_fumaca)
+    - nan: 41 aldeias, 0 quilombos, 1 assent. (seca_estiagem)
+    - nan: 37 aldeias, 0 quilombos, 2 assent. (queimadas_fumaca)
+    - nan: 28 aldeias, 0 quilombos, 2 assent. (queimadas_fumaca)
+    Fontes: FUNAI (aldeias), Palmares (quilombos certificados), INCRA (assentamentos), SNISB (barragens DPA). Distância ao eixo Manso–Cuiabá não é polígono de inundação.
+
+    5. MUNICÍPIOS PRIORITÁRIOS
+    - nan: nível roxa | score 4 | cenário queimadas_fumaca | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 14.80 sem gatilho; pressão assistencial 0.84
+- nan: nível roxa | score 4 | cenário seca_estiagem | territórios: 1 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 15.10 sem gatilho; pressão assistencial 0.99
+- nan: nível roxa | score 4 | cenário seca_estiagem | territórios: 2 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 4.00 sem gatilho; pressão assistencial 0.81 
+- nan: nível roxa | score 4 | cenário queimadas_fumaca | territórios: 13 ald, 1 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 15.10 sem gatilho; pressão assistencial 0.82
+- nan: nível roxa | score 4 | cenário queimadas_fumaca | territórios: 4 quil | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 17.20 sem gatilho; pressão assistencial 0.85
+- nan: nível roxa | score 4 | cenário queimadas_fumaca | territórios: 24 ald, 3 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 4.00 sem gatilho; pressão assistencial 0.93 
+- nan: nível roxa | score 4 | cenário seca_estiagem | territórios: 1 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 22.70 sem gatilho; pressão assistencial 0.83
+- nan: nível roxa | score 4 | cenário queimadas_fumaca | territórios: 2 ald, 3 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 0.70 sem gatilho; pressão assistencial 1.01 
+- nan: nível roxa | score 4 | cenário queimadas_fumaca | territórios: 37 ald, 2 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 29.00 sem gatilho; pressão assistencial 1.09
+- nan: nível roxa | score 4 | cenário seca_estiagem | territórios: 6 ass | UTCI/proxy indisponível; Tmax indisponível; risco cumulativo 3d indisponível; saturação do solo 14.40 sem gatilho; pressão assistencial 1.50
+
+    6. RECOMENDAÇÕES OPERACIONAIS
+    - Crise: Ativar comando unificado municipal/estadual e solicitar apoio interfederativo.
+- Logística: Executar redistribuição emergencial de insumos, água, transporte e leitos.
+- Comunicação de crise: Disseminar orientações para salvar vidas em todos os canais disponíveis.
+- Pós-evento: Planejar recuperação, análise de mortalidade, auditoria e reposição imediata de recursos.
+- Arboviroses: Mobilizar apoio estadual/federal para controle vetorial e assistência às arboviroses em emergência.
+- Atenção farmacêutica estadual: Competência estadual (SAF/CEME/regionais): programar e redistribuir estoque estratégico entre regionais; emitir nota técnica às farmácias municipais; não substituir a dispensação do CBAF. Linha respiratória: posicionar/redistribuir broncodilatadores, corticoides e insumos de inalação às regionais com IQA laranja+ ou SRAG em alta; orientar PFF2 aos trabalhadores da saúde em fumaça. Visa/SAF estadual: checar e antecipar hipoclorito 2,5%, SRO e materiais de tratamento de água às regionais em risco de cheia; articular soro antiofídico e imunobiológicos com CEME/PNI. Protocolo de dengue grave: insumos de hidratação venosa e orientação para não usar AINE; reforço de programação do componente básico nas regionais com incidência elevada.
+- Atenção farmacêutica municipal: Farmácia básica/UBS: conferir estoque de broncodilatadores (salbutamol spray e solução, ipratrópio), corticoides sistêmicos (prednisolona/prednisona) e inalatórios, espaçadores e oxigênio nas portas de urgência. IQA ruim/vermelho: PFF2/N95 em atividade externa; suspender educação física ao ar livre; grupos de risco permanecem em ambiente protegido. APS: busca ativa de asmáticos/DPOC cadastrados; orientar hidratação e evitar queima de lixo/biomassa.
+- Comunicação IQA / máscaras: IQA ruim/vermelho: PFF2/N95 em atividade externa; suspender educação física ao ar livre; grupos de risco permanecem em ambiente protegido.
+    - Assistência farmacêutica: conferir CBAF municipal e SAF/CEME estadual conforme IQA, seca e cheia (máscara PFF2 segundo PM2,5).
+    - SESAI/DSEI nas aldeias; APS rural em quilombos e assentamentos; Defesa Civil se DPA alto + cheia.
+
+    7. ENCAMINHAMENTO
+    Validar no painel ARARAS MT (Prontidão climática e Mapas). Não enviar alerta automático sem decisão humana.

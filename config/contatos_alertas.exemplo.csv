@@ -1,0 +1,6 @@
+tipo_destinatario,regional_saude,cod_ibge,municipio,nome,email,telegram_chat_id,ativo
+regional,Cuiabá,,,Regional de Saúde Cuiabá,regional.cuiaba@exemplo.gov.br,,1
+regional,Sorriso,,,Regional de Saúde Sorriso,regional.sorriso@exemplo.gov.br,,1
+municipal,Cuiabá,5103403,Cuiabá,SMS Cuiabá,sms.cuiaba@exemplo.gov.br,,1
+cuiaba,Cuiabá,5103403,Cuiabá,Vigidesastre Cuiabá,vigidesastre.cuiaba@exemplo.gov.br,,1
+municipal,Sorriso,5105251,Nova Mutum,SMS Nova Mutum,sms.novamutum@exemplo.gov.br,,1

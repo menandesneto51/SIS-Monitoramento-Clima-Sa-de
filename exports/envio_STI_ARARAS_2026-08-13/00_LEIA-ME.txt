@@ -1,0 +1,28 @@
+Pacote STI / CIEVS — ARARAS MT
+Instalação e configuração nos servidores da SES-MT
+Data: 13/08/2026
+Unidade: CIEVS-MT
+Nome público: ARARAS MT (Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde)
+Pacote interno: sisclima  |  branch de referência: painel-v9 / araras-mt
+
+Hostnames solicitados (ofício já encaminhado em 13/08/2026):
+  - araras.saude.mt.gov.br          site institucional estático (sites/araras-mt/)
+  - araras-painel.saude.mt.gov.br   painel Streamlit :8501 (somente rede SES)
+
+Arquivos deste pacote (ordem sugerida de leitura):
+
+01_RELATORIO_PRONTIDAO_INSTITUCIONAL.pdf  — contexto de prontidão (piloto)
+02_STI_IMPLANTACAO_SERVIDOR_SES.pdf       — instalação, rede, Docker, contas, portas
+03_CHECKLIST_HOMOLOGACAO_STI.pdf          — aceite OK/NOK para preenchimento STI/CIEVS
+04_env.producao.example.txt               — modelo de .env (sem senhas)
+05_SOLICITACAO_STI_DOMINIO_ARARAS_MT.pdf  — reserva DNS/TLS/proxy
+06_OPERACAO.md                            — rotina diária e agendamento
+
+Pontos de atenção para a STI:
+  - Postgres 16 local; porta 5432 somente localhost / rede Docker
+  - Painel :8501 atrás do proxy HTTPS institucional; não expor à internet
+  - Contas SQL (DW 10.15.1.50 / IndicaSUS 10.15.0.222 / SISREG 10.15.1.71) somente leitura
+  - Alertas desligados até homologação CIEVS (SEND_ALERT_ON_LEVEL_CHANGE=false; ALERT_FANOUT_ENABLED=false)
+  - Sem WhatsApp não oficial; somente WhatsApp Business API homologada, se autorizado
+
+Contatos CIEVS: notifica@ses.mt.gov.br · cievs@ses.mt.gov.br
