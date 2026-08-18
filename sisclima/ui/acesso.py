@@ -58,14 +58,18 @@ def _opcoes_territorio() -> tuple[list[tuple[str, str]], list[str]]:
     regionais: list[str] = []
     if df is None or df.empty:
         return municipios, regionais
-    if "municipio" in df.columns:
+    if "cod_ibge" in df.columns or "municipio" in df.columns:
         base = df.copy()
-        base["cod_ibge"] = base.get("cod_ibge", pd.Series(dtype=str)).astype(str)
-        base = base.dropna(subset=["municipio"]).drop_duplicates("cod_ibge")
+        base["cod_ibge"] = base.get("cod_ibge", pd.Series([""] * len(base))).astype(str)
+        # Nome do município pode vir nulo na base; usa o cod_ibge como rótulo de reserva.
+        if "municipio" not in base.columns:
+            base["municipio"] = base["cod_ibge"]
+        base["municipio"] = base["municipio"].fillna(base["cod_ibge"]).astype(str)
+        base = base[base["cod_ibge"].str.len() > 0].drop_duplicates("cod_ibge")
         for _, r in base.iterrows():
-            nome = str(r.get("municipio"))
             cod = str(r.get("cod_ibge") or "")
-            municipios.append((f"{nome}" + (f" ({cod})" if cod and cod != nome else ""), cod))
+            nome = str(r.get("municipio") or cod)
+            municipios.append((nome + (f" ({cod})" if cod and cod != nome else ""), cod))
         municipios = sorted(municipios, key=lambda x: x[0])
     if "regional_saude" in df.columns:
         regionais = sorted(
@@ -280,7 +284,8 @@ def aplicar_escopo(df: pd.DataFrame, sessao: SessaoAcesso) -> pd.DataFrame:
         out = out[out["cod_ibge"].astype(str).isin([str(c) for c in sessao.escopo_cod_ibge])]
     elif sessao.escopo_regional and "regional_saude" in out.columns:
         out = out[out["regional_saude"].astype(str) == sessao.escopo_regional]
-    return out
+    # Índice contíguo: evita desalinhamento em engines que fazem merge/reset_index.
+    return out.reset_index(drop=True)
 
 
 # --------------------------------------------------------------------------- #
