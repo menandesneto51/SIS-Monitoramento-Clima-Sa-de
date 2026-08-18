@@ -48,7 +48,7 @@ try:
         page_title="ARARAS MT · Clima, ambiente e saúde em uma só visão",
         page_icon=str(_logo) if _logo.exists() else None,
         layout="wide",
-        initial_sidebar_state="collapsed",
+        initial_sidebar_state="expanded",
     )
 except Exception:
     pass

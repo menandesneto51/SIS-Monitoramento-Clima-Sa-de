@@ -68,7 +68,6 @@ def render_painel_publico(
     tmax=None,
     utci=None,
     pm25=None,
-    n_subindo: int = 0,
 ) -> None:
     if resumo is None or resumo.empty:
         st.warning("Sem resumo municipal para o painel público nesta rodada.")
@@ -96,8 +95,8 @@ def render_painel_publico(
     insight_cards(
         [
             ("Situação do Estado", str(nivel).upper(), meta["analogia"]),
-            ("Municípios em alerta", f"{n_alerta}/{n_total}", "vermelha + roxa"),
-            ("Tendência em 7 dias", f"{n_subindo} mun. em alta", "priorização climática/saúde"),
+            ("Municípios em alerta", f"{n_alerta}/{n_total}", "vermelha + roxa nesta rodada"),
+            ("Leitura", "Público", "sem CNES, SISREG ou cálculos internos"),
         ]
     )
 

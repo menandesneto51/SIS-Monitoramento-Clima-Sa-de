@@ -26,48 +26,49 @@ cp config/contatos_alertas.exemplo.csv data/input/contatos_alertas.csv
 # no .env: ALERT_FANOUT_ENABLED=true
 ```
 
-## Agendador diário sem notebook
+## Produção: servidor da SES
 
-O serviço Docker `alerts-scheduler` (`restart: unless-stopped`) roda no **servidor/host**, independente do notebook estar ligado ou na rede:
-
-```bash
-# No servidor SES / VPS com Docker
-docker compose up -d db alerts-scheduler
-```
-
-Padrão: ciclo a cada **24 h** (`ALERT_INTERVAL_HOURS=24`). Disparo manual:
+O ARARAS MT roda **na rede interna da SES**. DW (`10.15.1.50`), IndicaSUS e SISREG são hosts locais — **não há VPN** nesse cenário. Modelo de `.env`: `.env.producao.example`. Detalhe de implantação: `docs/STI_IMPLANTACAO_SERVIDOR_SES.md`.
 
 ```bash
-docker compose run --rm alerts-scheduler --once --force
-# ou
-python -m sisclima.alerts.scheduler --once --force
+# No servidor SES (Docker)
+docker compose up -d db etl-scheduler app alerts-scheduler
 ```
 
-Alternativa sem Docker Compose contínuo: cron no servidor (`0 8 * * *`) chamando o mesmo comando `--once`.
+| Serviço | Função |
+|---|---|
+| `db` | Postgres operacional |
+| `etl-scheduler` | Pipeline a cada 6 h (`ETL_INTERVAL_HOURS`) — clima + DW + indicadores |
+| `app` | Painel Streamlit (`:8501`) |
+| `alerts-scheduler` | Digest de alertas (só depois de ETL fresca) |
 
-## Agendamento Windows
+O painel lê o Postgres já atualizado; recarregar o navegador basta. `--offline` e o Agendador do Windows no notebook são só para desenvolvimento fora da SES.
 
-Usar Agendador de Tarefas:
+## Pasta `data/input`
+
+A pasta não vai para o Git. Na primeira máquina:
+
+```powershell
+python scripts\preparar_data_input.py
+```
+
+Isso cria `data/input` e `data/input/sivep_atualizacao`, copia CSVs de exemplo (se existirem em `data/sample`) e o modelo de contatos.
+
+| O que entra | Onde | Como entra no painel |
+|---|---|---|
+| Export SIVEP/SRAG (CSV/XLSX/Parquet) | `data/input/sivep_atualizacao/` | `atualizar_sivep_local.bat` ou a rotina diária |
+| Planilha de contatos | `data/input/contatos_alertas.csv` | Fan-out com `ALERT_FANOUT_ENABLED=true` |
+| CSV de fallback (INMET, rumores, leitos…) | `data/input\` nomes em `config/settings.yaml` | Pipeline, se a API/DW estiver vazia |
+| IndicaSUS, SINAN, SIM, GAL, CNES | DW (`DW_*` no `.env`) | Rede interna SES (servidor de produção) |
+
+SIVEP oficial não se inventa: coloque o export da vigilância na pasta de atualização. Sem arquivo, a aba SIVEP fica vazia.
+
+## Windows Server (sem Docker)
+
+Se o servidor da SES for Windows e a STI não usar Compose, agendar no próprio host:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\criar_tarefas_windows.ps1
 ```
 
-Os `.bat` na raiz apontam para:
-
-| Script | Função |
-|---|---|
-| `rodar_pipeline.bat` | `rotina_diaria_ops.py` (ANA + enrichment + SISREG/pressão + seed) |
-| `rodar_alertas_once.bat` | digest SES/CIEVS (`sisclima.alerts.scheduler --once`) |
-
-Manual (PowerShell):
-
-```powershell
-.\.venv\Scripts\python.exe rotina_diaria_ops.py
-.\.venv\Scripts\python.exe rotina_diaria_ops.py --offline
-.\.venv\Scripts\python.exe scripts\smoke_ops.py
-```
-
-Sem VPN SES, a rotina entra em modo offline automático (CSV/cache). Com VPN, omita `--offline`.
-
-Nos níveis críticos, criar segunda tarefa às 12h e 17h.
+`rodar_pipeline.bat` chama `rotina_diaria_ops.py` (clima + DW + ANA + SISREG). O `--offline` não deve ser usado nesse host.

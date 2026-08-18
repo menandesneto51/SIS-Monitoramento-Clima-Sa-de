@@ -2,14 +2,16 @@
 """Usuários do painel: cadastro, níveis e senha com PBKDF2 (sem texto puro)."""
 from __future__ import annotations
 
+import csv
 import hashlib
 import hmac
 import os
 import re
 from datetime import datetime, timezone
+from functools import lru_cache
 from typing import Any
 
-from sisclima.core.config import env
+from sisclima.core.config import ROOT, env
 from sisclima.core.db import db_conn, execute, fetchall, fetchone, is_postgres
 from sisclima.core.logging_utils import get_logger
 
@@ -28,8 +30,106 @@ NIVEIS: list[tuple[str, str]] = [
 ]
 NIVEL_RANK = {k: i for i, (k, _lbl) in enumerate(NIVEIS)}
 NIVEIS_AUTO = {"publico"}
-NIVEIS_SOLICITaveis = ("publico", "municipal", "regional", "ses")
+NIVEIS_SOLICITAVEL = ("publico", "municipal", "regional", "ses")
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+@lru_cache(maxsize=1)
+def _catalogo_rows() -> list[dict[str, str]]:
+    path = ROOT / "config" / "regionais_saude_mt.csv"
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8-sig", newline="") as fh:
+        return [{k: str(v or "").strip() for k, v in row.items()} for row in csv.DictReader(fh)]
+
+
+def catalogo_regionais() -> list[str]:
+    seen: list[str] = []
+    for row in _catalogo_rows():
+        reg = row.get("regional_saude") or ""
+        if reg and reg not in seen:
+            seen.append(reg)
+    return sorted(seen)
+
+
+def catalogo_municipios(regional_saude: str = "") -> list[str]:
+    alvo = str(regional_saude or "").strip().casefold()
+    seen: list[str] = []
+    for row in _catalogo_rows():
+        if alvo and str(row.get("regional_saude") or "").casefold() != alvo:
+            continue
+        mun = row.get("municipio") or ""
+        if mun and mun not in seen:
+            seen.append(mun)
+    return sorted(seen)
+
+
+def lookup_territorio(
+    municipio: str = "",
+    regional_saude: str = "",
+    cod_ibge: str = "",
+) -> tuple[str, str, str]:
+    """Devolve (municipio, regional_saude, cod_ibge) a partir do cadastro SES-MT."""
+    mun = str(municipio or "").strip()
+    reg = str(regional_saude or "").strip()
+    ibge = str(cod_ibge or "").strip()
+    rows = _catalogo_rows()
+    if not rows:
+        return mun, reg, ibge
+    hit = None
+    if ibge:
+        hit = next((r for r in rows if r.get("cod_ibge") == ibge), None)
+    if hit is None and mun:
+        hit = next((r for r in rows if str(r.get("municipio") or "").casefold() == mun.casefold()), None)
+    if hit is None and reg and not mun:
+        hit = next((r for r in rows if str(r.get("regional_saude") or "").casefold() == reg.casefold()), None)
+        if hit is not None:
+            return mun, hit.get("regional_saude") or reg, ibge
+    if hit is None:
+        return mun, reg, ibge
+    return hit.get("municipio") or mun, hit.get("regional_saude") or reg, hit.get("cod_ibge") or ibge
+
+
+def recorte_usuario(user: dict[str, Any] | None) -> dict[str, Any]:
+    """Recorte territorial travado para conta municipal/regional ativa."""
+    out: dict[str, Any] = {
+        "nivel": str((user or {}).get("nivel") or "publico"),
+        "lock_regional": False,
+        "lock_municipal": False,
+        "regional_saude": "",
+        "municipio": "",
+        "cod_ibge": "",
+        "regionais": [],
+        "municipios": [],
+    }
+    if not user or str(user.get("status") or "ativo") != "ativo":
+        return out
+    nivel = str(user.get("nivel") or "")
+    if nivel == "municipal":
+        mun, reg, ibge = lookup_territorio(
+            municipio=str(user.get("municipio") or ""),
+            regional_saude=str(user.get("regional_saude") or ""),
+            cod_ibge=str(user.get("cod_ibge") or ""),
+        )
+        out.update(
+            lock_regional=True,
+            lock_municipal=True,
+            municipio=mun,
+            regional_saude=reg,
+            cod_ibge=ibge,
+            regionais=[reg] if reg else [],
+            municipios=[mun] if mun else [],
+        )
+    elif nivel == "regional":
+        _mun, reg, _ibge = lookup_territorio(regional_saude=str(user.get("regional_saude") or ""))
+        muns = catalogo_municipios(reg)
+        out.update(
+            lock_regional=True,
+            regional_saude=reg,
+            regionais=[reg] if reg else [],
+            municipios=muns,
+        )
+    return out
 
 
 def _now() -> str:
@@ -136,11 +236,16 @@ def register_user(
         return False, "Informe o nome completo."
     if len(password) < 8:
         return False, "A senha precisa ter pelo menos 8 caracteres."
-    if nivel_solicitado not in NIVEL_RANK or nivel_solicitado == "admin":
+    if nivel_solicitado not in NIVEIS_SOLICITAVEL:
         return False, "Nível solicitado inválido. Administração só é concedida internamente."
-    if nivel_solicitado == "municipal" and not str(municipio or "").strip():
+    mun, reg, ibge = lookup_territorio(
+        municipio=municipio,
+        regional_saude=regional_saude,
+        cod_ibge=cod_ibge,
+    )
+    if nivel_solicitado == "municipal" and not mun:
         return False, "Nível municipal exige o município de atuação."
-    if nivel_solicitado == "regional" and not str(regional_saude or "").strip():
+    if nivel_solicitado == "regional" and not reg:
         return False, "Nível regional exige a Regional de Saúde."
     if get_user_by_email(mail):
         return False, "Já existe cadastro com este e-mail."
@@ -165,9 +270,9 @@ def register_user(
                 nivel_solicitado,
                 "publico" if not auto else nivel_solicitado,
                 "ativo" if auto else "pendente",
-                str(regional_saude or "").strip() or None,
-                str(municipio or "").strip() or None,
-                str(cod_ibge or "").strip() or None,
+                reg or None,
+                mun or None,
+                ibge or None,
                 salt,
                 hashed,
                 now,
@@ -310,3 +415,63 @@ def bootstrap_admin() -> None:
             (email, nome, "SES-MT / CIEVS-MT", "admin", "admin", "ativo", None, None, None, salt, hashed, now, now, now, "env"),
         )
     log.info("Administrador do painel criado via ambiente: %s", email)
+
+
+def _is_localhost_request() -> bool:
+    """Localhost ou rede privada (10/172.16-31/192.168) — não vale para IP público."""
+    try:
+        import streamlit as st
+
+        host = str(st.context.headers.get("Host") or "")
+    except Exception:
+        host = ""
+    host = host.split(":")[0].strip().lower()
+    if host in {"127.0.0.1", "localhost", "::1"}:
+        return True
+    parts = host.split(".")
+    if len(parts) != 4 or not all(p.isdigit() for p in parts):
+        return False
+    a, b = int(parts[0]), int(parts[1])
+    return a == 10 or a == 192 and b == 168 or a == 172 and 16 <= b <= 31
+
+
+def apply_local_interno_preview(session: dict | None = None) -> bool:
+    """Abre o painel interno em localhost/LAN, com ?interno=1, para validação local."""
+    try:
+        import streamlit as st
+
+        if session is None:
+            session = st.session_state
+        flag = str(st.query_params.get("interno") or st.query_params.get("restrito") or "")
+        acesso = str(st.query_params.get("acesso") or "")
+    except Exception:
+        return False
+    if acesso.lower() in {"1", "true", "sim"}:
+        session[GATE_KEY] = True
+    if flag.lower() not in {"1", "true", "sim"}:
+        return False
+    if current_user(session):
+        session[MODO_KEY] = "interno"
+        return True
+    if not _is_localhost_request():
+        return False
+    email = _norm_email(env("ARARAS_ADMIN_EMAIL", "") or "") or "preview.local@ses.mt.gov.br"
+    row = get_user_by_email(email)
+    if row and str(row.get("status") or "") == "ativo" and is_interno(_row_public(row)):
+        login_to_session(_row_public(row) or {}, session)
+    else:
+        login_to_session(
+            {
+                "email": email,
+                "nome": (env("ARARAS_ADMIN_NOME", "") or "Prévia local CIEVS").strip(),
+                "nivel": "admin",
+                "status": "ativo",
+                "instituicao": "SES-MT / CIEVS-MT",
+                "regional_saude": None,
+                "municipio": None,
+                "cod_ibge": None,
+            },
+            session,
+        )
+    session[MODO_KEY] = "interno"
+    return True

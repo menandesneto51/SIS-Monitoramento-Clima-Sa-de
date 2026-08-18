@@ -23,8 +23,13 @@ secrets.toml
 # Cursor / IDE
 .cursor/
 
-# Operational/local data
-data/input/
+# Operational/local data (CSVs reais ficam só na máquina)
+data/input/*
+!data/input/LEIA-ME.txt
+!data/input/.gitkeep
+!data/input/sivep_atualizacao/
+data/input/sivep_atualizacao/*
+!data/input/sivep_atualizacao/.gitkeep
 data/raw/
 data/bronze/
 data/silver/
@@ -57,6 +62,7 @@ Texto colado*.txt
 !FORCE_PUSH_REPO_LIMPO_GITHUB_PY_V11_16.cmd
 !rodar_pipeline.bat
 !rodar_alertas_once.bat
+!atualizar_sivep_local.bat
 !scripts/criar_tarefas_windows.ps1
 
 # Contacts

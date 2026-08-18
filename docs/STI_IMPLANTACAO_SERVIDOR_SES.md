@@ -34,9 +34,9 @@ Padrão de marca e comunicação: `docs/IDENTIDADE_VISUAL_ARARAS_MT.md`.
 Arquitetura lógica: Bronze (fontes) → Silver (padronização) → Gold (indicadores) → Dashboard.
 
 ```text
-[DW/IndicaSUS/SISREG]──VPN SES──┐
-[Open-Meteo/Cemaden/ANA/INPE]──HTTPS──┤──► Pipeline ──► Postgres ──► Streamlit :8501
-[CSV locais / SIVEP]──────────────────┘         │
+[DW/IndicaSUS/SISREG]──rede interna SES──┐
+[Open-Meteo/Cemaden/ANA/INPE]──HTTPS─────┤──► Pipeline ──► Postgres ──► Streamlit :8501
+[CSV locais / SIVEP]─────────────────────┘         │
                                       etl-scheduler (6 h)
                                                 │
                                                 ├──► Postgres / Streamlit
@@ -64,7 +64,7 @@ Arquitetura lógica: Bronze (fontes) → Silver (padronização) → Gold (indic
 |-------|---------|-------------------|
 | **8501/TCP** | Streamlit (painel) | Rede interna SES / reverse proxy STI |
 | **5432/TCP** | Postgres | **Somente localhost** ou rede Docker interna |
-| 1433/TCP (saída) | SQL Server DW / IndicaSUS / SISREG | Via VPN/rede SES |
+| 1433/TCP (saída) | SQL Server DW / IndicaSUS / SISREG | Rede interna SES (mesmo datacenter) |
 
 > Não publicar 5432 na internet. Preferir autenticação SSO/proxy da STI na frente do 8501.
 

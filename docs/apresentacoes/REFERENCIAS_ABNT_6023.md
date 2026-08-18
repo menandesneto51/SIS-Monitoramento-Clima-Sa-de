@@ -9,6 +9,8 @@ NOAA. Climate Prediction Center. *ENSO Diagnostic Discussion*. Silver Spring, 9 
 
 IRI – INTERNATIONAL RESEARCH INSTITUTE FOR CLIMATE AND SOCIETY. *ENSO Forecast: July 2026 Quick Look*. New York: Columbia Climate School, jul. 2026. Disponível em: https://iri.columbia.edu/our-expertise/climate/forecasts/enso/current/. Acesso em: 27 jul. 2026.
 
+INMET; INPE; ANA; CEMADEN; SGB; SEDEC; CENSIPAM. *Painel El Niño 2026-2027*: boletim mensal n.º 02 – julho de 2026. Brasília: INMET/INPE, jul. 2026.
+
 INMET; INPE; ANA; CEMADEN; SGB; SEDEC. *Painel El Niño 2026-2027*: boletim mensal n.º 01 – junho de 2026. Brasília: INMET/INPE, jun. 2026. Disponível em: https://portal.inmet.gov.br/uploads/notastecnicas/Painel-El-Ni%C3%B1o-Junho_final.pdf. Acesso em: 27 jul. 2026.
 
 INMET. *El Niño 2026*: saiba detalhes sobre o monitoramento, previsões e os possíveis impactos do fenômeno no Brasil. Brasília: Instituto Nacional de Meteorologia, 2026. Disponível em: https://portal.inmet.gov.br/noticias/el-ni%C3%B1o-2026-saiba-detalhes-sobre-o-monitoramento-previs%C3%B5es-e-os-poss%C3%ADveis-impactos-do-fen%C3%B4meno-no-brasil. Acesso em: 27 jul. 2026.

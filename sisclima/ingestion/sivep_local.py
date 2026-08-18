@@ -89,6 +89,30 @@ def normalize_sivep_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _keep_existing_sivep(table: str, db_path: Path) -> dict | None:
+    """Não apaga SRAG já carregado quando a pasta de atualização está vazia."""
+    if _use_unified_db():
+        existing = read_table(table)
+        if existing is not None and not existing.empty:
+            log.warning(
+                "SIVEP: sem arquivo novo em sivep_atualizacao; mantidos %s registros",
+                len(existing),
+            )
+            return {"db": "unified", "table": table, "files": 0, "rows": int(len(existing)), "status": "kept"}
+        return None
+    if not db_path.exists():
+        return None
+    try:
+        with sqlite3.connect(db_path) as conn:
+            n = int(pd.read_sql(f"SELECT COUNT(*) AS n FROM {table}", conn)["n"].iloc[0])
+        if n > 0:
+            log.warning("SIVEP: sem arquivo novo em sivep_atualizacao; mantidos %s registros", n)
+            return {"db_path": str(db_path), "table": table, "files": 0, "rows": n, "status": "kept"}
+    except Exception:
+        return None
+    return None
+
+
 def rebuild_sivep_local_db() -> dict:
     folder = _root_path(env('SIVEP_UPDATE_FOLDER'), 'data/input/sivep_atualizacao')
     db_path = _root_path(env('SIVEP_LOCAL_DB_PATH'), 'data/local/sivep/sivep_srag_local.db')
@@ -99,6 +123,10 @@ def rebuild_sivep_local_db() -> dict:
     files = []
     for pat in patterns:
         files.extend(sorted(folder.glob(pat)))
+    input_csv = _root_path(None, 'data/input') / (env('SIVEP_CSV') or 'sivep_srag.csv')
+    if input_csv.exists() and input_csv not in files:
+        files.append(input_csv)
+    files = [f for f in files if f.is_file() and f.name != '.gitkeep']
     frames = []
     for f in files:
         df = _read_one_file(f)
@@ -112,6 +140,9 @@ def rebuild_sivep_local_db() -> dict:
         if subset:
             out = out.drop_duplicates(subset=subset)
     else:
+        kept = _keep_existing_sivep(table, db_path)
+        if kept is not None:
+            return kept
         out = pd.DataFrame(columns=['data_sintomas','cod_ibge','municipio','casos_srag','obitos_srag','internacoes_uti'])
 
     if _use_unified_db():

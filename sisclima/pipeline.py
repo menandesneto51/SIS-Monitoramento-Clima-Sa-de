@@ -610,7 +610,12 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             try:
                 from sisclima.ingestion.openmeteo_air_quality import fetch_openmeteo_air_quality_municipal
 
-                aq_raw = fetch_openmeteo_air_quality_municipal(municipios)
+                past_days = 0
+                try:
+                    past_days = int(env("OPENMETEO_AQ_PAST_DAYS", "7") or 0)
+                except (TypeError, ValueError):
+                    past_days = 7
+                aq_raw = fetch_openmeteo_air_quality_municipal(municipios, past_days=past_days)
             except Exception as exc:
                 log.warning('Open-Meteo qualidade do ar não carregado: %s', exc)
         if aq_raw.empty:

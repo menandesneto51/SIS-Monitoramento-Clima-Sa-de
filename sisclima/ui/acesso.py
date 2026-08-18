@@ -10,11 +10,14 @@ from sisclima.auth.access import (
     MODO_KEY,
     NIVEIS,
     authenticate,
+    catalogo_municipios,
+    catalogo_regionais,
     current_user,
     is_admin,
     is_interno,
     list_users,
     login_to_session,
+    lookup_territorio,
     logout_session,
     register_user,
     rotulo_nivel,
@@ -70,9 +73,11 @@ def render_access_bar(
 def render_acesso_restrito(regionais: list[str] | None = None, municipios: list[str] | None = None) -> None:
     st.markdown("#### Área de acesso restrito")
     st.caption(
-        "Contas municipais, regionais e da SES passam por aprovação do CIEVS. "
-        "Nível administrador não é autoatribuído."
+        "Público fica ativo na hora. Municipal (SMS), Regional (CRS) e SES/CIEVS aguardam aprovação. "
+        "Nível administrador não pode ser autoatribuído."
     )
+    regs = list(regionais or catalogo_regionais())
+    muns = list(municipios or catalogo_municipios())
     tab_login, tab_cadastro = st.tabs(["Entrar", "Cadastrar"])
     with tab_login:
         with st.form("form_login_araras"):
@@ -89,22 +94,25 @@ def render_acesso_restrito(regionais: list[str] | None = None, municipios: list[
                 st.error(msg)
     with tab_cadastro:
         niveis_opts = {lbl: key for key, lbl in NIVEIS if key != "admin"}
+        nivel_lbl = st.selectbox("Nível solicitado", list(niveis_opts.keys()), key="cad_nivel_lbl")
+        nivel = niveis_opts[nivel_lbl]
+        regional = ""
+        municipio = ""
+        if nivel == "municipal":
+            municipio = st.selectbox("Município (SMS)", muns, key="cad_municipio") if muns else st.text_input(
+                "Município (SMS)", key="cad_municipio_txt"
+            )
+            _m, regional, _ibge = lookup_territorio(municipio=str(municipio or ""))
+            if regional:
+                st.caption(f"Regional de Saúde: **{regional}**")
+        elif nivel == "regional":
+            regional = st.selectbox("Regional de Saúde (CRS)", regs, key="cad_regional") if regs else st.text_input(
+                "Regional de Saúde (CRS)", key="cad_regional_txt"
+            )
         with st.form("form_cadastro_araras"):
             nome = st.text_input("Nome completo")
-            email = st.text_input("E-mail")
+            email = st.text_input("E-mail institucional")
             instituicao = st.text_input("Instituição (SMS, CRS, CIEVS, SES…)")
-            nivel_lbl = st.selectbox("Nível solicitado", list(niveis_opts.keys()))
-            nivel = niveis_opts[nivel_lbl]
-            regional = ""
-            municipio = ""
-            if nivel == "regional" and regionais:
-                regional = st.selectbox("Regional de Saúde", regionais)
-            elif nivel == "regional":
-                regional = st.text_input("Regional de Saúde")
-            if nivel == "municipal" and municipios:
-                municipio = st.selectbox("Município", municipios)
-            elif nivel == "municipal":
-                municipio = st.text_input("Município")
             senha = st.text_input("Senha (mín. 8 caracteres)", type="password")
             senha2 = st.text_input("Confirme a senha", type="password")
             enviar = st.form_submit_button("Enviar cadastro")
@@ -150,12 +158,25 @@ def render_gestao_usuarios() -> None:
     ]
     st.dataframe(view[cols], width="stretch", height=280)
     pendentes = [r for r in rows if str(r.get("status") or "") == "pendente"]
-    alvo_opts = [str(r.get("email")) for r in rows]
+    alvo_opts = [str(r.get("email")) for r in rows if str(r.get("status") or "") == "pendente"]
+    alvo_opts += [str(r.get("email")) for r in rows if str(r.get("email")) not in alvo_opts]
     if not alvo_opts:
         return
     email = st.selectbox("Usuário", alvo_opts, key="admin_user_email")
+    escolhido = next((r for r in rows if str(r.get("email")) == email), {}) or {}
+    pedido = str(escolhido.get("nivel_solicitado") or "ses")
     niveis = [k for k, _ in NIVEIS]
-    nivel = st.selectbox("Nível a conceder", niveis, index=niveis.index("ses") if "ses" in niveis else 0)
+    nivel = st.selectbox(
+        "Nível a conceder",
+        niveis,
+        index=niveis.index(pedido) if pedido in niveis else niveis.index("ses"),
+        help="Administração não é autoatribuída no cadastro; só um admin pode conceder este nível.",
+    )
+    if escolhido.get("municipio") or escolhido.get("regional_saude"):
+        st.caption(
+            f"Território do cadastro: {escolhido.get('municipio') or '—'} · "
+            f"{escolhido.get('regional_saude') or '—'}"
+        )
     c1, c2, c3 = st.columns(3)
     admin = current_user() or {}
     who = str(admin.get("email") or "admin")

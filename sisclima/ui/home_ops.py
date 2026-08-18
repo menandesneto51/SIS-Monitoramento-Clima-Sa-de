@@ -48,7 +48,9 @@ def build_fonte_frescor_home(resumo: pd.DataFrame | None = None) -> pd.DataFrame
         cobertura_nota: str,
     ) -> None:
         status = "indisponivel"
-        if data_ref:
+        if munis is not None and munis > 0 and not data_ref:
+            status = "parcial"
+        elif data_ref:
             try:
                 age_h = (now - pd.to_datetime(data_ref)).total_seconds() / 3600.0
                 if age_h <= esperado_h:
@@ -88,7 +90,7 @@ def build_fonte_frescor_home(resumo: pd.DataFrame | None = None) -> pd.DataFrame
         ("Open-Meteo / biometeo", "met_biometeo", ["data", "data_referencia", "time"], 36, "Clima horário/diário"),
         ("IndicaSUS / ocupação", "hospital_ocupacao_municipio", ["data_processamento", "ultima_movimentacao"], 24, "Cobertura local tipicamente parcial"),
         ("SISREG", "ops_sisreg_municipio", ["data_processamento", "atualizado_em"], 48, "Fila/regulação"),
-        ("Predição calor ~7d", "predicao_calor_7d_municipal_v6", ["data_processamento"], 36, "Nowcast climático (não sazonal)"),
+        ("Predição calor ~7d", "predicao_calor_7d_municipal_v6", ["data_processamento", "gerado_em", "data_referencia", "data"], 36, "Nowcast climático (não sazonal)"),
         ("SIVEP / SRAG", "epi_sivep_srag", ["data", "data_sintomas", "data_notificacao"], 72, "Respiratório"),
         ("Arboviroses", "epi_arboviroses_municipal", ["data", "data_referencia", "semana_epidemiologica"], 96, "Dengue/Zika/Chik"),
         ("INMET alertas", "inmet_alertas", ["inicio", "data_atualizacao", "gerado_em"], 24, "Alertas oficiais"),

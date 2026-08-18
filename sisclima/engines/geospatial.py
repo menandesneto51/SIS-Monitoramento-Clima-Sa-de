@@ -352,6 +352,8 @@ def make_choropleth_or_points(
     for c in [color_col] + hover_cols:
         if c in plot_base.columns and c not in [
             "nivel",
+            "nivel_predicao_7d",
+            "nivel_queimadas",
             "municipio",
             "cod_ibge",
             "fonte_ocupacao",
@@ -362,6 +364,7 @@ def make_choropleth_or_points(
             "componente_dominante",
             "nivel_alerta_integrado",
             "nivel_sis",
+            "situacao_hidro",
         ]:
             plot_base[c] = pd.to_numeric(plot_base[c], errors="coerce")
 

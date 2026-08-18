@@ -41,6 +41,49 @@ LEVEL_GUIDE: dict[str, dict[str, str]] = {
     },
 }
 
+HOW_TO_READ_PUBLIC = [
+    "1. Abra a aba Visão: faixa de nível, cards do recorte e o mapa de risco de 3 dias.",
+    "2. Filtre regional ou município no topo — o recorte vale para todas as abas.",
+    "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
+    "4. Em Território, confira a malha municipal e as populações vulneráveis.",
+    "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
+    "6. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
+    "7. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
+    "8. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
+    "9. Em Cálculos, leia como cada indicador publicado é composto.",
+]
+
+GLOSSARIO_PUBLICO = [
+    "nivel",
+    "tmax",
+    "utci_proxy",
+    "risco_cumulativo_3d",
+    "indice_tensao_climatica",
+    "indice_carga_saude",
+    "indice_vigilancia_integrada",
+    "indice_prioridade_global",
+    "faixa_prioridade_global",
+    "tendencia_7d",
+    "tendencia_prioridade_7d",
+    "pressao_calor_pct",
+    "indice_pressao_saude",
+    "ocupacao_leitos_pct",
+    "pm25_ugm3",
+    "iq_ar_score",
+    "qualidade_ar_nivel",
+    "focos_queimadas_7d",
+    "focos_queimadas_24h",
+    "nivel_queimadas",
+    "indice_vulnerabilidade_calor",
+    "casos_arbovirus_7d",
+    "incidencia_arbovirus_100k",
+    "risco_vetorial_climatico",
+    "indice_saturacao_solo",
+    "situacao_hidro",
+    "indice_sazonal",
+    "odds_ratio",
+]
+
 INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
     "nivel": {
         "nome": "Nível operacional",
@@ -96,6 +139,26 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "nome": "PM2,5",
         "leigo": "Partículas finas no ar (fumaça/poeira) que entram fundo no pulmão.",
         "como_ler": "Valores altos preocupam asma, idosos e crianças — comum em queimadas.",
+    },
+    "casos_arbovirus_7d": {
+        "nome": "Casos de arboviroses (7 dias)",
+        "leigo": "Notificações de dengue, zika, chikungunya e correlatas na última semana.",
+        "como_ler": "Janela curta — mostra a pressão recente, não a temporada inteira.",
+    },
+    "incidencia_arbovirus_100k": {
+        "nome": "Incidência de arboviroses / 100 mil",
+        "leigo": "Casos proporcionais à população, para comparar municípios grandes e pequenos.",
+        "como_ler": "Use a incidência (não só o número absoluto) para comparar o território.",
+    },
+    "qualidade_ar_nivel": {
+        "nome": "Nível da qualidade do ar",
+        "leigo": "Faixa da qualidade do ar a partir dos poluentes disponíveis no município.",
+        "como_ler": "Quanto pior a faixa, maior a atenção a asma, idosos e crianças.",
+    },
+    "situacao_hidro": {
+        "nome": "Situação hidrológica (ANA)",
+        "leigo": "Leitura de seca, normalidade ou risco de cheia no rio próximo ao município.",
+        "como_ler": "Cruze com os alertas do Cemaden e com a chuva recente. Sem dado ≠ risco zero.",
     },
     "focos_queimadas_7d": {
         "nome": "Focos de queimadas (7 dias)",
@@ -176,6 +239,16 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "nome": "Tendência da prioridade (~7 dias)",
         "leigo": "Sinal de aumento, manutenção ou queda da prioridade no horizonte curto.",
         "como_ler": "Combina tendência climática e de pressão assistencial quando disponíveis.",
+    },
+    "indice_vulnerabilidade_calor": {
+        "nome": "Vulnerabilidade territorial ao calor",
+        "leigo": "Índice que junta população mais exposta (idosos, crianças, zona rural) ao calor no município.",
+        "como_ler": "Quanto maior, mais o território precisa de atenção na onda de calor — não é diagnóstico clínico.",
+    },
+    "iq_ar_score": {
+        "nome": "Índice de qualidade do ar (IQA)",
+        "leigo": "Nota da qualidade do ar no município (fumaça e poluentes disponíveis).",
+        "como_ler": "Valores altos indicam ar ruim — cruze com PM2,5 e grupos vulneráveis.",
     },
     "percentil_risco_estadual": {
         "nome": "Percentil de risco no Estado",
@@ -399,6 +472,49 @@ HOW_TO_READ_PANEL = [
     "4. Em Alertas: registre validação humana, gere a prévia do boletim SES e só então arme o envio.",
     "5. Na Visão executiva, o mapa responde ‘onde?’ e ‘Por que este nível?’ explica o score.",
     "6. Em dúvida sobre um número, abra Frescor por fonte, Cálculos ou o Guia do leitor.",
+]
+
+HOW_TO_READ_PUBLIC = [
+    "1. Abra a aba Visão: faixa de nível, cards do recorte e o mapa de risco de 3 dias.",
+    "2. Filtre regional ou município no topo — o recorte vale para todas as abas.",
+    "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
+    "4. Em Território, confira a malha municipal e as populações vulneráveis.",
+    "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
+    "6. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
+    "7. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
+    "8. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
+    "9. Em Cálculos, leia como cada indicador publicado é composto.",
+]
+
+GLOSSARIO_PUBLICO = [
+    "nivel",
+    "tmax",
+    "utci_proxy",
+    "risco_cumulativo_3d",
+    "indice_tensao_climatica",
+    "indice_carga_saude",
+    "indice_vigilancia_integrada",
+    "indice_prioridade_global",
+    "faixa_prioridade_global",
+    "tendencia_7d",
+    "tendencia_prioridade_7d",
+    "pressao_calor_pct",
+    "indice_pressao_saude",
+    "ocupacao_leitos_pct",
+    "pm25_ugm3",
+    "iq_ar_score",
+    "qualidade_ar_nivel",
+    "focos_queimadas_7d",
+    "focos_queimadas_24h",
+    "nivel_queimadas",
+    "indice_vulnerabilidade_calor",
+    "casos_arbovirus_7d",
+    "incidencia_arbovirus_100k",
+    "risco_vetorial_climatico",
+    "indice_saturacao_solo",
+    "situacao_hidro",
+    "indice_sazonal",
+    "odds_ratio",
 ]
 
 

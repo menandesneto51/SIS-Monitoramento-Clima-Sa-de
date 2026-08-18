@@ -7,8 +7,8 @@ Uso (PowerShell, raiz do repo):
   .\\.venv\\Scripts\\python.exe rotina_diaria_ops.py --offline
   .\\.venv\\Scripts\\python.exe rotina_diaria_ops.py --skip-cloud-export
 
---offline: não tenta pipeline DW / IndicaSUS / SISREG live (CSV/cache); útil sem rede SES.
-Na SES/VPN: omita --offline para refresh live quando os hosts responderem.
+Produção: servidor SES na rede interna (DW/IndicaSUS/SISREG locais; sem VPN).
+--offline: só notebook/dev fora da SES (pula DW live; clima público continua).
 O pipeline nunca dispara alerta (send_alerts=False).
 """
 from __future__ import annotations
@@ -61,8 +61,37 @@ def _probe_ses() -> dict:
     }
 
 
+def step_prepare() -> dict:
+    _step("0/8 Pasta data/input")
+    import importlib.util
+
+    path = ROOT / "scripts" / "preparar_data_input.py"
+    spec = importlib.util.spec_from_file_location("preparar_data_input", path)
+    if spec is None or spec.loader is None:
+        (ROOT / "data" / "input" / "sivep_atualizacao").mkdir(parents=True, exist_ok=True)
+        return {"status": "mkdir"}
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    info = mod.ensure_layout()
+    print(f"[INFO] input={info.get('input_dir')} sivep_exports={info.get('sivep_exports')}")
+    return info
+
+
+def step_sivep() -> dict:
+    _step("1/8 SIVEP local")
+    from sisclima.ingestion.sivep_local import rebuild_sivep_local_db
+
+    info = rebuild_sivep_local_db()
+    print(f"[INFO] SIVEP files={info.get('files')} rows={info.get('rows')}")
+    return info
+
+
 def step_pipeline() -> dict:
-    _step("0/7 Pipeline clima + DW (sem envio de alerta)")
+    _step("2/8 Pipeline clima + DW (sem envio de alerta)")
+    os.environ["USE_OPENMETEO"] = "true"
+    os.environ["REFRESH_OPENMETEO"] = "true"
+    os.environ.setdefault("USE_OPENMETEO_AQ", "true")
+    os.environ.setdefault("OPENMETEO_AQ_PAST_DAYS", "7")
     from sisclima.pipeline import run_pipeline
 
     t0 = time.time()
@@ -80,7 +109,7 @@ def step_pipeline() -> dict:
 
 
 def step_ana() -> dict:
-    _step("1/5 ANA telemetria + hidro_risco_municipal")
+    _step("3/8 ANA telemetria + hidro_risco_municipal")
     # força fetch live salvo se já definido false no ambiente e usuário passar --offline
     os.environ.setdefault("USE_ANA", "true")
     os.environ.setdefault("ANA_FETCH_SERIES", "true")
@@ -93,7 +122,7 @@ def step_ana() -> dict:
 
 
 def step_enrichment(try_indicasus: bool) -> dict:
-    _step("2/5 Enrichment operacional (hidro no resumo + pred 7d)")
+    _step("4/8 Enrichment operacional (hidro no resumo + pred 7d)")
     if try_indicasus:
         try:
             from atualizar_ocupacao_indicasus import main as upd_occ
@@ -106,7 +135,7 @@ def step_enrichment(try_indicasus: bool) -> dict:
         except Exception as exc:  # noqa: BLE001
             print(f"[AVISO] IndicaSUS: {exc}")
     else:
-        print("[INFO] IndicaSUS live pulado (offline / VPN ausente)")
+        print("[INFO] IndicaSUS live pulado (--offline ou hosts SES inacessíveis)")
 
     from sisclima.engines.operational_enrichment import run_operational_enrichment
     from sisclima.ingestion.ibge_municipios import relabel_resumo_municipios
@@ -122,7 +151,7 @@ def step_enrichment(try_indicasus: bool) -> dict:
 
 
 def step_sisreg(prefer_live: bool) -> dict:
-    _step("3/5 SISREG")
+    _step("5/8 SISREG")
     from sisclima.ingestion.sisreg import atualizar_sisreg
 
     try:
@@ -135,7 +164,7 @@ def step_sisreg(prefer_live: bool) -> dict:
 
 
 def step_pressao() -> dict:
-    _step("4/6 Índice de pressão + merge no resumo")
+    _step("6/8 Índice de pressão + merge no resumo")
     from regenerar_sistema_completo import step_pressao_alertas
 
     return step_pressao_alertas()
@@ -143,7 +172,7 @@ def step_pressao() -> dict:
 
 def step_alerta_cuiaba(*, force: bool = False) -> dict:
     """Gera/envia boletim municipal de Cuiabá (Vigidesastre) na rotina diária."""
-    _step("5/7 Alerta municipal Cuiabá (Vigidesastre)")
+    _step("7/8 Alerta municipal Cuiabá (Vigidesastre)")
     from sisclima.core.config import as_bool, env
 
     enabled = as_bool(env("ALERT_CUIABA_ENABLED", "true"), True)
@@ -180,7 +209,7 @@ def step_alerta_cuiaba(*, force: bool = False) -> dict:
 
 
 def step_cloud() -> dict:
-    _step("6/7 Export snapshot Cloud")
+    _step("8/9 Export snapshot Cloud")
     import exportar_snapshot_cloud as exp
 
     if hasattr(exp, "main"):
@@ -194,7 +223,7 @@ def step_cloud() -> dict:
 
 
 def step_smoke() -> dict:
-    _step("7/7 Smoke operacional pós-ciclo")
+    _step("9/9 Smoke operacional pós-ciclo")
     import importlib.util
 
     path = ROOT / "scripts" / "smoke_ops.py"
@@ -217,10 +246,10 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
 
     probe = _probe_ses()
-    vpn_ok = probe["dw"] or probe["indicasus"] or probe["sisreg"]
-    offline = bool(args.offline or not vpn_ok)
-    if not args.offline and not vpn_ok:
-        print("[AVISO] Hosts SES (DW/IndicaSUS/SISREG) inacessíveis — modo offline automático.")
+    ses_ok = probe["dw"] or probe["indicasus"] or probe["sisreg"]
+    offline = bool(args.offline or not ses_ok)
+    if not args.offline and not ses_ok:
+        print("[AVISO] Hosts SES (DW/IndicaSUS/SISREG) inacessíveis no servidor — fallback CSV/cache.")
         print(json.dumps(probe, ensure_ascii=False))
 
     report: dict = {
@@ -231,10 +260,12 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     try:
-        if not offline and not args.skip_pipeline:
+        report["steps"]["prepare"] = step_prepare()
+        report["steps"]["sivep"] = step_sivep()
+        if not args.skip_pipeline:
+            if offline:
+                print("[INFO] Pipeline climático (Open-Meteo/AQ/INPE); DW live só com hosts SES no ar.")
             report["steps"]["pipeline"] = step_pipeline()
-        elif offline:
-            print("[INFO] Pipeline clima/DW pulado (offline / hosts SES ausentes)")
         if not args.skip_ana:
             report["steps"]["ana"] = step_ana()
         report["steps"]["enrichment"] = step_enrichment(try_indicasus=not offline)

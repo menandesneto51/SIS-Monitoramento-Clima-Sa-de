@@ -39,53 +39,104 @@ def _hourly_soil_daily_means(js: dict) -> pd.DataFrame:
     return hdf.groupby("data", as_index=False)[cols].mean()
 
 
-def _fetch_one(lat: float, lon: float, municipio: str | None = None, cod_ibge=None, days: int = 7) -> pd.DataFrame:
-    base = env('OPENMETEO_BASE_URL', 'https://api.open-meteo.com/v1/forecast')
-    hourly = (
-        'temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation,'
-        f'apparent_temperature,precipitation,{SOIL_HOURLY}'
-    )
-    params = {
-        'latitude': lat,
-        'longitude': lon,
-        'hourly': hourly,
-        'daily': (
-            'temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,'
-            'wind_speed_10m_max,precipitation_sum,precipitation_hours'
-        ),
-        'forecast_days': days,
-        'timezone': APP_CONFIG.timezone
-    }
-    r = http_get(base, params=params, timeout=45, ssl_env_key="OPENMETEO_SSL_VERIFY")
-    r.raise_for_status()
-    js = r.json()
-    daily = pd.DataFrame(js.get('daily', {}))
+def _as_locations(js) -> list[dict]:
+    if isinstance(js, list):
+        return [x for x in js if isinstance(x, dict)]
+    if isinstance(js, dict):
+        return [js]
+    return []
+
+
+def _daily_from_payload(js: dict, municipio: str | None, cod_ibge, lat: float, lon: float) -> pd.DataFrame:
+    daily = pd.DataFrame(js.get("daily", {}))
     if daily.empty:
         return pd.DataFrame()
-    daily = daily.rename(columns={
-        'time': 'data',
-        'temperature_2m_max': 'tmax',
-        'temperature_2m_min': 'tmin',
-        'relative_humidity_2m_mean': 'umidade_media',
-        'wind_speed_10m_max': 'vento_max',
-        'precipitation_sum': 'precipitacao_mm',
-        'precipitation_hours': 'precipitacao_horas',
-    })
-    if 'precipitacao_mm' in daily.columns:
-        daily['chuva_mm'] = daily['precipitacao_mm']
-    daily['data'] = pd.to_datetime(daily['data'], errors='coerce').dt.strftime('%Y-%m-%d')
+    daily = daily.rename(
+        columns={
+            "time": "data",
+            "temperature_2m_max": "tmax",
+            "temperature_2m_min": "tmin",
+            "relative_humidity_2m_mean": "umidade_media",
+            "wind_speed_10m_max": "vento_max",
+            "precipitation_sum": "precipitacao_mm",
+            "precipitation_hours": "precipitacao_horas",
+        }
+    )
+    if "precipitacao_mm" in daily.columns:
+        daily["chuva_mm"] = daily["precipitacao_mm"]
+    daily["data"] = pd.to_datetime(daily["data"], errors="coerce").dt.strftime("%Y-%m-%d")
 
     soil = _hourly_soil_daily_means(js)
     if not soil.empty:
-        daily = daily.merge(soil, on='data', how='left')
-        daily['fonte_solo'] = 'openmeteo'
+        daily = daily.merge(soil, on="data", how="left")
+        daily["fonte_solo"] = "openmeteo"
 
-    daily['cod_ibge'] = cod_ibge
-    daily['municipio'] = municipio or APP_CONFIG.municipio
-    daily['lat'] = lat
-    daily['lon'] = lon
-    daily['fonte'] = 'openmeteo'
+    daily["cod_ibge"] = cod_ibge
+    daily["municipio"] = municipio or APP_CONFIG.municipio
+    daily["lat"] = lat
+    daily["lon"] = lon
+    daily["fonte"] = "openmeteo"
     return daily
+
+
+def _forecast_params(lats: list[float], lons: list[float], days: int) -> dict:
+    hourly = (
+        "temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation,"
+        f"apparent_temperature,precipitation,{SOIL_HOURLY}"
+    )
+    return {
+        "latitude": ",".join(f"{x:.5f}" for x in lats),
+        "longitude": ",".join(f"{x:.5f}" for x in lons),
+        "hourly": hourly,
+        "daily": (
+            "temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,"
+            "wind_speed_10m_max,precipitation_sum,precipitation_hours"
+        ),
+        "forecast_days": days,
+        "timezone": APP_CONFIG.timezone,
+    }
+
+
+def _request_forecast(lats: list[float], lons: list[float], days: int) -> list[dict]:
+    base = env("OPENMETEO_BASE_URL", "https://api.open-meteo.com/v1/forecast")
+    r = http_get(base, params=_forecast_params(lats, lons, days), timeout=60, ssl_env_key="OPENMETEO_SSL_VERIFY")
+    r.raise_for_status()
+    return _as_locations(r.json())
+
+
+def _batch_size(env_key: str = "OPENMETEO_BATCH_SIZE", default: int = 20) -> int:
+    try:
+        return max(1, int(env(env_key, str(default)) or default))
+    except (TypeError, ValueError):
+        return default
+
+
+def _fetch_one(lat: float, lon: float, municipio: str | None = None, cod_ibge=None, days: int = 7) -> pd.DataFrame:
+    payloads = _request_forecast([lat], [lon], days)
+    if not payloads:
+        return pd.DataFrame()
+    return _daily_from_payload(payloads[0], municipio, cod_ibge, lat, lon)
+
+
+def _fetch_chunk(chunk: pd.DataFrame, days: int) -> pd.DataFrame:
+    rows = chunk.to_dict("records")
+    lats = [float(r["lat"]) for r in rows]
+    lons = [float(r["lon"]) for r in rows]
+    payloads = _request_forecast(lats, lons, days)
+    if len(payloads) != len(rows):
+        raise RuntimeError(f"Open-Meteo lote: {len(payloads)} respostas para {len(rows)} municípios")
+    frames = [
+        _daily_from_payload(
+            payload,
+            str(row.get("municipio") or ""),
+            row.get("cod_ibge"),
+            float(row["lat"]),
+            float(row["lon"]),
+        )
+        for row, payload in zip(rows, payloads)
+    ]
+    frames = [f for f in frames if f is not None and not f.empty]
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
 def fetch_openmeteo_forecast(days: int = 7) -> pd.DataFrame:
@@ -101,7 +152,7 @@ def fetch_openmeteo_forecast(days: int = 7) -> pd.DataFrame:
 def fetch_openmeteo_for_municipios(municipios: pd.DataFrame, days: int = 7, max_municipios: int | None = None) -> pd.DataFrame:
     """Consulta previsão por município usando lat/lon da base municipal.
 
-    Por padrão não limita quantidade. Use OPENMETEO_MAX_MUNICIPIOS para teste.
+    Lotes (OPENMETEO_BATCH_SIZE, padrão 20) evitam 503 da API gratuita.
     """
     if not as_bool(env('USE_OPENMETEO', 'true'), True):
         return pd.DataFrame()
@@ -114,11 +165,39 @@ def fetch_openmeteo_for_municipios(municipios: pd.DataFrame, days: int = 7, max_
     dfm = municipios.dropna(subset=['lat','lon']).copy()
     if max_municipios:
         dfm = dfm.head(max_municipios)
+    size = _batch_size()
     frames = []
-    for _, m in dfm.iterrows():
+    pause = float(env("OPENMETEO_PAUSE_S", "0.35") or 0.35)
+    for start in range(0, len(dfm), size):
+        chunk = dfm.iloc[start : start + size]
         try:
-            frames.append(_fetch_one(float(m['lat']), float(m['lon']), str(m.get('municipio','')), m.get('cod_ibge'), days))
-            time.sleep(0.15)
-        except Exception as e:
-            log.warning('Falha Open-Meteo para %s: %s', m.get('municipio'), e)
-    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+            got = _fetch_chunk(chunk, days)
+            if not got.empty:
+                frames.append(got)
+            time.sleep(pause)
+        except Exception as exc:
+            log.warning(
+                "Lote Open-Meteo falhou (%s–%s): %s — tentando município a município",
+                start + 1,
+                start + len(chunk),
+                exc,
+            )
+            for _, m in chunk.iterrows():
+                try:
+                    frames.append(
+                        _fetch_one(
+                            float(m["lat"]),
+                            float(m["lon"]),
+                            str(m.get("municipio") or ""),
+                            m.get("cod_ibge"),
+                            days,
+                        )
+                    )
+                    time.sleep(max(pause, 0.4))
+                except Exception as one_exc:
+                    log.warning("Falha Open-Meteo para %s: %s", m.get("municipio"), one_exc)
+    out = [f for f in frames if f is not None and not f.empty]
+    result = pd.concat(out, ignore_index=True) if out else pd.DataFrame()
+    if not result.empty and "cod_ibge" in result.columns:
+        log.info("Open-Meteo previsão: %s municípios", int(result["cod_ibge"].nunique()))
+    return result

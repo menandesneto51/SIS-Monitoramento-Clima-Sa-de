@@ -50,30 +50,94 @@ a:hover { text-decoration: underline; }
   max-width: 1280px !important;
 }
 
-/* --- Esconde sidebar Streamlit (navegação horizontal SES) --- */
-[data-testid="stSidebar"],
-section[data-testid="stSidebar"],
+/* --- Sidebar SES-MT: menu de abas à esquerda --- */
 [data-testid="stSidebarNav"],
-[data-testid="stSidebarNavItems"],
-[data-testid="stSidebarContent"],
-[data-testid="stSidebarCollapsedControl"],
-[data-testid="stSidebarUserContent"],
-div[data-testid="collapsedControl"],
-button[kind="headerNoPadding"],
-[data-testid="stBaseButton-headerNoPadding"] {
+[data-testid="stSidebarNavItems"] {
   display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
 }
-section.main > div,
-[data-testid="stAppViewContainer"] > .main,
-.stApp [data-testid="stMain"] {
-  padding-left: 1rem !important;
-  margin-left: 0 !important;
+section[data-testid="stSidebar"] {
+  background: linear-gradient(180deg, #000444 0%, #1d357f 58%, #1351b4 100%) !important;
+  border-right: 4px solid #0071bb !important;
+  min-width: 272px !important;
+}
+section[data-testid="stSidebar"] > div:first-child {
+  padding: 12px 14px 28px 14px !important;
+}
+.sis-nav-kicker {
+  font: 800 12px Calibri, sans-serif !important;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #ffffff !important;
+  margin: 2px 0 4px 0;
+}
+.sis-nav-group {
+  font: 800 11px Calibri, sans-serif !important;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.72) !important;
+  margin: 16px 2px 6px 2px;
+}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label {
+  background: rgba(255,255,255,.12) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  border-left: 3px solid transparent !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  margin: 4px 0 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label p,
+section[data-testid="stSidebar"] [data-testid="stRadio"] label span:not([data-testid="stIconMaterial"]) {
+  color: #ffffff !important;
+  font: 700 14px Calibri, "Segoe UI", sans-serif !important;
+}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+  background: rgba(255,255,255,.22) !important;
+  border-left-color: #7ec8f0 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+  background: #0071bb !important;
+  border-color: #ffffff !important;
+  border-left-color: #ffffff !important;
+}
+section[data-testid="stSidebar"] [data-testid="stRadio"] input {
+  appearance: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+}
+section[data-testid="stSidebar"] .stButton > button {
+  background: rgba(255,255,255,.12) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  border-left: 3px solid transparent !important;
+  border-radius: 6px !important;
+  font: 700 14px Calibri, "Segoe UI", sans-serif !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  padding: 10px 12px !important;
+  margin: 3px 0 !important;
+}
+section[data-testid="stSidebar"] .stButton > button:hover {
+  background: rgba(255,255,255,.22) !important;
+  border-left-color: #7ec8f0 !important;
+  color: #ffffff !important;
+}
+section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+  background: #0071bb !important;
+  border-color: #ffffff !important;
+  border-left: 3px solid #ffffff !important;
+  color: #ffffff !important;
+}
+[data-testid="stIconMaterial"],
+[data-testid="stExpanderToggleIcon"],
+[data-testid="stSidebarCollapsedControl"] [data-testid="stIconMaterial"],
+[data-testid="collapsedControl"] [data-testid="stIconMaterial"] {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  color: transparent !important;
 }
 header[data-testid="stHeader"] {
   background: transparent !important;
@@ -261,6 +325,10 @@ div[data-baseweb="input"]:hover > div {
   font-family: UniNeueHeavy, Calibri, sans-serif !important;
   color: var(--ses-deep) !important;
   font-weight: 800 !important;
+  list-style: none;
+}
+[data-testid="stExpander"] summary::-webkit-details-marker {
+  display: none;
 }
 [data-testid="stDataFrame"],
 [data-testid="stTable"] {

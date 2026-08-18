@@ -48,8 +48,21 @@ def fetch_cemaden_alerts(uf: str | None = None) -> pd.DataFrame:
         r.raise_for_status()
         js = r.json()
     except Exception as exc:
-        log.warning("Falha ao consultar alertas Cemaden (%s): %s", url, exc)
-        return pd.DataFrame()
+        if "SSL" in str(exc).upper() or "CERTIFICATE" in str(exc).upper():
+            try:
+                r = http_get(
+                    url,
+                    timeout=int(env("CEMADEN_TIMEOUT_SECONDS", "30") or 30),
+                    verify=False,
+                )
+                r.raise_for_status()
+                js = r.json()
+            except Exception as exc2:
+                log.warning("Falha ao consultar alertas Cemaden (%s): %s", url, exc2)
+                return pd.DataFrame()
+        else:
+            log.warning("Falha ao consultar alertas Cemaden (%s): %s", url, exc)
+            return pd.DataFrame()
 
     rows = js.get("alertas") if isinstance(js, dict) else js
     if not isinstance(rows, list) or not rows:

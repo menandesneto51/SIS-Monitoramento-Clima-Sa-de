@@ -634,6 +634,8 @@ def build_predicao_7d(met: pd.DataFrame, resumo: pd.DataFrame) -> tuple[pd.DataF
     agg["nivel_predicao_7d"] = agg.apply(nivel_pred_from_agg, axis=1)
     agg["risco_preditivo_score"] = agg["nivel_predicao_7d"].map(STAGE_ORDER).fillna(0).astype(int)
     agg["fonte_predicao"] = fonte
+    agg["data_processamento"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    agg["data_referencia"] = pd.Timestamp.today().normalize().strftime("%Y-%m-%d")
 
     if not resumo.empty and "municipio" in resumo.columns:
         mun_cols = ["cod_ibge", "municipio"] + (["regional_saude"] if "regional_saude" in resumo.columns else [])

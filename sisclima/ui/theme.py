@@ -18,6 +18,7 @@ import streamlit as st
 from sisclima.branding import (
     ARARAS_LOGO_PATH,
     CIEVS_MT_LOGO_PATH,
+    GOV_SES_LOCKUP_PATH,
     GOV_SES_LOGO_PATH,
     REDE_CIEVS_LOGO_PATH,
     SYSTEM_EXPANSION,
@@ -275,10 +276,11 @@ def ses_masthead(
         unsafe_allow_html=True,
     )
 
-    c_logo, c_title, c_meta = st.columns([1.25, 3.45, 1.65], vertical_alignment="center")
+    c_logo, c_title, c_meta = st.columns([1.05, 3.55, 1.55], vertical_alignment="center")
     with c_logo:
-        if LOGO_PATH.exists():
-            st.image(str(LOGO_PATH), width=215)
+        _ses = GOV_SES_LOCKUP_PATH if GOV_SES_LOCKUP_PATH.exists() else GOV_SES_LOGO_PATH
+        if _ses.exists():
+            st.image(str(_ses), width=168)
         else:
             st.markdown("**SES-MT**")
     with c_title:
@@ -294,16 +296,16 @@ def ses_masthead(
         )
     with c_meta:
         if CIEVS_MT_LOGO_PATH.exists():
-            st.image(str(CIEVS_MT_LOGO_PATH), use_container_width=True)
+            st.image(str(CIEVS_MT_LOGO_PATH), width=148)
         else:
             st.markdown(
                 f'<div style="text-align:center;color:{SES_BLUE};font:800 14px Calibri,Segoe UI,sans-serif;">CIEVS-MT</div>',
                 unsafe_allow_html=True,
             )
         if REDE_CIEVS_LOGO_PATH.exists():
-            st.image(str(REDE_CIEVS_LOGO_PATH), use_container_width=True)
+            st.image(str(REDE_CIEVS_LOGO_PATH), width=132)
         if VIGIDESASTRES_LOGO_PATH.exists():
-            st.image(str(VIGIDESASTRES_LOGO_PATH), width=60)
+            st.image(str(VIGIDESASTRES_LOGO_PATH), width=48)
         if base:
             st.markdown(
                 f"<div style='text-align:center;margin-top:2px'><span style='display:inline-block;background:#EDF3FC;"

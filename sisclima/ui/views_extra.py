@@ -30,26 +30,44 @@ from sisclima.ui.interpretacoes import (
     render_interpretacao,
 )
 
-def render_arboviroses() -> None:
+
+def _filter_recorte(df: pd.DataFrame, recorte_codigos: set[str] | None) -> pd.DataFrame:
+    if df is None or df.empty or not recorte_codigos:
+        return df if df is not None else pd.DataFrame()
+    if "cod_ibge" not in df.columns:
+        return df
+    cod = df["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+    return df[cod.isin(recorte_codigos)].copy()
+
+
+def render_arboviroses(*, publico: bool = False, recorte_codigos: set[str] | None = None) -> None:
     section_title(
         "Arboviroses",
-        f"Dengue, Zika, Chikungunya e correlatas · base {backend_name()}",
+        "Dengue, Zika, Chikungunya e correlatas"
+        if publico
+        else f"Dengue, Zika, Chikungunya e correlatas · base {backend_name()}",
     )
-    callout(
-        "Casos em 7 dias mostram a pressão recente. Cruze com calor/chuva na Visão executiva — não projete a temporada só com este recorte.",
-        "info",
-    )
-    arbo = read_table("epi_arboviroses")
-    arbo_mun = read_table("epi_arboviroses_municipal")
-    resumo = read_table("resumo_municipal_atual")
-    render_interpretacao(
-        "arboviroses",
-        GUIDE_ARBO,
-        lambda: narrativa_arbo(arbo_mun),
-    )
+    if not publico:
+        callout(
+            "Casos em 7 dias mostram a pressão recente. Cruze com calor/chuva na Visão executiva — não projete a temporada só com este recorte.",
+            "info",
+        )
+    arbo = _filter_recorte(read_table("epi_arboviroses"), recorte_codigos)
+    arbo_mun = _filter_recorte(read_table("epi_arboviroses_municipal"), recorte_codigos)
+    resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
+    if not publico:
+        render_interpretacao(
+            "arboviroses",
+            GUIDE_ARBO,
+            lambda: narrativa_arbo(arbo_mun),
+        )
 
     if arbo.empty and arbo_mun.empty:
-        st.error("Tabelas de arboviroses ainda não geradas. Rode o pipeline.")
+        st.info(
+            "Sem dados de arboviroses neste recorte."
+            if publico
+            else "Tabelas de arboviroses ainda não geradas. Rode o pipeline."
+        )
         return
 
     c1, c2, c3, c4, c5 = st.columns(5)
@@ -129,7 +147,8 @@ def render_arboviroses() -> None:
             if col in map_src.columns:
                 map_src[col] = pd.to_numeric(map_src[col], errors="coerce")
         map_df, geojson_mun, shp_status = prepare_map_dataframe(map_src)
-        st.caption(shp_status)
+        if not publico:
+            st.caption(shp_status)
         color_col = next(
             (c for c in ["casos_arbovirus_7d", "incidencia_arbovirus_100k", "zscore_arbovirus"] if c in map_df.columns),
             None,
@@ -316,22 +335,28 @@ def render_sentinela_sg() -> None:
                 st.plotly_chart(px.bar(faixa, x="faixa_etaria", y="casos", color="virus", title="Vírus por faixa etária"), use_container_width=True)
 
 
-def render_hidrologia() -> None:
-    section_title("Riscos hidrológicos", f"Cemaden + ANA + precipitação · base {backend_name()}")
-    callout(
-        "Cemaden traz alertas oficiais; ANA traz telemetria de chuva e nível de rio (seca/cheia). Cobertura de estações é desigual — cruze com o nível operacional.",
-        "info",
+def render_hidrologia(*, publico: bool = False, recorte_codigos: set[str] | None = None) -> None:
+    section_title(
+        "Cemaden / ANA",
+        "Alertas de desastre, nível de rio e chuva"
+        if publico
+        else f"Cemaden + ANA + precipitação · base {backend_name()}",
     )
-    cemaden = read_table("cemaden_alertas")
-    met = read_table("met_biometeo")
-    resumo = read_table("resumo_municipal_atual")
-    ana_risco = read_table("ana_risco_municipal")
-    hidro = read_table("hidro_risco_municipal")
-    render_interpretacao(
-        "cemaden_ana",
-        GUIDE_HIDRO,
-        lambda: narrativa_hidro(cemaden, ana_risco),
-    )
+    if not publico:
+        callout(
+            "Cemaden traz alertas oficiais; ANA traz telemetria de chuva e nível de rio (seca/cheia). Cobertura de estações é desigual — cruze com o nível operacional.",
+            "info",
+        )
+    cemaden = _filter_recorte(read_table("cemaden_alertas"), recorte_codigos)
+    met = _filter_recorte(read_table("met_biometeo"), recorte_codigos)
+    ana_risco = _filter_recorte(read_table("ana_risco_municipal"), recorte_codigos)
+    hidro = _filter_recorte(read_table("hidro_risco_municipal"), recorte_codigos)
+    if not publico:
+        render_interpretacao(
+            "cemaden_ana",
+            GUIDE_HIDRO,
+            lambda: narrativa_hidro(cemaden, ana_risco),
+        )
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Alertas Cemaden", len(cemaden))
@@ -342,11 +367,15 @@ def render_hidrologia() -> None:
     else:
         c3.metric("Precipitação máx. (mm)", "—")
 
-    ana_tel = read_table("ana_telemetria")
-    ana_est = read_table("ana_estacoes")
+    ana_tel = _filter_recorte(read_table("ana_telemetria"), recorte_codigos)
+    ana_est = _filter_recorte(read_table("ana_estacoes"), recorte_codigos)
     st.markdown("##### Nível de rio ANA (seca × cheia)")
     if hidro.empty and ana_risco.empty and ana_tel.empty:
-        st.info("Sem dados ANA. Ative `USE_ANA=true` / `ANA_FETCH_SERIES=true` ou use CSV em `data/input/ana_*.csv`.")
+        st.info(
+            "Sem dados hidrológicos da ANA neste recorte."
+            if publico
+            else "Sem dados ANA. Ative `USE_ANA=true` / `ANA_FETCH_SERIES=true` ou use CSV em `data/input/ana_*.csv`."
+        )
     else:
         n_seca = n_cheia = n_normal = 0
         if not hidro.empty and "situacao_hidro" in hidro.columns:
@@ -394,7 +423,8 @@ def render_hidrologia() -> None:
                 else ("risco_predominante" if "risco_predominante" in map_src.columns else "nivel_alerta_hidro")
             )
             map_df, geojson, status = prepare_map_dataframe(map_src)
-            st.caption(status)
+            if not publico:
+                st.caption(status)
             if color and color in map_df.columns:
                 fig = make_choropleth_or_points(
                     map_df,
@@ -422,7 +452,8 @@ def render_hidrologia() -> None:
         if not ana_risco.empty:
             st.dataframe(ana_risco, use_container_width=True, height=240)
             map_df, geojson, status = prepare_map_dataframe(ana_risco)
-            st.caption(status)
+            if not publico:
+                st.caption(status)
             color = "chuva_mm" if "chuva_mm" in map_df.columns else ("nivel_chuva" if "nivel_chuva" in map_df.columns else None)
             if color:
                 fig = make_choropleth_or_points(
@@ -436,11 +467,16 @@ def render_hidrologia() -> None:
 
     st.markdown("##### Alertas Cemaden")
     if cemaden.empty:
-        st.info("Sem `cemaden_alertas`. Ative `USE_CEMADEN=true` e rode o pipeline.")
+        st.info(
+            "Sem alertas do Cemaden neste recorte."
+            if publico
+            else "Sem `cemaden_alertas`. Ative `USE_CEMADEN=true` e rode o pipeline."
+        )
     else:
         st.dataframe(cemaden, use_container_width=True, height=280)
         map_df, geojson, status = prepare_map_dataframe(cemaden)
-        st.caption(status)
+        if not publico:
+            st.caption(status)
         color_col = "nivel_sis" if "nivel_sis" in map_df.columns else ("nivel_alerta" if "nivel_alerta" in map_df.columns else None)
         if color_col:
             fig = make_choropleth_or_points(
@@ -452,16 +488,17 @@ def render_hidrologia() -> None:
             if fig is not None:
                 st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("##### Precipitação (Open-Meteo)")
+    st.markdown("##### Precipitação")
     if met.empty or "precipitacao_mm" not in met.columns:
-        st.info("Sem coluna `precipitacao_mm`.")
+        st.info("Sem precipitação neste recorte." if publico else "Sem coluna `precipitacao_mm`.")
     else:
         m = met.copy()
         m["data"] = pd.to_datetime(m["data"], errors="coerce")
         m["precipitacao_mm"] = pd.to_numeric(m["precipitacao_mm"], errors="coerce")
         latest = m.sort_values("data").groupby("municipio" if "municipio" in m.columns else "cod_ibge", as_index=False).tail(1)
         map_df, geojson, status = prepare_map_dataframe(latest)
-        st.caption(status)
+        if not publico:
+            st.caption(status)
         fig = make_choropleth_or_points(
             map_df, geojson, color_col="precipitacao_mm",
             title="Precipitação diária (mm)",
