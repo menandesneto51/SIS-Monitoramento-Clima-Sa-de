@@ -33,6 +33,7 @@ from sisclima.engines.geospatial import (
     prepare_map_dataframe,
 )
 from sisclima.engines.panel_indicators import enrich_panel_indicators, state_indicator_summary
+from sisclima.ui import acesso as ui_acesso
 from sisclima.ui import theme as ui_theme
 from sisclima.ui.alerts_sop import (
     ALERT_CHECKLIST,
@@ -103,6 +104,9 @@ ui_theme.ses_masthead(
     subtitulo="Sala de situação clima–saúde · boletins operacionais CIEVS",
     base=backend_name(),
 )
+
+# Controle de acesso: painel abre público; "Acesso restrito" no topo (login/cadastro).
+_sessao = ui_acesso.iniciar_acesso()
 
 
 # ---------------------------------------------------------------------
@@ -774,6 +778,115 @@ resumo_all = enrich_prioridade_global(resumo_all)
 map_df_all, geojson_mun, shapefile_status = prepare_map_df(resumo_all)
 intel_state = state_indicator_summary(resumo_all)
 prioridade_state = state_prioridade_summary(resumo_all)
+
+
+# ---------------------------------------------------------------------
+# Controle de acesso: recorte territorial + roteamento público/gestão
+# ---------------------------------------------------------------------
+if _sessao.pode_interno and (_sessao.escopo_cod_ibge or _sessao.escopo_regional):
+    resumo_all = ui_acesso.aplicar_escopo(resumo_all, _sessao)
+    map_df_all = ui_acesso.aplicar_escopo(map_df_all, _sessao)
+
+
+def render_painel_publico(resumo_pub: pd.DataFrame, map_pub: pd.DataFrame, geojson_pub, pred_pub: pd.DataFrame) -> None:
+    """Painel público (sem CNES, SISREG, SOP de alerta ou cálculos).
+
+    Ordem: o que está acontecendo · mapa de risco 3 dias · calor/fumaça ·
+    o que a população/APS pode fazer · guia das cores.
+    """
+    from sisclima.engines.recommendations import recommendations_for_stage
+    from sisclima.ui.explainers import LEVEL_GUIDE
+
+    ui_theme.hero(
+        "Painel público · Clima e Saúde em Mato Grosso",
+        "Informação ao cidadão e à Atenção Primária (APS) · SES-MT / CIEVS. "
+        "Para o painel interno completo, use “Acesso restrito” no topo.",
+        chips=["SES-MT", "CIEVS", "Informação pública"],
+    )
+
+    if resumo_pub is None or resumo_pub.empty:
+        st.info("Ainda não há dados consolidados para exibir no painel público. Volte em instantes.")
+        return
+
+    resumo_pub = resumo_pub.copy()
+    resumo_pub["score"] = pd.to_numeric(resumo_pub.get("score", 0), errors="coerce").fillna(0)
+    sentinel = safe_sort(resumo_pub, ["score", "risco_cumulativo_3d"], ascending=[False, False]).iloc[0]
+    nivel_estado = normalize_level(sentinel.get("nivel"))
+    municipio_sentinel = sentinel.get("municipio", "—")
+    motivo_estado = replace_motivo_indisponivel(sentinel)
+    orientacao_sentinel = str(sentinel.get("orientacao_leiga", "") or "")
+    metrics = state_summary_with_prediction(resumo_pub, pred_pub)
+
+    # 1) O que está acontecendo
+    ui_theme.section_title(
+        "O que está acontecendo agora",
+        "Nível operacional do estado e distribuição dos municípios por cor",
+    )
+    ui_theme.level_banner(nivel_estado, str(municipio_sentinel), str(motivo_estado), orientacao=orientacao_sentinel)
+    _cols = st.columns(5)
+    for _i, (_nv, _lb) in enumerate(
+        [("verde", "Verde"), ("amarela", "Amarela"), ("laranja", "Laranja"), ("vermelha", "Vermelha"), ("roxa", "Roxa")]
+    ):
+        with _cols[_i]:
+            st.markdown(
+                f'<div class="sis-level-tile" style="background:{LEVEL_COLOR_MAP[_nv]}">'
+                f'<div class="lbl">{_lb}</div><div class="val">{int(metrics.get(_nv, 0) or 0)}</div>'
+                f'<div class="pred">municípios</div></div>',
+                unsafe_allow_html=True,
+            )
+
+    # 2) Mapa de risco (base 3 dias)
+    ui_theme.section_title(
+        "Mapa de risco (base 3 dias)",
+        "Cada município é colorido pelo nível operacional atual (calor acumulado ~3 dias e saúde)",
+    )
+    choropleth_or_points(
+        map_pub,
+        geojson_pub,
+        color_col="nivel",
+        title="Nível de risco por município",
+        hover_cols=[c for c in ["municipio", "risco_cumulativo_3d", "tmax", "pm25_ugm3"] if c in map_pub.columns],
+        categorical=True,
+    )
+
+    # 3) Calor e fumaça
+    ui_theme.section_title("Calor e fumaça", "Temperatura, sensação térmica (UTCI) e qualidade do ar (PM2.5)")
+    q = st.columns(4)
+    q[0].metric("Tmax máx.", safe_metric_value(metrics.get("tmax"), " °C", 1))
+    q[1].metric("UTCI máx.", safe_metric_value(metrics.get("utci"), "", 1))
+    q[2].metric("Risco calor 3d", safe_metric_value(metrics.get("risco3d"), "", 2))
+    q[3].metric("PM2.5 máx.", safe_metric_value(metrics.get("pm25_max"), " µg/m³", 1))
+    ui_theme.callout(
+        "Em dias de calor forte ou fumaça de queimadas: hidrate-se, evite exposição no horário mais quente, "
+        "proteja crianças, idosos e pessoas com doenças respiratórias/cardíacas.",
+        "tip",
+    )
+
+    # 4) O que a população e a APS podem fazer
+    ui_theme.section_title(
+        "O que a população e a APS podem fazer",
+        f"Orientações para o nível atual do estado: {nivel_estado.upper()}",
+    )
+    guia = LEVEL_GUIDE.get(nivel_estado, {})
+    if guia:
+        ui_theme.callout(f"{guia.get('o_que_e', '')} {guia.get('o_que_fazer', '')}".strip(), "info")
+    for eixo, rec in recommendations_for_stage(nivel_estado):
+        st.markdown(f"- **{eixo}:** {rec}")
+
+    # 5) Guia das cores
+    ui_theme.section_title("Guia das cores", "O que cada nível operacional significa")
+    ui_theme.level_legend()
+
+
+if _sessao.view == "gestao":
+    ui_acesso.render_gestao(_sessao)
+    ui_theme.ses_footer()
+    st.stop()
+
+if not _sessao.mostra_interno:
+    render_painel_publico(resumo_all, map_df_all, geojson_mun, pred_v6)
+    ui_theme.ses_footer()
+    st.stop()
 
 
 # ---------------------------------------------------------------------
