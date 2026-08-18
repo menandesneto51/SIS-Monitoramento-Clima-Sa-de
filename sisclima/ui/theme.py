@@ -17,6 +17,7 @@ import streamlit as st
 
 from sisclima.branding import (
     ARARAS_LOGO_PATH,
+    CIEVS_MT_LOGO_PATH,
     GOV_SES_LOGO_PATH,
     REDE_CIEVS_LOGO_PATH,
     SYSTEM_EXPANSION,
@@ -84,15 +85,93 @@ h1, h2, h3, h4, h5, h6 {{
   color: {SES_BLUE} !important;
   font-family: Calibri, "Segoe UI", Tahoma, sans-serif !important;
 }}
-[data-testid="stSidebar"],
-section[data-testid="stSidebar"],
 [data-testid="stSidebarNav"],
-div[data-testid="collapsedControl"],
-button[kind="headerNoPadding"],
-[data-testid="stBaseButton-headerNoPadding"] {{
+[data-testid="stSidebarNavItems"] {{
   display: none !important;
+}}
+section[data-testid="stSidebar"] {{
+  background: linear-gradient(180deg, #000444 0%, #1d357f 58%, #1351b4 100%) !important;
+  border-right: 4px solid #0071bb !important;
+  min-width: 272px !important;
+}}
+section[data-testid="stSidebar"] > div:first-child {{
+  padding: 12px 14px 28px 14px !important;
+}}
+.sis-nav-kicker {{
+  font: 800 12px Calibri, sans-serif !important;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #ffffff !important;
+  margin: 2px 0 4px 0;
+}}
+.sis-nav-group {{
+  font: 800 11px Calibri, sans-serif !important;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.72) !important;
+  margin: 16px 2px 6px 2px;
+}}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label {{
+  background: rgba(255,255,255,.12) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  border-left: 3px solid transparent !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  margin: 4px 0 !important;
+}}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label p,
+section[data-testid="stSidebar"] [data-testid="stRadio"] label span:not([data-testid="stIconMaterial"]) {{
+  color: #ffffff !important;
+  font: 700 14px Calibri, "Segoe UI", sans-serif !important;
+}}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {{
+  background: rgba(255,255,255,.22) !important;
+  border-left-color: #7ec8f0 !important;
+}}
+section[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {{
+  background: #0071bb !important;
+  border-color: #ffffff !important;
+  border-left-color: #ffffff !important;
+}}
+section[data-testid="stSidebar"] [data-testid="stRadio"] input {{
+  appearance: none !important;
   width: 0 !important;
-  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+}}
+section[data-testid="stSidebar"] .stButton > button {{
+  background: rgba(255,255,255,.12) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  border-left: 3px solid transparent !important;
+  border-radius: 6px !important;
+  font: 700 14px Calibri, "Segoe UI", sans-serif !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  padding: 10px 12px !important;
+  margin: 3px 0 !important;
+}}
+section[data-testid="stSidebar"] .stButton > button:hover {{
+  background: rgba(255,255,255,.22) !important;
+  border-left-color: #7ec8f0 !important;
+  color: #ffffff !important;
+}}
+section[data-testid="stSidebar"] .stButton > button[kind="primary"] {{
+  background: #0071bb !important;
+  border-color: #ffffff !important;
+  border-left: 3px solid #ffffff !important;
+  color: #ffffff !important;
+}}
+[data-testid="stIconMaterial"],
+[data-testid="stExpanderToggleIcon"],
+[data-testid="stSidebarCollapsedControl"] [data-testid="stIconMaterial"],
+[data-testid="collapsedControl"] [data-testid="stIconMaterial"] {{
+  font-size: 0 !important;
+  line-height: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  color: transparent !important;
 }}
 """
 
@@ -110,7 +189,7 @@ def apply_theme() -> None:
     # 3) Tipografia + contraste (depois do CSS arquivo para vencer h1–h6 azul em fundos escuros)
     st.markdown(
         "<style>"
-        "html,body,[class*=\"css\"],.stApp{"
+        "html,body,.stApp{"
         "font-family:Calibri,\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif!important}"
         "h1,h2,h3,h4,h5,h6,.sis-section-title,.ses-masthead-brand,.sis-insight .v{"
         f"font-family:Calibri,\"Segoe UI\",sans-serif!important;color:{SES_BLUE}!important}}"
@@ -214,17 +293,17 @@ def ses_masthead(
             unsafe_allow_html=True,
         )
     with c_meta:
-        st.markdown(
-            f'<div style="text-align:center;color:{SES_BLUE};font:800 14px Calibri,Segoe UI,sans-serif;">CIEVS-MT</div>',
-            unsafe_allow_html=True,
-        )
-        c_rede, c_vigi = st.columns([1.8, 1], vertical_alignment="center")
-        with c_rede:
-            if REDE_CIEVS_LOGO_PATH.exists():
-                st.image(str(REDE_CIEVS_LOGO_PATH), use_container_width=True)
-        with c_vigi:
-            if VIGIDESASTRES_LOGO_PATH.exists():
-                st.image(str(VIGIDESASTRES_LOGO_PATH), width=60)
+        if CIEVS_MT_LOGO_PATH.exists():
+            st.image(str(CIEVS_MT_LOGO_PATH), use_container_width=True)
+        else:
+            st.markdown(
+                f'<div style="text-align:center;color:{SES_BLUE};font:800 14px Calibri,Segoe UI,sans-serif;">CIEVS-MT</div>',
+                unsafe_allow_html=True,
+            )
+        if REDE_CIEVS_LOGO_PATH.exists():
+            st.image(str(REDE_CIEVS_LOGO_PATH), use_container_width=True)
+        if VIGIDESASTRES_LOGO_PATH.exists():
+            st.image(str(VIGIDESASTRES_LOGO_PATH), width=60)
         if base:
             st.markdown(
                 f"<div style='text-align:center;margin-top:2px'><span style='display:inline-block;background:#EDF3FC;"
@@ -435,8 +514,7 @@ def level_legend() -> None:
 
 def nav_label(text: str = "Navegação do painel") -> None:
     st.markdown(
-        f'<div style="font:800 12px Calibri,sans-serif;letter-spacing:.06em;text-transform:uppercase;'
-        f'color:#57595A;margin:4px 0 6px 0;">{html.escape(text)}</div>',
+        f'<div class="sis-nav-group">{html.escape(text)}</div>',
         unsafe_allow_html=True,
     )
 
