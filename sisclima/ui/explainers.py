@@ -480,10 +480,11 @@ HOW_TO_READ_PUBLIC = [
     "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
     "4. Em Território, confira a malha municipal e as populações vulneráveis.",
     "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
-    "6. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
-    "7. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
-    "8. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
-    "9. Em Cálculos, leia como cada indicador publicado é composto.",
+    "6. Em El Niño, leia o cenário oficial (ASO) e o boletim da semana.",
+    "7. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
+    "8. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
+    "9. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
+    "10. Em Cálculos, leia como cada indicador publicado é composto.",
 ]
 
 GLOSSARIO_PUBLICO = [

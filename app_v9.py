@@ -87,10 +87,11 @@ except ImportError:
         "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
         "4. Em Território, confira a malha municipal e as populações vulneráveis.",
         "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
-        "6. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
-        "7. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
-        "8. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
-        "9. Em Cálculos, leia como cada indicador publicado é composto.",
+        "6. Em El Niño, leia o cenário oficial (ASO) e o boletim da semana.",
+        "7. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
+        "8. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
+        "9. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
+        "10. Em Cálculos, leia como cada indicador publicado é composto.",
     ]
     GLOSSARIO_PUBLICO = [
         "nivel",
@@ -1192,6 +1193,7 @@ _PUBLIC_NAV_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
         "Clima e ambiente",
         [
             ("Qualidade do ar", "Qualidade do ar"),
+            ("El Niño", "El Niño / Contingência"),
             ("Cemaden / ANA", "Cemaden / ANA"),
         ],
     ),
@@ -1220,9 +1222,10 @@ with st.sidebar:
             ui_theme.nav_label(_grupo)
             for _lbl, _key in _itens:
                 _ativo = st.session_state.nav_aba_publica == _key
+                _nav_key = _key.replace(" / ", "_").replace(" ", "_")
                 if st.button(
                     _lbl,
-                    key=f"nav_pub_{_key}{_nav_sfx}",
+                    key=f"nav_pub_{_nav_key}{_nav_sfx}",
                     use_container_width=True,
                     type="primary" if _ativo else "secondary",
                 ):
@@ -1812,8 +1815,10 @@ elif SECTION_KEY == "Visão executiva":
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "El Niño / Contingência":
     ui_theme.section_title(
-        "El Niño — preparação e resposta",
-        "Instrumento operacional ligado ao CIEVS-MT (não substitui boletins INMET/INPE/CPTEC)",
+        "El Niño — cenário e preparação",
+        "Leitura do cenário oficial e do boletim da semana (não substitui boletins INMET/INPE/CPTEC)"
+        if _PAINEL_PUBLICO
+        else "Instrumento operacional ligado ao CIEVS-MT (não substitui boletins INMET/INPE/CPTEC)",
     )
     ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
     ui_theme.callout(
@@ -1866,22 +1871,29 @@ elif SECTION_KEY == "El Niño / Contingência":
             """
         )
 
-    st.markdown("#### Boletim semanal da sala de situação")
+    st.markdown(
+        "#### Relatório da semana" if _PAINEL_PUBLICO else "#### Relatório semanal da sala de situação"
+    )
     st.caption(
-        "O Painel El Niño federal é mensal. Este texto da semana cruza o cenário ASO com o nowcast do ARARAS "
-        "para a reunião do CIEVS — não é forecast sazonal nem ativa COE."
+        "Segue o sumário do Painel El Niño n.º 02 (ASO) e cruza com os dados reais desta rodada no ARARAS."
+        if _PAINEL_PUBLICO
+        else "Segue o sumário do Painel El Niño n.º 02 (jul/2026). Cenário oficial ASO + nowcast municipal do ARARAS. "
+        "Não é forecast sazonal nem ativa COE."
     )
     try:
-        _bol_en = build_boletim_semanal(resumo)
+        _bol_en = build_boletim_semanal(resumo, publico=_PAINEL_PUBLICO)
         _sem = _bol_en.get("semana") or {}
         b1, b2, b3 = st.columns(3)
         b1.metric("Semana", str(_sem.get("rotulo") or "—"))
         b2.metric("Período", str(_sem.get("periodo_pt") or "—"))
         b3.metric("Vermelha/roxa", int((_bol_en.get("snapshot") or {}).get("n_vermelha_roxa") or 0))
-        with st.expander("Texto para projetar / ler na reunião", expanded=True):
+        with st.expander(
+            "Texto do relatório" if _PAINEL_PUBLICO else "Texto para projetar / ler na reunião",
+            expanded=True,
+        ):
             st.markdown(_bol_en.get("markdown") or "—")
         st.download_button(
-            "Baixar boletim da semana (.md)",
+            "Baixar relatório da semana (.md)",
             data=str(_bol_en.get("markdown") or "").encode("utf-8"),
             file_name=str(_bol_en.get("arquivo") or "Boletim_ElNino_semanal.md"),
             mime="text/markdown",
@@ -1890,114 +1902,115 @@ elif SECTION_KEY == "El Niño / Contingência":
     except Exception as exc:
         st.caption(f"Boletim semanal indisponível: {exc}")
 
-    st.markdown("#### Municípios prioritários (sinal ARARAS desta rodada)")
-    st.caption(
-        "Inclui ocupação, capacidade CNES, resiliência e lacunas de dado — "
-        "para cruzar ameaça climática com capacidade assistencial."
-    )
-    show_df(tabela_prioridades_hoje(resumo, n=10), height=300)
+    if not _PAINEL_PUBLICO:
+        st.markdown("#### Municípios prioritários (sinal ARARAS desta rodada)")
+        st.caption(
+            "Inclui ocupação, capacidade CNES, resiliência e lacunas de dado — "
+            "para cruzar ameaça climática com capacidade assistencial."
+        )
+        show_df(tabela_prioridades_hoje(resumo, n=10), height=300)
 
-    st.markdown("#### Matriz operacional (esqueleto do plano)")
-    st.caption(
-        "Preencha Status/Responsável/Prazo com a planilha institucional do plano. "
-        "O ARARAS marca a coluna ‘Gatilho ARARAS’ conforme o nível atual — isso **não** executa a ação automaticamente."
-    )
-    _matriz = pd.DataFrame(
-        [
-            {
-                "Meta": "Comunicação de risco",
-                "Ação": "Boletim às Regionais e municípios prioritários",
-                "Responsável": "CIEVS / Comunicação SES",
-                "Prazo": "≤2h após sinal laranja+",
-                "Prioridade": "Alta",
-                "Status": "A validar",
-                "Indicador": "Nível ARARAS + tendência 7d",
-                "Gatilho ARARAS": "laranja+" if STAGE_ORDER.get(nivel_estado, -1) >= STAGE_ORDER.get("laranja", 2) else "abaixo",
-            },
-            {
-                "Meta": "Assistência e regulação",
-                "Ação": "Checar leitos, UTI e filas SISREG nos prioritários",
-                "Responsável": "Regulação / Hospitais",
-                "Prazo": "Mesmo dia",
-                "Prioridade": "Alta",
-                "Status": "A validar",
-                "Indicador": "Ocupação / pressão saúde",
-                "Gatilho ARARAS": "pressão alta ou ocupação ≥75%",
-            },
-            {
-                "Meta": "Grupos vulneráveis",
-                "Ação": "Busca ativa APS (idosos, crianças, rua)",
-                "Responsável": "APS / Regionais",
-                "Prazo": "24–48h",
-                "Prioridade": "Alta",
-                "Status": "A validar",
-                "Indicador": "Nível + vulnerabilidade",
-                "Gatilho ARARAS": "amarela+",
-            },
-            {
-                "Meta": "Fumaça / ar",
-                "Ação": "PFF2 conforme IQA; conferir broncodilatadores e corticoides (CBAF) e redistribuir linha respiratória (SAF/SES)",
-                "Responsável": "SAF estadual + farmácia municipal / Visa",
-                "Prazo": "Contínuo na estiagem / IQA amarelo+",
-                "Prioridade": "Alta",
-                "Status": "A validar",
-                "Indicador": "PM2,5 / IQA",
-                "Gatilho ARARAS": "PM2,5 ≥15 (sensíveis); ≥25 PFF2 grupo risco; ≥50 exposição externa; ≥75 toda população",
-            },
-            {
-                "Meta": "Inundação / água segura",
-                "Ação": "Conferir hipoclorito 2,5%, SRO e comunicação de água segura (Visa municipal; estoque estratégico SES)",
-                "Responsável": "Visa municipal + SAF/Visa estadual",
-                "Prazo": "Antes do pico da cota / alerta hidro",
-                "Prioridade": "Alta",
-                "Status": "A validar",
-                "Indicador": "Hidro ANA / solo saturado",
-                "Gatilho ARARAS": "situação hidro cheia/inundação ou alerta laranja+",
-            },
-            {
-                "Meta": "Hidrologia / seca",
-                "Ação": "Monitorar Cemaden/ANA e pontos críticos",
-                "Responsável": "Defesa Civil / Vigilância",
-                "Prazo": "Conforme alerta oficial",
-                "Prioridade": "Média",
-                "Status": "A validar",
-                "Indicador": "Alertas oficiais + solo",
-                "Gatilho ARARAS": "alerta oficial ou solo extremo",
-            },
-            {
-                "Meta": "Avaliação de ativação",
-                "Ação": "Reunião CIEVS: critérios técnicos → decisão documentada",
-                "Responsável": "Autoridade competente SES",
-                "Prazo": "Quando critérios persistirem",
-                "Prioridade": "Crítica",
-                "Status": "Humana",
-                "Indicador": "Critérios técnicos identificados (não ‘COE ativado’)",
-                "Gatilho ARARAS": "sinal analítico / alerta operacional",
-            },
-        ]
-    )
-    show_df(_matriz, height=320)
+        st.markdown("#### Matriz operacional (esqueleto do plano)")
+        st.caption(
+            "Preencha Status/Responsável/Prazo com a planilha institucional do plano. "
+            "O ARARAS marca a coluna ‘Gatilho ARARAS’ conforme o nível atual — isso **não** executa a ação automaticamente."
+        )
+        _matriz = pd.DataFrame(
+            [
+                {
+                    "Meta": "Comunicação de risco",
+                    "Ação": "Boletim às Regionais e municípios prioritários",
+                    "Responsável": "CIEVS / Comunicação SES",
+                    "Prazo": "≤2h após sinal laranja+",
+                    "Prioridade": "Alta",
+                    "Status": "A validar",
+                    "Indicador": "Nível ARARAS + tendência 7d",
+                    "Gatilho ARARAS": "laranja+" if STAGE_ORDER.get(nivel_estado, -1) >= STAGE_ORDER.get("laranja", 2) else "abaixo",
+                },
+                {
+                    "Meta": "Assistência e regulação",
+                    "Ação": "Checar leitos, UTI e filas SISREG nos prioritários",
+                    "Responsável": "Regulação / Hospitais",
+                    "Prazo": "Mesmo dia",
+                    "Prioridade": "Alta",
+                    "Status": "A validar",
+                    "Indicador": "Ocupação / pressão saúde",
+                    "Gatilho ARARAS": "pressão alta ou ocupação ≥75%",
+                },
+                {
+                    "Meta": "Grupos vulneráveis",
+                    "Ação": "Busca ativa APS (idosos, crianças, rua)",
+                    "Responsável": "APS / Regionais",
+                    "Prazo": "24–48h",
+                    "Prioridade": "Alta",
+                    "Status": "A validar",
+                    "Indicador": "Nível + vulnerabilidade",
+                    "Gatilho ARARAS": "amarela+",
+                },
+                {
+                    "Meta": "Fumaça / ar",
+                    "Ação": "PFF2 conforme IQA; conferir broncodilatadores e corticoides (CBAF) e redistribuir linha respiratória (SAF/SES)",
+                    "Responsável": "SAF estadual + farmácia municipal / Visa",
+                    "Prazo": "Contínuo na estiagem / IQA amarelo+",
+                    "Prioridade": "Alta",
+                    "Status": "A validar",
+                    "Indicador": "PM2,5 / IQA",
+                    "Gatilho ARARAS": "PM2,5 ≥15 (sensíveis); ≥25 PFF2 grupo risco; ≥50 exposição externa; ≥75 toda população",
+                },
+                {
+                    "Meta": "Inundação / água segura",
+                    "Ação": "Conferir hipoclorito 2,5%, SRO e comunicação de água segura (Visa municipal; estoque estratégico SES)",
+                    "Responsável": "Visa municipal + SAF/Visa estadual",
+                    "Prazo": "Antes do pico da cota / alerta hidro",
+                    "Prioridade": "Alta",
+                    "Status": "A validar",
+                    "Indicador": "Hidro ANA / solo saturado",
+                    "Gatilho ARARAS": "situação hidro cheia/inundação ou alerta laranja+",
+                },
+                {
+                    "Meta": "Hidrologia / seca",
+                    "Ação": "Monitorar Cemaden/ANA e pontos críticos",
+                    "Responsável": "Defesa Civil / Vigilância",
+                    "Prazo": "Conforme alerta oficial",
+                    "Prioridade": "Média",
+                    "Status": "A validar",
+                    "Indicador": "Alertas oficiais + solo",
+                    "Gatilho ARARAS": "alerta oficial ou solo extremo",
+                },
+                {
+                    "Meta": "Avaliação de ativação",
+                    "Ação": "Reunião CIEVS: critérios técnicos → decisão documentada",
+                    "Responsável": "Autoridade competente SES",
+                    "Prazo": "Quando critérios persistirem",
+                    "Prioridade": "Crítica",
+                    "Status": "Humana",
+                    "Indicador": "Critérios técnicos identificados (não ‘COE ativado’)",
+                    "Gatilho ARARAS": "sinal analítico / alerta operacional",
+                },
+            ]
+        )
+        show_df(_matriz, height=320)
 
-    st.markdown("#### Ligação nível → ação típica")
-    for niv in ["amarela", "laranja", "vermelha", "roxa"]:
-        recs = recommendations_for_stage(niv)
-        with st.expander(f"Nível {niv} — checklist sugerido", expanded=(niv == nivel_estado)):
-            for eixo, texto in recs:
+        st.markdown("#### Ligação nível → ação típica")
+        for niv in ["amarela", "laranja", "vermelha", "roxa"]:
+            recs = recommendations_for_stage(niv)
+            with st.expander(f"Nível {niv} — checklist sugerido", expanded=(niv == nivel_estado)):
+                for eixo, texto in recs:
+                    st.markdown(f"- **{eixo}:** {texto}")
+
+        st.markdown("#### Atenção farmacêutica neste cenário (142 municípios)")
+        try:
+            from sisclima.engines.atencao_farmaceutica import recomendacoes_pipeline
+
+            for eixo, texto in recomendacoes_pipeline(nivel_estado, resumo):
                 st.markdown(f"- **{eixo}:** {texto}")
-
-    st.markdown("#### Atenção farmacêutica neste cenário (142 municípios)")
-    try:
-        from sisclima.engines.atencao_farmaceutica import recomendacoes_pipeline
-
-        for eixo, texto in recomendacoes_pipeline(nivel_estado, resumo):
-            st.markdown(f"- **{eixo}:** {texto}")
-        farm_cols = [c for c in ["municipio", "pm25_ugm3", "iq_ar_score", "orientacao_mascara_iqa", "acao_farmaceutica_municipal"] if c in resumo.columns]
-        if "pm25_ugm3" in resumo.columns and farm_cols:
-            top_ar = resumo.sort_values("pm25_ugm3", ascending=False)[farm_cols].head(8)
-            st.caption("Municípios com pior PM2,5 — ação municipal sugerida (CBAF/Visa).")
-            show_df(top_ar, height=260)
-    except Exception as exc:
-        st.caption(f"Ações farmacêuticas do cenário indisponíveis: {exc}")
+            farm_cols = [c for c in ["municipio", "pm25_ugm3", "iq_ar_score", "orientacao_mascara_iqa", "acao_farmaceutica_municipal"] if c in resumo.columns]
+            if "pm25_ugm3" in resumo.columns and farm_cols:
+                top_ar = resumo.sort_values("pm25_ugm3", ascending=False)[farm_cols].head(8)
+                st.caption("Municípios com pior PM2,5 — ação municipal sugerida (CBAF/Visa).")
+                show_df(top_ar, height=260)
+        except Exception as exc:
+            st.caption(f"Ações farmacêuticas do cenário indisponíveis: {exc}")
 
     st.caption(
         "Referências: docs/apresentacoes/REFERENCIAS_ABNT_6023.md · Painel El Niño n.º 02 (jul/2026). "
