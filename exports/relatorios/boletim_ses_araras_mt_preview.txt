@@ -1,0 +1,48 @@
+🏛️ 🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena
+🟣 Classificação: Roxa — mobilização plena
+🎯 Alvo: Estado de Mato Grosso · Secretaria de Estado da Saúde / CIEVS · 🏘️ Mun.: 142
+📅 Dados do sistema: 2026-08-15 08:09
+🕒 Boletim montado em: 2026-08-15T09:09:58
+
+📋 Resumo executivo
+🏘️ 142 municípios | 🟣12 🔴21 🟠27 🟡20 🟢62
+⚠️ Estágio ARARAS roxa
+🔮 🟠 Mais grave prevista: Laranja — alerta; mais frequente: Amarela — atenção. Municípios com tendência de piora: 74.
+
+📊 Situação estadual
+🔢 Pontuação (pior): 4/4 — ROXA
+🔢 Pontuação integrada (pior): 4/4 — ROXA
+☀️ Tmáx pico: 39,9 °C — ALERTA
+🥵 Sensação pico: 38,1 °C — INTENSIFICADO
+🔥 Risco 3d pico: 27,9 — PLENO
+🏥 Pressão calor pico: 2,3 /15 — atenção
+💨 PM2,5 pico: 70,5 µg/m³ — acima da ref. OMS (~15)
+🦟 Arboviroses pico /100 mil: 78,8
+🫁 SRAG (soma): 0
+🛏️ Ocupação estadual: 51,3% — abaixo do limiar de alerta
+📡 cobertura local: 142 de 142 municípios
+📎 Legenda: pontuação 0–4 (0 verde · 1 amarela · 2 laranja · 3 vermelha · 4 roxa) | Tmáx alerta ≥39 °C | sensação alerta >32 °C | risco 3d alerta ≥7 · intensificado ≥12 · pleno ≥18 | ocupação alerta ≥75%
+
+👔 Ações por setor (checklist)
+• CIEVS / sala de situação — Manter sala de situação ativa (Roxa — mobilização plena). Articular 33 município(s) em vermelha/roxa e 27 em laranja. Foco: Nova Ubiratã, Marcelândia, Vera, Colíder, Porto dos Gaúchos.
+• Gestão hospitalar e leitos — Verificar leitos e plano de contingência hospitalar nas regionais prioritárias (ocupação estadual ~51,3%). Avaliar expansão, regulação e leitos de retaguarda. Ocupação ainda abaixo do limiar de alerta (≥75%) — monitorar tendência e filas.
+• Regulação e transporte — Mapear vagas e fluxos para prioritários; retaguarda para hipertermia, desidratação grave e descompensações cardiorrespiratórias.
+• Assistência Farmacêutica (SAF) — Competência estadual (SAF/CEME/regionais): programar e redistribuir estoque estratégico entre regionais; emitir nota técnica às farmácias municipais; não substituir a dispensação do CBAF. Linha respiratória: posicionar/redistribuir broncodilatadores, corticoides e insumos de inalação às regionais com IQA laranja+ ou SRAG em alta; orientar PFF2 aos trabalhadores da saúde em fumaça. Visa/SAF estadual: checar e antecipar hipoclorito 2,5%, SRO e materiais de tratamento de água às regionais em risco de cheia; articular soro antiofídico e imunobiológicos com CEME/PNI. Estoque estratégico de SRO, soro EV e antitérmicos para regionais em calor extremo; apoiar pontos de hidratação sem deslocar a responsabilidade municipal. Protocolo de dengue grave: insumos de hidratação venosa e orientação para não usar AINE; reforço de programação do componente básico nas regionais com incidência elevada.
+• Saúde do Trabalhador — Orientar troca/flexibilização de jornadas sob sol (sensação pico ~38,1 °C); priorizar rural, construção, coleta e serviços externos; pausas, hidratação e sombra/climatização.
+• Atenção Primária — Busca ativa de idosos, gestantes, crianças e pessoas em situação de rua nos prioritários; hidratação e sinais de gravidade.
+• Povos e territórios vulneráveis — 116 município(s) com território tradicional (659 aldeias FUNAI. 73 quilombos Palmares. 372 assentamentos INCRA. ~62.465 famílias). 29 município(s) com barragem de DPA alto. Articular SESAI/DSEI, APS rural e Defesa Civil conforme o cenário climático. Distância ao eixo de barragem não é cota de inundação. Prioridade: Campinápolis: 75 aldeias, 0 quilombos, 3 assent. (queimadas_fumaca); Gaúcha do Norte: 60 aldeias, 0 quilombos, 1 assent. (queimadas_fumaca); Querência: 54 aldeias, 0 quilombos, 5 assent. (queimadas_fumaca); Aripuanã: 41 aldeias, 0 quilombos, 1 assent. (seca_estiagem).
+• Vigilância ambiental e zoonoses — Eliminar criadouros e comunicar risco de dengue; acompanhar ar (PM2,5 pico ~70 µg/m³).
+• Comunicação de risco — Boletim unificado às Regionais; mensagens de hidratação e evitar pico de calor; IQA ruim/vermelho: PFF2/N95 em atividade externa; suspender educação física ao ar livre; grupos de risco permanecem em ambiente protegido. Antecipar comunicação aos 74 municípios com tendência de piora em ~7 dias.
+
+🎯 Municípios prioritários (top 8)
+1. 🟣 Nova Ubiratã (Sinop) | score 4/4 | T 36,1 | sens 34,6 | risco3d 21,6 | ocup 51,3% local | territórios 2 ald/0 quil/3 ass
+2. 🟣 Marcelândia (Colíder) | score 4/4 | T 36,3 | sens 35,1 | risco3d 19,2 | ocup 51,3% local | territórios 13 ald/0 quil/1 ass
+3. 🟣 Vera (Sinop) | score 4/4 | T 36,2 | sens 34,4 | risco3d 16,6 | ocup 51,3% local | territórios 0 ald/0 quil/1 ass
+4. 🟣 Colíder (Colíder) | score 4/4 | T 36,2 | sens 34,5 | risco3d 16,1 | ocup 51,3% local | territórios 0 ald/0 quil/2 ass
+5. 🟣 Porto dos Gaúchos (Juara) | score 4/4 | T 35,8 | sens 34,2 | risco3d 13,7 | ocup 51,3% local
+6. 🟣 Tabaporã (Juara) | score 4/4 | T 35,5 | sens 34,0 | risco3d 12,2 | ocup 51,3% local | territórios 0 ald/0 quil/1 ass
+7. 🟣 Cuiabá (Baixada Cuiabana) | score 4/4 | T 33,5 | sens 32,1 | risco3d 11,9 | ocup 57,5% local | territórios 0 ald/4 quil/0 ass
+8. 🟣 Nova Mutum (Sinop) | score 4/4 | T 35,1 | sens 33,3 | risco3d 9,6 | ocup 17,1% local | territórios 0 ald/0 quil/5 ass
+
+✅ Validar no painel antes de comunicação oficial.
+Lista de contatos provisória — aguardando atualização CIEVS.

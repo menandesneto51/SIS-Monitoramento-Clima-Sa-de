@@ -1,0 +1,87 @@
+# Cenário oficial (não é output do ARARAS). Atualizar a cada boletim mensal.
+# Fonte: Painel El Niño 2026-2027, boletim n.º 02 — julho/2026
+# INMET, INPE, ANA, CEMADEN, SGB, SEDEC, CENSIPAM.
+
+edicao: "02"
+mes_referencia: "jul. 2026"
+trimestre: "ASO/2026"
+titulo: "Painel El Niño 2026-2027"
+orgaos: "INMET, INPE, ANA, CEMADEN, SGB, SEDEC, CENSIPAM"
+
+enso:
+  status: "El Niño confirmado (NOAA, 11/06/2026)"
+  intensidade: "Forte, com alta probabilidade de muito forte (anomalia TSM > 2,0 °C) na primavera/verão 2026"
+  persistencia: "Modelos indicam 100% de permanência até o início de 2027"
+  nino34_recente: "1,4 °C (semanas anteriores ao boletim)"
+
+brasil_aso:
+  chuva: "Abaixo da média no centro-norte (Norte, Nordeste e grande parte do Centro-Oeste); acima da média no Sul."
+  temperatura: "Acima da média em praticamente todo o país — ondas de calor, baixa umidade e maior potencial de queimadas."
+
+mato_grosso:
+  chuva: "Centro-norte do Brasil abaixo da média. Extremo sul de MT com sinal de chuva acima da climatologia, ainda na estiagem (pancadas irregulares; agosto/setembro com climatologia baixa)."
+  temperatura: "Acima da média na Amazônia Legal — atraso da estação chuvosa no sul da Amazônia."
+  monitor_secas_jun2026: "MT livre de seca no Monitor de Secas de junho/2026 (Centro-Oeste melhor que jun/2023)."
+  hidro_pantanal: "Bacia do Paraguai: situação hidrológica mais crítica do país (seca severa a extrema)."
+  risco_fogo: "Alerta alto expandindo no Centro-Oeste, especialmente Mato Grosso. CENSIPAM: queimadas intensas no MT no trimestre ASO (análogo 2023/2024)."
+
+ameacas_saude:
+  - calor
+  - baixa_umidade
+  - queimadas_fumaca
+  - estiagem_hidrica
+
+modulos_araras:
+  - "El Niño / Contingência — contexto oficial + matriz de preparação"
+  - "Qualidade do ar + INPE queimadas — fumaça/PM2,5"
+  - "Cemaden/ANA — estiagem, cotas, solo"
+  - "Prontidão climática — seca, umidade, fumaça, calor (fase 1)"
+  - "Predição ~7d — nowcast municipal; não substitui este boletim"
+
+limites:
+  - "Não extrair números municipais deste PDF."
+  - "Não misturar forecast sazonal com a predição operacional de 7 dias."
+  - "Monitor de Secas (MT livre em jun/2026) não anula o risco de fogo nem a seca na bacia do Paraguai."
+
+narrativa:
+  situacao_atual: >-
+    No dia 11 de junho de 2026, a NOAA decretou o estabelecimento de condições de El Niño
+    no Pacífico Equatorial. Nas semanas anteriores ao boletim, os desvios de TSM atingiram
+    1,4 °C na região Niño 3.4, 1,8 °C no Niño 3 e 3,0 °C no Niño 1+2. Os padrões atmosféricos
+    (ventos de oeste em baixos níveis, SOI negativo) são consistentes com a resposta típica de El Niño.
+  perspectivas: >-
+    As médias mensais de Niño 3.4 vêm positivas desde março de 2026. A APCC indica 100% de
+    probabilidade de manutenção de El Niño forte até o final de 2026. A NOAA indica 81% de
+    probabilidade de atingir a categoria muito forte no trimestre outubro–novembro–dezembro.
+  previsao_aso: >-
+    A previsão do Centro de Previsão de Tempo e Estudos Climáticos (CPTEC)/INPE, INMET e FUNCEME para ASO/2026 indica precipitação abaixo da faixa
+    normal no centro-norte (Norte, Nordeste e grande parte do Centro-Oeste) e acima da normal
+    no Sul, podendo estender-se ao sul de São Paulo e de Mato Grosso do Sul. A temperatura
+    fica acima da normal em praticamente todo o País, favorecendo ondas de calor, baixa umidade
+    e maior potencial de queimadas.
+  amazonia_legal: >-
+    ASO marca o fim da estação seca e o início irregular da transição chuvosa na Amazônia Legal.
+    Os menores acumulados concentram-se no centro-sul, especialmente em Mato Grosso, Tocantins,
+    Maranhão, centro-sul de Rondônia e sul do Pará (agosto frequentemente < 20 mm). O CENSIPAM
+    indica chuvas abaixo da média no centro-norte da Amazônia Legal; no extremo sul de Mato Grosso
+    há sinal de precipitação acima da média histórica, ainda na estiagem — pancadas irregulares
+    intercaladas por períodos secos. O El Niño tende a atrasar a estação chuvosa no sul da Amazônia
+    e a manter temperatura acima da média.
+  centro_oeste_monitor: >-
+    Em junho de 2026 a área com seca no Centro-Oeste era quase três vezes menor que em junho de 2023
+    (22%; predominância de seca fraca). Mato Grosso ficou livre de seca na atualização de junho/2026
+    do Monitor de Secas. Isso não anula o risco de fogo no ASO nem a seca na bacia do Paraguai.
+  hidro_paraguai: >-
+    Na Região Centro-Oeste, representada pela bacia do rio Paraguai, predominam condições de seca
+    entre severa e extrema — a situação hidrológica mais crítica do país, agravada por déficits
+    hídricos sucessivos na última década (TSI chuva-vazão, julho/2026).
+  risco_fogo: >-
+    A previsão de risco de fogo para ASO intensifica o alerta alto no Centro-Oeste, especialmente
+    em Mato Grosso, e na maior parte da Região Norte. Para a Amazônia Legal, o análogo CENSIPAM
+    2023/2024 aponta queimadas intensas em Tocantins, Pará, Maranhão, Mato Grosso e na região AMACRO.
+
+recomendacoes_estados:
+  - Revisar e atualizar os Planos de Contingência para cenários associados ao El Niño.
+  - Fortalecer monitoramento, alerta e comunicação de riscos com previsões e avisos oficiais.
+  - Intensificar a articulação entre Defesa Civil, recursos hídricos, meio ambiente, saúde e assistência.
+  - Identificar previamente capacidades e recursos, priorizando populações mais vulneráveis.

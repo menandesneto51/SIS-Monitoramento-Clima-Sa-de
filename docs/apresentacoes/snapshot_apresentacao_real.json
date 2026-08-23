@@ -1,0 +1,395 @@
+{
+  "n_mun": 142,
+  "dist": {
+    "laranja": 64,
+    "amarela": 32,
+    "vermelha": 26,
+    "roxa": 20
+  },
+  "tmax_max": 36.9,
+  "utci_max": 35.38,
+  "ocup_med": 51.31288681988526,
+  "sisreg_n": 140,
+  "sisreg_sols": 766332.0,
+  "pressao_dist": {
+    "verde": 103,
+    "amarela": 39
+  },
+  "est": {
+    "titulo": "🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena",
+    "nivel": "roxa",
+    "motivo": "SIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2",
+    "orientacoes": {
+      "gestor": "Comando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.",
+      "profissional": "Protocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.",
+      "populacao": "Emergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário."
+    },
+    "predicao": {
+      "nivel_predicao_7d": "roxa",
+      "icone_predicao": "🟣",
+      "municipios_tendencia_alta": "74",
+      "resumo": "Horizonte ~7 dias: nível predito predominante Roxa — mobilização plena. Municípios com tendência de piora: 74."
+    },
+    "indicadores": [
+      {
+        "campo": "n_municipios",
+        "rotulo": "Municípios no escopo",
+        "valor": "142"
+      },
+      {
+        "campo": "distribuicao_niveis",
+        "rotulo": "Distribuição de níveis",
+        "valor": "laranja:64, amarela:32, vermelha:26, roxa:20"
+      },
+      {
+        "campo": "nivel",
+        "rotulo": "Nível SIS",
+        "valor": "roxa"
+      },
+      {
+        "campo": "nivel_alerta_integrado",
+        "rotulo": "Nível integrado SIS+TITAN",
+        "valor": "roxa"
+      },
+      {
+        "campo": "score",
+        "rotulo": "Score operacional",
+        "valor": "4"
+      },
+      {
+        "campo": "score_alerta_integrado",
+        "rotulo": "Score alerta integrado",
+        "valor": "4"
+      },
+      {
+        "campo": "tmax",
+        "rotulo": "Tmáx (°C)",
+        "valor": "34.4"
+      },
+      {
+        "campo": "utci_proxy",
+        "rotulo": "UTCI/proxy",
+        "valor": "33.4"
+      },
+      {
+        "campo": "risco_cumulativo_3d",
+        "rotulo": "Risco acumulado 3d",
+        "valor": "13.2"
+      },
+      {
+        "campo": "ocupacao_leitos_pct",
+        "rotulo": "Ocupação leitos (%)",
+        "valor": "52.2"
+      },
+      {
+        "campo": "pressao_calor_pct",
+        "rotulo": "Pressão assistencial (%)",
+        "valor": "6.1"
+      },
+      {
+        "campo": "indice_saturacao_solo",
+        "rotulo": "Índice saturação solo",
+        "valor": "39.4"
+      },
+      {
+        "campo": "classe_saturacao_solo",
+        "rotulo": "Classe solo",
+        "valor": "baixa"
+      },
+      {
+        "campo": "incidencia_arbovirus_100k",
+        "rotulo": "Incid. arbovírus /100 mil",
+        "valor": "8.3"
+      },
+      {
+        "campo": "zscore_arbovirus",
+        "rotulo": "Z-score arboviroses",
+        "valor": "4.3"
+      },
+      {
+        "campo": "casos_srag",
+        "rotulo": "Casos SRAG",
+        "valor": "0"
+      },
+      {
+        "campo": "incidencia_srag_100k",
+        "rotulo": "Incid. SRAG /100 mil",
+        "valor": "0"
+      },
+      {
+        "campo": "indice_tensao_climatica",
+        "rotulo": "Tensão climática",
+        "valor": "62.7"
+      },
+      {
+        "campo": "indice_carga_saude",
+        "rotulo": "Carga em saúde",
+        "valor": "16.9"
+      },
+      {
+        "campo": "indice_vigilancia_integrada",
+        "rotulo": "Vigilância integrada",
+        "valor": "55.1"
+      },
+      {
+        "campo": "tendencia_7d",
+        "rotulo": "Tendência 7d",
+        "valor": "descendo"
+      },
+      {
+        "campo": "nivel_predicao_7d",
+        "rotulo": "Nível predito 7d",
+        "valor": "vermelha"
+      },
+      {
+        "campo": "componente_dominante",
+        "rotulo": "Componente dominante",
+        "valor": "sis_estagio"
+      },
+      {
+        "campo": "motivo",
+        "rotulo": "Motivo SIS",
+        "valor": "UTCI/proxy 33.4 entre 32 e 38; Tmax 34.4 sem gatilho; risco cumulativo 3d 13.15 atingiu vermelha; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 39.40 sem gatilho; pressão assistencial 6.10 atingiu laranja; ocupação de leitos 52.22 sem gatilho; z-score assistencial indisponível"
+      },
+      {
+        "campo": "motivo_integrado",
+        "rotulo": "Motivo integrado",
+        "valor": "SIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2"
+      }
+    ],
+    "icone": "🟣"
+  },
+  "cui": {
+    "titulo": "🟣 ALERTA VIGIDESASTRE CUIABÁ · Roxa — mobilização plena",
+    "nivel": "roxa",
+    "motivo": "SIS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cumulativo 3d 10.0",
+    "orientacoes": {
+      "gestor": "Comando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.",
+      "profissional": "Protocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.",
+      "populacao": "Emergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário."
+    },
+    "predicao": {
+      "nivel_predicao_7d": "roxa",
+      "icone_predicao": "🟣",
+      "resumo": "Predição ~7d Cuiabá: Roxa — mobilização plena"
+    },
+    "indicadores": [
+      {
+        "campo": "nivel",
+        "rotulo": "Nível SIS",
+        "valor": "roxa"
+      },
+      {
+        "campo": "nivel_alerta_integrado",
+        "rotulo": "Nível integrado SIS+TITAN",
+        "valor": "roxa"
+      },
+      {
+        "campo": "score",
+        "rotulo": "Score operacional",
+        "valor": "4"
+      },
+      {
+        "campo": "score_alerta_integrado",
+        "rotulo": "Score alerta integrado",
+        "valor": "4"
+      },
+      {
+        "campo": "tmax",
+        "rotulo": "Tmáx (°C)",
+        "valor": "35.6"
+      },
+      {
+        "campo": "utci_proxy",
+        "rotulo": "UTCI/proxy",
+        "valor": "34.0"
+      },
+      {
+        "campo": "risco_cumulativo_3d",
+        "rotulo": "Risco acumulado 3d",
+        "valor": "10.0"
+      },
+      {
+        "campo": "ocupacao_leitos_pct",
+        "rotulo": "Ocupação leitos (%)",
+        "valor": "57.9"
+      },
+      {
+        "campo": "pressao_calor_pct",
+        "rotulo": "Pressão assistencial (%)",
+        "valor": "7.2"
+      },
+      {
+        "campo": "pm25_ugm3",
+        "rotulo": "PM2,5",
+        "valor": "40.3"
+      },
+      {
+        "campo": "indice_saturacao_solo",
+        "rotulo": "Índice saturação solo",
+        "valor": "19.8"
+      },
+      {
+        "campo": "classe_saturacao_solo",
+        "rotulo": "Classe solo",
+        "valor": "baixa"
+      },
+      {
+        "campo": "incidencia_arbovirus_100k",
+        "rotulo": "Incid. arbovírus /100 mil",
+        "valor": "0.3"
+      },
+      {
+        "campo": "zscore_arbovirus",
+        "rotulo": "Z-score arboviroses",
+        "valor": "4.4"
+      },
+      {
+        "campo": "casos_srag",
+        "rotulo": "Casos SRAG",
+        "valor": "53"
+      },
+      {
+        "campo": "incidencia_srag_100k",
+        "rotulo": "Incid. SRAG /100 mil",
+        "valor": "7.7"
+      },
+      {
+        "campo": "letalidade_pct",
+        "rotulo": "Letalidade (%)",
+        "valor": "0"
+      },
+      {
+        "campo": "indice_tensao_climatica",
+        "rotulo": "Tensão climática",
+        "valor": "56.3"
+      },
+      {
+        "campo": "indice_carga_saude",
+        "rotulo": "Carga em saúde",
+        "valor": "33.1"
+      },
+      {
+        "campo": "indice_vigilancia_integrada",
+        "rotulo": "Vigilância integrada",
+        "valor": "58.1"
+      },
+      {
+        "campo": "tendencia_7d",
+        "rotulo": "Tendência 7d",
+        "valor": "estável"
+      },
+      {
+        "campo": "nivel_predicao_7d",
+        "rotulo": "Nível predito 7d",
+        "valor": "roxa"
+      },
+      {
+        "campo": "componente_dominante",
+        "rotulo": "Componente dominante",
+        "valor": "sis_estagio"
+      },
+      {
+        "campo": "motivo",
+        "rotulo": "Motivo SIS",
+        "valor": "UTCI/proxy 34.0 entre 32 e 38; Tmax 35.6 sem gatilho; risco cumulativo 3d 9.96 atingiu laranja; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 19.80 sem gatilho; pressão assistencial 7.16 atingiu vermelha; ocupação de leitos 57.86 sem gatilho; z-score assistencial indisponível"
+      },
+      {
+        "campo": "motivo_integrado",
+        "rotulo": "Motivo integrado",
+        "valor": "SIS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cumulativo 3d 10.0"
+      }
+    ],
+    "icone": "🟣"
+  },
+  "top_mun": [
+    {
+      "nome": "Barra do Bugres",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa; UTCI/proxy 33.8; Risco cumulativo 3d 12.2",
+      "icone": "🟣"
+    },
+    {
+      "nome": "Barra do Garças",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa",
+      "icone": "🟣"
+    },
+    {
+      "nome": "Campinápolis",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa; UTCI/proxy 32.4",
+      "icone": "🟣"
+    },
+    {
+      "nome": "Campo Novo do Parecis",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa",
+      "icone": "🟣"
+    },
+    {
+      "nome": "Campo Verde",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa",
+      "icone": "🟣"
+    },
+    {
+      "nome": "Canarana",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa; UTCI/proxy 32.2",
+      "icone": "🟣"
+    },
+    {
+      "nome": "Cláudia",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa; UTCI/proxy 33.0; Risco cumulativo 3d 10.1",
+      "icone": "🟣"
+    },
+    {
+      "nome": "Colíder",
+      "nivel": "roxa",
+      "motivo": "SIS estágio roxa; UTCI/proxy 33.0; Risco cumulativo 3d 11.9",
+      "icone": "🟣"
+    }
+  ],
+  "top_reg": [
+    {
+      "nome": "Alta Floresta",
+      "nivel": "roxa",
+      "n": 6,
+      "motivo": "SIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2"
+    },
+    {
+      "nome": "Barra do Garças",
+      "nivel": "roxa",
+      "n": 9,
+      "motivo": "SIS estágio roxa"
+    },
+    {
+      "nome": "Cuiabá",
+      "nivel": "roxa",
+      "n": 14,
+      "motivo": "SIS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cu"
+    },
+    {
+      "nome": "Juara",
+      "nivel": "roxa",
+      "n": 4,
+      "motivo": "SIS estágio roxa; UTCI/proxy 32.5; Risco cumulativo 3d 7.4"
+    },
+    {
+      "nome": "Peixoto de Azevedo - Guarantã do Norte",
+      "nivel": "roxa",
+      "n": 4,
+      "motivo": "SIS estágio roxa; Risco cumulativo 3d 7.5"
+    },
+    {
+      "nome": "Pontes e Lacerda - Comodoro",
+      "nivel": "roxa",
+      "n": 7,
+      "motivo": "SIS estágio roxa"
+    }
+  ],
+  "est_md": "# 🟣 ALERTA ESTADUAL · SES-MT / CIEVS · Roxa — mobilização plena\n\n**Escopo:** estadual · **Alvo:** Estado de Mato Grosso · SES/CIEVS · **Municípios:** 142\n**Gerado em:** 2026-07-28T22:54:59\n\n## Motivo\nSIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2\n\n## Indicadores\n- **Municípios no escopo:** 142\n- **Distribuição de níveis:** laranja:64, amarela:32, vermelha:26, roxa:20\n- **Nível SIS:** roxa\n- **Nível integrado SIS+TITAN:** roxa\n- **Score operacional:** 4\n- **Score alerta integrado:** 4\n- **Tmáx (°C):** 34.4\n- **UTCI/proxy:** 33.4\n- **Risco acumulado 3d:** 13.2\n- **Ocupação leitos (%):** 52.2\n- **Pressão assistencial (%):** 6.1\n- **Índice saturação solo:** 39.4\n- **Classe solo:** baixa\n- **Incid. arbovírus /100 mil:** 8.3\n- **Z-score arboviroses:** 4.3\n- **Casos SRAG:** 0\n- **Incid. SRAG /100 mil:** 0\n- **Tensão climática:** 62.7\n- **Carga em saúde:** 16.9\n- **Vigilância integrada:** 55.1\n- **Tendência 7d:** descendo\n- **Nível predito 7d:** vermelha\n- **Componente dominante:** sis_estagio\n- **Motivo SIS:** UTCI/proxy 33.4 entre 32 e 38; Tmax 34.4 sem gatilho; risco cumulativo 3d 13.15 atingiu vermelha; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 39.40 sem gatilho; pressão assistencial 6.10 atingiu laranja; ocupação de leitos 52.22 sem gatilho; z-score assistencial indisponível\n- **Motivo integrado:** SIS estágio roxa; UTCI/proxy 33.4; Risco cumulativo 3d 13.2\n\n## Predição (~7 dias)\n🟣 Horizonte ~7 dias: nível predito predominante Roxa — mobilização plena. Municípios com tendência de piora: 74.\n\n## Orientações\n### Gestor\nComando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.\n\n### Profissionais de saúde\nProtocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.\n\n### População\nEmergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário.\n\n## Fontes\nOpen-Meteo, INMET, Cemaden, ANA, Copernicus/CAMS (quando disponível), SINAN/SIVEP/SIM/IndicaSUS (DW), SISREG (regulação/fila), SIS Clima-Saúde MT\n\n_SIS Clima-Saúde MT · CIEVS/SES-MT · validar no painel antes do envio externo._",
+  "cui_md": "# 🟣 ALERTA VIGIDESASTRE CUIABÁ · Roxa — mobilização plena\n\n**Escopo:** cuiaba · **Alvo:** Cuiabá · Vigidesastre · **Municípios:** 1\n**Gerado em:** 2026-07-28T22:54:59\n\n## Motivo\nSIS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cumulativo 3d 10.0\n\n## Indicadores\n- **Nível SIS:** roxa\n- **Nível integrado SIS+TITAN:** roxa\n- **Score operacional:** 4\n- **Score alerta integrado:** 4\n- **Tmáx (°C):** 35.6\n- **UTCI/proxy:** 34.0\n- **Risco acumulado 3d:** 10.0\n- **Ocupação leitos (%):** 57.9\n- **Pressão assistencial (%):** 7.2\n- **PM2,5:** 40.3\n- **Índice saturação solo:** 19.8\n- **Classe solo:** baixa\n- **Incid. arbovírus /100 mil:** 0.3\n- **Z-score arboviroses:** 4.4\n- **Casos SRAG:** 53\n- **Incid. SRAG /100 mil:** 7.7\n- **Letalidade (%):** 0\n- **Tensão climática:** 56.3\n- **Carga em saúde:** 33.1\n- **Vigilância integrada:** 58.1\n- **Tendência 7d:** estável\n- **Nível predito 7d:** roxa\n- **Componente dominante:** sis_estagio\n- **Motivo SIS:** UTCI/proxy 34.0 entre 32 e 38; Tmax 35.6 sem gatilho; risco cumulativo 3d 9.96 atingiu laranja; onda de calor P95 ≥ 2 dias não detectada; saturação do solo 19.80 sem gatilho; pressão assistencial 7.16 atingiu vermelha; ocupação de leitos 57.86 sem gatilho; z-score assistencial indisponível\n- **Motivo integrado:** SIS estágio roxa; INMET laranja: Onda de calor; Cemaden laranja: Risco Hidrológico - Moderado; UTCI/proxy 34.0; Risco cumulativo 3d 10.0\n\n## Predição (~7 dias)\n🟣 Predição ~7d Cuiabá: Roxa — mobilização plena\n\n## Orientações\n### Gestor\nComando unificado e apoio interfederativo; redistribuição emergencial de insumos/leitos; comunicação de crise e registro para pós-evento.\n\n### Profissionais de saúde\nProtocolos de emergência plena; reforço de equipes; priorização absoluta de risco de vida e notificações imediatas.\n\n### População\nEmergência sanitária climática: siga orientações oficiais da SES/SMS; procure abrigo/resfriamento e atendimento urgente se necessário"
+}

@@ -1,0 +1,85 @@
+# Orientações operacionais por cenário — boletim El Niño CIEVS-MT / ARARAS MT
+# Referências: MS/RENAME, PCDT e protocolos estaduais (não prescreve medicamentos).
+
+cenarios:
+  - id: seca_estiagem
+    nome: "SECA / ESTIAGEM"
+    criterios: "Situação hidrológica municipal, saturação do solo, precipitação acumulada, Monitor de Secas."
+    repercussao: "Desidratação, irritação ocular/respiratória, agravamento de doenças crônicas em contexto de calor associado."
+    vulneraveis: "Crianças, idosos, gestantes, pessoas com comorbidades, trabalhadores expostos ao ar livre."
+    situacao_campo: "municipios_hidro_alerta"
+    acoes_municipio:
+      Vigilância em Saúde: "Monitorar notificações de desidratação, arboviroses e qualidade da água; reforçar comunicação de risco."
+      Atenção Primária: "Identificar população vulnerável; orientar hidratação e sinais de alerta."
+      Urgência e Emergência: "Revisar fluxo de atendimento por desidratação e insolação."
+      Assistência Farmacêutica: "Avaliar estoques de soluções de reidratação oral e insumos de suporte — conforme RENAME/PCDT aplicáveis."
+      Gestão: "Articular com Defesa Civil, saneamento e abastecimento de água."
+    acoes_ses: "Consolidar municípios em estiagem; apoiar regionais; monitorar disponibilidade estratégica de insumos."
+    referencias: "Ministério da Saúde — RENAME; protocolos estaduais de vigilância em desastres."
+
+  - id: onda_calor
+    nome: "ONDA DE CALOR / CALOR EXTREMO"
+    criterios: "Tmáx ≥ 37 °C com UR ≤ 30%, UTCI proxy, onda de calor P95, projeção ~7 dias."
+    repercussao: "Exaustão pelo calor, desidratação, agravamento cardiovascular e respiratório."
+    vulneraveis: "Idosos, crianças, trabalhadores expostos, moradores de habitações sem proteção térmica."
+    situacao_campo: "municipios_calor_seco"
+    acoes_municipio:
+      Vigilância em Saúde: "Monitorar atendimentos e internações por calor/desidratação."
+      Atenção Primária: "Campanhas de hidratação e horários seguros de atividade."
+      Urgência e Emergência: "Avaliar capacidade assistencial e necessidade de contingenciamento conforme evolução da demanda."
+      Assistência Farmacêutica: "Avaliar soluções, materiais de suporte e insumos previstos em protocolos oficiais."
+      Gestão: "Articulação com assistência social e comunicação municipal."
+    acoes_ses: "Priorizar municípios nas classes vermelha e roxa; apoiar regionais com maior carga térmica."
+    referencias: "OMS/OPAS orientações de saúde em calor; MS — vigilância de agravos relacionados ao clima."
+
+  - id: fumaca_qualidade_ar
+    nome: "INCÊNDIOS FLORESTAIS E FUMAÇA / QUALIDADE DO AR"
+    criterios: "PM2,5, focos INPE, IQA, internações respiratórias quando disponíveis."
+    repercussao: "Exacerbação de asma, DPOC, SRAG; irritação ocular e respiratória."
+    vulneraveis: "Crianças, idosos, gestantes, portadores de doenças respiratórias."
+    situacao_campo: "n_pm25_25"
+    acoes_municipio:
+      Vigilância em Saúde: "Monitorar SRAG, internações respiratórias e intoxicação exógena."
+      Atenção Primária: "Orientar medidas de redução da exposição e proteção respiratória conforme protocolos oficiais vigentes."
+      Urgência e Emergência: "Avaliar disponibilidade de suporte ventilatório e capacidade de resposta conforme demanda."
+      Assistência Farmacêutica: "Avaliar estoques de broncodilatadores e insumos respiratórios conforme protocolos oficiais."
+      Gestão: "Articulação com meio ambiente e Defesa Civil."
+    acoes_ses: "Consolidar municípios com PM2,5 elevado; comunicação de risco estadual."
+    referencias: "MS — vigilância de SRAG; SINAN intoxicação exógena."
+
+  - id: chuva_intensa
+    nome: "CHUVA INTENSA / ENXURRADAS / INUNDAÇÕES"
+    criterios: "Precipitação acumulada, alertas INMET/CEMADEN, situação hidro de inundação."
+    repercussao: "Doenças relacionadas à água, traumas, DDA."
+    vulneraveis: "Moradores em áreas de risco, crianças, população ribeirinha."
+    situacao_campo: "municipios_hidro_alerta"
+    acoes_municipio:
+      Vigilância em Saúde: "Monitorar DDA, leptospirose e notificações pós-evento."
+      Atenção Primária: "Orientar higiene e segurança hídrica."
+      Urgência e Emergência: "Preparar fluxo para traumas e hipotermia."
+      Assistência Farmacêutica: "Avaliar insumos de suporte conforme protocolos oficiais."
+      Gestão: "Articulação com Defesa Civil e saneamento."
+    acoes_ses: "Apoiar municípios com alerta hidro; consolidar notificações regionais."
+    referencias: "MS — vigilância de agravos relacionados a desastres; CEMADEN."
+
+impactos_saude:
+  - evento: "Seca e estiagem"
+    exposicao: "Baixa umidade"
+    agravos: "Desidratação e irritações ocular e respiratória"
+    indicadores: "UR, Tmáx e atendimentos"
+  - evento: "Incêndios e fumaça"
+    exposicao: "PM2,5"
+    agravos: "Agravamento de doenças respiratórias"
+    indicadores: "PM2,5, SRAG e internações"
+  - evento: "Calor extremo"
+    exposicao: "Estresse térmico"
+    agravos: "Desidratação e agravos relacionados ao calor"
+    indicadores: "Tmáx, UTCI e atendimentos"
+  - evento: "Chuva intensa"
+    exposicao: "Inundações"
+    agravos: "DDA, leptospirose e traumas"
+    indicadores: "Chuva, alertas e notificações"
+  - evento: "Tempestades"
+    exposicao: "Ventos fortes e descargas atmosféricas"
+    agravos: "Traumas"
+    indicadores: "Avisos do INMET"

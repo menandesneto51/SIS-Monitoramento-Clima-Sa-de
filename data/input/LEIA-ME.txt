@@ -1,0 +1,37 @@
+Pasta operacional (não versionar CSVs reais).
+
+1) SIVEP/SRAG
+   Coloque os exports oficiais em:
+     data/input/sivep_atualizacao/
+   Depois rode:
+     atualizar_sivep_local.bat
+   ou a rotina diária (rodar_pipeline.bat).
+
+2) Contatos de alerta territorial
+   Copie config/contatos_alertas.exemplo.csv para
+     data/input/contatos_alertas.csv
+   e preencha e-mails/chats reais.
+
+3) Fallback CSV (quando DW/API falhar)
+   Nomes esperados (config/settings.yaml):
+     meteorologia.csv
+     inmet_alertas.csv
+     cemaden_alertas.csv
+     indicasus_leitos.csv
+     sivep_srag.csv
+     lacen_gal.csv
+     sinan_agravos.csv
+     sim_obitos.csv
+     sentinela_rumores.csv
+     sentinela_sg_agregado_semanal.csv
+     sentinela_sg_amostras.csv
+     infraestrutura_unidades.csv
+     estoque_insumos.csv
+     busca_ativa.csv
+     comunicacao.csv
+     municipios_mt.csv
+     populacao_municipal_mt_2020_2025.csv
+     qualidade_ar_copernicus.csv
+
+Primeira máquina:
+  python scripts\preparar_data_input.py

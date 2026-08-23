@@ -1,0 +1,119 @@
+# Catálogo de indicadores SIVEP-Gripe / SRAG alinhados ao Ministério da Saúde.
+# Referências:
+# - Guia de Vigilância Integrada da covid-19, influenza e outros vírus respiratórios (MS/SVSA, 2024)
+# - Caderno de Análise de Indicadores da vigilância sentinela de SG (MS, 2024; metas OMS >80%)
+# - Nota Técnica Conjunta nº 01/257/2025 SVSA/SAPS/SAES/MS (situação SRAG / SIVEP-Gripe)
+# - Dados Abertos SUS — SIVEP-Gripe / SRAG hospitalizado
+
+fonte_oficial: Ministerio da Saude / SVSA — Vigilância Integrada de Vírus Respiratórios
+sistema: SIVEP-Gripe
+agravo: SRAG hospitalizado e obitos por SRAG
+
+meta_qualidade_oms_pct: 80
+
+indicadores:
+  - id: SRAG-01
+    nome: Casos de SRAG por semana epidemiologica
+    tipo: resultado
+    unidade: casos
+    descricao: Contagem de notificacoes de SRAG por SE de inicio de sintomas (preferencial) ou notificacao.
+    referencia: Guia MS 2024 — vigilância universal de SRAG hospitalizado
+
+  - id: SRAG-02
+    nome: Incidencia de SRAG por 100 mil habitantes
+    tipo: resultado
+    unidade: por 100 mil
+    descricao: Casos de SRAG na SE / populacao municipal * 100000.
+    referencia: Indicador epidemiologico padrao MS/InfoGripe-like
+
+  - id: SRAG-03
+    nome: Letalidade hospitalar de SRAG
+    tipo: resultado
+    unidade: "%"
+    descricao: Obitos / casos de SRAG * 100 no periodo/municipio.
+    referencia: Monitoramento de gravidade — Guia MS / boletins SRAG
+
+  - id: SRAG-04
+    nome: Proporcao de SRAG com internacao em UTI
+    tipo: resultado
+    unidade: "%"
+    descricao: Casos com flag UTI / casos de SRAG * 100.
+    referencia: Guia MS — monitoramento de gravidade e capacidade hospitalar
+
+  - id: SRAG-05
+    nome: Positividade / identificacao viral entre casos com etiologia
+    tipo: resultado
+    unidade: "%"
+    descricao: Casos com virus identificado (nao nulo/nao ignorado) / casos com campo lab preenchido.
+    referencia: Caderno MS — Indicador 11 (adaptado a SRAG hospitalizado)
+
+  - id: SRAG-06
+    nome: Distribuicao viral por SE
+    tipo: resultado
+    unidade: casos
+    descricao: Contagem de casos por virus (Influenza A/B, SARS-CoV-2, VSR, outros) e SE.
+    referencia: Caderno MS — Indicadores 12 e 13; Guia MS circulacao viral
+
+  - id: SRAG-07
+    nome: Cobertura de informacao laboratorial
+    tipo: qualidade
+    unidade: "%"
+    descricao: Percentual de registros com campo de virus/etiologia preenchido.
+    referencia: Guia MS — indicador de qualidade diagnostico laboratorial SRAG; meta OMS >80%
+
+  - id: SRAG-08
+    nome: Atraso mediano sintomas-notificacao
+    tipo: qualidade
+    unidade: dias
+    descricao: Mediana de (data_notificacao - data_sintomas) em dias.
+    referencia: Oportunidade de notificacao — boas praticas SIVEP-Gripe
+
+  - id: SRAG-09
+    nome: Proporcao com suporte ventilatorio
+    tipo: resultado
+    unidade: "%"
+    descricao: Casos com suporte ventilatorio / casos SRAG (quando a variavel existir).
+    referencia: Gravidade clinica — ficha SIVEP-Gripe
+
+  - id: SRAG-10
+    nome: Tendencia epidemica (z-score de casos)
+    tipo: resultado
+    unidade: z-score
+    descricao: Z-score da serie de casos diarios/SE por municipio.
+    referencia: Deteccao de aumento anormal — uso operacional CIEVS/MT
+
+  - id: SRAG-11
+    nome: Snapshot municipal da SE corrente
+    tipo: resultado
+    unidade: misto
+    descricao: Casos, obitos, UTI, incidencia e letalidade na ultima SE disponivel.
+    referencia: Painel operacional estadual
+
+  - id: SRAG-12
+    nome: Classificacao de desempenho da qualidade
+    tipo: qualidade
+    unidade: categoria
+    descricao: ">80% meta; 21-80% baixo; 1-20% baixissimo; 0% silencioso (OMS/MS)."
+    referencia: Caderno de Analise de Indicadores MS / Diretrizes OMS
+
+limiares_operacionais:
+  incidencia_srag_100k:
+    amarela: 5
+    laranja: 15
+    vermelha: 40
+    roxa: 80
+  letalidade_srag_pct:
+    amarela: 5
+    laranja: 10
+    vermelha: 20
+    roxa: 30
+  prop_uti_srag_pct:
+    amarela: 20
+    laranja: 35
+    vermelha: 50
+    roxa: 65
+  zscore_srag:
+    amarela: 1.5
+    laranja: 2.0
+    vermelha: 2.5
+    roxa: 3.0

@@ -1,0 +1,30 @@
+# Runtime essencial para Docker (app + pipeline + DW)
+altair==5.5.0
+numpy==2.4.6
+pandas==3.0.3
+plotly==6.7.0
+pyarrow==24.0.0
+pydantic==2.13.3
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
+PyYAML==6.0.3
+requests==2.31.0
+SQLAlchemy==2.0.50
+# starlette 1.4 quebra GZipResponder do Streamlit (HTTP 500 no healthcheck)
+starlette==1.3.1
+uvicorn==0.51.0
+streamlit==1.60.0
+streamlit_folium==0.20.0
+folium==0.16.0
+openpyxl==3.1.5
+scipy==1.18.0
+scikit-learn==1.7.2
+statsmodels==0.14.6
+tenacity==8.5.0
+tzdata==2026.2
+shapely==2.1.2
+geopandas==1.1.4
+pyogrio==0.12.1
+beautifulsoup4==4.14.3
+psycopg2-binary==2.9.12
+pymssql==2.3.4

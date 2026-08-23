@@ -1,0 +1,88 @@
+# Referências ABNT NBR 6023:2018 — boletim semanal El Niño
+# id: chave para citação inline via cite(ref_id)
+
+referencias:
+  - id: abnt6023
+    citacao_curta: "ABNT, 2018"
+    abnt: >-
+      ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 6023: informação e documentação —
+      referências — elaboração. 2. ed. Rio de Janeiro: ABNT, 2018.
+
+  - id: abnt14724
+    citacao_curta: "ABNT, 2011"
+    abnt: >-
+      ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 14724: informação e documentação —
+      trabalhos acadêmicos — apresentação. 3. ed. Rio de Janeiro: ABNT, 2011.
+
+  - id: abnt10719
+    citacao_curta: "ABNT, 2015"
+    abnt: >-
+      ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 10719: informação e documentação —
+      relatório técnico e/ou científico — apresentação. 2. ed. Rio de Janeiro: ABNT, 2015.
+
+  - id: painel_el_nino_02
+    citacao_curta: "INMET; INPE; ANA; CEMADEN; SGB; SEDEC; CENSIPAM, 2026"
+    abnt: >-
+      INSTITUTO NACIONAL DE METEOROLOGIA; INSTITUTO NACIONAL DE PESQUISAS ESPACIAIS;
+      AGÊNCIA NACIONAL DE ÁGUAS E SANEAMENTO BÁSICO; CENTRO NACIONAL DE MONITORAMENTO
+      E ALERTAS DE DESASTRES NATURAIS; SERVIÇO GEOLÓGICO DO BRASIL; SECRETARIA NACIONAL
+      DE PROTEÇÃO E DEFESA CIVIL; CENTRO GESTOR E OPERACIONAL DO SISTEMA DE PROTEÇÃO DA
+      AMAZÔNIA. Painel El Niño 2026–2027: boletim mensal n.º 02 — julho de 2026. Brasília:
+      INMET/INPE, jul. 2026.
+
+  - id: inmet_alertas
+    citacao_curta: "INMET, 2026"
+    abnt: >-
+      INSTITUTO NACIONAL DE METEOROLOGIA. Avisos meteorológicos — feed RSS Alert-AS.
+      Brasília: INMET, 2026. Disponível em: https://apiprevmet3.inmet.gov.br/avisos/rss.
+      Acesso em: {acesso_em}.
+
+  - id: cemaden_alertas
+    citacao_curta: "CEMADEN, 2026"
+    abnt: >-
+      CENTRO NACIONAL DE MONITORAMENTO E ALERTAS DE DESASTRES NATURAIS. Painel de alertas.
+      Cachoeira Paulista: CEMADEN, 2026. Disponível em:
+      https://painelalertas.cemaden.gov.br/. Acesso em: {acesso_em}.
+
+  - id: araras_mt
+    citacao_curta: "SES-MT; CIEVS-MT, 2026"
+    abnt: >-
+      SECRETARIA DE ESTADO DE SAÚDE DE MATO GROSSO; CENTRO INTEGRADO DE VIGILÂNCIA
+      EPIDEMIOLÓGICA E SANITÁRIA DE MATO GROSSO. ARARAS MT — Análise, Resposta e
+      Acompanhamento de Riscos, Agravos e Saúde. Cuiabá: SES-MT, 2026.
+
+  - id: ses_estoque_saf
+    citacao_curta: "SES-MT, 2026"
+    abnt: >-
+      SECRETARIA DE ESTADO DE SAÚDE DE MATO GROSSO. Assistência Farmacêutica — estoques
+      estratégicos e autonomia de insumos (base operacional ARARAS MT). Cuiabá: SES-MT, 2026.
+
+  - id: noaa_enso
+    citacao_curta: "NOAA, 2026"
+    abnt: >-
+      NATIONAL OCEANIC AND ATMOSPHERIC ADMINISTRATION. Climate Prediction Center. ENSO
+      Diagnostic Discussion. Silver Spring: NOAA, 2026. Disponível em:
+      https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml.
+      Acesso em: {acesso_em}.
+
+  - id: open_meteo
+    citacao_curta: "Open-Meteo, 2026"
+    abnt: >-
+      OPEN-METEO. Weather Forecast API: documentação técnica. 2026. Disponível em:
+      https://open-meteo.com/en/docs. Acesso em: {acesso_em}.
+
+  - id: portaria_sala_590
+    citacao_curta: "SES-MT, 2026"
+    abnt: >-
+      MATO GROSSO. Secretaria de Estado de Saúde. Portaria n.º 0590/2026/GBSES: dispõe sobre
+      a instituição da Sala de Situação em Saúde para preparação, monitoramento e resposta aos
+      impactos do El Niño 2026-2027 e de eventos climáticos extremos no âmbito da Secretaria de
+      Estado de Saúde de Mato Grosso e define sua composição, governança, competências e produtos.
+      Cuiabá: SES-MT, 2026. Protocolo 1843437.
+
+  - id: vigibarragens
+    citacao_curta: "FUNAI; Palmares; SES-MT, 2026"
+    abnt: >-
+      FUNDAÇÃO NACIONAL DOS POVOS INDÍGENAS; FUNDAÇÃO CULTURAL PALMARES; SECRETARIA DE ESTADO
+      DE SAÚDE DE MATO GROSSO. ARARAS MT: base integrada de povos e comunidades tradicionais
+      (aldeias indígenas e comunidades quilombolas certificadas). Cuiabá: SES-MT, 2026.

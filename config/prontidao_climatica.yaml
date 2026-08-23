@@ -1,0 +1,145 @@
+# -*- coding: utf-8 -*-
+# Matriz validável de Prontidão Climática Municipal (ARARAS MT).
+# A IA consulta estas regras; não cria protocolo clínico.
+# Fontes: MS Vigidesastres / AdaptaSUS / orientações de queimadas-MT; REMUME/RENAME (classes, não prescritivo).
+# Nível 1: clima + epi + CNES + população. Nível 2: BNAFAR/Hórus (estoque real).
+
+versao: "1.0"
+validador: "SES/MT — Vigilância, Assistência Farmacêutica e área assistencial (a confirmar)"
+horizonte_dias: 14
+lead_time_reposicao_dias: 15
+estoque_minimo_seguranca_dias: 14
+kit_calamidade_referencia: "MS — Kit de Medicamentos e Insumos para Calamidade Pública (até 500 pessoas / 3 meses)"
+
+fase1:
+  - seca_estiagem
+  - baixa_umidade
+  - queimadas_fumaca
+
+cenarios:
+  seca_estiagem:
+    regra: CLIMA-SECA-017
+    rotulo: Seca / estiagem
+    impactos:
+      - DDA e desidratação
+      - dermatites
+      - insegurança hídrica/alimentar
+    estoques:
+      - SRO e hidratação venosa
+      - insumos de água segura (hipoclorito 2,5%)
+      - medicamentos de uso contínuo
+    acoes: revisar estoque, Vigiagua, abastecimento alternativo, busca de vulneráveis
+    fontes:
+      - Ministério da Saúde — Vigidesastres / secas e qualidade da água
+    fator_regra: 1.12
+  baixa_umidade:
+    regra: CLIMA-UMID-008
+    rotulo: Baixa umidade
+    impactos:
+      - exacerbação de asma/DPOC
+      - irritação ocular/nasal
+      - desidratação
+    estoques:
+      - medicamentos respiratórios padronizados
+      - dispositivos inalatórios
+      - hidratação
+    acoes: reforçar APS, escolas, ILPI e unidades sentinelas
+    fontes:
+      - Ministério da Saúde — agravos respiratórios em baixa umidade
+    fator_regra: 1.10
+  queimadas_fumaca:
+    regra: CLIMA-FUMACA-021
+    rotulo: Queimadas / fumaça
+    impactos:
+      - doenças respiratórias e cardiovasculares
+      - aumento de exacerbações
+    estoques:
+      - broncodilatadores padronizados
+      - oxigênio medicinal
+      - dispositivos inalatórios
+      - capacidade de urgência
+    acoes: preparação das unidades, redução da exposição, monitoramento respiratório, máscara conforme IQA
+    fontes:
+      - Ministério da Saúde — orientações específicas de queimadas/fumaça em Mato Grosso
+    fator_regra: 1.18
+  onda_calor:
+    regra: CLIMA-CALOR-011
+    rotulo: Onda de calor
+    fase1: false
+    impactos: [desidratação, exaustão, insolação, descompensação cardiovascular/renal]
+    estoques: [soluções para hidratação, insumos de emergência, capacidade de observação]
+    acoes: localizar idosos, crianças, gestantes, trabalhadores expostos e crônicos
+    fontes: ["Ministério da Saúde — eventos relacionados ao calor"]
+    fator_regra: 1.15
+  chuva_enchente:
+    regra: CLIMA-ENCH-014
+    rotulo: Chuva intensa / enchente
+    fase1: false
+    impactos: [DDA, leptospirose, acidentes, doenças de pele, interrupção de tratamentos]
+    estoques: [kit calamidade MS, medicamentos crônicos, curativos, vacinas e insumos]
+    acoes: proteger estoque, unidades alternativas, rotas e logística
+    fontes: ["MS — Kit calamidade pública"]
+    fator_regra: 1.20
+    usa_kit_calamidade: true
+  tempestade_vendaval:
+    regra: CLIMA-TEMP-006
+    rotulo: Tempestades / vendavais
+    fase1: false
+    impactos: [trauma, interrupção elétrica, isolamento territorial]
+    estoques: [urgência, curativos, oxigênio, medicamentos termolábeis]
+    acoes: contingência energética, transporte e redistribuição
+    fator_regra: 1.10
+  frio_extremo:
+    regra: CLIMA-FRIO-009
+    rotulo: Frio extremo
+    fase1: false
+    impactos: [doenças respiratórias e cardiovasculares]
+    estoques: [medicamentos respiratórios/crônicos, oxigênio, capacidade assistencial]
+    acoes: atenção a idosos, população vulnerável e pessoas em situação de rua
+    fator_regra: 1.12
+  pos_chuva_vetores:
+    regra: CLIMA-VET-012
+    rotulo: Pós-chuva / condições favoráveis a vetores
+    fase1: false
+    impactos: [dengue, chikungunya, arboviroses]
+    estoques: [hidratação, materiais de coleta, diagnóstico, capacidade assistencial]
+    acoes: intensificar vigilância vetorial e preparação clínica
+    fator_regra: 1.16
+
+sazonalidade_mt:
+  1: 1.05
+  2: 1.08
+  3: 1.04
+  4: 0.98
+  5: 1.02
+  6: 1.10
+  7: 1.16
+  8: 1.22
+  9: 1.20
+  10: 1.08
+  11: 1.00
+  12: 0.98
+
+ipmec_pesos:
+  farmaceutica: 0.18
+  assistencial: 0.14
+  profissional: 0.08
+  respiratoria: 0.12
+  laboratorial: 0.06
+  transporte: 0.06
+  energia: 0.06
+  agua: 0.10
+  vigilancia: 0.08
+  vulnerabilidade: 0.12
+
+kit_calamidade_classes:
+  medicamentos:
+    - analgésicos/antitérmicos
+    - SRO e hidratação
+    - antimicrobianos de calamidade (protocolo MS)
+    - medicamentos de uso contínuo (hipertensão, diabetes, asma)
+  insumos:
+    - hipoclorito / água segura
+    - curativos e materiais de enfermagem
+    - seringas e coletores
+    - oxigênio e dispositivos inalatórios

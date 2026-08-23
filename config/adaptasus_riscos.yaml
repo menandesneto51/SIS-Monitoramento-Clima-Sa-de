@@ -1,0 +1,151 @@
+# Catálogo operacional CIEVS-MT alinhado ao AdaptaSUS (MS/SVSA) e ao Guia de Mudanças Climáticas e Saúde.
+# Fontes:
+# - Plano Setorial de Saúde – AdaptaSUS
+# - Guia de Mudanças Climáticas e Saúde (guiadoclima.saude.gov.br)
+# - Guia de Vigilância Integrada covid-19/influenza (MS/SVSA, 2024)
+
+versao: "1.0"
+atualizado_em: "2026-07-28"
+
+fontes:
+  adaptasus_pdf: "https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/svsa/vigilancia-ambiental/plano-setorial-de-saude-adaptasus.pdf"
+  guia_clima: "https://guiadoclima.saude.gov.br/"
+  guia_vigilancia_respiratoria: "https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/guias-e-manuais/2024/guia-vigilancia-integrada-da-covid-19-influenza-e-outros-virus-respiratorios-de-importancia-em-saude-publica"
+
+eixos_chave:
+  - id: morbimortalidade_clima
+    nome: Alterações nos padrões de morbidade e mortalidade de doenças sensíveis ao clima
+  - id: demanda_servicos
+    nome: Ampliação das demandas nos serviços de saúde
+  - id: interrupcao_servicos
+    nome: Comprometimento ou interrupção da prestação dos serviços de saúde
+  - id: emergencia_saude_publica
+    nome: Emergência em saúde pública
+
+riscos:
+  - id: temperatura_extrema
+    nome: Extremos de temperatura (calor e frio)
+    eixos: [morbimortalidade_clima, demanda_servicos, emergencia_saude_publica]
+    status_cobertura: calor_e_frio
+    indicadores_sis:
+      - tmax
+      - tmin
+      - utci_proxy
+      - risco_cumulativo_3d
+      - onda_calor_p95_2d
+      - onda_fria_2d
+      - severidade_onda_fria
+      - indice_tensao_climatica
+      - risco_calor_vulneravel
+      - indice_vulnerabilidade_calor
+      - pop_vulneravel_exposta
+      - indice_exposicao_vulneravel
+      - idosos_pct
+      - criancas_0_4_pct
+    gatilhos:
+      calor_utci: 32
+      calor_risco3d: 7
+      frio_tmin: 12
+      frio_tmin_risco: 8
+    acoes_guia:
+      - Hidratação e resfriamento de grupos vulneráveis
+      - Pontos de apoio climatizados em eventos de calor
+      - Monitorar idosos, crianças, gestantes e trabalhadores expostos
+      - Em onda de frio: abrigo, aquecimento seguro e atenção a pneumonia/COPD
+
+  - id: poluicao_ar
+    nome: Riscos à saúde associados à poluição atmosférica
+    eixos: [morbimortalidade_clima, demanda_servicos]
+    status_cobertura: parcial_com_queimadas_inpe
+    indicadores_sis:
+      - pm25_ugm3
+      - pm10_ugm3
+      - iq_ar_score
+      - risco_ar_queimadas
+      - focos_queimadas_7d
+      - focos_queimadas_24h
+      - nivel_queimadas
+      - casos_srag
+    gatilhos:
+      pm25: 35
+      iq_ar: 60
+      focos_7d: 20
+    acoes_guia:
+      - Orientar redução de exposição outdoor em picos de PM2,5
+      - Reforçar atenção a asma/DPOC e SRAG
+      - Cruzar focos INPE com seca/estiagem no Cerrado e Amazônia Legal MT
+
+  - id: vetoriais_zoonoses
+    nome: Mudança do perfil de doenças vetoriais e zoonóticas
+    eixos: [morbimortalidade_clima, emergencia_saude_publica]
+    status_cobertura: parcial_arbovirus
+    indicadores_sis:
+      - casos_arbovirus_7d
+      - incidencia_arbovirus_100k
+      - zscore_arbovirus
+      - risco_vetorial_climatico
+      - precipitacao_mm
+      - tmax
+    gatilhos:
+      casos_7d: 10
+      zscore: 2
+    acoes_guia:
+      - Intensificar eliminação de criadouros e visita casa a casa
+      - Investigar casos suspeitos e dengue grave
+      - Cruzar chuva + calor com incidência municipal
+
+  - id: precipitacao_extrema
+    nome: Extremos de precipitação (inundações, alagamentos, seca e estiagem)
+    eixos: [demanda_servicos, interrupcao_servicos, emergencia_saude_publica]
+    status_cobertura: parcial
+    indicadores_sis:
+      - precipitacao_mm
+      - nivel_chuva
+      - risco_precipitacao
+    gatilhos:
+      chuva_alta_mm: 50
+      seca_chuva_mm: 1
+    acoes_guia:
+      - Acompanhar alertas Cemaden e telemetria ANA
+      - Preparar resposta a inundação / estiagem conforme regional
+      - Vigilância de doenças de veiculação hídrica pós-enchente
+
+  - id: wash
+    nome: Acesso inadequado a água, saneamento e higiene (WASH)
+    eixos: [morbimortalidade_clima, interrupcao_servicos]
+    status_cobertura: parcial_censo_ibge
+    indicadores_sis:
+      - cobertura_rede_agua_pct
+      - deficit_rede_agua_pct
+      - cobertura_agua_canalizada_pct
+      - cobertura_esgoto_rede_pct
+      - deficit_esgoto_inadequado_pct
+      - indice_deficit_wash
+      - risco_wash
+    gatilhos:
+      deficit_agua_pct: 20
+      deficit_esgoto_pct: 30
+      indice_deficit_wash: 35
+    acoes_guia:
+      - Monitorar déficit de rede de água/esgoto (Censo IBGE) em estiagem e pós-chuva
+      - Articular Vigilância Ambiental / água potável em eventos extremos
+      - Cruzar com precipitação baixa e risco de doenças de veiculação hídrica
+
+  - id: san
+    nome: Insegurança alimentar e nutricional (SAN)
+    eixos: [morbimortalidade_clima]
+    status_cobertura: ausente
+    indicadores_sis: []
+    gatilhos: {}
+    acoes_guia:
+      - Lacuna no ARARAS MT — aguardar fonte SES-MT
+      - Priorizar articulação com assistência social em estiagens prolongadas
+
+pesos_indice_adaptacao:
+  temperatura_extrema: 0.28
+  poluicao_ar: 0.18
+  vetoriais_zoonoses: 0.22
+  precipitacao_extrema: 0.16
+  wash: 0.08
+  san: 0.08
+  penalidade_completude: 0.25

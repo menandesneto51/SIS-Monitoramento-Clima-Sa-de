@@ -1,0 +1,143 @@
+cod_ibge,municipio,regional_saude,macroregiao_saude
+5100102,Acorizal,Baixada Cuiabana,Centro
+5100250,Alta Floresta,Alta Floresta,Norte
+5100300,Alto Araguaia,Rondonópolis,Sul
+5100359,Alto Boa Vista,São Félix do Araguaia,Leste
+5100409,Alto Garças,Rondonópolis,Sul
+5100508,Alto Paraguai,Diamantino,Centro
+5100607,Alto Taquari,Rondonópolis,Sul
+5100805,Apiacás,Alta Floresta,Norte
+5101001,Araguaiana,Barra do Garças,Leste
+5101209,Araguainha,Rondonópolis,Sul
+5101258,Araputanga,Cáceres,Oeste
+5101308,Arenápolis,Tangará da Serra,Noroeste e Médio Norte
+5101407,Aripuanã,Juína,Noroeste e Médio Norte
+5101704,Barra do Bugres,Tangará da Serra,Noroeste e Médio Norte
+5101803,Barra do Garças,Barra do Garças,Leste
+5101605,Barão de Melgaço,Baixada Cuiabana,Centro
+5101837,Boa Esperança do Norte,Sinop,Norte
+5101852,Bom Jesus do Araguaia,Água Boa,Leste
+5101902,Brasnorte,Juína,Noroeste e Médio Norte
+5102603,Campinápolis,Barra do Garças,Leste
+5102637,Campo Novo do Parecis,Tangará da Serra,Noroeste e Médio Norte
+5102678,Campo Verde,Rondonópolis,Sul
+5102686,Campos de Júlio,Pontes e Lacerda,Oeste
+5102694,Canabrava do Norte,Porto Alegre do Norte,Leste
+5102702,Canarana,Água Boa,Leste
+5102793,Carlinda,Alta Floresta,Norte
+5102850,Castanheira,Juína,Noroeste e Médio Norte
+5103007,Chapada dos Guimarães,Baixada Cuiabana,Centro
+5103056,Cláudia,Sinop,Norte
+5103106,Cocalinho,Água Boa,Leste
+5103254,Colniza,Juína,Noroeste e Médio Norte
+5103205,Colíder,Colíder,Norte
+5103304,Comodoro,Pontes e Lacerda,Oeste
+5103353,Confresa,Porto Alegre do Norte,Leste
+5103361,Conquista D'Oeste,Pontes e Lacerda,Oeste
+5103379,Cotriguaçu,Juína,Noroeste e Médio Norte
+5103403,Cuiabá,Baixada Cuiabana,Centro
+5103437,Curvelândia,Cáceres,Oeste
+5102504,Cáceres,Cáceres,Oeste
+5103452,Denise,Tangará da Serra,Noroeste e Médio Norte
+5103502,Diamantino,Diamantino,Centro
+5103601,Dom Aquino,Rondonópolis,Sul
+5103700,Feliz Natal,Sinop,Norte
+5103809,Figueirópolis D'Oeste,Pontes e Lacerda,Oeste
+5103858,Gaúcha do Norte,Água Boa,Leste
+5103908,General Carneiro,Barra do Garças,Leste
+5103957,Glória D'Oeste,Cáceres,Oeste
+5104104,Guarantã do Norte,Peixoto de Azevedo,Norte
+5104203,Guiratinga,Rondonópolis,Sul
+5104500,Indiavaí,Cáceres,Oeste
+5104526,Ipiranga do Norte,Sinop,Norte
+5104542,Itanhangá,Sinop,Norte
+5104559,Itaúba,Colíder,Norte
+5104609,Itiquira,Rondonópolis,Sul
+5104807,Jaciara,Rondonópolis,Sul
+5104906,Jangada,Baixada Cuiabana,Centro
+5105002,Jauru,Pontes e Lacerda,Oeste
+5105101,Juara,Juara,Norte
+5105176,Juruena,Juína,Noroeste e Médio Norte
+5105200,Juscimeira,Rondonópolis,Sul
+5105150,Juína,Juína,Noroeste e Médio Norte
+5105234,Lambari D'Oeste,Cáceres,Oeste
+5105259,Lucas do Rio Verde,Sinop,Norte
+5105309,Luciara,São Félix do Araguaia,Leste
+5105580,Marcelândia,Colíder,Norte
+5105606,Matupá,Peixoto de Azevedo,Norte
+5105622,Mirassol d'Oeste,Cáceres,Oeste
+5105903,Nobres,Diamantino,Centro
+5106000,Nortelândia,Diamantino,Centro
+5106109,Nossa Senhora do Livramento,Baixada Cuiabana,Centro
+5106158,Nova Bandeirantes,Alta Floresta,Norte
+5106208,Nova Brasilândia,Baixada Cuiabana,Centro
+5106216,Nova Canaã do Norte,Colíder,Norte
+5108808,Nova Guarita,Colíder,Norte
+5106182,Nova Lacerda,Pontes e Lacerda,Oeste
+5108857,Nova Marilândia,Tangará da Serra,Noroeste e Médio Norte
+5108907,Nova Maringá,Diamantino,Centro
+5108956,Nova Monte Verde,Alta Floresta,Norte
+5106224,Nova Mutum,Sinop,Norte
+5106174,Nova Nazaré,Água Boa,Leste
+5106232,Nova Olímpia,Tangará da Serra,Noroeste e Médio Norte
+5106190,Nova Santa Helena,Colíder,Norte
+5106240,Nova Ubiratã,Sinop,Norte
+5106257,Nova Xavantina,Barra do Garças,Leste
+5106273,Novo Horizonte do Norte,Juara,Norte
+5106265,Novo Mundo,Peixoto de Azevedo,Norte
+5106315,Novo Santo Antônio,São Félix do Araguaia,Leste
+5106281,Novo São Joaquim,Barra do Garças,Leste
+5106307,Paranatinga,Rondonópolis,Sul
+5106299,Paranaíta,Alta Floresta,Norte
+5106372,Pedra Preta,Rondonópolis,Sul
+5106422,Peixoto de Azevedo,Peixoto de Azevedo,Norte
+5106455,Planalto da Serra,Baixada Cuiabana,Centro
+5106505,Poconé,Baixada Cuiabana,Centro
+5106653,Pontal do Araguaia,Barra do Garças,Leste
+5106703,Ponte Branca,Barra do Garças,Leste
+5106752,Pontes e Lacerda,Pontes e Lacerda,Oeste
+5106778,Porto Alegre do Norte,Porto Alegre do Norte,Leste
+5106828,Porto Esperidião,Cáceres,Oeste
+5106851,Porto Estrela,Tangará da Serra,Noroeste e Médio Norte
+5106802,Porto dos Gaúchos,Juara,Norte
+5107008,Poxoréu,Rondonópolis,Sul
+5107040,Primavera do Leste,Rondonópolis,Sul
+5107065,Querência,Água Boa,Leste
+5107156,Reserva do Cabaçal,Cáceres,Oeste
+5107180,Ribeirão Cascalheira,Água Boa,Leste
+5107198,Ribeirãozinho,Barra do Garças,Leste
+5107206,Rio Branco,Cáceres,Oeste
+5107578,Rondolândia,Pontes e Lacerda,Oeste
+5107602,Rondonópolis,Rondonópolis,Sul
+5107701,Rosário Oeste,Diamantino,Centro
+5107750,Salto do Céu,Cáceres,Oeste
+5107248,Santa Carmem,Sinop,Norte
+5107743,Santa Cruz do Xingu,Porto Alegre do Norte,Leste
+5107768,Santa Rita do Trivelato,Sinop,Norte
+5107776,Santa Terezinha,Porto Alegre do Norte,Leste
+5107263,Santo Afonso,Tangará da Serra,Noroeste e Médio Norte
+5107800,Santo Antônio de Leverger,Baixada Cuiabana,Centro
+5107792,Santo Antônio do Leste,Rondonópolis,Sul
+5107875,Sapezal,Tangará da Serra,Noroeste e Médio Norte
+5107883,Serra Nova Dourada,São Félix do Araguaia,Leste
+5107909,Sinop,Sinop,Norte
+5107925,Sorriso,Sinop,Norte
+5107859,São Félix do Araguaia,São Félix do Araguaia,Leste
+5107297,São José do Povo,Rondonópolis,Sul
+5107305,São José do Rio Claro,Diamantino,Centro
+5107354,São José do Xingu,Porto Alegre do Norte,Leste
+5107107,São José dos Quatro Marcos,Cáceres,Oeste
+5107404,São Pedro da Cipa,Rondonópolis,Sul
+5107941,Tabaporã,Juara,Norte
+5107958,Tangará da Serra,Tangará da Serra,Noroeste e Médio Norte
+5108006,Tapurah,Sinop,Norte
+5108055,Terra Nova do Norte,Peixoto de Azevedo,Norte
+5108105,Tesouro,Rondonópolis,Sul
+5108204,Torixoréu,Barra do Garças,Leste
+5108303,União do Sul,Sinop,Norte
+5108352,Vale de São Domingos,Pontes e Lacerda,Oeste
+5108501,Vera,Sinop,Norte
+5105507,Vila Bela da Santíssima Trindade,Pontes e Lacerda,Oeste
+5108600,Vila Rica,Porto Alegre do Norte,Leste
+5108402,Várzea Grande,Baixada Cuiabana,Centro
+5100201,Água Boa,Água Boa,Leste

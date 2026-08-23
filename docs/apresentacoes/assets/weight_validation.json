@@ -1,0 +1,647 @@
+{
+  "n_municipios": 142,
+  "extracao": "2026-07-28",
+  "criterio_composite": "0.40*rho_nivel + 0.20*rho_score + 0.20*(sep/50) + 0.10*jaccard_top20 + 0.10*(mono/4)",
+  "corr_blocos": [
+    {
+      "bloco": "risco_cumulativo",
+      "rho_nivel": 0.482,
+      "rho_score": 0.482,
+      "mean": 0.548,
+      "std": 0.263,
+      "nonzero_pct": 97.9
+    },
+    {
+      "bloco": "utci",
+      "rho_nivel": 0.33,
+      "rho_score": 0.33,
+      "mean": 0.33,
+      "std": 0.146,
+      "nonzero_pct": 93.7
+    },
+    {
+      "bloco": "tmax",
+      "rho_nivel": 0.226,
+      "rho_score": 0.226,
+      "mean": 0.239,
+      "std": 0.156,
+      "nonzero_pct": 81.0
+    },
+    {
+      "bloco": "umidade_seca",
+      "rho_nivel": -0.058,
+      "rho_score": -0.058,
+      "mean": 0.215,
+      "std": 0.28,
+      "nonzero_pct": 49.3
+    },
+    {
+      "bloco": "srag",
+      "rho_nivel": 0.334,
+      "rho_score": 0.334,
+      "mean": 0.049,
+      "std": 0.178,
+      "nonzero_pct": 8.5
+    },
+    {
+      "bloco": "arbovirus",
+      "rho_nivel": 0.659,
+      "rho_score": 0.659,
+      "mean": 0.041,
+      "std": 0.15,
+      "nonzero_pct": 23.9
+    },
+    {
+      "bloco": "pm25",
+      "rho_nivel": 0.333,
+      "rho_score": 0.333,
+      "mean": 0.036,
+      "std": 0.12,
+      "nonzero_pct": 8.5
+    },
+    {
+      "bloco": "pressao",
+      "rho_nivel": 0.633,
+      "rho_score": 0.633,
+      "mean": 0.325,
+      "std": 0.13,
+      "nonzero_pct": 100.0
+    }
+  ],
+  "cobertura": {
+    "risco_cumulativo_3d": 142,
+    "utci_proxy": 142,
+    "tmax": 142,
+    "umidade_media": 142,
+    "incidencia_srag_100k": 142,
+    "casos_arbovirus_7d": 34,
+    "pm25_ugm3": 12,
+    "pressao_calor_pct": 142
+  },
+  "schemes": [
+    {
+      "esquema": "saude_first",
+      "rho_nivel": 0.666,
+      "rho_score": 0.666,
+      "sep_criticos": 17.4,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 20.0,
+      "vig_p90": 29.1,
+      "pct_mod_plus": 8.5,
+      "pct_alta_plus": 0.7,
+      "means_by_nivel": {
+        "verde": 2.6,
+        "amarela": 11.5,
+        "laranja": 18.0,
+        "vermelha": 28.8,
+        "roxa": 24.9
+      },
+      "tensao_w": [
+        0.35,
+        0.3,
+        0.25,
+        0.1
+      ],
+      "carga_w": [
+        0.45,
+        0.25,
+        0.2,
+        0.1
+      ],
+      "vig_w": [
+        0.3,
+        0.55,
+        0.15
+      ],
+      "composite": 0.5585
+    },
+    {
+      "esquema": "data_driven_v1",
+      "rho_nivel": 0.617,
+      "rho_score": 0.617,
+      "sep_criticos": 23.4,
+      "jaccard_top20": 0.111,
+      "mono_steps": 3,
+      "vig_media": 30.2,
+      "vig_p90": 44.6,
+      "pct_mod_plus": 50.0,
+      "pct_alta_plus": 1.4,
+      "means_by_nivel": {
+        "verde": 4.9,
+        "amarela": 17.1,
+        "laranja": 29.5,
+        "vermelha": 40.8,
+        "roxa": 33.7
+      },
+      "tensao_w": [
+        0.472,
+        0.3,
+        0.19,
+        0.037
+      ],
+      "carga_w": [
+        0.241,
+        0.233,
+        0.07,
+        0.457
+      ],
+      "vig_w": [
+        0.312,
+        0.328,
+        0.36
+      ],
+      "composite": 0.5499
+    },
+    {
+      "esquema": "atual_settings",
+      "rho_nivel": 0.613,
+      "rho_score": 0.613,
+      "sep_criticos": 19.8,
+      "jaccard_top20": 0.111,
+      "mono_steps": 3,
+      "vig_media": 26.3,
+      "vig_p90": 39.1,
+      "pct_mod_plus": 38.0,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 3.8,
+        "amarela": 16.1,
+        "laranja": 25.1,
+        "vermelha": 35.9,
+        "roxa": 29.6
+      },
+      "tensao_w": [
+        0.4,
+        0.3,
+        0.2,
+        0.1
+      ],
+      "carga_w": [
+        0.35,
+        0.25,
+        0.2,
+        0.2
+      ],
+      "vig_w": [
+        0.45,
+        0.4,
+        0.15
+      ],
+      "composite": 0.5331
+    },
+    {
+      "esquema": "equal_weights",
+      "rho_nivel": 0.606,
+      "rho_score": 0.606,
+      "sep_criticos": 18.4,
+      "jaccard_top20": 0.176,
+      "mono_steps": 3,
+      "vig_media": 25.7,
+      "vig_p90": 38.2,
+      "pct_mod_plus": 31.0,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 3.5,
+        "amarela": 16.8,
+        "laranja": 24.2,
+        "vermelha": 34.9,
+        "roxa": 29.2
+      },
+      "tensao_w": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "carga_w": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "vig_w": [
+        0.333,
+        0.333,
+        0.333
+      ],
+      "composite": 0.5298
+    },
+    {
+      "esquema": "cobertura_robusta",
+      "rho_nivel": 0.593,
+      "rho_score": 0.593,
+      "sep_criticos": 20.9,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 29.0,
+      "vig_p90": 43.2,
+      "pct_mod_plus": 44.4,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 4.4,
+        "amarela": 18.0,
+        "laranja": 28.0,
+        "vermelha": 39.0,
+        "roxa": 32.0
+      },
+      "tensao_w": [
+        0.42,
+        0.28,
+        0.18,
+        0.12
+      ],
+      "carga_w": [
+        0.45,
+        0.15,
+        0.1,
+        0.3
+      ],
+      "vig_w": [
+        0.5,
+        0.35,
+        0.15
+      ],
+      "composite": 0.5287
+    },
+    {
+      "esquema": "cievs_seca_2026",
+      "rho_nivel": 0.586,
+      "rho_score": 0.586,
+      "sep_criticos": 21.7,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 30.2,
+      "vig_p90": 45.7,
+      "pct_mod_plus": 47.9,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 4.8,
+        "amarela": 18.5,
+        "laranja": 29.5,
+        "vermelha": 40.5,
+        "roxa": 32.8
+      },
+      "tensao_w": [
+        0.45,
+        0.25,
+        0.2,
+        0.1
+      ],
+      "carga_w": [
+        0.4,
+        0.2,
+        0.15,
+        0.25
+      ],
+      "vig_w": [
+        0.55,
+        0.3,
+        0.15
+      ],
+      "composite": 0.5277
+    },
+    {
+      "esquema": "recomendado_hibrido",
+      "rho_nivel": 0.585,
+      "rho_score": 0.585,
+      "sep_criticos": 21.1,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 29.5,
+      "vig_p90": 44.5,
+      "pct_mod_plus": 45.1,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 4.5,
+        "amarela": 18.4,
+        "laranja": 28.7,
+        "vermelha": 39.7,
+        "roxa": 32.3
+      },
+      "tensao_w": [
+        0.42,
+        0.26,
+        0.2,
+        0.12
+      ],
+      "carga_w": [
+        0.38,
+        0.18,
+        0.12,
+        0.32
+      ],
+      "vig_w": [
+        0.52,
+        0.33,
+        0.15
+      ],
+      "composite": 0.5247
+    }
+  ],
+  "data_driven_pesos": {
+    "tensao_climatica": {
+      "risco_cumulativo": 0.472,
+      "utci": 0.3,
+      "tmax": 0.19,
+      "umidade_seca": 0.037
+    },
+    "carga_saude": {
+      "srag": 0.241,
+      "arbovirus": 0.233,
+      "pm25": 0.07,
+      "pressao": 0.457
+    },
+    "vigilancia_integrada": {
+      "tensao": 0.312,
+      "carga": 0.328,
+      "pressao": 0.36
+    }
+  },
+  "grid_best": {
+    "esquema": "g_0.5_0.22_0.16_0.45_0.32_0.52",
+    "rho_nivel": 0.597,
+    "rho_score": 0.597,
+    "sep_criticos": 22.4,
+    "jaccard_top20": 0.143,
+    "mono_steps": 3,
+    "vig_media": 30.7,
+    "vig_p90": 46.1,
+    "pct_mod_plus": 52.8,
+    "pct_alta_plus": 0.0,
+    "means_by_nivel": {
+      "verde": 5.1,
+      "amarela": 18.5,
+      "laranja": 30.0,
+      "vermelha": 41.2,
+      "roxa": 33.6
+    },
+    "tensao_w": [
+      0.5,
+      0.22,
+      0.16,
+      0.12
+    ],
+    "carga_w": [
+      0.45,
+      0.18,
+      0.05,
+      0.32
+    ],
+    "vig_w": [
+      0.52,
+      0.33,
+      0.15
+    ],
+    "composite": 0.5371
+  },
+  "grid_top5": [
+    {
+      "esquema": "g_0.5_0.22_0.16_0.45_0.32_0.52",
+      "rho_nivel": 0.597,
+      "rho_score": 0.597,
+      "sep_criticos": 22.4,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 30.7,
+      "vig_p90": 46.1,
+      "pct_mod_plus": 52.8,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 5.1,
+        "amarela": 18.5,
+        "laranja": 30.0,
+        "vermelha": 41.2,
+        "roxa": 33.6
+      },
+      "tensao_w": [
+        0.5,
+        0.22,
+        0.16,
+        0.12
+      ],
+      "carga_w": [
+        0.45,
+        0.18,
+        0.05,
+        0.32
+      ],
+      "vig_w": [
+        0.52,
+        0.33,
+        0.15
+      ],
+      "composite": 0.5371
+    },
+    {
+      "esquema": "g_0.5_0.22_0.16_0.45_0.25_0.52",
+      "rho_nivel": 0.598,
+      "rho_score": 0.598,
+      "sep_criticos": 22.0,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 30.0,
+      "vig_p90": 45.0,
+      "pct_mod_plus": 45.8,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 5.0,
+        "amarela": 18.1,
+        "laranja": 29.3,
+        "vermelha": 40.4,
+        "roxa": 32.9
+      },
+      "tensao_w": [
+        0.5,
+        0.22,
+        0.16,
+        0.12
+      ],
+      "carga_w": [
+        0.45,
+        0.18,
+        0.12,
+        0.25
+      ],
+      "vig_w": [
+        0.52,
+        0.33,
+        0.15
+      ],
+      "composite": 0.5361
+    },
+    {
+      "esquema": "g_0.5_0.26_0.16_0.38_0.25_0.52",
+      "rho_nivel": 0.595,
+      "rho_score": 0.595,
+      "sep_criticos": 22.4,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 30.2,
+      "vig_p90": 45.2,
+      "pct_mod_plus": 49.3,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 5.0,
+        "amarela": 17.9,
+        "laranja": 29.6,
+        "vermelha": 40.7,
+        "roxa": 33.1
+      },
+      "tensao_w": [
+        0.5,
+        0.26,
+        0.16,
+        0.08
+      ],
+      "carga_w": [
+        0.38,
+        0.18,
+        0.19,
+        0.25
+      ],
+      "vig_w": [
+        0.52,
+        0.33,
+        0.15
+      ],
+      "composite": 0.5359
+    },
+    {
+      "esquema": "g_0.5_0.22_0.2_0.38_0.25_0.52",
+      "rho_nivel": 0.594,
+      "rho_score": 0.594,
+      "sep_criticos": 22.4,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 30.0,
+      "vig_p90": 45.2,
+      "pct_mod_plus": 46.5,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 5.0,
+        "amarela": 17.7,
+        "laranja": 29.4,
+        "vermelha": 40.5,
+        "roxa": 32.9
+      },
+      "tensao_w": [
+        0.5,
+        0.22,
+        0.2,
+        0.08
+      ],
+      "carga_w": [
+        0.38,
+        0.18,
+        0.19,
+        0.25
+      ],
+      "vig_w": [
+        0.52,
+        0.33,
+        0.15
+      ],
+      "composite": 0.5353
+    },
+    {
+      "esquema": "g_0.5_0.22_0.16_0.38_0.25_0.52",
+      "rho_nivel": 0.597,
+      "rho_score": 0.597,
+      "sep_criticos": 21.9,
+      "jaccard_top20": 0.143,
+      "mono_steps": 3,
+      "vig_media": 30.0,
+      "vig_p90": 45.0,
+      "pct_mod_plus": 45.8,
+      "pct_alta_plus": 0.0,
+      "means_by_nivel": {
+        "verde": 5.0,
+        "amarela": 18.1,
+        "laranja": 29.3,
+        "vermelha": 40.3,
+        "roxa": 32.8
+      },
+      "tensao_w": [
+        0.5,
+        0.22,
+        0.16,
+        0.12
+      ],
+      "carga_w": [
+        0.38,
+        0.18,
+        0.19,
+        0.25
+      ],
+      "vig_w": [
+        0.52,
+        0.33,
+        0.15
+      ],
+      "composite": 0.5351
+    }
+  ],
+  "chosen": {
+    "esquema": "saude_first",
+    "rho_nivel": 0.666,
+    "rho_score": 0.666,
+    "sep_criticos": 17.4,
+    "jaccard_top20": 0.143,
+    "mono_steps": 3,
+    "vig_media": 20.0,
+    "vig_p90": 29.1,
+    "pct_mod_plus": 8.5,
+    "pct_alta_plus": 0.7,
+    "means_by_nivel": {
+      "verde": 2.6,
+      "amarela": 11.5,
+      "laranja": 18.0,
+      "vermelha": 28.8,
+      "roxa": 24.9
+    },
+    "tensao_w": [
+      0.35,
+      0.3,
+      0.25,
+      0.1
+    ],
+    "carga_w": [
+      0.45,
+      0.25,
+      0.2,
+      0.1
+    ],
+    "vig_w": [
+      0.3,
+      0.55,
+      0.15
+    ],
+    "composite": 0.5585
+  },
+  "atual": {
+    "tensao_climatica": {
+      "risco_cumulativo": 0.4,
+      "utci": 0.3,
+      "tmax": 0.2,
+      "umidade_seca": 0.1
+    },
+    "carga_saude": {
+      "srag": 0.35,
+      "arbovirus": 0.25,
+      "pm25": 0.2,
+      "pressao": 0.2
+    },
+    "vigilancia_integrada": {
+      "tensao": 0.45,
+      "carga": 0.4,
+      "pressao": 0.15
+    },
+    "faixas": {
+      "baixa_max": 30,
+      "moderada_max": 60,
+      "alta_max": 80
+    },
+    "notas_calibracao": "Pesos iniciais (jul/2026). Revisar com sala de situação após 2–4 semanas de uso operacional; priorizar alinhamento com gatilhos de nível Verde→Roxa."
+  }
+}

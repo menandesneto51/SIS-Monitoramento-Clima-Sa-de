@@ -1,0 +1,22 @@
+[client]
+showSidebarNavigation = false
+toolbarMode = "minimal"
+
+[ui]
+hideTopBar = false
+
+[server]
+headless = true
+address = "0.0.0.0"
+port = 8501
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#1351B4"
+backgroundColor = "#F4F7FB"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#333333"
+font = "sans serif"

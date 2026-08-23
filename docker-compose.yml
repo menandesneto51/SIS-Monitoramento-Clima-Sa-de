@@ -1,0 +1,141 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sis_clima_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sis_clima_saude}
+      POSTGRES_USER: ${POSTGRES_USER:-sisclima}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sisclima_trocar}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - sis_pgdata:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sisclima} -d ${POSTGRES_DB:-sis_clima_saude}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  pipeline:
+    build: .
+    image: araras-mt:local
+    container_name: sis_clima_pipeline
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./sql:/app/sql
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["pipeline"]
+
+
+  etl-scheduler:
+    build: .
+    image: araras-mt:local
+    container_name: sis_clima_etl
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+      ETL_INTERVAL_HOURS: ${ETL_INTERVAL_HOURS:-6}
+      ETL_RETRY_MINUTES: ${ETL_RETRY_MINUTES:-15}
+      ETL_RUN_ON_START: ${ETL_RUN_ON_START:-true}
+      ETL_HEALTH_FILE: ${ETL_HEALTH_FILE:-logs/etl_scheduler_health.json}
+      ETL_LOCK_FILE: ${ETL_LOCK_FILE:-logs/etl_scheduler.lock}
+    volumes:
+      - ./sisclima:/app/sisclima:ro
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./sql:/app/sql
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["python", "-m", "sisclima.etl_scheduler"]
+    command: ["--loop"]
+
+  app:
+    build: .
+    image: araras-mt:local
+    container_name: sis_clima_app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+    ports:
+      - "${STREAMLIT_PORT:-8501}:8501"
+    volumes:
+      # Código local para mapas/shapefile e painel V9 sem rebuild a cada ajuste.
+      - ./streamlit_app.py:/app/streamlit_app.py:ro
+      - ./app_v9.py:/app/app_v9.py:ro
+      - ./sisclima:/app/sisclima:ro
+      - ./.streamlit:/app/.streamlit:ro
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./sql:/app/sql
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["app"]
+
+  alerts-scheduler:
+    build: .
+    image: araras-mt:local
+    container_name: sis_clima_alerts
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      SIVEP_USE_UNIFIED_DB: "true"
+      SEND_ALERT_ON_LEVEL_CHANGE: ${SEND_ALERT_ON_LEVEL_CHANGE:-true}
+      # Ciclo diário — independente do notebook (serviço sempre ligado no host/servidor).
+      ALERT_INTERVAL_HOURS: ${ALERT_INTERVAL_HOURS:-24}
+      ALERT_DIGEST_COOLDOWN_HOURS: ${ALERT_DIGEST_COOLDOWN_HOURS:-20}
+      ALERT_MIN_LEVEL: ${ALERT_MIN_LEVEL:-laranja}
+      # Canal central (ALERT_EMAIL_TO / TELEGRAM_CHAT_ID) = somente estadual.
+      ALERT_CENTRAL_ONLY_SES: ${ALERT_CENTRAL_ONLY_SES:-true}
+      # Fan-out regional/municipal/Cuiabá só com planilha + flag.
+      ALERT_FANOUT_ENABLED: ${ALERT_FANOUT_ENABLED:-false}
+      ALERT_CONTACTS_CSV: ${ALERT_CONTACTS_CSV:-data/input/contatos_alertas.csv}
+      ALERT_LAYERS: ${ALERT_LAYERS:-ses,regionais,municipais,cuiaba}
+      # Não comunicar usando uma ETL ausente, com erro ou fora da janela.
+      ALERT_REQUIRE_FRESH_ETL: ${ALERT_REQUIRE_FRESH_ETL:-true}
+      ALERT_MAX_ETL_AGE_HOURS: ${ALERT_MAX_ETL_AGE_HOURS:-12}
+      ETL_HEALTH_FILE: ${ETL_HEALTH_FILE:-logs/etl_scheduler_health.json}
+      # No loop Docker, o 1º ciclo respeita cooldown/fingerprint (já enviamos no start manual).
+      ALERT_SEND_ON_START: ${ALERT_SEND_ON_START:-false}
+    volumes:
+      - ./sisclima:/app/sisclima:ro
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      etl-scheduler:
+        condition: service_started
+    entrypoint: ["python", "-m", "sisclima.alerts.scheduler"]
+    command: ["--loop"]
+
+volumes:
+  sis_pgdata:

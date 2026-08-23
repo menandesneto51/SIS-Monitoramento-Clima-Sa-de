@@ -1,0 +1,141 @@
+﻿cod_ibge,municipio,regional_saude,data_referencia,fila_media_h,tempo_espera_h,solicitacoes_abertas,taxa_regulacao_pct,fonte,atualizado_em
+5100102,Acorizal,,2026-08-22,,,2007.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100201,Água Boa,,2026-08-22,,,5419.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100250,Alta Floresta,,2026-08-22,,,31393.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100300,Alto Araguaia,,2026-08-22,,,468.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100359,Alto Boa Vista,,2026-08-22,,,324.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100409,Alto Garças,,2026-08-22,,,503.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100508,Alto Paraguai,,2026-08-22,,,1688.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100607,Alto Taquari,,2026-08-22,,,474.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5100805,Apiacás,,2026-08-22,,,593.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101001,Araguaiana,,2026-08-22,,,340.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101209,Araguainha,,2026-08-22,,,106.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101258,Araputanga,,2026-08-22,,,1529.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101308,Arenápolis,,2026-08-22,,,1303.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101407,Aripuanã,,2026-08-22,,,1224.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101605,Barão de Melgaço,,2026-08-22,,,1372.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101704,Barra do Bugres,,2026-08-22,,,3550.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101803,Barra do Garças,,2026-08-22,,,32134.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101837,Boa Esperança do Norte,,2026-08-22,,,639.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101852,Bom Jesus do Araguaia,,2026-08-22,,,398.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5101902,Brasnorte,,2026-08-22,,,2052.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102504,Cáceres,,2026-08-22,,,7738.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102603,Campinápolis,,2026-08-22,,,625.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102637,Campo Novo do Parecis,,2026-08-22,,,6654.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102678,Campo Verde,,2026-08-22,,,3380.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102686,Campos de Júlio,,2026-08-22,,,588.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102694,Canabrava do Norte,,2026-08-22,,,265.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102702,Canarana,,2026-08-22,,,954.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102793,Carlinda,,2026-08-22,,,1627.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5102850,Castanheira,,2026-08-22,,,848.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103007,Chapada dos Guimarães,,2026-08-22,,,11667.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103056,Cláudia,,2026-08-22,,,1422.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103106,Cocalinho,,2026-08-22,,,253.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103205,Colíder,,2026-08-22,,,4943.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103254,Colniza,,2026-08-22,,,1508.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103304,Comodoro,,2026-08-22,,,1039.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103353,Confresa,,2026-08-22,,,1843.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103361,Conquista D'Oeste,,2026-08-22,,,453.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103379,Cotriguaçu,,2026-08-22,,,860.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103403,Cuiabá,,2026-08-22,,,223802.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103437,Curvelândia,,2026-08-22,,,748.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103452,Denise,,2026-08-22,,,1359.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103502,Diamantino,,2026-08-22,,,3001.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103601,Dom Aquino,,2026-08-22,,,858.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103700,Feliz Natal,,2026-08-22,,,990.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103809,Figueirópolis D'Oeste,,2026-08-22,,,346.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103858,Gaúcha do Norte,,2026-08-22,,,696.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103908,General Carneiro,,2026-08-22,,,339.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5103957,Glória D'Oeste,,2026-08-22,,,278.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104104,Guarantã do Norte,,2026-08-22,,,3066.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104203,Guiratinga,,2026-08-22,,,428.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104500,Indiavaí,,2026-08-22,,,258.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104526,Ipiranga do Norte,,2026-08-22,,,619.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104542,Itanhangá,,2026-08-22,,,709.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104559,Itaúba,,2026-08-22,,,1164.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104609,Itiquira,,2026-08-22,,,618.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104807,Jaciara,,2026-08-22,,,1043.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5104906,Jangada,,2026-08-22,,,1856.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105002,Jauru,,2026-08-22,,,511.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105101,Juara,,2026-08-22,,,2869.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105150,Juína,,2026-08-22,,,4581.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105176,Juruena,,2026-08-22,,,964.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105200,Juscimeira,,2026-08-22,,,863.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105234,Lambari D'Oeste,,2026-08-22,,,676.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105259,Lucas do Rio Verde,,2026-08-22,,,5308.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105309,Luciara,,2026-08-22,,,207.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105580,Marcelândia,,2026-08-22,,,1462.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105606,Matupá,,2026-08-22,,,5596.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105622,Mirassol d'Oeste,,2026-08-22,,,2865.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105903,Nobres,,2026-08-22,,,1494.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106000,Nortelândia,,2026-08-22,,,1061.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106109,Nossa Senhora do Livramento,,2026-08-22,,,6423.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106158,Nova Bandeirantes,,2026-08-22,,,1557.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106208,Nova Brasilândia,,2026-08-22,,,739.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106216,Nova Canaã do Norte,,2026-08-22,,,1696.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108808,Nova Guarita,,2026-08-22,,,921.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106182,Nova Lacerda,,2026-08-22,,,697.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108857,Nova Marilândia,,2026-08-22,,,564.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108907,Nova Maringá,,2026-08-22,,,635.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108956,Nova Monte Verde,,2026-08-22,,,982.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106224,Nova Mutum,,2026-08-22,,,4828.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106174,Nova Nazaré,,2026-08-22,,,219.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106232,Nova Olímpia,,2026-08-22,,,1920.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106190,Nova Santa Helena,,2026-08-22,,,882.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106240,Nova Ubiratã,,2026-08-22,,,1052.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106257,Nova Xavantina,,2026-08-22,,,1164.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106273,Novo Horizonte do Norte,,2026-08-22,,,855.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106265,Novo Mundo,,2026-08-22,,,1368.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106315,Novo Santo Antônio,,2026-08-22,,,160.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106281,Novo São Joaquim,,2026-08-22,,,611.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106299,Paranaíta,,2026-08-22,,,745.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106307,Paranatinga,,2026-08-22,,,895.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106372,Pedra Preta,,2026-08-22,,,749.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106422,Peixoto de Azevedo,,2026-08-22,,,14469.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106455,Planalto da Serra,,2026-08-22,,,1301.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106505,Poconé,,2026-08-22,,,3178.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106653,Pontal do Araguaia,,2026-08-22,,,451.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106703,Ponte Branca,,2026-08-22,,,82.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106752,Pontes e Lacerda,,2026-08-22,,,5385.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106778,Porto Alegre do Norte,,2026-08-22,,,659.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106802,Porto dos Gaúchos,,2026-08-22,,,974.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106828,Porto Esperidião,,2026-08-22,,,1259.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5106851,Porto Estrela,,2026-08-22,,,382.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107040,Primavera do Leste,,2026-08-22,,,20841.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107065,Querência,,2026-08-22,,,1123.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107156,Reserva do Cabaçal,,2026-08-22,,,433.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107180,Ribeirão Cascalheira,,2026-08-22,,,773.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107198,Ribeirãozinho,,2026-08-22,,,211.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107206,Rio Branco,,2026-08-22,,,966.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107578,Rondolândia,,2026-08-22,,,18.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107602,Rondonópolis,,2026-08-22,,,9493.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107701,Rosário Oeste,,2026-08-22,,,2264.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107750,Salto do Céu,,2026-08-22,,,421.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107248,Santa Carmem,,2026-08-22,,,725.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107743,Santa Cruz do Xingu,,2026-08-22,,,180.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107768,Santa Rita do Trivelato,,2026-08-22,,,375.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107776,Santa Terezinha,,2026-08-22,,,438.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107263,Santo Afonso,,2026-08-22,,,813.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107792,Santo Antônio do Leste,,2026-08-22,,,241.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107859,São Félix do Araguaia,,2026-08-22,,,732.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107297,São José do Povo,,2026-08-22,,,168.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107305,São José do Rio Claro,,2026-08-22,,,1296.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107354,São José do Xingu,,2026-08-22,,,362.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107107,São José dos Quatro Marcos,,2026-08-22,,,1228.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107404,São Pedro da Cipa,,2026-08-22,,,373.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107875,Sapezal,,2026-08-22,,,1040.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107883,Serra Nova Dourada,,2026-08-22,,,145.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107909,Sinop,,2026-08-22,,,107690.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107925,Sorriso,,2026-08-22,,,54870.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107941,Tabaporã,,2026-08-22,,,525.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5107958,Tangará da Serra,,2026-08-22,,,38886.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108006,Tapurah,,2026-08-22,,,1994.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108055,Terra Nova do Norte,,2026-08-22,,,4949.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108105,Tesouro,,2026-08-22,,,178.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108204,Torixoréu,,2026-08-22,,,239.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108303,União do Sul,,2026-08-22,,,672.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108352,Vale de São Domingos,,2026-08-22,,,509.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108402,Várzea Grande,,2026-08-22,,,140381.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108501,Vera,,2026-08-22,,,1050.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5105507,Vila Bela da Santíssima Trindade,,2026-08-22,,,850.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38
+5108600,Vila Rica,,2026-08-22,,,967.0,,SISREG_CSV:ops_sisreg_municipio.csv,2026-08-22T17:14:38

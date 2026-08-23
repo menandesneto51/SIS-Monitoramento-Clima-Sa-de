@@ -1,0 +1,126 @@
+# Catálogo operacional — agravos El Niño / seca / fumaça / calor (CIEVS-MT)
+# Atualizado após varredura do DW (VPN SES-MT, ago/2026).
+
+versao: "1.1"
+atualizado_em: "2026-08-19"
+dw_exploracao: docs/dw_views_agravos_exploracao.json
+
+janelas:
+  operacional_dias: 7
+  tendencia_dias: 28
+
+blocos:
+  intoxicacao_fumaca:
+    titulo: "Intoxicação exógena por fumaça"
+    fonte: SINAN
+    view_dw: VW_SINAN_INTOXICACAOEXOGENA
+    sql: dw_sinan_intoxicacao_detalhe.sql
+    tabela_operacional: epi_sinan_agravos
+    filtros_texto:
+      - "fumaca"
+      - "fumaça"
+      - "queimada"
+      - "incendio"
+      - "incêndio"
+      - "monoxido"
+      - "monóxido"
+      - "dioxido de carbono"
+      - "particula"
+      - "partícula"
+    colunas_agente:
+      - local_ocorrencia_exposicao
+      - local_ocorrencia_exposicao_outros
+      - agente_toxico_classificacao
+      - agente_toxico_classificacao_outro
+      - agente_toxico1_nome_comercial
+      - agente_toxico1_principio_ativo
+      - agente_toxico2_principio_ativo
+      - agente_toxico3_principio_ativo
+      - circunstancia_exposicao_contaminacao
+      - circunstancia_exposicao_contaminacao_outra
+      - via_exposicao_contaminacao1
+      - tipo_exposicao
+
+  sivep_resp_alergico_dda:
+    titulo: "SIVEP — SRAG com sinal respiratório/alérgico ou DDA"
+    fonte: SIVEP
+    tabela_operacional: epi_sivep_srag
+    nota: >-
+      SRAG no SIVEP local nem sempre traz CID. Quando disponível, filtrar CIDs
+      J30–J45 (vias aéreas/alérgicas), J21 (bronquiolite), T78 (anafilaxia) e
+      K52/A09 (DDA/diarreia aguda) conforme layout da base SES-MT.
+    cids_regex:
+      - "\\bJ3[0-9]\\b"
+      - "\\bJ4[0-5]\\b"
+      - "\\bJ21\\b"
+      - "\\bT78\\b"
+      - "\\bK52\\b"
+      - "\\bA09\\b"
+
+  indicasus_internacao_cid:
+    titulo: "IndicaSUS — internações hospitalares por CID"
+    fonte: IndicaSUS
+    view_dw: VW_INTERNACAO
+    sql: dw_internacao_cid_clima.sql
+    tabela_operacional: epi_indicasus_internacao_cid
+    status: ativo
+    grupos:
+      resp_alergico: ["J30", "J45"]
+      resp_infeccioso: ["J00", "J06", "J18"]
+      desidratacao_calor: ["E86", "T67", "X30"]
+      dda: ["A09", "K52"]
+      cardiovascular: ["I"]
+    nota: >-
+      View dbo.VW_INTERNACAO no Datawarehouse SES-MT (internações IndicaSUS/SIH).
+      Ocupação de leitos em tempo real continua via BdSES (atualizar_ocupacao_indicasus.py).
+      Nebulização ambulatorial (e-SUS) não está nesta view.
+
+  esus_atendimento_nebulizacao:
+    titulo: "e-SUS APS — atendimentos e nebulizações"
+    fonte: e-SUS
+    status: pendente_sql_dw
+    view_dw_sugerida: VW_ESUS_ATENDIMENTO_PROCEDIMENTO
+    procedimentos_nebulizacao:
+      - "0301100039"
+      - "0301100047"
+    nota: "Não há views ESUS no DW atual (ago/2026). Procedimentos SIGTAP não aparecem em VW_INTERNACAO."
+
+  arboviroses:
+    titulo: "Arboviroses (dengue e chikungunya)"
+    fonte: SINAN
+    views_dw:
+      - VW_SINAN_DENGUE
+      - VW_SINAN_CHIKUNGUNYA
+    tabela_operacional: epi_arboviroses_municipal
+    agravos: [Dengue, Chikungunya]
+    nota: "VW_SINAN_ZIKA não existe no DW atual."
+
+  sinan_extras_clima:
+    titulo: "SINAN — agravos extras sensíveis ao clima"
+    fonte: SINAN
+    sql: dw_sinan_agravos_extras_clima.sql
+    views_dw:
+      - VW_SINAN_HANTAVIROSE
+      - VW_SINAN_ANIMAISPECONHENTOS
+      - VW_SINAN_SINDROMERESPIRATORIAAGUDAGRAVE
+      - VW_SINAN_LEISHMANIOSEVISCERAL
+      - VW_SINAN_FEBREMACULOSA
+    agravos:
+      - Hantavirose
+      - Animais Peconhentos
+      - Sindrome Respiratoria Aguda Grave
+      - Leishmaniose Visceral
+      - Febre Maculosa
+
+  onda_calor_desidratacao:
+    titulo: "Onda de calor — desidratação e atendimentos"
+    fontes: [SINAN, SIM, IndicaSUS/VW_INTERNACAO, epi_pressao_assistencial]
+    cids_desidratacao: ["E86", "E87", "T67", "X30"]
+    indicadores: [notificacoes_desidratacao_7d, atendimentos_calor_7d, internacoes_desidratacao_7d]
+
+  mortalidade_cardiovascular:
+    titulo: "Mortalidade cardiovascular (calor)"
+    fonte: SIM
+    view_dw: dbo.SIM
+    tabela_operacional: epi_sim_obitos_calor
+    cids_prefixos: ["I"]

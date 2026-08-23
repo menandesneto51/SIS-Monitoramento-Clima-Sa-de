@@ -1,0 +1,82 @@
+# Busca de decretos / emergências relacionados ao ARARAS MT
+# Fontes: IOMAT (oficial) + imprensa (sinais auxiliares)
+
+tema: "Decretos de emergência e atos correlatos — clima, ambiente e saúde (ARARAS MT)"
+
+iomat:
+  base_url: "https://www.iomat.mt.gov.br"
+  search_path: "/busca/busca/buscar/query/{page}/"
+  min_query_chars: 3
+  pages_por_termo: 2
+  page_size_hint: 10
+  timeout_seconds: 45
+  user_agent: "ARARAS-MT/1.0 (+CIEVS-SES-MT; monitoramento clima-saude)"
+
+# Consultas oficiais no IOMAT (ordem = prioridade)
+consultas_iomat:
+  - "situação de emergência"
+  - "estado de calamidade"
+  - "decreto de emergência"
+  - "emergência climática"
+  - "estiagem"
+  - "seca"
+  - "queimadas"
+  - "incêndios florestais"
+  - "fumaça"
+  - "onda de calor"
+  - "El Niño"
+  - "Sala de Situação"
+  - "Defesa Civil"
+  - "COBRADE"
+
+# Filtros de relevância (texto do ato)
+relevancia:
+  exige_ao_menos_um:
+    - "situação de emergência"
+    - "estado de calamidade"
+    - "calamidade pública"
+    - "decreto"
+    - "portaria"
+    - "emergência"
+  temas_araras:
+    - "seca"
+    - "estiagem"
+    - "queimada"
+    - "incêndio"
+    - "fumaça"
+    - "calor"
+    - "El Niño"
+    - "Niño"
+    - "inundação"
+    - "enchente"
+    - "chuva intensa"
+    - "desastre"
+    - "COBRADE"
+    - "Defesa Civil"
+    - "Sala de Situação"
+    - "clima"
+    - "PM2,5"
+    - "qualidade do ar"
+  excluir_se_somente:
+    # ruído frequente sem vínculo climáticosaúde
+    - "show artístico"
+    - "cachê"
+    - "motocicleta"
+    - "festividade"
+
+imprensa:
+  habilitado: true
+  # Google News RSS (sinais; sempre validar no IOMAT antes de uso oficial)
+  google_news_rss: "https://news.google.com/rss/search"
+  consultas:
+    - "Mato Grosso decreto emergência seca OR estiagem OR queimada OR fumaça OR \"El Niño\""
+    - "Mato Grosso \"situação de emergência\" Defesa Civil"
+    - "Mato Grosso calamidade pública incêndio OR seca"
+  max_itens_por_consulta: 15
+  timeout_seconds: 30
+
+saida:
+  tabela_sqlite: "iomat_decretos_emergencia"
+  markdown_dir: "docs/apresentacoes"
+  markdown_prefix: "Decretos_Emergencia_ARARAS"
+  max_itens_relatorio: 40
