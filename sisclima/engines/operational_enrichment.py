@@ -851,6 +851,21 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     ops_cnes_mun, ops_cnes_resumo = build_ops_cnes_municipio(resumo)
     if not ops_cnes_mun.empty:
         write_df(ops_cnes_mun, "ops_cnes_municipio")
+    try:
+        from sisclima.ingestion.cnes_geo import load_cnes_unidades_geo
+
+        precisa_api = not table_exists("cnes_unidades_geo")
+        geo = load_cnes_unidades_geo(resumo, fetch=precisa_api, persist=True)
+        log.info("CNES geo: %s unidades", 0 if geo is None else len(geo))
+    except Exception as exc:
+        log.warning("CNES geo indisponível: %s", exc)
+    try:
+        from sisclima.engines.cobertura_territorio import persistir_cobertura
+
+        cob = persistir_cobertura(resumo)
+        log.info("Cobertura território-CNES: %s pontos", 0 if cob is None else len(cob))
+    except Exception as exc:
+        log.warning("Cobertura território-CNES indisponível: %s", exc)
     if not ops_cnes_resumo.empty:
         write_df(ops_cnes_resumo, "ops_resumo_operacional_cnes")
         inj = ops_cnes_resumo[

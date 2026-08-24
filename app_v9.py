@@ -847,7 +847,14 @@ validacao_v75 = v9_status = v9_validacao = v9_saude_mensal = v9_clima = pd.DataF
 v9_painel = v9_lags = v9_modelos = v9_priorizacao = pd.DataFrame()
 
 SECTION_TABLE_DEPS: dict[str, set[str]] = {
-    "Mapas": {"sim_obitos_calor_estado_serie_v6", "saude_calor_serie_estado", "predicao_calor_7d_municipal_v6"},
+    "Mapas": {
+        "sim_obitos_calor_estado_serie_v6",
+        "saude_calor_serie_estado",
+        "predicao_calor_7d_municipal_v6",
+        "cnes_unidades_geo",
+        "cobertura_territorio_cnes",
+        "vigibarragens_populacoes",
+    },
     "Visão executiva": {"alerta_integrado_sis_titan", "cemaden_alertas", "inmet_alertas"},
     "Clima / TITAN": {
         "met_biometeo",
@@ -870,7 +877,9 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "ops_infraestrutura_resumo",
         "ops_resumo_operacional_proxy",
         "ops_resumo_operacional_cnes",
+        "cnes_unidades_geo",
     },
+    "Geografia": {"cnes_unidades_geo", "cobertura_territorio_cnes", "vigibarragens_populacoes"},
     "Inteligência": {
         "alerta_inteligente_municipal_v6",
         "alerta_inteligente_regional_v6",
@@ -2077,14 +2086,14 @@ elif SECTION_KEY == "Mapas":
             else:
                 st.info(f"Indicador {_col} ainda não disponível.")
 
-    st.markdown("#### Populações vulneráveis")
+    st.markdown("#### Rede CNES e territórios vulneráveis")
     st.caption(
-        "Aldeias FUNAI, quilombos Palmares e assentamentos INCRA com coordenada. "
-        "Não usar estes pontos como mancha de inundação de barragem."
+        "Unidades de saúde (CNES) e aldeias/quilombos/assentamentos no mesmo recorte. "
+        "Distância até APS/hospital é o trajeto viário (OSRM); a linha reta só pré-seleciona candidatos."
     )
-    from sisclima.ui.prontidao import render_mapa_territorios
+    from sisclima.ui.mapa_gestao_territorio import render_mapa_gestao_territorio
 
-    render_mapa_territorios()
+    render_mapa_gestao_territorio(resumo, allow_fetch=not _PAINEL_PUBLICO)
 
     st.markdown("#### Mapa preditivo 7 dias")
     st.caption("Nível operacional previsto para a semana seguinte no recorte filtrado. Não é cenário sazonal.")
@@ -2956,6 +2965,15 @@ elif SECTION_KEY == "Geografia":
         )
 
     st.info(shapefile_status)
+
+    st.markdown("#### Rede CNES e territórios vulneráveis")
+    st.caption(
+        "Estabelecimentos CNES e aldeias/quilombos/assentamentos. "
+        "km operacional = trajeto viário (OSRM); centroide municipal não entra no cálculo."
+    )
+    from sisclima.ui.mapa_gestao_territorio import render_mapa_gestao_territorio
+
+    render_mapa_gestao_territorio(resumo, allow_fetch=not _PAINEL_PUBLICO)
 
     st.markdown("#### Mapa de vulnerabilidade territorial ao calor")
     if "indice_vulnerabilidade_calor" in map_df.columns:

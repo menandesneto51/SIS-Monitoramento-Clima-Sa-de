@@ -434,9 +434,9 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Algumas bases logísticas ainda são parciais/proxy.",
     },
     "Geografia": {
-        "para_que_serve": "Conferir cadastro territorial e deduplicação municipal.",
-        "como_usar": "Use para validar códigos IBGE e regionais de saúde.",
-        "cuidado": "Inconsistências de nome/IBGE afetam mapas e joins.",
+        "para_que_serve": "Conferir cadastro territorial, unidades CNES no mapa e deduplicação municipal.",
+        "como_usar": "Use o mapa CNES para ver UBS/hospitais no recorte. Ponto oficial é lat/lon do cadastro; centroide municipal não é o endereço da unidade.",
+        "cuidado": "Inconsistências de nome/IBGE afetam mapas e joins. Nem todo CNES tem coordenada preenchida.",
     },
     "Alertas": {
         "para_que_serve": "Boletins CIEVS no padrão SES-MT: estadual (canal central), regionais, municipais e Vigidesastre Cuiabá.",

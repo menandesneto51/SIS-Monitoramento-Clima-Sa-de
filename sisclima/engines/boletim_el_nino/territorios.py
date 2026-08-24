@@ -350,6 +350,53 @@ def export_mapa_territorios(
     }
 
 
+def _quadro_cobertura_rede() -> tuple[str, str]:
+    """Territórios em município vermelho/roxo e longe da APS ou do hospital."""
+    try:
+        from sisclima.engines.cobertura_territorio import load_cobertura
+    except Exception:
+        return INDISPONIVEL, ""
+    cob = load_cobertura()
+    nota = (
+        "km e minutos de trajeto viário (OSRM, sem trânsito em tempo real) até CNES com coordenada oficial; "
+        "se a rota falhar, usa linha reta (sem minutos). Centroide municipal não entra no cálculo. "
+        "Exposição climática do município não significa ausência de UBS."
+    )
+    if cob is None or cob.empty:
+        return (
+            "_Sem cálculo de cobertura território–CNES nesta rodada (sem pontos com lat/lon oficial)._",
+            nota,
+        )
+    work = cob.copy()
+    if "nivel" in work.columns:
+        work = work[work["nivel"].astype(str).str.lower().isin(_NIVEIS_CRITICOS)]
+    if "longe_rede" in work.columns:
+        work = work[work["longe_rede"].fillna(False)]
+    if work.empty:
+        return (
+            "_Nenhum território georreferenciado em município vermelho/roxo classificado como longe da APS (>30 km de trajeto) "
+            "ou do hospital/UPA (>50 km de trajeto) nesta rodada._",
+            nota,
+        )
+    work = work.sort_values(["km_aps", "km_hospital"], ascending=False, na_position="last")
+    rows: list[list[str]] = []
+    for _, row in work.head(25).iterrows():
+        rows.append(
+            [
+                str(row.get("nome") or "—")[:60],
+                str(row.get("categoria") or "—"),
+                str(row.get("municipio") or "—"),
+                _nivel_pt(row.get("nivel")),
+                fmt_int(row.get("km_aps")) if pd.notna(row.get("km_aps")) else INDISPONIVEL,
+                fmt_int(row.get("min_aps")) if pd.notna(row.get("min_aps")) else INDISPONIVEL,
+                fmt_int(row.get("km_hospital")) if pd.notna(row.get("km_hospital")) else INDISPONIVEL,
+                fmt_int(row.get("min_hospital")) if pd.notna(row.get("min_hospital")) else INDISPONIVEL,
+            ]
+        )
+    headers = ["Território", "Categoria", "Município", "Risco", "km APS", "min APS", "km hospital", "min hospital"]
+    return md_table(headers, rows, vazio=INDISPONIVEL), nota
+
+
 def build_territorios(resumo: pd.DataFrame, *, assets_dir: Path | None = None, data_ref: str = "") -> dict[str, Any]:
     """Cruza aldeias/quilombos Vigibarragens com classificação de risco municipal."""
     pts, mun = _load_vigibarragens()
@@ -407,6 +454,8 @@ def build_territorios(resumo: pd.DataFrame, *, assets_dir: Path | None = None, d
         "a território delimitado ou titulado."
     )
 
+    cob_md, nota_cob = _quadro_cobertura_rede()
+
     mapa: dict[str, Any] = {"disponivel": False}
     if assets_dir is not None and not pts.empty:
         mapa = export_mapa_territorios(resumo, pts, assets_dir, data_ref=data_ref)
@@ -419,6 +468,8 @@ def build_territorios(resumo: pd.DataFrame, *, assets_dir: Path | None = None, d
         "quilombo_md": md_qui,
         "nota_aldeias": nota_aldeias,
         "nota_quilombos": nota_quilombos,
+        "cobertura_md": cob_md,
+        "nota_cobertura": nota_cob,
         "n_aldeias": n_ald,
         "n_quilombos": n_qui,
         "n_mun_aldeias_criticos": n_mun_ald_crit,

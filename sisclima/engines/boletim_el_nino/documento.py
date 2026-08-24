@@ -682,6 +682,12 @@ _{territorios.get('nota_aldeias', '')}_
 
 _{territorios.get('nota_quilombos', '')}_
 
+### Territórios longe da rede assistencial (trajeto viário)
+
+{territorios.get('cobertura_md', INDISPONIVEL)}
+
+_{territorios.get('nota_cobertura', '')}_
+
 ### Populações prioritárias
 
 {populacoes_prioritarias(snap)}

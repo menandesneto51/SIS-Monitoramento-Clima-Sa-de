@@ -146,6 +146,16 @@ tempo_real:
   rodar_ao_iniciar: true
   salvar_historico_por_municipio: true
 
+cobertura_territorio:
+  # Limiares sobre distância de TRAJETO (via), não linha reta.
+  aps_km: 30
+  hospital_km: 50
+  usar_trajeto: true
+  candidatos_k: 5
+  # Instância OSRM (preferir servidor interno SES). Demo pública tem limite de uso.
+  osrm_url: https://router.project-osrm.org
+  perfil: driving
+
 municipalizacao:
   chave_ibge: cod_ibge
   chave_nome: municipio
