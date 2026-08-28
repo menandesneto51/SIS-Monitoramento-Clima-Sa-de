@@ -431,7 +431,7 @@ def _quadro_cobertura_rede() -> tuple[str, str, str, dict]:
         "Minutos de viagem não foram validados nesta rodada."
     )
     vazio = (
-        "_Sem recorte território–CNES nesta rodada (sem pontos com lat/lon oficial)._",
+        "_Recorte território–CNES indisponível nesta rodada (sem pontos com lat/lon oficial)._",
         nota,
         "",
         {},

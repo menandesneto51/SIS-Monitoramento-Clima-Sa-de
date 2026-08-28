@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from sisclima.engines.boletim_el_nino.constants import FOGO_SATELITE_REFERENCIA_CURTO, INDISPONIVEL, UNIEVS_NOME_OFICIAL
+from sisclima.engines.boletim_el_nino.constants import (
+    CIEVS_MT_NOME_OFICIAL,
+    FOGO_SATELITE_REFERENCIA_CURTO,
+    INDISPONIVEL,
+)
 from sisclima.engines.boletim_el_nino.formatters import fmt_frac, fmt_int, fmt_num, fmt_pareamento, md_table
 from sisclima.engines.boletim_el_nino.referencias import cite
 
@@ -22,7 +26,7 @@ def matriz_areas_ses(snap: dict[str, Any]) -> str:
     n25 = snap.get("n_pm25_25")
     blocks = [
         (
-            UNIEVS_NOME_OFICIAL,
+            CIEVS_MT_NOME_OFICIAL,
             "Convergência de calor, fumaça e classes vermelha e roxa",
             "Integrar o cenário, avaliar o risco e comunicar eventos à Sala de Situação.",
             "Estado",
@@ -235,7 +239,7 @@ def encaminhamentos(snap: dict[str, Any], *, publico: bool) -> str:
     n_flood = int(hf.get("flood_risk_high") or 0)
     im = [
         (
-            UNIEVS_NOME_OFICIAL,
+            CIEVS_MT_NOME_OFICIAL,
             "Estado / municípios prioritários",
             "Validar a priorização territorial e consolidar o cenário para a Sala de Situação.",
             "Priorização territorial desta rodada.",
@@ -252,7 +256,7 @@ def encaminhamentos(snap: dict[str, Any], *, publico: bool) -> str:
             "Assistência Farmacêutica",
             "Municípios da base de Assistência Farmacêutica",
             "Conferir a autonomia dos itens com cálculo válido e validar a situação no sistema oficial de estoques.",
-            "Evidência: registros que apresentavam autonomia crítica na última carga disponível, sujeitos à validação no sistema oficial.",
+            "Registros que apresentavam autonomia crítica na última carga disponível, sujeitos à validação no sistema oficial.",
             "24–48 h",
         ),
         (

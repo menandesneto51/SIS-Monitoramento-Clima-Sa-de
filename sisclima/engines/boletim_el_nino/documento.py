@@ -175,8 +175,8 @@ def _cards_executivos(snap: dict[str, Any]) -> str:
 
 | UMIDADE | FOGO | QUALIDADE DO AR |
 | --- | --- | --- |
-| **{fmt_frac(snap.get('n_umidade_30'), n)}** ≤ 30% | **{fmt_int(snap.get('focos_7d_total'))}** focos no {FOGO_SATELITE_REFERENCIA_CURTO} (7 dias) | **{fmt_frac(snap.get('n_pm25_25'), n)}** ≥ 25 µg/m³ |
-| mediana {fmt_num(snap.get('umidade_mediana'), 0, '%')} | {fmt_int(snap.get('n_com_focos_7d'))} municípios · {fmt_int(snap.get('deteccoes_7d_total'))} detecções multi-satélite | máximo {fmt_num(snap.get('pm25_max'), 1, ' µg/m³')} |
+| **{fmt_frac(snap.get('n_umidade_30'), n)}** ≤ 30% | **{fmt_int(snap.get('focos_7d_total'))}** focos de calor | **{fmt_frac(snap.get('n_pm25_25'), n)}** ≥ 25 µg/m³ |
+| mediana {fmt_num(snap.get('umidade_mediana'), 0, '%')} | Satélite de referência do Programa Queimadas · 7 dias · {fmt_int(snap.get('n_com_focos_7d'))} municípios · {fmt_int(snap.get('deteccoes_7d_total'))} detecções multi-satélite | máximo {fmt_num(snap.get('pm25_max'), 1, ' µg/m³')} |
 """
 
 
@@ -959,7 +959,7 @@ _{territorios.get('nota_quilombos', '')}_
 
 **Geolocalização, classificação e distância da rede**
 
-O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo certificado sobre a classe ARARAS. A tabela abaixo restringe o recorte a municípios **vermelhos ou roxos** com território longe da Atenção Primária à Saúde (APS) (> 30 km) ou do hospital (> 50 km).
+O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo certificado sobre a classe ARARAS. A Tabela 7 restringe o recorte a municípios **vermelhos ou roxos** com território longe da Atenção Primária à Saúde (APS) (> 30 km) ou do hospital (> 50 km).
 
 {territorios.get('cobertura_md', INDISPONIVEL)}
 

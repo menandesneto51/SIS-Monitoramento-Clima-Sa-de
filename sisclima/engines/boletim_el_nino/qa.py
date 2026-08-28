@@ -85,7 +85,12 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
         (r"AQUA_M-T", "INTERNAL_TECH_TERM"),
         (r"estoque crítico calculável", "INTERNAL_TECH_TERM"),
         (r"irritações ocular e", "INTERNAL_TECH_TERM"),
-        (r"Inteligência Epidemiológica", "UNIEVS_NAME_ERROR"),
+        (r"Evidência: Evidência:", "DUPLICATE_TEXT_ERROR"),
+        (r"Observado [`']?OBSERVADO", "DUPLICATE_TEXT_ERROR"),
+        (r"Projeção [`']?PROJEÇÃO", "DUPLICATE_TEXT_ERROR"),
+        (r"\bUNIEVS\b", "INSTITUTIONAL_NAME_CONFLICT"),
+        (r"Unidade de Informações Estratégicas de Vigilância em Saúde", "INSTITUTIONAL_NAME_CONFLICT"),
+        (r"tabela abaixo", "TABLE_INTRO_ORPHAN"),
     ]
     for pat, label in bad_patterns:
         if re.search(pat, md, re.I):
@@ -398,6 +403,14 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
     pront_ok = "OK" if pront.get("validado") else "REVISAR"
     alerta_ok = "OK" if "n_inmet_vigentes" in alertas else "REVISAR"
 
+    dup_para = re.findall(
+        r"O detalhamento municipal por item permanece disponível no painel operacional",
+        md,
+        re.I,
+    )
+    if len(dup_para) > 1:
+        issues.append("DUPLICATE_PARAGRAPH_ERROR")
+
     map3_ok = bool(
         m3qa
         and m3qa.get("MAP3_FILE_CREATED_THIS_RUN")
@@ -406,25 +419,20 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
         and not m3qa.get("MAP3_STALE_ERROR")
     )
     qa_final = [
-        "QA FINAL — BOLETIM ARARAS MT",
-        f"Classificação atual: {'OK' if 'CLASS_TOTAL_ERROR' not in issues else 'FALHA'}",
-        f"Projeção: {'OK' if 'PROJECTED_TOTAL_ERROR' not in issues else 'FALHA'}",
-        f"Delta: {'OK' if 'DELTA_TOTAL_ERROR' not in issues else 'FALHA'}",
-        f"Hidrologia: {'OK' if 'HYDRO_TOTAL_ERROR' not in issues else 'FALHA'}",
+        "QA FINAL — ARARAS MT",
+        f"Institucional: {'OK' if 'INSTITUTIONAL_NAME_CONFLICT' not in issues and 'UNIEVS_NAME_ERROR' not in issues else 'FALHA'}",
+        f"Fatos: {'OK' if not any(x in issues for x in ('CLASS_TOTAL_ERROR', 'PROJECTED_TOTAL_ERROR', 'DELTA_TOTAL_ERROR', 'FACT_CONSISTENCY_ERROR')) else 'FALHA'}",
         "Mapa 1: OK",
         "Mapa 2: OK",
-        f"Mapa 3 regenerado nesta rodada: {'OK' if map3_ok else 'FALHA'}",
-        f"Hash Mapa 3: {'OK' if m3qa and m3qa.get('MAP3_CLASSIFICATION_HASH_MATCH') else 'FALHA'}",
-        f"Territórios tradicionais: {'OK' if ti == 'OK' and qui == 'OK' else 'REVISAR'}",
-        f"Alertas INMET: {alerta_ok}",
+        f"Mapa 3: {'OK' if map3_ok else 'FALHA'}",
+        f"Mapa 3 hash: {'OK' if m3qa and m3qa.get('MAP3_CLASSIFICATION_HASH_MATCH') else 'FALHA'}",
         f"Índice de prioridade: {pront_ok}",
-        f"Estoque/defasagem: {'OK' if 'estoque crítico calculável' not in md.lower() else 'FALHA'}",
-        f"Denominações institucionais: {'OK' if 'UNIEVS_NAME_ERROR' not in issues else 'FALHA'}",
-        f"Siglas: {'OK' if 'ACRONYM_FIRST_USE_ERROR' not in issues else 'FALHA'}",
-        f"Tabelas: {'OK' if 'TABLE_NUMBER_ERROR' not in issues else 'REVISAR'}",
-        f"Mapas: {'OK' if 'MAP_CAPTION_ERROR' not in issues else 'REVISAR'}",
+        f"Hidrologia: {'OK' if 'HYDRO_TOTAL_ERROR' not in issues else 'FALHA'}",
+        f"Fogo: {'OK' if 'FIRE_METRIC_MIX_ERROR' not in issues else 'FALHA'}",
+        f"Estoque: {'OK' if 'DUPLICATE_PARAGRAPH_ERROR' not in issues else 'FALHA'}",
+        f"Duplicações: {'OK' if 'DUPLICATE_TEXT_ERROR' not in issues and 'DUPLICATE_PARAGRAPH_ERROR' not in issues else 'FALHA'}",
         "Paginação: OK",
-        f"Gramática: {'OK' if not re.search(r'irritações ocular e', md, re.I) else 'FALHA'}",
+        f"Tabelas: {'OK' if 'TABLE_NUMBER_ERROR' not in issues else 'REVISAR'}",
         f"Referências: {'OK' if refs else 'REVISAR'}",
         f"PUBLICAÇÃO: {'APROVADA' if len(issues) == 0 and html_vis == 0 and map3_ok else 'BLOQUEADA'}",
         "",

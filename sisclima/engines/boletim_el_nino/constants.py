@@ -19,13 +19,13 @@ USAR_TITULO_SALA_SITUACAO = False
 TITULO_PRODUTO_ATUAL = "RELATÓRIO SEMANAL EL NIÑO"
 TITULO_SALA_SITUACAO = "BOLETIM SEMANAL DA SALA DE SITUAÇÃO SAÚDE E CLIMA"
 SUBTITULO_SALA_SITUACAO = "El Niño 2026–2027 e eventos climáticos extremos"
-UNIEVS_NOME_OFICIAL = (
-    "Unidade de Informações Estratégicas de Vigilância em Saúde (UNIEVS/CIEVS-MT)"
+# Denominação validada (Portaria n.º 0590/2026/GBSES; organograma CIEVS-MT).
+CIEVS_MT_NOME_OFICIAL = (
+    "Centro de Informações Estratégicas em Vigilância em Saúde de Mato Grosso (CIEVS-MT)"
 )
-SUBTITULO_INSTITUCIONAL = (
-    "Sala de Situação da Unidade de Informações Estratégicas de "
-    "Vigilância em Saúde (CIEVS-MT)"
-)
+SUBTITULO_INSTITUCIONAL = f"Sala de Situação do {CIEVS_MT_NOME_OFICIAL}"
+# Compatibilidade interna — não usar UNIEVS no documento público.
+UNIEVS_NOME_OFICIAL = CIEVS_MT_NOME_OFICIAL
 # Denominação pública do satélite de referência INPE/Queimadas (código interno: AQUA_M-T).
 FOGO_SATELITE_REFERENCIA_PUBLICO = (
     "satélite de referência do Programa Queimadas/INPE (sensor MODIS)"
@@ -77,7 +77,6 @@ SIGLAS: dict[str, str] = {
     "SESAI": "Secretaria Especial de Saúde Indígena (SESAI)",
     "COSEMS-MT": "Conselho de Secretarias Municipais de Saúde de Mato Grosso (COSEMS-MT)",
     "VISAT": "Vigilância em Saúde do Trabalhador (VISAT)",
-    "UNIEVS": UNIEVS_NOME_OFICIAL,
     "DPOC": "Doença Pulmonar Obstrutiva Crônica (DPOC)",
     "ARARAS": "Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde (ARARAS)",
     "ARARAS MT": "Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde (ARARAS MT)",

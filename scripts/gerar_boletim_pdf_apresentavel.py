@@ -552,17 +552,21 @@ def _qa_paginacao(pdf) -> list[str]:
             if re.match(r"^Fonte:", first, re.I) and "Tabela 7" in pages[i] and "Fonte:" not in pages[i]:
                 issues.append(f"TABLE_SOURCE_SEPARATED Tabela7 p{i+1}-{i+2}")
             if re.search(
-                r"(CIEVS-MT|Atenção à Saúde|Assistência Farmacêutica|24 a 48 horas|24–48)",
+                r"(CIEVS-MT|Atenção à Saúde|Assistência Farmacêutica|24 a 48 horas|24–48|Vigidesastres|SEMA-MT)",
                 last,
                 re.I,
             ) and first.startswith("• Território"):
-                issues.append(f"ACTION_OWNER_ORPHAN p{i+1}-{i+2}")
+                issues.append(f"ACTION_BLOCK_SPLIT p{i+1}-{i+2}")
             if re.match(
-                r"^(UNIEVS|Atenção à Saúde|Assistência Farmacêutica|Comunicação|Vigilância)",
+                r"^(UNIEVS|Atenção à Saúde|Assistência Farmacêutica|Comunicação|Vigilância|Vigidesastres)",
                 last,
                 re.I,
             ) and first.startswith("•"):
-                issues.append(f"ACTION_OWNER_ORPHAN p{i+1}-{i+2}")
+                issues.append(f"ACTION_BLOCK_SPLIT p{i+1}-{i+2}")
+            if re.search(r"tabela abaixo", last, re.I) and re.match(
+                r"^(Município|Regional|Tabela\s+7)", first, re.I
+            ):
+                issues.append(f"TABLE_INTRO_ORPHAN p{i+1}-{i+2}")
 
     for i, t in enumerate(pages):
         if "Mapa 1" in t and "Classificação integrada" in t:
@@ -860,8 +864,6 @@ def build_pdf(src: Path = DEFAULT_SRC, out: Path = DEFAULT_OUT) -> Path:
                 hold_flush = True
                 close_on_fonte = False
             elif nt.startswith("4.") and "situacao atual" in nt:
-                # titulo + distribuicao + Tabela 1 + Fonte (interpretacao fora)
-                story.append(CondPageBreak(9 * cm))
                 pending_keep = [p]
                 hold_flush = True
                 close_on_fonte = False
@@ -898,6 +900,25 @@ def build_pdf(src: Path = DEFAULT_SRC, out: Path = DEFAULT_OUT) -> Path:
             elif nt.startswith("b. contexto") and pending_keep is not None and hold_flush:
                 pending_keep.append(p)
             elif "articulacoes intersetoriais" in nt:
+                _flush_keep()
+                pending_keep = [p]
+                hold_flush = True
+                close_on_fonte = False
+            elif any(
+                k in nt
+                for k in (
+                    "24 a 48 horas",
+                    "ate a proxima sala",
+                    "até a próxima sala",
+                    "proximas semanas",
+                    "próximas semanas",
+                )
+            ):
+                _flush_keep()
+                pending_keep = [p]
+                hold_flush = True
+                close_on_fonte = False
+            elif "geolocalizacao" in nt or "geolocalização" in nt.lower():
                 _flush_keep()
                 pending_keep = [p]
                 hold_flush = True
@@ -941,14 +962,6 @@ def build_pdf(src: Path = DEFAULT_SRC, out: Path = DEFAULT_OUT) -> Path:
                 i += 1
             if pending_keep is not None and hold_flush:
                 pending_keep.extend(blocos)
-                # Encaminhamentos: manter area + Territorio + Acao; demais itens podem seguir
-                texts = " ".join(getattr(b, "text", "") if hasattr(b, "text") else "" for b in blocos)
-                if "Território" in texts or "Territorio" in texts or "Ação" in texts or "Acao" in texts:
-                    # fecha o bloco do responsavel apos a lista curta (ate 4 itens tipicos)
-                    if len(blocos) >= 2:
-                        _flush_keep()
-                else:
-                    _flush_keep()
             elif len(blocos) <= 8:
                 _emit(KeepTogether(blocos), force_keep=True)
             else:
@@ -1090,9 +1103,18 @@ def build_pdf(src: Path = DEFAULT_SRC, out: Path = DEFAULT_OUT) -> Path:
                 )
             )
         ):
+            p = Paragraph(_md_inline_to_rl(line), body)
+            if pending_keep is not None and hold_flush:
+                pending_keep.append(p)
+            else:
+                _flush_keep()
+                pending_keep = [p]
+                hold_flush = True
+        elif re.match(r"^\*\*Geolocalização", line, re.I):
             _flush_keep()
-            pending_keep = [Paragraph(_md_inline_to_rl(line), body)]
+            pending_keep = [Paragraph(_md_inline_to_rl(line), h3)]
             hold_flush = True
+            close_on_fonte = True
         else:
             p = NoSplitParagraph(_md_inline_to_rl(line), body)
             if line.startswith("**Leitura combinada") or line.startswith("**Grupos ocupacionais"):
@@ -1114,6 +1136,7 @@ def build_pdf(src: Path = DEFAULT_SRC, out: Path = DEFAULT_OUT) -> Path:
                 line.startswith("Municípios com dados")
                 or line.startswith("Nota:")
                 or line.startswith("Associação temporal")
+                or line.startswith("O Mapa 3 localiza")
             ):
                 pending_keep.append(p)
                 if line.startswith("Associação temporal"):

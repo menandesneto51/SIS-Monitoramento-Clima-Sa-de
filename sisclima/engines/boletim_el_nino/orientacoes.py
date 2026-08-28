@@ -94,12 +94,12 @@ def _bloco_cenario_onda_calor(snap: dict[str, Any]) -> str:
     proj = ""
     if n_agr:
         proj = (
-            f"\n- Projeção `{SELPROJ}`: entre os {fmt_int(n_agr)} municípios com elevação projetada da "
+            f"\n- **{SELPROJ}** — entre os {fmt_int(n_agr)} municípios com elevação projetada da "
             f"classificação, {fmt_int(n_onda)} apresentam previsão de onda de calor no horizonte analisado."
         )
     return (
         f"**CENÁRIO: ONDA DE CALOR / CALOR EXTREMO**\n"
-        f"- Observado `{SELOBS}`: nenhum município atende simultaneamente ao critério operacional "
+        f"- **{SELOBS}** — nenhum município atende simultaneamente ao critério operacional "
         f"Tmáx ≥ 37 °C e UR ≤ 30% nesta rodada.{proj}\n"
         f"- Impactos à saúde: Exaustão pelo calor, desidratação, agravamento cardiovascular e respiratório.\n"
         f"- Ação municipal: Monitorar atendimentos e internações por calor/desidratação.\n"

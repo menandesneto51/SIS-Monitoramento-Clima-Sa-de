@@ -7,7 +7,7 @@ from typing import Any
 
 import pandas as pd
 
-from sisclima.engines.boletim_el_nino.constants import HIDRO_LABEL, INDISPONIVEL, NAO_CALCULADO, NIVEIS_CLASSE_ORDEM, SIGLAS, UNIEVS_NOME_OFICIAL
+from sisclima.engines.boletim_el_nino.constants import HIDRO_LABEL, INDISPONIVEL, NAO_CALCULADO, NIVEIS_CLASSE_ORDEM, SIGLAS
 
 _FMT_INT_ZERO_OK = True  # zero observado é válido quando explicitamente contado
 
@@ -223,12 +223,6 @@ def fmt_metric_box(
 def expand_siglas(text: str) -> str:
     """Expande siglas na primeira ocorrência no texto; normaliza setas e classes."""
     out = str(text or "")
-    out = out.replace("UNIEVS/CIEVS-MT", UNIEVS_NOME_OFICIAL)
-    dup = (
-        "Unidade de Informações Estratégicas de Vigilância em Saúde "
-        f"({UNIEVS_NOME_OFICIAL})"
-    )
-    out = out.replace(dup, UNIEVS_NOME_OFICIAL)
     out = out.replace("->", "→").replace("^", "↑")
     out = re.sub(r"(?<![A-Za-zÀ-ÿ])v(?=\s*\d)", "↓", out)
     out = re.sub(r"sinal hidrológico de alerta", "sinal hidrológico de baixa disponibilidade", out, flags=re.I)
@@ -239,20 +233,16 @@ def expand_siglas(text: str) -> str:
     out = re.sub(r"\bvermelha/rox[oa]\b", "vermelha e roxa", out, flags=re.I)
     out = _fix_singular_plural(out)
     seen: set[str] = set()
-    if UNIEVS_NOME_OFICIAL in out:
-        seen.add("UNIEVS")
     if re.search(
-        r"Sala de Situação da Unidade de Informações Estratégicas de "
-        r"Vigilância em Saúde \(CIEVS-MT\)",
+        r"Sala de Situação do Centro de Informações Estratégicas em "
+        r"Vigilância em Saúde de Mato Grosso \(CIEVS-MT\)",
         out,
     ):
         seen.add("CIEVS-MT")
     for sigla, expansao in sorted(SIGLAS.items(), key=lambda x: -len(x[0])):
         if sigla in seen:
             continue
-        if sigla == "UNIEVS":
-            pattern = re.compile(rf"\b{re.escape(sigla)}\b(?!/)")
-        elif re.search(r"[,.]", sigla):
+        if re.search(r"[,.]", sigla):
             pattern = re.compile(rf"(?<![\w]){re.escape(sigla)}(?![\w])")
         else:
             pattern = re.compile(rf"\b{re.escape(sigla)}\b(?!-)")

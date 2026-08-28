@@ -158,10 +158,7 @@ def build_estoque_saf_section(estoque: pd.DataFrame | None) -> dict[str, Any]:
             "disponivel": True,
             "defasado": True,
             "resumo_md": resumo,
-            "tabela_md": (
-                "_O detalhamento municipal por item permanece disponível no painel operacional "
-                "e deve ser consultado após validação no sistema oficial de estoques._"
-            ),
+            "tabela_md": INDISPONIVEL,
             "titulo_tabela": "Última situação registrada — sujeita a validação",
             "data_referencia": data_txt,
             "n_municipios": n_mun,

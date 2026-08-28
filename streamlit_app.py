@@ -69,7 +69,7 @@ except ImportError as exc:
         f"ImportError\n"
         f"módulo ausente/quebrado: {missing}\n"
         f"detalhe: {exc}\n"
-        f"Dica: confira se a branch do Cloud é painel-v9 e reinicie o app em Manage app.",
+        f"Dica: confira se a branch do Cloud é araras-mt (produção) e reinicie o app em Manage app.",
         language="text",
     )
     raise

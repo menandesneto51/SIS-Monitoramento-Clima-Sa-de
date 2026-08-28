@@ -29,8 +29,8 @@ def _refresh_fire_metrics_if_stale(resumo):
     if resumo is None or resumo.empty or not as_bool(env("USE_INPE_QUEIMADAS", "true"), True):
         return resumo
 
-    focos = pd.to_numeric(resumo.get("focos_queimadas_7d"), errors="coerce")
-    det = pd.to_numeric(resumo.get("deteccoes_queimadas_7d"), errors="coerce")
+    focos = pd.to_numeric(resumo["focos_queimadas_7d"], errors="coerce") if "focos_queimadas_7d" in resumo.columns else pd.Series(dtype=float)
+    det = pd.to_numeric(resumo["deteccoes_queimadas_7d"], errors="coerce") if "deteccoes_queimadas_7d" in resumo.columns else pd.Series(dtype=float)
     focos_sum = float(focos.sum()) if focos.notna().any() else 0.0
     det_sum = float(det.sum()) if det is not None and det.notna().any() else 0.0
     stale = (
@@ -69,6 +69,8 @@ def _refresh_fire_metrics_if_stale(resumo):
         if col != "cod_ibge" and col in out.columns:
             out = out.drop(columns=[col])
     out = out.merge(qm, on="cod_ibge", how="left")
+    if out.empty or "nivel" not in out.columns or out["nivel"].notna().sum() == 0:
+        return resumo
     write_df(out, "resumo_municipal_atual")
     return out
 

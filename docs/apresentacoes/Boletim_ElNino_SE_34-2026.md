@@ -1,12 +1,12 @@
 # RELATÓRIO SEMANAL EL NIÑO
 
-**Sala de Situação da Unidade de Informações Estratégicas de Vigilância em Saúde (CIEVS-MT) · Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde (ARARAS MT)**
+**Sala de Situação do Centro de Informações Estratégicas em Vigilância em Saúde de Mato Grosso (CIEVS-MT) · Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde (ARARAS MT)**
 
 Semana Epidemiológica 34/2026 · 23 a 29 de agosto de 2026  
-Atualizado em 28/08/2026 às 16h19
+Atualizado em 28/08/2026 às 16h35
 
 Referência climática: Painel El Niño 2026–2027, Boletim Mensal n.º 02, julho de 2026, e produtos oficiais de monitoramento climático, meteorológico, ambiental e hidrológico.  
-Referência operacional: ARARAS MT, rodada de 28/08/2026 às 16h19.  
+Referência operacional: ARARAS MT, rodada de 28/08/2026 às 16h35.  
 Base normativa: Portaria n.º 0590/2026/GBSES.
 
 > A projeção operacional de aproximadamente 7 dias **não substitui** a previsão climática sazonal. Os produtos possuem objetivos e horizontes temporais distintos.
@@ -18,8 +18,8 @@ Base normativa: Portaria n.º 0590/2026/GBSES.
 
 | UMIDADE | FOGO | QUALIDADE DO AR |
 | --- | --- | --- |
-| **0 de 142 (0,0%)** ≤ 30% | **918** focos no satélite de referência Instituto Nacional de Pesquisas Espaciais (INPE) (7 dias) | **15 de 142 (10,6%)** ≥ 25 µg/m³ |
-| mediana 53% | 63 municípios · 45.853 detecções multi-satélite | máximo 81,1 µg/m³ |
+| **0 de 142 (0,0%)** ≤ 30% | **918** focos de calor | **15 de 142 (10,6%)** ≥ 25 µg/m³ |
+| mediana 53% | Satélite de referência do Programa Queimadas · 7 dias · 63 municípios · 45.853 detecções multi-satélite | máximo 81,1 µg/m³ |
 
 
 ---
@@ -51,7 +51,7 @@ Fonte: Painel El Niño 2026–2027, boletim n.º 02, jul. 2026.
 
 ## 3. Cenário sazonal — Brasil → Amazônia Legal → Mato Grosso
 
-A previsão do Centro de Previsão de Tempo e Estudos Climáticos (CPTEC)/INPE, Instituto Nacional de Meteorologia (INMET) e Fundação Cearense de Meteorologia e Recursos Hídricos (FUNCEME) para agosto–setembro–outubro (ASO)/2026 indica precipitação abaixo da faixa normal no centro-norte (Norte, Nordeste e grande parte do Centro-Oeste) e acima da normal no Sul, podendo estender-se ao sul de São Paulo e de Mato Grosso do Sul. A temperatura fica acima da normal em praticamente todo o País, favorecendo ondas de calor, baixa umidade e maior potencial de queimadas.
+A previsão do Centro de Previsão de Tempo e Estudos Climáticos (CPTEC)/Instituto Nacional de Pesquisas Espaciais (INPE), Instituto Nacional de Meteorologia (INMET) e Fundação Cearense de Meteorologia e Recursos Hídricos (FUNCEME) para agosto–setembro–outubro (ASO)/2026 indica precipitação abaixo da faixa normal no centro-norte (Norte, Nordeste e grande parte do Centro-Oeste) e acima da normal no Sul, podendo estender-se ao sul de São Paulo e de Mato Grosso do Sul. A temperatura fica acima da normal em praticamente todo o País, favorecendo ondas de calor, baixa umidade e maior potencial de queimadas.
 
 - **Chuva (Brasil):** Abaixo da média no centro-norte (Norte, Nordeste e grande parte do Centro-Oeste); acima da média no Sul. `PREVISÃO OFICIAL`
 - **Temperatura (Brasil):** Acima da média em praticamente todo o país — ondas de calor, baixa umidade e maior potencial de queimadas. `PREVISÃO OFICIAL`
@@ -78,7 +78,7 @@ Distribuição atual: verde 0; amarela 3; laranja 27; vermelha 58; roxa 54.
 | PM2,5 | mediana 16,5 µg/m³ · máximo 81,1 µg/m³ | 15 de 142 (10,6%) ≥ 25 µg/m³ |
 | *Universal Thermal Climate Index* (UTCI) | mediana 33,6 °C | 134 de 142 (94,4%) ≥ 32 °C |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h19.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h35.
 
 Cobertura dos quatro indicadores: 142 de 142 (100,0%) municípios.
 
@@ -101,7 +101,7 @@ Distribuição projetada: verde 0; amarela 0; laranja 3; vermelha 11; roxa 128
 
 ![Mapa 1](_assets_SE_34-2026/mapa_atual_projecao_7d.png)
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h19.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h35.
 Nota: as duas faces usam a mesma escala de classes (verde a roxo) para comparação visual direta.
 
 **Atual.** 112 de 142 (78,9%) vermelho ou roxo.  
@@ -112,7 +112,7 @@ Nota: as duas faces usam a mesma escala de classes (verde a roxo) para comparaç
 
 ![Mapa 2](_assets_SE_34-2026/mapa_delta_7d.png)
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h19.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h35.
 Municípios com dados comparáveis: 142 de 142 (100,0%).
 - Melhora: 3 de 142 (2,1%)
 - Estabilidade: 51 de 142 (35,9%)
@@ -135,7 +135,7 @@ A projeção operacional (~7 dias) eleva o território de **112 de 142 (78,9%)**
 | Risco térmico cumulativo (máx. 7d ≥ 7 pontos) | 88 (100,0% dos que agravam) | ↑ aumento |
 | Onda de calor prevista no horizonte (mediana 2,0 dias) | 86 (97,7% dos que agravam) | ↑ aumento |
 
-Fonte: previsão meteorológica integrada ao ARARAS MT, rodada de 28/08/2026 às 16h19.
+Fonte: previsão meteorológica integrada ao ARARAS MT, rodada de 28/08/2026 às 16h35.
 
 ### B. Contexto concomitante
 
@@ -149,7 +149,7 @@ Descreve a situação atual dos municípios que sobem de classe; **não** consti
 | PM2,5 ≥ 25 µg/m³ | 10 (11,4% dos que agravam) | Exposição atual; sem projeção específica de 7 dias |
 | Focos de calor (7 dias) | 31 (35,2% dos que agravam) | Detecção atual; sem projeção específica de 7 dias |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h19.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h35.
 
 Nota: Ausência de previsão específica não equivale a estabilidade.
 
@@ -196,14 +196,14 @@ _Recorte territorial: **Estado de Mato Grosso**. O Instituto Nacional de Meteoro
 - **Baixa Umidade** — 1 aviso; severidade Perigo potencial; abrangência em Mato Grosso.
 - **Tempestade** — 1 aviso; severidade Perigo potencial; abrangência em Mato Grosso.
 
-Consulta: 28/08/2026 às 16h19. Fonte: feed Alert-AS / portal INMET (INMET, 2026).
+Consulta: 28/08/2026 às 16h35. Fonte: feed Alert-AS / portal INMET (INMET, 2026).
 A lista completa dos avisos permanece no painel operacional.
 
 ### Centro Nacional de Monitoramento e Alertas de Desastres Naturais (CEMADEN)
 
 _Nenhum alerta aberto do CEMADEN para Mato Grosso nesta consulta._
 
-Fonte: Painel CEMADEN (CEMADEN, 2026). Consulta: 28/08/2026 às 16h19.
+Fonte: Painel CEMADEN (CEMADEN, 2026). Consulta: 28/08/2026 às 16h35.
 
 ### Síntese integrada de alertas meteorológicos e ambientais
 
@@ -254,7 +254,7 @@ Associação temporal/espacial — **não implica causalidade**.
 | Chuva intensa / Inundações | Doença Diarreica Aguda (DDA), leptospirose e traumas | Chuva, alertas e notificações |
 | Tempestades / Ventos fortes e descargas atmosféricas | Traumas | Avisos do INMET |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h19.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h35.
 
 > **Cenário hidrológico de inundação:** sinal localizado em 2 municípios no recorte hidrológico disponível (cobertura 10 de 142 (7,0%)). Não caracteriza cenário estadual. Se o evento for confirmado, monitorar DDA, leptospirose e traumas.
 
@@ -269,8 +269,8 @@ Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h19.
 
 ### Epidemiologia operacional (janela 7 dias)
 
-- **Intoxicação exógena (sinal de fumaça):** 62 notificações; **0** com sinal de fumaça.
-- **Internações (janela 7 dias):** dado não disponível na janela curta. Competência mensal mais recente (**2026-06**): **10.267** internações · respiratório/alérgico **24** · desidratação/calor **5**.
+- **Intoxicação exógena (sinal de fumaça):** 0 notificações; **0** com sinal de fumaça.
+- **Internações hospitalares:** dados não estavam disponíveis para esta rodada.
 
 **Leitura epidemiológica**
 
@@ -320,7 +320,7 @@ Municípios no extremo de atenção. Municípios prioritários para acompanhamen
 | São José dos Quatro Marcos | Cáceres | Roxa → Roxa | 76,1 | Crítica | exposição ambiental |
 | São José do Povo | Rondonópolis | Vermelha → Roxa | 75,0 | Crítica | exposição ambiental |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h19.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 28/08/2026 às 16h35.
 
 _O índice combina pressão assistencial, exposição ambiental, vulnerabilidade e prioridade operacional em escala normalizada de 0 a 100. A classe climática atual é contexto territorial e não entra no cálculo. Faixas qualitativas: Acompanhamento (<35); Moderada (35 a <55); Alta (55 a <75); Crítica (≥75). Para os municípios do Top 10, recomenda-se preparação assistencial e intensificação da vigilância, moduladas pelo principal determinante identificado._
 
@@ -345,7 +345,7 @@ _O índice combina pressão assistencial, exposição ambiental, vulnerabilidade
 
 ![Mapa 3](_assets_SE_34-2026/mapa_territorios_tradicionais.png)
 
-Fonte: ARARAS MT/CIEVS-MT, com dados da Fundação Nacional dos Povos Indígenas (FUNAI) e Fundação Cultural Palmares. Rodada de 28/08/2026 às 16h19.
+Fonte: ARARAS MT/CIEVS-MT, com dados da Fundação Nacional dos Povos Indígenas (FUNAI) e Fundação Cultural Palmares. Rodada de 28/08/2026 às 16h35.
 Nota: Aldeias são representadas por coordenadas georreferenciadas disponíveis. Para comunidades quilombolas sem coordenadas oficiais validadas, a representação indica presença municipal e não localização exata. Certificação pela Fundação Cultural Palmares não equivale a território delimitado ou titulado.
 
 **Municípios com aldeias indígenas em classes vermelha ou roxa**
@@ -373,37 +373,12 @@ _Comunidade certificada pela Fundação Cultural Palmares não equivale necessar
 
 **Geolocalização, classificação e distância da rede**
 
-O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo certificado sobre a classe ARARAS. A tabela abaixo restringe o recorte a municípios **vermelhos ou roxos** com território longe da Atenção Primária à Saúde (APS) (> 30 km) ou do hospital (> 50 km).
+O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo certificado sobre a classe ARARAS. A Tabela 7 restringe o recorte a municípios **vermelhos ou roxos** com território longe da Atenção Primária à Saúde (APS) (> 30 km) ou do hospital (> 50 km).
 
-**Tabela 7 – Municípios com maior prioridade combinada de risco e dificuldade de acesso assistencial**
+_Recorte território–Cadastro Nacional de Estabelecimentos de Saúde (CNES) indisponível nesta rodada (sem pontos com lat/lon oficial)._
 
-| Município | Classe | Territórios distantes | P90 APS (km) | Máx. APS (km) | Máx. hospital (km) |
-| --- | --- | --- | --- | --- | --- |
-| Campinápolis | Roxa | 75 | 75 | 85 | 109 |
-| Gaúcha do Norte | Roxa | 60 | 172 | 424 | 214 |
-| Tangará da Serra | Roxa | 39 | 125 | 176 | 142 |
-| Barra do Garças | Roxa | 26 | 63 | 99 | 108 |
-| Peixoto de Azevedo | Roxa | 22 | 137 | 171 | 255 |
-| São Félix do Araguaia | Roxa | 17 | 121 | 121 | 99 |
-| Cáceres | Roxa | 17 | 95 | 134 | 99 |
-| Marcelândia | Roxa | 14 | 194 | 194 | 162 |
+_Distância em km até o estabelecimento do Cadastro Nacional de Estabelecimentos de Saúde (CNES) com coordenada oficial (trajeto viário quando a rota existe; linha reta se a rota falhar e for validada). Distâncias extremas são submetidas a validação antes de serem utilizadas na priorização. Minutos de viagem não foram validados nesta rodada._
 
-Fonte: ARARAS MT/CIEVS-MT, com dados do Cadastro Nacional de Estabelecimentos de Saúde (CNES).
-
-Nota: Distância em km até o estabelecimento do CNES com coordenada oficial (trajeto viário quando a rota existe; linha reta se a rota falhar e for validada). Distâncias extremas são submetidas a validação antes de serem utilizadas na priorização. Minutos de viagem não foram validados nesta rodada.
-
-
-
-**Leitura combinada.** A tabela do corpo não é o ranking das maiores distâncias. A priorização usa classe atual e projetada, número de territórios distantes, P90 APS e distância hospitalar, somente com rotas já validadas. A lista completa permanece no painel.
-
-**Validação das distâncias.** Três municípios apresentaram estimativas extremas de distância assistencial e foram excluídos da priorização desta rodada até a conclusão da validação das rotas.
-
-20 municípios (rotas validadas) possuem ao menos um território com distância máxima ≥90 km da APS.
-
-**Recomendações desta rodada**
-- Secretarias municipais e regionais: articular deslocamento, transporte sanitário e apoio da APS aos territórios listados; não interpretar as classes vermelha e roxa como indicação de proximidade de uma Unidade Básica de Saúde (UBS).
-- DSEI/SESAI e SES-MT: priorizar apoio às aldeias em vermelho ou roxo com maior distância até a APS.
-- Vigilância em Saúde do Trabalhador: incluir equipes de campo e brigadistas desses municípios no recorte de exposição a calor e fumaça.
 
 
 ### 11.5 Populações prioritárias e Saúde do Trabalhador
@@ -450,8 +425,8 @@ O Ministério da Saúde reconhece trabalhadores externos urbanos e rurais como p
 - Ação SES-MT: Consolidar e acompanhar os municípios com sinal de baixa disponibilidade hídrica; apoiar regionais; monitorar disponibilidade estratégica de insumos.
 
 **CENÁRIO: ONDA DE CALOR / CALOR EXTREMO**
-- Observado `OBSERVADO`: nenhum município atende simultaneamente ao critério operacional Tmáx ≥ 37 °C e UR ≤ 30% nesta rodada.
-- Projeção `PROJEÇÃO ARARAS ~7 DIAS`: entre os 88 municípios com elevação projetada da classificação, 86 apresentam previsão de onda de calor no horizonte analisado.
+- **OBSERVADO** — nenhum município atende simultaneamente ao critério operacional Tmáx ≥ 37 °C e UR ≤ 30% nesta rodada.
+- **PROJEÇÃO ARARAS ~7 DIAS** — entre os 88 municípios com elevação projetada da classificação, 86 apresentam previsão de onda de calor no horizonte analisado.
 - Impactos à saúde: Exaustão pelo calor, desidratação, agravamento cardiovascular e respiratório.
 - Ação municipal: Monitorar atendimentos e internações por calor/desidratação.
 - Ação SES-MT: Priorizar municípios nas classes vermelha e roxa; apoiar regionais com maior carga térmica.
@@ -472,13 +447,9 @@ O Ministério da Saúde reconhece trabalhadores externos urbanos e rurais como p
 
 Avaliar capacidade e autonomia de insumos da Assistência Farmacêutica conforme protocolos oficiais (Relação Nacional de Medicamentos Essenciais — RENAME; Protocolos Clínicos e Diretrizes Terapêuticas — PCDT; notas técnicas do Ministério da Saúde e da Secretaria de Estado de Saúde de Mato Grosso), orientando redução de exposição conforme protocolos vigentes. **Não prescreve medicamentos.**
 
-> **Atenção — última atualização da base de estoque: 18/06/2026 às 00h00.**
-> Os valores devem ser confirmados no sistema oficial antes de qualquer decisão operacional.
-> **Status atual: NÃO AVALIÁVEL POR DEFASAGEM** (carga com 71 dias; limite operacional adotado para este boletim: 14 dias).
+Estoques estratégicos da Assistência Farmacêutica **indisponíveis nesta rodada**. Avaliar conferência junto à Assistência Farmacêutica (SES-MT, 2026).
 
-Última informação disponível: **18/06/2026 às 00h00** — dado desatualizado para avaliação da situação corrente (SES-MT, 2026). Cobertura cadastral na carga: **12** municípios · **4** itens. **48** registros que apresentavam autonomia crítica na última carga disponível e requerem validação no sistema oficial. Não se classifica ruptura atual nem ranking operacional com esta carga. O detalhamento municipal por item permanece disponível no **painel operacional** e deve ser consultado após validação no sistema oficial de estoques.
-
-_O detalhamento municipal por item permanece disponível no painel operacional e deve ser consultado após validação no sistema oficial de estoques._
+Dado indisponível nesta rodada.
 
 ---
 
@@ -499,7 +470,7 @@ Organizados em três horizontes. Nem todo sinal implica acionamento operacional.
 
 ### 24 a 48 horas
 
-**Unidade de Informações Estratégicas de Vigilância em Saúde (UNIEVS/CIEVS-MT)**
+**Centro de Informações Estratégicas em Vigilância em Saúde de Mato Grosso (CIEVS-MT)**
 - Território: Estado / municípios prioritários
 - Ação: Validar a priorização territorial e consolidar o cenário para a Sala de Situação.
 - Evidência: Priorização territorial desta rodada.
@@ -514,7 +485,7 @@ Organizados em três horizontes. Nem todo sinal implica acionamento operacional.
 **Assistência Farmacêutica**
 - Território: Municípios da base de Assistência Farmacêutica
 - Ação: Conferir a autonomia dos itens com cálculo válido e validar a situação no sistema oficial de estoques.
-- Evidência: Evidência: registros que apresentavam autonomia crítica na última carga disponível, sujeitos à validação no sistema oficial.
+- Evidência: Registros que apresentavam autonomia crítica na última carga disponível, sujeitos à validação no sistema oficial.
 - Prazo: 24–48 h
 
 **Comunicação / Vigilância Ambiental**
@@ -586,7 +557,7 @@ Organizados em três horizontes. Nem todo sinal implica acionamento operacional.
 
 A projeção operacional de aproximadamente sete dias nesta versão é uma dimensão única de **risco térmico projetado** (0–100), composta por quatro sinais do mesmo fenômeno térmico:
 
-**Tabela 8 – Componentes do risco térmico projetado**
+**Tabela 7 – Componentes do risco térmico projetado**
 
 | Componente | Variável | Limiar e pontuação atribuída |
 | --- | --- | --- |
@@ -606,7 +577,7 @@ Fonte: Elaboração CIEVS-MT/ARARAS MT.
 
 **Glossário**
 
-**Tabela 9 – Termos utilizados neste boletim**
+**Tabela 8 – Termos utilizados neste boletim**
 
 | Termo | Definição |
 | --- | --- |
