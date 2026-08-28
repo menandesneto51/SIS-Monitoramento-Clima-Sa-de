@@ -43,7 +43,9 @@ def _now() -> str:
 
 
 def _ibge7(s: pd.Series) -> pd.Series:
-    return s.astype(str).str.replace(r"\D", "", regex=True).str.extract(r"(\d{6,7})", expand=False).str.zfill(7)
+    raw = s.astype(str).str.replace(r"\D", "", regex=True).str.extract(r"(\d{6,7})", expand=False)
+    # Códigos municipais do CNES vêm com 6 dígitos; não prefixar zero (51xxxx ≠ 051xxxx).
+    return raw
 
 
 def grupo_tipo(texto: str) -> str:
@@ -103,11 +105,14 @@ def normalize_opendata_rows(rows: list[dict[str, Any]]) -> pd.DataFrame:
         "nome_razao_social": "razao_social",
         "descricao_tipo_unidade": "tipo_unidade",
         "tipo_unidade": "tipo_unidade",
+        "codigo_tipo_unidade": "codigo_tipo_unidade",
         "codigo_municipio": "cod_ibge",
         "codigo_municipio_ibge": "cod_ibge",
         "nome_municipio": "municipio",
         "latitude": "lat",
         "longitude": "lon",
+        "latitude_estabelecimento_decimo_grau": "lat",
+        "longitude_estabelecimento_decimo_grau": "lon",
         "estabelecimento_faz_atendimento_ambulatorial_sus": "vinculo_sus",
         "vinculo_sus": "vinculo_sus",
     }
@@ -120,22 +125,42 @@ def normalize_opendata_rows(rows: list[dict[str, Any]]) -> pd.DataFrame:
         keep = out["cod_ibge"].isna() | out["cod_ibge"].astype(str).str.startswith(UF_IBGE)
         out = out[keep]
     out = _corrige_lat_lon(out)
-    if "tipo_unidade" not in out.columns:
-        out["tipo_unidade"] = ""
+    if "tipo_unidade" not in out.columns or out["tipo_unidade"].astype(str).str.strip().eq("").all():
+        mapa_tipo = {
+            "1": "Posto de Saúde",
+            "2": "Centro de Saúde / Unidade Básica",
+            "4": "Policlínica",
+            "5": "Hospital Geral",
+            "7": "Pronto Socorro Geral",
+            "15": "Unidade Mista",
+            "21": "Pronto Socorro Especializado",
+            "62": "Hospital Geral",
+            "67": "Laboratório de Saúde Pública",
+            "68": "UPA",
+            "73": "Pronto Atendimento",
+        }
+        if "codigo_tipo_unidade" in out.columns:
+            out["tipo_unidade"] = (
+                out["codigo_tipo_unidade"].astype(str).str.replace(r"\.0$", "", regex=True).map(mapa_tipo).fillna("Outros")
+            )
+        else:
+            out["tipo_unidade"] = ""
     out["grupo_tipo"] = out["tipo_unidade"].map(grupo_tipo)
     out["fonte_coord"] = "opendata_cnes"
     out.loc[out["lat"].isna() | out["lon"].isna(), "fonte_coord"] = ""
     return out
 
 
-def fetch_opendata_cnes_mt(*, limit: int = 50, max_rows: int = 8000) -> pd.DataFrame:
+def fetch_opendata_cnes_mt(*, limit: int = 20, max_rows: int = 8000) -> pd.DataFrame:
     chunks: list[pd.DataFrame] = []
     offset = 0
+    # A API pública do MS pagina no máximo 20 registros por offset.
+    page_size = max(1, min(int(limit), 20))
     while offset < max_rows:
         try:
             resp = http_get(
                 OPEN_API,
-                params={"codigo_uf": UF_IBGE, "limit": limit, "offset": offset},
+                params={"codigo_uf": UF_IBGE, "limit": page_size, "offset": offset},
                 timeout=45,
             )
             if resp.status_code >= 400:
@@ -151,9 +176,9 @@ def fetch_opendata_cnes_mt(*, limit: int = 50, max_rows: int = 8000) -> pd.DataF
         part = normalize_opendata_rows(rows)
         if not part.empty:
             chunks.append(part)
-        if len(rows) < limit:
+        if len(rows) < page_size:
             break
-        offset += limit
+        offset += page_size
     if not chunks:
         return pd.DataFrame()
     return pd.concat(chunks, ignore_index=True).drop_duplicates("cnes", keep="first")
@@ -276,6 +301,13 @@ def load_cnes_unidades_geo(
         base["fonte_coord"] = ""
     base = _corrige_lat_lon(base)
     base = _centroid_fill(base, resumo)
+    if resumo is not None and not resumo.empty and "cod_ibge" in base.columns and "cod_ibge" in resumo.columns:
+        r = resumo[["cod_ibge"]].dropna().copy()
+        r["k"] = _ibge7(r["cod_ibge"]).str[:6]
+        lookup = r.drop_duplicates("k").set_index("k")["cod_ibge"].astype(str)
+        k = _ibge7(base["cod_ibge"]).str[:6]
+        mapped = k.map(lookup)
+        base["cod_ibge"] = mapped.where(mapped.notna(), base["cod_ibge"])
     base["atualizado_em"] = _now()
     keep = [
         c

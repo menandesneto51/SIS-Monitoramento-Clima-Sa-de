@@ -1,0 +1,1227 @@
+versao: 28-08-2026
+fonte: Proposta_Adequacao_88_Indicadores_ARARAS_Sala_Situacao_28-08-2026.docx
+nota: Preserva os 88 IDs. Aliases não calculam. Gatilho não entra no índice de execução. Sem dado nunca vira 0.
+  Denominador 0 = N/A.
+deliberacoes:
+- Separar nível de risco, estágio de resposta, desempenho e completude.
+- Parametrizar periodicidade/SLA pelos perfis S1–S12.
+- ARARA-068, 073 e 074 são aliases sem cálculo próprio.
+- Documentos/protocolos/planos/simulados são gates de prontidão.
+- Gatilhos de risco não integram o Índice de Implementação.
+- 'Completude: NÃO CALCULÁVEL se faltar campo crítico; denom 0 = N/A.'
+- PAI automático a partir do Amarelo (gatilho, SLA, pendência crítica, interrupção).
+perfis_s:
+  S1:
+    nome: Governança/coordenação
+    verde: mensal
+    amarelo: semanal
+    laranja: diario_24h
+    vermelho: 12h
+    roxo: 6h_periodo
+  S2:
+    nome: Inteligência/análise
+    verde: mensal_semanal
+    amarelo: 72h
+    laranja: diario_24h
+    vermelho: 12h
+    roxo: 6h_periodo
+  S3:
+    nome: Vigilância ambiental/epidemiológica
+    verde: rotina
+    amarelo: semanal_72h
+    laranja: diaria_48h
+    vermelho: 24h
+    roxo: 12h
+  S4:
+    nome: Assistência/capacidade
+    verde: mensal
+    amarelo: semanal
+    laranja: diario
+    vermelho: 12h
+    roxo: 6h_turno
+  S5:
+    nome: Logística/estoque
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: 24h
+    vermelho: 12h
+    roxo: 6h
+  S6:
+    nome: Comunicação
+    verde: materiais_prontos
+    amarelo: alerta_24h
+    laranja: 12h
+    vermelho: 6h
+    roxo: 2h_periodo
+  S7:
+    nome: Vigilância Sanitária
+    verde: rotina
+    amarelo: semanal_dirigida
+    laranja: 48h
+    vermelho: 24h
+    roxo: 12h
+  S8:
+    nome: Imunização/Rede de Frio
+    verde: semanal_mensal
+    amarelo: 48h
+    laranja: 24h
+    vermelho: 12h
+    roxo: 6h
+  S9:
+    nome: Saúde do Trabalhador
+    verde: mensal_trimestral
+    amarelo: semanal
+    laranja: 48h
+    vermelho: 24h
+    roxo: 12h
+  S10:
+    nome: Prontidão/documento/simulado
+    verde: concluir_100
+    amarelo: revalidar_72h
+    laranja: somente_validade
+    vermelho: somente_validade
+    roxo: somente_validade
+  S11:
+    nome: Gatilho de risco
+    verde: baseline
+    amarelo: aumentar_frequencia
+    laranja: diario_fonte
+    vermelho: 12_24h
+    roxo: 6_12h
+  S12:
+    nome: Evento/SLA
+    verde: sla_ordinario
+    amarelo: 48h
+    laranja: 24h
+    vermelho: 12h
+    roxo: 6h_critico_2h
+padroes_completude:
+  C1:
+    nome: Percentual/cobertura
+    campos: numerador + denominador válido + território + período + fonte/data. Denom 0 = N/A.
+  C2:
+    nome: Documento/gate
+    campos: documento/link + versão + aprovação + vigência + responsável.
+  C3:
+    nome: SLA/tempo
+    campos: abertura + fechamento/primeira ação + prioridade + estágio + responsável + desfecho. P50/P90.
+  C4:
+    nome: Risco/gatilho
+    campos: valor + baseline/limiar versionado + território + período + frescura. Sem 'meta atingida'.
+  C5:
+    nome: Índice/capacidade composta
+    campos: componentes + pesos + versão do algoritmo. Componente crítico ausente = incompleto, não zero.
+  C6:
+    nome: Estoque/autonomia
+    campos: item + saldo + consumo médio + mínimo por estágio + local + timestamp.
+  C7:
+    nome: Evento/resposta
+    campos: evento + território/unidade + ação + responsável + timestamp + status/evidência.
+  C8:
+    nome: Capacitação/simulado
+    campos: universo-alvo + cobertos + data + validade + evidência + plano de melhoria.
+resumo:
+  n: 88
+  por_papel:
+    hibrido: 8
+    preparacao: 17
+    operacional: 44
+    gatilho: 16
+    alias: 3
+  faltando: []
+indicadores:
+- id: IND-001
+  codigo_fonte: ARARA-001
+  linha_fonte: 6
+  papel: hibrido
+  nome_atual: Cobertura de áreas com ponto focal designado
+  decisao: Reformular operacionalmente
+  nome_ajustado: Cobertura de áreas com representação operacional válida
+  alteracao: 'Substituir ''ponto focal designado'' por representação válida: titular/ponto focal ativo, suplência
+    quando exigida, contato testado e data de revisão. Meta 100% no Verde/Amarelo; destacar lacunas críticas.'
+  perfil_s: S1
+  padrao_completude: C1
+  alvo_automacao: Semiautomático com completude automática
+- id: IND-002
+  codigo_fonte: ARARA-002
+  linha_fonte: 6
+  papel: preparacao
+  nome_atual: Fluxo estadual de comunicação e resposta formalizado
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Fluxo estadual de comunicação e resposta vigente, testado e versionado
+  alteracao: Não medir apenas existência. Exigir versão, aprovação, teste de acionamento e data de validade. Gate
+    deve estar 100% antes do Amarelo; no Laranja+ apenas confirmar acionabilidade.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental com completude automática
+- id: IND-003
+  codigo_fonte: ARARA-003
+  linha_fonte: 7
+  papel: hibrido
+  nome_atual: ERS com contatos e fluxo atualizados
+  decisao: Reformular operacionalmente
+  nome_ajustado: ERS com ponto focal, contato e fluxo válidos
+  alteracao: Denominador fixo=16 ERS; considerar válido somente quando contato foi testado e fluxo tem revisão vigente.
+    No Amarelo+ exigir confirmação periódica de disponibilidade.
+  perfil_s: S1
+  padrao_completude: C1
+  alvo_automacao: Semiautomático com validação de contato Inteligência e avaliação de risco
+- id: IND-004
+  codigo_fonte: ARARA-004
+  linha_fonte: 8
+  papel: operacional
+  nome_atual: Pontualidade das avaliações integradas de risco
+  decisao: Manter e parametrizar
+  nome_ajustado: Pontualidade das avaliações integradas de risco
+  alteracao: 'Trocar periodicidade fixa por obrigação calculada conforme estágio. Fórmula: avaliações emitidas no
+    SLA do estágio ÷ avaliações devidas no período. Meta ≥95%; 100% em Vermelho/Roxo para ciclos críticos.'
+  perfil_s: S2
+  padrao_completude: C1
+  alvo_automacao: Automático
+- id: IND-005
+  codigo_fonte: ARARA-005
+  linha_fonte: 8
+  papel: operacional
+  nome_atual: Latência da avaliação integrada de risco
+  decisao: Reformular operacionalmente
+  nome_ajustado: Tempo de disponibilização da avaliação integrada de risco
+  alteracao: Usar P50 e P90, não apenas média. Medir do último dado crítico disponível/fechamento definido até publicação
+    da avaliação. SLA por estágio; registrar atrasos por fonte.
+  perfil_s: S2
+  padrao_completude: C3
+  alvo_automacao: Automático
+- id: IND-006
+  codigo_fonte: ARARA-006
+  linha_fonte: 9
+  papel: operacional
+  nome_atual: Cobertura territorial com classificação de risco válida
+  decisao: Reformular operacionalmente
+  nome_ajustado: Cobertura territorial com classificação de risco calculável e atualizada
+  alteracao: Município só entra no numerador se fontes mínimas obrigatórias estiverem válidas e dentro da janela.
+    Incluir indicador de completude da classificação e publicar N/A quando dados críticos faltarem.
+  perfil_s: S2
+  padrao_completude: C1
+  alvo_automacao: Automático
+- id: IND-007
+  codigo_fonte: ARARA-007
+  linha_fonte: 9
+  papel: gatilho
+  nome_atual: Municípios em risco elevado persistente
+  decisao: Manter como gatilho
+  nome_ajustado: Territórios em risco elevado persistente
+  alteracao: Manter persistência, mas parametrizar nº de ciclos, população exposta e tendência. O resultado deve
+    sugerir escalonamento territorial, sem automaticamente elevar todo o Estado.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático
+- id: IND-068
+  codigo_fonte: ARARA-068
+  linha_fonte: 35
+  papel: alias
+  nome_atual: Cobertura de classificação territorial válida — Ambiental
+  decisao: Consolidar / manter como alias
+  nome_ajustado: Usar ARARA-006 — cobertura territorial com classificação de risco calculável
+  alteracao: Eliminar cálculo independente para evitar dupla ponderação. Manter ARARA-068 apenas como referência
+    temática da Vigilância Ambiental para rastreabilidade.
+  perfil_s: S2
+  padrao_completude: C1
+  alvo_automacao: Alias — sem cálculo próprio Vigilância ambiental e epidemiológica
+  id_canonico: IND-006
+- id: IND-008
+  codigo_fonte: ARARA-008
+  linha_fonte: 10
+  papel: hibrido
+  nome_atual: Municípios prioritários com monitoramento da água válido
+  decisao: Reformular operacionalmente
+  nome_ajustado: Cobertura de monitoramento VIGIÁGUA nos territórios ativados/prioritários
+  alteracao: 'Denominador dinâmico por estágio: municípios/territórios que requerem monitoramento naquele ciclo.
+    Exigir competência válida da amostra/monitoramento e separar cobertura de qualidade do resultado.'
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Automático após integração SISAGUA
+- id: IND-009
+  codigo_fonte: ARARA-009
+  linha_fonte: 10
+  papel: operacional
+  nome_atual: Não conformidades de água com resposta registrada
+  decisao: Reformular operacionalmente
+  nome_ajustado: Não conformidades de água com ação corretiva iniciada no SLA
+  alteracao: Quando não houver não conformidade, resultado=N/A. Medir início da providência e, em campo separado,
+    encerramento. SLA deve diminuir com o estágio e gravidade da não conformidade.
+  perfil_s: S12
+  padrao_completude: C7
+  alvo_automacao: Semiautomático; cálculo automático
+- id: IND-010
+  codigo_fonte: ARARA-010
+  linha_fonte: 10
+  papel: operacional
+  nome_atual: Tempo de resposta à não conformidade da água
+  decisao: Reformular operacionalmente
+  nome_ajustado: Tempo de resposta às não conformidades de água (P50/P90)
+  alteracao: Substituir apenas mediana por P50+P90 e estratificar por criticidade. Tempo inicia na detecção validada
+    e termina na primeira medida efetiva; encerramento deve ser indicador secundário.
+  perfil_s: S12
+  padrao_completude: C3
+  alvo_automacao: Automático se timestamps integrados
+- id: IND-011
+  codigo_fonte: ARARA-011
+  linha_fonte: 11
+  papel: operacional
+  nome_atual: Análises integradas fumaça–saúde realizadas no prazo
+  decisao: Manter e parametrizar
+  nome_ajustado: Análises integradas fumaça-saúde realizadas no SLA do estágio
+  alteracao: Definir quantas análises são 'devidas' por estágio. Amarelo aumenta frequência; Laranja+ torna análise
+    pelo menos diária. Usar log do motor ARARAS como fonte primária.
+  perfil_s: S2
+  padrao_completude: C1
+  alvo_automacao: Automático
+- id: IND-012
+  codigo_fonte: ARARA-012
+  linha_fonte: 11
+  papel: operacional
+  nome_atual: Cobertura territorial dos alertas de fumaça/qualidade do ar
+  decisao: Reformular operacionalmente
+  nome_ajustado: Cobertura efetiva dos alertas de fumaça/qualidade do ar
+  alteracao: Não contar apenas envio. Considerar destinatários/territórios alvo, confirmação de entrega quando disponível
+    e população coberta. Diferenciar falha de entrega de ausência de alerta.
+  perfil_s: S6
+  padrao_completude: C1
+  alvo_automacao: Automático
+- id: IND-013
+  codigo_fonte: ARARA-013
+  linha_fonte: 11
+  papel: gatilho
+  nome_atual: População sob exposição relevante à fumaça/PM2,5
+  decisao: Reformular gatilho
+  nome_ajustado: População exposta a condição crítica de fumaça/PM2,5
+  alteracao: Parametrizar limiar oficial/operacional por versão e calcular população exposta, duração da exposição
+    e persistência. Não usar valor único permanente sem governança técnica.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático após integração ambiental
+- id: IND-014
+  codigo_fonte: ARARA-014
+  linha_fonte: 12
+  papel: preparacao
+  nome_atual: Conjunto de indicadores sentinela formalmente definido
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Catálogo de indicadores sentinela vigente e validado
+  alteracao: Exigir lista de agravos, definição de caso, fonte, baseline, janela, atraso esperado e regra de detecção.
+    Deve estar fechado no Verde; alterações precisam de versionamento.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental com completude automática
+- id: IND-015
+  codigo_fonte: ARARA-015
+  linha_fonte: 12
+  papel: operacional
+  nome_atual: Períodos com análise de morbimortalidade realizada
+  decisao: Manter e parametrizar
+  nome_ajustado: Períodos com análise de morbimortalidade realizada no SLA
+  alteracao: A periodicidade deve ser variável por estágio e atraso da base. Diferenciar 'dados não disponíveis'
+    de 'análise não realizada'. Meta ≥95% e completude da base explícita.
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Automático após integração
+- id: IND-016
+  codigo_fonte: ARARA-016
+  linha_fonte: 12
+  papel: gatilho
+  nome_atual: Municípios com agravo sentinela acima do esperado
+  decisao: Reformular gatilho
+  nome_ajustado: Territórios com agravo sentinela acima do baseline esperado
+  alteracao: Definir baseline sazonal validado por agravo, sinal mínimo, persistência e atraso de notificação. Gatilho
+    deve gerar tarefa de verificação, não assumir causalidade climática.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático após integração
+- id: IND-060
+  codigo_fonte: ARARA-060
+  linha_fonte: 33
+  papel: operacional
+  nome_atual: Municípios com classificação VIGIAR integrada atualizada
+  decisao: Reformular papel
+  nome_ajustado: Cobertura da classificação VIGIAR ambiental atualizada
+  alteracao: Manter como componente especializado, não duplicar a classificação integrada do ARARA-006. Medir cobertura/frescura
+    das variáveis VIGIAR e alimentar o risco integrado.
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Automático
+- id: IND-061
+  codigo_fonte: ARARA-061
+  linha_fonte: 33
+  papel: operacional
+  nome_atual: Boletins/alertas VIGIAR emitidos conforme periodicidade
+  decisao: Manter e parametrizar
+  nome_ajustado: Produtos VIGIAR emitidos conforme periodicidade do estágio
+  alteracao: Periodicidade deve ser função do estágio e não calendário fixo. Distinguir boletim programado de alerta
+    disparado por gatilho.
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Automático
+- id: IND-062
+  codigo_fonte: ARARA-062
+  linha_fonte: 34
+  papel: gatilho
+  nome_atual: Aumento de Domicílios positivos para animais peçonhentos/triatomíneos
+  decisao: Desdobrar em subindicadores
+  nome_ajustado: Indicadores separados de presença domiciliar de triatomíneos e animais peçonhentos
+  alteracao: O indicador atual mistura fenômenos distintos. Manter ARARA-062 como agrupador e criar 062A (% domicílios
+    pesquisados com triatomíneos) e 062B (ocorrências/presença de peçonhentos por universo definido), ambos comparados
+    a baseline.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Semiautomático/automático conforme base
+  subindicadores:
+  - id: IND-062A
+    codigo_fonte: ARARA-062A
+    nome: Domicílios pesquisados com triatomíneos versus baseline
+    papel: gatilho
+    perfil_s: S11
+    padrao_completude: C4
+  - id: IND-062B
+    codigo_fonte: ARARA-062B
+    nome: Ocorrências/presença de peçonhentos versus universo definido
+    papel: gatilho
+    perfil_s: S11
+    padrao_completude: C4
+- id: IND-063
+  codigo_fonte: ARARA-063
+  linha_fonte: 34
+  papel: gatilho
+  nome_atual: Aumento de Notificações de acidentes com animais peçonhentos
+  decisao: Reformular gatilho
+  nome_ajustado: Incidência de acidentes com animais peçonhentos acima do baseline
+  alteracao: Preferir taxa por população/território e comparação sazonal, com persistência mínima. Contagem bruta
+    pode refletir tamanho populacional/notificação.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático após integração SINAN
+- id: IND-064
+  codigo_fonte: ARARA-064
+  linha_fonte: 34
+  papel: gatilho
+  nome_atual: Aumento de Leishmaniose visceral canina
+  decisao: Reformular gatilho
+  nome_ajustado: Positividade de leishmaniose visceral canina acima do baseline
+  alteracao: Definir numerador/denominador (positivos/testados), janela, cobertura de testagem e baseline. Aumento
+    de testagem não deve ser confundido com aumento de risco.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Semiautomático/automático conforme base
+- id: IND-065
+  codigo_fonte: ARARA-065
+  linha_fonte: 34
+  papel: gatilho
+  nome_atual: Aumento de Deslocamento de morcegos para ambiente urbano
+  decisao: Reformular gatilho
+  nome_ajustado: Ocorrências urbanas de morcegos acima do baseline
+  alteracao: Definir o que constitui ocorrência, fonte e deduplicação. Usar como sentinela contextual e não como
+    gatilho isolado de escalonamento estadual.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Semiautomático
+- id: IND-066
+  codigo_fonte: ARARA-066
+  linha_fonte: 34
+  papel: gatilho
+  nome_atual: Aumento de Criadouros/indicadores de Anopheles
+  decisao: Reformular gatilho
+  nome_ajustado: Indicador entomológico de Anopheles acima do baseline validado
+  alteracao: Escolher métrica oficial por método (densidade, criadouros, positividade etc.), período e território.
+    Não misturar metodologias sem normalização.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Semiautomático/automático conforme sistema
+- id: IND-067
+  codigo_fonte: ARARA-067
+  linha_fonte: 34
+  papel: gatilho
+  nome_atual: Aumento de Casos de malária
+  decisao: Reformular gatilho
+  nome_ajustado: Casos/incidência autóctone de malária acima do esperado
+  alteracao: Separar casos autóctones de importados, usar população/território e baseline sazonal. O gatilho deve
+    abrir verificação epidemiológica e territorial.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático após integração
+- id: IND-069
+  codigo_fonte: ARARA-069
+  linha_fonte: 36
+  papel: operacional
+  nome_atual: Amostras VIGIÁGUA realizadas em áreas críticas versus planejado
+  decisao: Reformular cálculo
+  nome_ajustado: Cumprimento do plano amostral VIGIÁGUA nas áreas críticas
+  alteracao: Plano amostral deve ser versionado por estágio/território. Amostras válidas realizadas ÷ previstas;
+    denominator=0 gera N/A. Identificar atraso laboratorial separadamente.
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Automático após integração SISAGUA/LACEN
+- id: IND-070
+  codigo_fonte: ARARA-070
+  linha_fonte: 36
+  papel: preparacao
+  nome_atual: Cobertura de mapeamento SAA/SAC/SAI em territórios vulneráveis
+  decisao: Reformular operacionalmente
+  nome_ajustado: Cobertura de mapeamento SAA/SAC/SAI com criticidade e atualização válidas
+  alteracao: Além de mapear, classificar vulnerabilidade, população atendida e alternativa de abastecimento. Revalidar
+    territórios prioritários quando mudar estágio.
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Automático após integração
+- id: IND-071
+  codigo_fonte: ARARA-071
+  linha_fonte: 36
+  papel: preparacao
+  nome_atual: Técnicos municipais capacitados em VIGIÁGUA/desastres
+  decisao: Reformular cálculo
+  nome_ajustado: Municípios prioritários com pelo menos um técnico VIGIÁGUA capacitado e habilitado
+  alteracao: Substituir nº absoluto de técnicos por cobertura municipal e validade da capacitação. Meta 100% dos
+    municípios prioritários; registrar suplência quando possível.
+  perfil_s: S10
+  padrao_completude: C8
+  alvo_automacao: Semiautomático
+- id: IND-072
+  codigo_fonte: ARARA-072
+  linha_fonte: 36
+  papel: operacional
+  nome_atual: Alertas/orientações VIGIÁGUA emitidos no prazo
+  decisao: Manter e parametrizar
+  nome_ajustado: Alertas/orientações VIGIÁGUA emitidos no SLA do estágio
+  alteracao: Definir gatilho, destinatários e SLA por estágio. Usar log do ARARAS para emissão e entrega; distinguir
+    alerta técnico de comunicação pública.
+  perfil_s: S6
+  padrao_completude: C3
+  alvo_automacao: Automático se emitido pelo ARARAS
+- id: IND-073
+  codigo_fonte: ARARA-073
+  linha_fonte: 37
+  papel: alias
+  nome_atual: Análise de morbimortalidade climato-sensível — consolidada
+  decisao: Consolidar / manter como alias
+  nome_ajustado: Usar ARARA-015/016 — análise de morbimortalidade e gatilhos sentinela
+  alteracao: Retirar cálculo próprio. Manter o ID somente como visão temática ambiental/epidemiológica, sem entrar
+    duas vezes em índices ou painel executivo.
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Alias — sem cálculo próprio
+  id_canonico: IND-015
+- id: IND-075
+  codigo_fonte: ARARA-075
+  linha_fonte: 39
+  papel: gatilho
+  nome_atual: Positividade de ovitrampas
+  decisao: Reformular gatilho
+  nome_ajustado: Positividade de ovitrampas versus baseline/limiar validado
+  alteracao: Não fixar 50% como regra permanente sem ratificação. Versionar limiar, considerar histórico local,
+    cobertura de armadilhas e persistência.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático após integração
+- id: IND-076
+  codigo_fonte: ARARA-076
+  linha_fonte: 39
+  papel: gatilho
+  nome_atual: Índice de densidade de ovos — IDO
+  decisao: Reformular gatilho
+  nome_ajustado: Índice de densidade de ovos (IDO) padronizado versus baseline/limiar validado
+  alteracao: Padronizar fórmula oficial e unidade antes de produção; versionar limiar. Registrar nº de armadilhas
+    positivas e cobertura para interpretar o IDO.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático após integração
+- id: IND-077
+  codigo_fonte: ARARA-077
+  linha_fonte: 39
+  papel: gatilho
+  nome_atual: Índice de Infestação Predial / Índice de Breteau
+  decisao: Reformular gatilho
+  nome_ajustado: IIP/Índice de Breteau conforme faixas oficiais vigentes
+  alteracao: Evitar hard-code de >3,9% se a norma/programa mudar. Carregar tabela de faixas versionada e integrar
+    ciclo LIRAa/LIA; gatilho não é indicador de completude.
+  perfil_s: S11
+  padrao_completude: C4
+  alvo_automacao: Automático após integração Atenção e capacidade assistencial
+- id: IND-017
+  codigo_fonte: ARARA-017
+  linha_fonte: 13
+  papel: preparacao
+  nome_atual: Protocolos assistenciais prioritários definidos e vigentes
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Protocolos assistenciais prioritários vigentes e acionáveis
+  alteracao: Substituir simples contagem por matriz de protocolos obrigatórios por cenário (calor, fumaça, água
+    etc.), versão e serviço-alvo. 100% no Verde/Amarelo; Laranja+ mede aplicação, não produção documental.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Semiautomático com completude automática
+- id: IND-018
+  codigo_fonte: ARARA-018
+  linha_fonte: 13
+  papel: hibrido
+  nome_atual: ERS que receberam orientações assistenciais
+  decisao: Reformular operacionalmente
+  nome_ajustado: ERS com recebimento, ciência e disponibilização das orientações assistenciais
+  alteracao: Envio não basta. Contabilizar ERS que acusaram ciência e disponibilizaram orientação ao público-alvo.
+    No Amarelo+ exigir atualização quando houver nova versão.
+  perfil_s: S1
+  padrao_completude: C1
+  alvo_automacao: Automático se comunicação ocorrer pelo ARARAS
+- id: IND-019
+  codigo_fonte: ARARA-019
+  linha_fonte: 14
+  papel: operacional
+  nome_atual: Territórios prioritários com situação assistencial monitorada
+  decisao: Reformular operacionalmente
+  nome_ajustado: Territórios ativos com painel assistencial completo e atualizado
+  alteracao: Denominador deve ser o conjunto de territórios ativos/prioritários do estágio. Exigir componentes mínimos
+    (ocupação/demanda/regulação/insumos ou conjunto aprovado); ausências geram 'incompleto'.
+  perfil_s: S4
+  padrao_completude: C5
+  alvo_automacao: Automático após integrações
+- id: IND-020
+  codigo_fonte: ARARA-020
+  linha_fonte: 14
+  papel: operacional
+  nome_atual: Situações críticas assistenciais com encaminhamento no prazo
+  decisao: Reformular operacionalmente
+  nome_ajustado: Situações críticas assistenciais com mitigação iniciada no SLA
+  alteracao: Trocar 'encaminhamento' por primeira ação mitigadora registrada, responsável e prazo. Manter também
+    % encerrada e backlog crítico. SLA deve seguir estágio/criticidade.
+  perfil_s: S12
+  padrao_completude: C7
+  alvo_automacao: Semiautomático; cálculo automático
+- id: IND-021
+  codigo_fonte: ARARA-021
+  linha_fonte: 14
+  papel: gatilho
+  nome_atual: Índice de pressão assistencial
+  decisao: Reformular cálculo
+  nome_ajustado: Índice de pressão assistencial validado e calculável
+  alteracao: Formalizar componentes, pesos, normalização, faixas e versão. Proibir cálculo quando componente crítico
+    estiver ausente; mostrar contribuição de ocupação, demanda, espera e capacidade. Faixas devem suportar escalonamento
+    territorial.
+  perfil_s: S11
+  padrao_completude: C5
+  alvo_automacao: Automático após validação do algoritmo
+- id: IND-022
+  codigo_fonte: ARARA-022
+  linha_fonte: 15
+  papel: preparacao
+  nome_atual: Unidades estratégicas com plano de continuidade vigente
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Unidades estratégicas com plano de continuidade vigente, testado e acionável
+  alteracao: Exigir validade, responsável, água/energia/comunicação/acesso, teste ou exercício e data de revisão.
+    No Laranja+ acompanhar ativação real e interrupções por ARARA-023.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Semiautomático com completude automática
+- id: IND-023
+  codigo_fonte: ARARA-023
+  linha_fonte: 15
+  papel: gatilho
+  nome_atual: Unidades com interrupção de serviço essencial
+  decisao: Reformular gatilho
+  nome_ajustado: Unidades com interrupção crítica de serviço essencial
+  alteracao: Classificar tipo, duração, criticidade da unidade, população afetada e redundância disponível. Uma
+    interrupção em serviço crítico pode pesar mais que várias menores; usar gatilhos territoriais.
+  perfil_s: S11
+  padrao_completude: C7
+  alvo_automacao: Semiautomático; integrações futuras
+- id: IND-082
+  codigo_fonte: ARARA-082
+  linha_fonte: 43
+  papel: preparacao
+  nome_atual: Unidades hospitalares com Plano de Contingência atualizado
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Hospitais prioritários com plano de contingência vigente, testado e acionável
+  alteracao: Exigir versão, responsáveis, cenários, expansão, continuidade e teste. 100% no Verde/Amarelo; em Laranja+
+    acompanhar ativação e efetividade, não atualização documental.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Semiautomático com completude automática
+- id: IND-083
+  codigo_fonte: ARARA-083
+  linha_fonte: 43
+  papel: operacional
+  nome_atual: Unidades hospitalares com capacidade instalada atualizada
+  decisao: Reformular cálculo
+  nome_ajustado: Hospitais prioritários com capacidade operacional disponível atualizada
+  alteracao: 'Substituir ''capacidade instalada'' estática por capacidade disponível: leitos funcionais/ocupação,
+    equipes, equipamentos, diagnóstico e expansão acionável. Frequência aumenta fortemente no Laranja+.'
+  perfil_s: S4
+  padrao_completude: C5
+  alvo_automacao: Automático após integrações + validação local
+- id: IND-084
+  codigo_fonte: ARARA-084
+  linha_fonte: 43
+  papel: preparacao
+  nome_atual: Unidades hospitalares com protocolos assistenciais prioritários atualizados
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Hospitais prioritários com protocolos assistenciais críticos vigentes e equipe orientada
+  alteracao: Além do protocolo vigente, exigir registro de briefing/capacitação da equipe-chave ou validação local.
+    Durante resposta medir uso/adesão por incidentes, não nova produção documental.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Semiautomático com completude automática
+- id: IND-085
+  codigo_fonte: ARARA-085
+  linha_fonte: 44
+  papel: operacional
+  nome_atual: Territórios prioritários com prontidão da Atenção Secundária validada
+  decisao: Reformular cálculo
+  nome_ajustado: Territórios prioritários com prontidão da Atenção Secundária validada
+  alteracao: Definir checklist mínimo objetivo e pesos dos componentes. O território só é 'pronto' se itens críticos
+    estiverem conformes; média não deve mascarar falha crítica.
+  perfil_s: S4
+  padrao_completude: C5
+  alvo_automacao: Semiautomático
+- id: IND-086
+  codigo_fonte: ARARA-086
+  linha_fonte: 44
+  papel: operacional
+  nome_atual: Demandas de apoio técnico da Atenção Secundária respondidas no SLA
+  decisao: Manter e parametrizar
+  nome_ajustado: Demandas de apoio técnico da Atenção Secundária respondidas no SLA do estágio
+  alteracao: Definir prioridade/SLA por estágio, backlog e desfecho. Demandas canceladas/duplicadas devem ser excluídas
+    do denominador com justificativa.
+  perfil_s: S12
+  padrao_completude: C3
+  alvo_automacao: Automático se demandas forem registradas no ARARAS
+- id: IND-087
+  codigo_fonte: ARARA-087
+  linha_fonte: 45
+  papel: operacional
+  nome_atual: Serviços de Urgência/Emergência com checklist de prontidão validado
+  decisao: Reformular cálculo
+  nome_ajustado: Serviços prioritários de Urgência/Emergência com prontidão operacional validada
+  alteracao: Checklist deve conter itens críticos não compensáveis (triagem, transporte, notificação, equipe/insumos).
+    No Laranja+ atualizar por turno/período operacional para serviços críticos.
+  perfil_s: S4
+  padrao_completude: C5
+  alvo_automacao: Semiautomático
+- id: IND-088
+  codigo_fonte: ARARA-088
+  linha_fonte: 45
+  papel: operacional
+  nome_atual: Gaps críticos da Urgência/Emergência com ação corretiva registrada
+  decisao: Reformular operacionalmente
+  nome_ajustado: Gaps críticos da Urgência/Emergência com mitigação iniciada no SLA e encerramento monitorado
+  alteracao: Ação apenas 'definida' é insuficiente. Medir início de mitigação no SLA, % encerrada, tempo de fechamento
+    e nº de gaps críticos vencidos.
+  perfil_s: S12
+  padrao_completude: C7
+  alvo_automacao: Semiautomático; cálculo automático Assistência farmacêutica e logística
+- id: IND-024
+  codigo_fonte: ARARA-024
+  linha_fonte: 16
+  papel: operacional
+  nome_atual: Itens estratégicos com autonomia acima do mínimo
+  decisao: Reformular cálculo
+  nome_ajustado: Itens estratégicos com autonomia operacional acima do mínimo por estágio
+  alteracao: Calcular dias de autonomia por item/local e comparar com mínimo parametrizado por estágio. Percentual
+    agregado deve ser ponderado por criticidade; mostrar itens críticos individualmente.
+  perfil_s: S5
+  padrao_completude: C6
+  alvo_automacao: Automático após integração de estoque
+- id: IND-025
+  codigo_fonte: ARARA-025
+  linha_fonte: 16
+  papel: gatilho
+  nome_atual: Episódios de ruptura de estoque estratégico
+  decisao: Reformular cálculo
+  nome_ajustado: Ruptura de estoque estratégico ponderada por duração e criticidade
+  alteracao: Substituir simples nº de episódios por item-unidade-tempo de ruptura, duração, território e criticidade.
+    Estoque zero de item vital deve gerar gatilho imediato.
+  perfil_s: S11
+  padrao_completude: C6
+  alvo_automacao: Automático após integração
+- id: IND-026
+  codigo_fonte: ARARA-026
+  linha_fonte: 16
+  papel: operacional
+  nome_atual: Demandas prioritárias atendidas no prazo
+  decisao: Manter e parametrizar
+  nome_ajustado: Demandas prioritárias atendidas dentro do SLA do estágio
+  alteracao: Definir classes de prioridade e SLA por estágio. Separar atendimento parcial, completo e cancelado;
+    denominator exclui duplicidades e demandas inválidas.
+  perfil_s: S12
+  padrao_completude: C3
+  alvo_automacao: Semiautomático; cálculo automático
+- id: IND-027
+  codigo_fonte: ARARA-027
+  linha_fonte: 17
+  papel: preparacao
+  nome_atual: ERS com rotas e alternativas logísticas mapeadas
+  decisao: Reformular operacionalmente
+  nome_ajustado: ERS com rota primária e alternativa logística validadas
+  alteracao: Exigir rota principal, alternativa, data do último teste/validação, modal e ponto crítico. No Amarelo
+    revalidar; no Laranja+ registrar indisponibilidades e tempo de recomposição.
+  perfil_s: S5
+  padrao_completude: C2
+  alvo_automacao: Semiautomático com completude automática
+- id: IND-028
+  codigo_fonte: ARARA-028
+  linha_fonte: 17
+  papel: preparacao
+  nome_atual: Plano de contingência logística estadual vigente
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Plano logístico estadual vigente e acionável
+  alteracao: Documento só conta se tiver versão, papéis, itens críticos, rotas, contatos e critérios de acionamento.
+    Deve estar 100% antes do Amarelo; durante resposta medir execução por outros indicadores.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental com completude automática Comunicação de risco e vulnerabilidade
+- id: IND-029
+  codigo_fonte: ARARA-029
+  linha_fonte: 18
+  papel: operacional
+  nome_atual: Alertas de comunicação de risco emitidos dentro do prazo
+  decisao: Manter e parametrizar
+  nome_ajustado: Alertas de comunicação de risco emitidos no SLA do estágio
+  alteracao: Definir timestamp do gatilho/decisão e do disparo, priorização e SLA por estágio. Diferenciar revisão
+    técnica, aprovação e envio para identificar gargalo.
+  perfil_s: S6
+  padrao_completude: C3
+  alvo_automacao: Automático
+- id: IND-030
+  codigo_fonte: ARARA-030
+  linha_fonte: 18
+  papel: operacional
+  nome_atual: Cobertura de comunicação de risco
+  decisao: Reformular operacionalmente
+  nome_ajustado: Cobertura efetiva de comunicação de risco
+  alteracao: Definir universo-alvo por evento e canal. Contabilizar entrega confirmada quando disponível e cobertura
+    populacional/territorial; evitar usar nº de mensagens como proxy.
+  perfil_s: S6
+  padrao_completude: C1
+  alvo_automacao: Automático
+- id: IND-031
+  codigo_fonte: ARARA-031
+  linha_fonte: 19
+  papel: hibrido
+  nome_atual: Territórios prioritários com estratégia para populações vulneráveis
+  decisao: Reformular operacionalmente
+  nome_ajustado: Territórios prioritários com estratégia operacional para populações vulneráveis
+  alteracao: Exigir estratégia por grupo vulnerável, responsável, canal, ponto de apoio/acesso e data de validação.
+    Denominador muda conforme territórios prioritários do estágio.
+  perfil_s: S3
+  padrao_completude: C2
+  alvo_automacao: Semiautomático com completude automática
+- id: IND-032
+  codigo_fonte: ARARA-032
+  linha_fonte: 19
+  papel: hibrido
+  nome_atual: Cobertura de mapeamento de populações vulneráveis
+  decisao: Manter e parametrizar
+  nome_ajustado: Cobertura de mapeamento de populações vulneráveis com dados válidos
+  alteracao: Adicionar data de referência, fonte, geocodificação e critério de vulnerabilidade. Camadas vencidas
+    devem retirar o território do numerador de completude.
+  perfil_s: S3
+  padrao_completude: C1
+  alvo_automacao: Automático após integração geográfica
+- id: IND-074
+  codigo_fonte: ARARA-074
+  linha_fonte: 38
+  papel: alias
+  nome_atual: Comunicação de risco — consolidada
+  decisao: Consolidar / manter como alias
+  nome_ajustado: Usar ARARA-029/030 — oportunidade e cobertura da comunicação de risco
+  alteracao: Retirar cálculo próprio para evitar duplicidade. Pode permanecer como filtro/visão temática, sem peso
+    próprio.
+  perfil_s: S6
+  padrao_completude: C1
+  alvo_automacao: Alias — sem cálculo próprio Prontidão, simulado e melhoria
+  id_canonico: IND-029
+- id: IND-033
+  codigo_fonte: ARARA-033
+  linha_fonte: 20
+  papel: preparacao
+  nome_atual: Exercício simulado estadual realizado
+  decisao: Reclassificar como preparação
+  nome_ajustado: Exercício simulado de prontidão realizado antes do período crítico
+  alteracao: Não usar como indicador de desempenho em emergência ativa. Definir prazo sazonal, escopo mínimo e critérios
+    de aprovação; em Laranja+ suspender simulado e usar lições/aprendizados já registrados.
+  perfil_s: S10
+  padrao_completude: C8
+  alvo_automacao: Manual com completude automática
+- id: IND-034
+  codigo_fonte: ARARA-034
+  linha_fonte: 20
+  papel: preparacao
+  nome_atual: Ações corretivas pós-simulado concluídas
+  decisao: Reformular operacionalmente
+  nome_ajustado: Ações corretivas pós-simulado concluídas no prazo e por criticidade
+  alteracao: Ponderar recomendações por criticidade; medir % dentro do prazo e nº crítico vencido. Pendência crítica
+    aberta ao entrar em Amarelo deve aparecer como risco de prontidão.
+  perfil_s: S10
+  padrao_completude: C7
+  alvo_automacao: Semiautomático Vigilância Sanitária
+- id: IND-035
+  codigo_fonte: ARARA-035
+  linha_fonte: 21
+  papel: preparacao
+  nome_atual: Nota Técnica sobre água em estabelecimentos publicada
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Orientação sanitária sobre água em estabelecimentos vigente e disseminada
+  alteracao: A publicação isolada não mede resposta. Tratar como gate documental e usar ARARA-036 para alcance.
+    Exigir versão, validade, aprovação e público-alvo.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental com completude automática
+- id: IND-036
+  codigo_fonte: ARARA-036
+  linha_fonte: 21
+  papel: operacional
+  nome_atual: Municípios estratégicos orientados sobre água em estabelecimentos
+  decisao: Reformular operacionalmente
+  nome_ajustado: Municípios prioritários com orientação recebida e ação local registrada — água em estabelecimentos
+  alteracao: Além de envio, exigir ciência e ao menos um registro de ação/encaminhamento quando aplicável. Denominador
+    deve refletir municípios estratégicos/ativados por estágio.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático; envio pode ser automático
+- id: IND-037
+  codigo_fonte: ARARA-037
+  linha_fonte: 22
+  papel: operacional
+  nome_atual: Estabelecimentos-alvo inspecionados — água envasada/gelo
+  decisao: Reformular cálculo
+  nome_ajustado: Cobertura de inspeção dos estabelecimentos-alvo priorizados por risco — água envasada/gelo
+  alteracao: Definir universo-alvo antes de calcular percentual, com prioridade baseada em risco. 'Meta pactuada'
+    deve ser substituída por meta numérica por estágio/território.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático
+- id: IND-038
+  codigo_fonte: ARARA-038
+  linha_fonte: 22
+  papel: operacional
+  nome_atual: Amostras planejadas de água envasada/gelo coletadas
+  decisao: Reformular cálculo
+  nome_ajustado: Cumprimento do plano amostral de água envasada/gelo por estágio
+  alteracao: Plano amostral deve ser versionado e dimensionado por estágio. Fórmula usa amostras válidas coletadas
+    ÷ planejadas; denominador 0=N/A.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático; integração LACEN desejável
+- id: IND-039
+  codigo_fonte: ARARA-039
+  linha_fonte: 22
+  papel: operacional
+  nome_atual: Resultados insatisfatórios com providência adotada
+  decisao: Reformular operacionalmente
+  nome_ajustado: Resultados insatisfatórios com ação sanitária iniciada e encerrada no prazo
+  alteracao: Separar início da ação e encerramento. Toda não conformidade grave deve ter responsável, prazo e evidência;
+    SLA por criticidade/estágio.
+  perfil_s: S12
+  padrao_completude: C7
+  alvo_automacao: Semiautomático
+- id: IND-040
+  codigo_fonte: ARARA-040
+  linha_fonte: 23
+  papel: operacional
+  nome_atual: Municípios estratégicos orientados sobre segurança de alimentos no calor
+  decisao: Reformular operacionalmente
+  nome_ajustado: Municípios prioritários com comunicação sobre segurança de alimentos confirmada
+  alteracao: Trocar 'orientados' por recebimento/ciência e, em Laranja+, ação de vigilância/educação registrada.
+    Denominador dinâmico por território de risco.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático; comunicação automatizável
+- id: IND-041
+  codigo_fonte: ARARA-041
+  linha_fonte: 23
+  papel: operacional
+  nome_atual: Estabelecimentos prioritários monitorados no período crítico
+  decisao: Reformular cálculo
+  nome_ajustado: Cobertura de monitoramento de estabelecimentos prioritários durante calor extremo
+  alteracao: Definir estabelecimentos-alvo por risco/população vulnerável e meta numérica por estágio. Monitoramento
+    sem universo-alvo não é mensurável.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático
+- id: IND-042
+  codigo_fonte: ARARA-042
+  linha_fonte: 24
+  papel: preparacao
+  nome_atual: Nota Técnica sobre conservação de medicamentos/imunobiológicos publicada
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Orientação sobre conservação de medicamentos/imunobiológicos vigente
+  alteracao: Tratar Nota Técnica como pré-requisito, não resultado. Exigir versão/validade; uso operacional deve
+    ser medido por conformidade térmica (ARARA-043) e Rede de Frio.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental com completude automática
+- id: IND-043
+  codigo_fonte: ARARA-043
+  linha_fonte: 24
+  papel: operacional
+  nome_atual: Estabelecimentos avaliados com controle de temperatura conforme
+  decisao: Reformular cálculo
+  nome_ajustado: Conformidade de controle térmico nos estabelecimentos avaliados
+  alteracao: Definir estabelecimentos-alvo, parâmetros de conformidade, janela de observação e evidência. Reportar
+    n/N, não apenas percentual; priorizar EAS críticos em Laranja+.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático
+- id: IND-044
+  codigo_fonte: ARARA-044
+  linha_fonte: 25
+  papel: preparacao
+  nome_atual: Orientação sobre fonte alternativa de energia publicada e difundida
+  decisao: Reformular operacionalmente
+  nome_ajustado: Orientação e capacitação sobre contingência energética concluídas
+  alteracao: 'Separar internamente dois requisitos: orientação vigente + ação de difusão/capacitação. Indicador=100%
+    apenas quando ambos estiverem válidos; efeito operacional é medido por ARARA-045.'
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental/semiautomático com completude automática
+- id: IND-045
+  codigo_fonte: ARARA-045
+  linha_fonte: 25
+  papel: operacional
+  nome_atual: EAS prioritários com gerador funcional ou plano de contingência energético
+  decisao: Reformular cálculo
+  nome_ajustado: EAS críticos com contingência energética funcional e testada
+  alteracao: Não aceitar apenas existência de gerador/plano. Exigir teste funcional recente, autonomia mínima, combustível/contrato
+    e alternativa. Meta 100% para EAS críticos.
+  perfil_s: S4
+  padrao_completude: C5
+  alvo_automacao: Semiautomático; integração de manutenção futura
+- id: IND-046
+  codigo_fonte: ARARA-046
+  linha_fonte: 26
+  papel: preparacao
+  nome_atual: Nota Técnica sobre climatização e conforto térmico publicada
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Orientação sobre climatização e conforto térmico vigente
+  alteracao: Nota Técnica deve ser gate documental com versão, público-alvo e validade. O desempenho durante crise
+    deve ser medido pela condição real dos estabelecimentos (ARARA-047).
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental com completude automática
+- id: IND-047
+  codigo_fonte: ARARA-047
+  linha_fonte: 26
+  papel: operacional
+  nome_atual: Estabelecimentos prioritários com climatização/PMOC adequado
+  decisao: Reformular cálculo
+  nome_ajustado: EAS prioritários com climatização funcional e controle térmico/PMOC adequados
+  alteracao: 'Definir critérios objetivos: equipamento operacional, temperatura/condição ambiental quando disponível,
+    PMOC aplicável e contingência. Denominador por EAS prioritários.'
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático
+- id: IND-048
+  codigo_fonte: ARARA-048
+  linha_fonte: 27
+  papel: hibrido
+  nome_atual: VISAs municipais orientadas sobre animais sinantrópicos
+  decisao: Reformular operacionalmente
+  nome_ajustado: VISAs prioritárias com orientação recebida e plano de ação para animais sinantrópicos
+  alteracao: Não usar apenas envio. Exigir ciência e plano/ação quando o território estiver ativado; restringir
+    denominador às VISAs-alvo do cenário.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático
+- id: IND-049
+  codigo_fonte: ARARA-049
+  linha_fonte: 27
+  papel: operacional
+  nome_atual: EAS/EIS prioritários monitorados para animais sinantrópicos
+  decisao: Reformular cálculo
+  nome_ajustado: Cobertura de monitoramento de animais sinantrópicos em EAS/EIS prioritários
+  alteracao: Definir universo de EAS/EIS e meta por estágio. Registrar achado e providência; monitoramento sem resultado
+    deve permanecer separado de controle efetivo.
+  perfil_s: S7
+  padrao_completude: C1
+  alvo_automacao: Semiautomático
+- id: IND-050
+  codigo_fonte: ARARA-050
+  linha_fonte: 28
+  papel: preparacao
+  nome_atual: Nota Técnica sobre equipamentos médico-hospitalares publicada
+  decisao: Converter em gate de prontidão
+  nome_ajustado: Orientação sobre equipamentos médico-hospitalares vigente
+  alteracao: Tratar publicação como gate documental. A operacionalidade real deve ser medida por ARARA-051; exigir
+    versão, validade e lista de equipamentos/serviços críticos.
+  perfil_s: S10
+  padrao_completude: C2
+  alvo_automacao: Documental com completude automática
+- id: IND-051
+  codigo_fonte: ARARA-051
+  linha_fonte: 28
+  papel: operacional
+  nome_atual: EAS avaliados com manutenção/operacionalidade de equipamentos adequada
+  decisao: Reformular cálculo
+  nome_ajustado: Disponibilidade operacional dos equipamentos críticos em EAS
+  alteracao: Definir lista de equipamentos críticos, estado funcional e indisponibilidade em horas. Preferir equipamentos
+    disponíveis ÷ críticos esperados; reportar falhas que comprometem capacidade.
+  perfil_s: S4
+  padrao_completude: C5
+  alvo_automacao: Semiautomático; integração de manutenção desejável
+- id: IND-052
+  codigo_fonte: ARARA-052
+  linha_fonte: 29
+  papel: operacional
+  nome_atual: Denúncias climato-sanitárias respondidas
+  decisao: Reformular operacionalmente
+  nome_ajustado: Denúncias climato-sanitárias com resposta e encerramento dentro do SLA
+  alteracao: Separar 'primeira resposta' de 'encerramento'. Classificar prioridade e estágio; evitar 100% artificial
+    quando não houver denúncias (N/A).
+  perfil_s: S12
+  padrao_completude: C7
+  alvo_automacao: Automático após integração do sistema de denúncias
+- id: IND-053
+  codigo_fonte: ARARA-053
+  linha_fonte: 29
+  papel: operacional
+  nome_atual: Tempo de resposta às denúncias prioritárias
+  decisao: Reformular cálculo
+  nome_ajustado: Tempo de resposta às denúncias prioritárias (P50/P90)
+  alteracao: Substituir apenas mediana por P50/P90 e estratificar por prioridade. SLA deve ser definido por estágio
+    e severidade; incluir backlog vencido.
+  perfil_s: S12
+  padrao_completude: C3
+  alvo_automacao: Automático após integração Imunização e Rede de Frio
+- id: IND-054
+  codigo_fonte: ARARA-054
+  linha_fonte: 30
+  papel: operacional
+  nome_atual: Municípios afetados com situação da imunização monitorada
+  decisao: Reformular operacionalmente
+  nome_ajustado: Municípios ativados com situação vacinal e de Rede de Frio atualizada
+  alteracao: Denominador deve ser municípios afetados/ativados no período. Definir conjunto mínimo de dados e janela
+    de atualização por estágio.
+  perfil_s: S8
+  padrao_completude: C5
+  alvo_automacao: Semiautomático; integrações possíveis
+- id: IND-055
+  codigo_fonte: ARARA-055
+  linha_fonte: 30
+  papel: operacional
+  nome_atual: Ocorrências que comprometeram vacinação com suporte técnico registrado
+  decisao: Reformular operacionalmente
+  nome_ajustado: Ocorrências que afetam vacinação com suporte iniciado no SLA
+  alteracao: Considerar apenas ocorrências que demandem suporte. Registrar primeira ação, responsável, desfecho
+    e SLA por estágio/criticidade.
+  perfil_s: S12
+  padrao_completude: C7
+  alvo_automacao: Semiautomático; cálculo automático
+- id: IND-056
+  codigo_fonte: ARARA-056
+  linha_fonte: 31
+  papel: operacional
+  nome_atual: Ocorrências de Rede de Frio monitoradas
+  decisao: Reformular operacionalmente
+  nome_ajustado: Ocorrências de Rede de Frio com acompanhamento completo
+  alteracao: Completo=registro, avaliação, decisão sobre imunobiológico, contingência/encaminhamento e encerramento.
+    Não medir apenas 'monitorada'.
+  perfil_s: S8
+  padrao_completude: C7
+  alvo_automacao: Semiautomático
+- id: IND-057
+  codigo_fonte: ARARA-057
+  linha_fonte: 31
+  papel: operacional
+  nome_atual: Ocorrências de Rede de Frio com contingência iniciada no prazo
+  decisao: Manter e parametrizar
+  nome_ajustado: Ocorrências de Rede de Frio com contingência iniciada no SLA
+  alteracao: Definir SLA por estágio e gravidade; denominator apenas ocorrências com indicação de contingência.
+    Registrar timestamp automático.
+  perfil_s: S8
+  padrao_completude: C3
+  alvo_automacao: Semiautomático; cálculo automático
+- id: IND-058
+  codigo_fonte: ARARA-058
+  linha_fonte: 32
+  papel: operacional
+  nome_atual: Regiões com risco de desabastecimento identificadas e atendidas
+  decisao: Reformular cálculo
+  nome_ajustado: Regiões com risco de desabastecimento e ação mitigadora ativa
+  alteracao: 'Separar detecção do risco e resposta. Fórmula: regiões com risco e mitigação iniciada ÷ regiões com
+    risco. Quando risco=0, N/A. Exigir tipo de ação e prazo.'
+  perfil_s: S8
+  padrao_completude: C7
+  alvo_automacao: Automático/semiautomático após integração
+- id: IND-059
+  codigo_fonte: ARARA-059
+  linha_fonte: 32
+  papel: gatilho
+  nome_atual: Regiões com autonomia crítica de imunobiológicos
+  decisao: Reformular gatilho
+  nome_ajustado: Regiões com autonomia de imunobiológicos abaixo do mínimo do estágio
+  alteracao: Usar dias de autonomia por imunobiológico/região com mínimos parametrizados por estágio; ponderar criticidade
+    e possibilidade de remanejamento.
+  perfil_s: S11
+  padrao_completude: C6
+  alvo_automacao: Automático após integração de estoque Saúde do Trabalhador
+- id: IND-078
+  codigo_fonte: ARARA-078
+  linha_fonte: 40
+  papel: hibrido
+  nome_atual: Regiões/ERS com perfil epidemiológico de saúde do trabalhador entregue
+  decisao: Reformular papel
+  nome_ajustado: ERS com perfil de risco ocupacional climato-sensível atualizado
+  alteracao: Trocar 'perfil entregue' por perfil atualizado dentro da janela e usado na priorização. Gerar automaticamente
+    pelo ARARAS quando bases permitirem; entrega vira log secundário.
+  perfil_s: S9
+  padrao_completude: C1
+  alvo_automacao: Semiautomático, com potencial automático
+- id: IND-079
+  codigo_fonte: ARARA-079
+  linha_fonte: 41
+  papel: operacional
+  nome_atual: Cobertura de comunicação de risco para trabalhadores
+  decisao: Reformular operacionalmente
+  nome_ajustado: Cobertura de comunicação de risco para trabalhadores expostos
+  alteracao: Denominador deve ser grupos/territórios ocupacionais expostos definidos pelo cenário, e não apenas
+    ERS. Incluir canal, alcance e grupos prioritários.
+  perfil_s: S6
+  padrao_completude: C1
+  alvo_automacao: Automático se comunicação pelo ARARAS
+- id: IND-080
+  codigo_fonte: ARARA-080
+  linha_fonte: 42
+  papel: operacional
+  nome_atual: Municípios prioritários com vigilância de ambiente/processo de trabalho realizada
+  decisao: Reformular cálculo
+  nome_ajustado: Cobertura de vigilância de ambientes/processos de trabalho em territórios de risco
+  alteracao: Definir municípios/ambientes prioritários a partir da exposição; substituir 'meta pactuada' por alvo
+    numérico por estágio e registrar achados.
+  perfil_s: S9
+  padrao_completude: C1
+  alvo_automacao: Semiautomático
+- id: IND-081
+  codigo_fonte: ARARA-081
+  linha_fonte: 42
+  papel: operacional
+  nome_atual: Não conformidades ocupacionais com plano de ação
+  decisao: Reformular operacionalmente
+  nome_ajustado: Não conformidades ocupacionais críticas com mitigação iniciada e encerrada
+  alteracao: Separar % com plano/mitigação iniciada no SLA e % encerrada. Classificar gravidade e manter backlog
+    crítico visível.
+  perfil_s: S12
+  padrao_completude: C7
+  alvo_automacao: 'Semiautomático 8. Deliberações sugeridas para a Sala de Situação 1. Aprovar a separação formal
+    entre nível de risco, estágio de resposta, desempenho do indicador e completude do dado. 2. Aprovar os perfis
+    S1–S12 para que periodicidade e SLA sejam automaticamente alterados conforme Verde, Amarelo, Laranja, Vermelho
+    e Roxo. 3. Aprovar ARARA-068, ARARA-073 e ARARA-074 como aliases sem cálculo próprio, mantendo 85 indicadores
+    ativos. 4. Aprovar que indicadores documentais, protocolos, planos e simulados sejam gates de prontidão e não
+    medidas principais da resposta em Laranja/Vermelho/Roxo. 5. Aprovar a regra de que gatilhos de risco não integram
+    o Índice de Implementação/Desempenho do Plano. 6. Determinar validação técnica dos limiares e baselines antes
+    do go-live, com prioridade para ARARA-013, 016, 021, 062–067 e 075–077. 7. Substituir toda expressão “meta pactuada”
+    ou “conforme risco” por parâmetros numéricos/versionados no cadastro do ARARAS antes da ativação. 8. Aprovar
+    o motor de completude com status NÃO CALCULÁVEL quando faltar campo crítico; denominador zero deve resultar
+    em N/A. 9. Aprovar a geração automática de tarefas do PAI a partir do Amarelo para gatilho validado, indicador
+    operacional fora do SLA, pendência crítica ou interrupção de serviço essencial. 10. Definir responsáveis de
+    dado e de ação separadamente: quem fornece/valida o dado não necessariamente é quem executa a resposta. Proposta
+    de encaminhamentoValidar hoje a arquitetura e as regras transversais; devolver aos responsáveis técnicos apenas
+    os parâmetros que realmente exigem homologação (limiares, baselines, universo-alvo e SLA específicos). Isso
+    evita reabrir a modelagem inteira e acelera a implementação no ARARAS. 9. Base documental analisada Controle_Indicacoes_El_Nino_SES_MT_2026.xlsx
+    — aba Matriz_ARARA (88 indicadores). Plano Estadual Intersetorial de Contingência em Saúde para Eventos Associados
+    ao El Niño em Mato Grosso — versão V3 / VIGIA CALOR, especialmente matriz de estágios operacionais, fluxo de
+    alerta e resposta e modelo de PAI. Portaria nº 0590/2026/GBSES — governança da Sala de Situação Saúde e Clima
+    El Niño 2026–2027. Nota técnica: os limiares epidemiológicos, entomológicos, ambientais, assistenciais e de
+    estoque indicados como “a validar” devem ser homologados pelas áreas responsáveis antes de serem configurados
+    como regra automática de produção.'

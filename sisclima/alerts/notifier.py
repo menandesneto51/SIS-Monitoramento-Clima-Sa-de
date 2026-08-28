@@ -2,6 +2,8 @@ from __future__ import annotations
 import html
 import mimetypes
 import smtplib
+import socket
+import ssl
 from email.message import EmailMessage
 from pathlib import Path
 
@@ -54,6 +56,66 @@ def _split_recipients(value: str | list[str] | tuple[str, ...] | None) -> list[s
     return [item.strip() for item in raw if item and item.strip()]
 
 
+def _smtp_use_ssl(host: str | None = None, port: int | None = None) -> bool:
+    """SSL implícito (465 / Titan), como no Sentinela. STARTTLS só nas demais portas."""
+    resolved_host = (host if host is not None else env("SMTP_HOST", "") or "").strip()
+    try:
+        resolved_port = int(port if port is not None else (env("SMTP_PORT", "587") or 587))
+    except (TypeError, ValueError):
+        resolved_port = 587
+    raw = env("SMTP_SSL")
+    if raw is not None and str(raw).strip() != "":
+        return as_bool(raw, False)
+    return resolved_port == 465 or "titan" in resolved_host.lower()
+
+
+def _smtp_connect(host: str, port: int, *, use_ssl: bool, timeout: int = 30):
+    """Abre SMTP com SSL/STARTTLS forçando IPv4 (IPv6 estoura timeout nesta rede)."""
+
+    class _SMTP_SSL_V4(smtplib.SMTP_SSL):
+        def _get_socket(self, h, p, timeout):  # noqa: ANN001
+            infos = socket.getaddrinfo(h, p, socket.AF_INET, socket.SOCK_STREAM)
+            sock = socket.create_connection(infos[0][4], timeout)
+            ctx = self.context or ssl.create_default_context()
+            return ctx.wrap_socket(sock, server_hostname=h)
+
+    class _SMTP_V4(smtplib.SMTP):
+        def _get_socket(self, h, p, timeout):  # noqa: ANN001
+            infos = socket.getaddrinfo(h, p, socket.AF_INET, socket.SOCK_STREAM)
+            return socket.create_connection(infos[0][4], timeout)
+
+    if use_ssl or int(port) == 465:
+        server = _SMTP_SSL_V4(host, int(port), timeout=timeout)
+        server.ehlo()
+        return server
+    server = _SMTP_V4(host, int(port), timeout=timeout)
+    server.ehlo()
+    try:
+        server.starttls(context=ssl.create_default_context())
+        server.ehlo()
+    except Exception:
+        pass
+    return server
+
+
+def _smtp_targets() -> list[tuple[str, int, bool]]:
+    """Host SMTP principal e fallback opcional (SMTP_FALLBACK_HOST), como no Sentinela."""
+    host = (env("SMTP_HOST", "smtp.gmail.com") or "smtp.gmail.com").strip()
+    try:
+        port = int(env("SMTP_PORT", "587") or 587)
+    except (TypeError, ValueError):
+        port = 587
+    targets = [(host, port, _smtp_use_ssl(host, port))]
+    fallback_host = (env("SMTP_FALLBACK_HOST") or "").strip()
+    if fallback_host and fallback_host.lower() != host.lower():
+        try:
+            fallback_port = int(env("SMTP_FALLBACK_PORT", "465") or 465)
+        except (TypeError, ValueError):
+            fallback_port = 465
+        targets.append((fallback_host, fallback_port, _smtp_use_ssl(fallback_host, fallback_port)))
+    return targets
+
+
 def _attach_inline_brand_assets(message: EmailMessage) -> None:
     payload = message.get_payload()
     if not isinstance(payload, list) or not payload:
@@ -80,6 +142,7 @@ def send_email(
     *,
     html_body: str | None = None,
     to: str | list[str] | tuple[str, ...] | None = None,
+    inline_images: dict[str, Path] | None = None,
 ) -> bool:
     if not _email_enabled(to):
         return False
@@ -98,16 +161,44 @@ def send_email(
     )
     msg.add_alternative(html_email_shell(rendered_body), subtype='html')
     _attach_inline_brand_assets(msg)
-    try:
-        with smtplib.SMTP(env('SMTP_HOST','smtp.gmail.com'), int(env('SMTP_PORT','587') or 587), timeout=30) as s:
-            s.starttls()
-            if env('SMTP_USER') and env('SMTP_PASSWORD'):
-                s.login(env('SMTP_USER'), env('SMTP_PASSWORD'))
-            s.send_message(msg)
-        return True
-    except Exception as e:
-        log.warning('Falha e-mail: %s', e)
-        return False
+    if inline_images:
+        payload = msg.get_payload()
+        html_part = payload[-1] if isinstance(payload, list) and payload else None
+        if html_part is not None:
+            for cid, path in inline_images.items():
+                asset = Path(path)
+                if not asset.exists():
+                    continue
+                mime, _ = mimetypes.guess_type(asset.name)
+                maintype, subtype = (mime or "image/png").split("/", 1)
+                html_part.add_related(
+                    asset.read_bytes(),
+                    maintype=maintype,
+                    subtype=subtype,
+                    cid=f"<{cid}>",
+                    filename=asset.name,
+                )
+    user = env('SMTP_USER')
+    password = env('SMTP_PASSWORD')
+    passwords: list[str] = []
+    for cand in (password, (password or '').replace(' ', ''), (password or '').strip()):
+        if cand and cand not in passwords:
+            passwords.append(cand)
+    last_error: Exception | None = None
+    for host, port, use_ssl in _smtp_targets():
+        for secret in passwords or [None]:
+            try:
+                with _smtp_connect(host, port, use_ssl=use_ssl, timeout=30) as s:
+                    if user and secret:
+                        s.login(user, secret)
+                    s.send_message(msg)
+                return True
+            except Exception as e:
+                last_error = e
+                log.warning('Falha e-mail %s:%s ssl=%s: %s', host, port, use_ssl, e)
+    if last_error is not None:
+        log.warning('Falha e-mail: %s', last_error)
+    return False
 
 
 def send_telegram_brand_card(*, chat_id: str | None = None) -> bool:
@@ -136,6 +227,29 @@ def send_telegram_brand_card(*, chat_id: str | None = None) -> bool:
         return r.ok
     except Exception as e:
         log.warning('Falha ao enviar cartão de marca no Telegram: %s', e)
+        return False
+
+
+def send_telegram_photo(path: Path, caption: str = "", *, chat_id: str | None = None) -> bool:
+    """Envia uma imagem (mapa de risco) ao chat do Telegram."""
+    if not _telegram_enabled(chat_id):
+        return False
+    token = env('TELEGRAM_BOT_TOKEN')
+    destination = chat_id or env('TELEGRAM_CHAT_ID')
+    asset = Path(path)
+    if not token or not destination or not asset.is_file():
+        return False
+    try:
+        with asset.open('rb') as photo:
+            r = requests.post(
+                f'https://api.telegram.org/bot{token}/sendPhoto',
+                data={'chat_id': destination, 'caption': (caption or '')[:1024]},
+                files={'photo': (asset.name, photo, 'image/png')},
+                timeout=30,
+            )
+        return r.ok
+    except Exception as e:
+        log.warning('Falha ao enviar foto no Telegram: %s', e)
         return False
 
 

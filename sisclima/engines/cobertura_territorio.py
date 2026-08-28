@@ -8,7 +8,7 @@ se o roteador falhar. Centroide municipal não entra no ranking.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Callable, Sequence
+from typing import Any, Callable, Sequence
 
 import numpy as np
 import pandas as pd
@@ -17,6 +17,7 @@ from sisclima.core.config import SETTINGS, env
 from sisclima.core.db import read_table, table_exists, write_df
 from sisclima.core.http_client import http_get
 from sisclima.core.logging_utils import get_logger
+from sisclima.ingestion.cnes_geo import _corrige_lat_lon, coords_validas_mt
 from sisclima.ingestion.vigibarragens import (
     CATEGORIA_ALDEIA,
     CATEGORIA_ASSENTAMENTO,
@@ -30,6 +31,10 @@ _FONTES_OFICIAIS = {"opendata_cnes", "dw_cnes"}
 _GRUPOS_APS = {"aps"}
 _GRUPOS_HOSP = {"hospital", "urgencia"}
 _TERRITORIOS = {CATEGORIA_ALDEIA, CATEGORIA_QUILOMBO, CATEGORIA_ASSENTAMENTO}
+LIMIAR_ROUTE_WARNING_KM = 300.0
+LIMIAR_P90_VALIDACAO_KM = 300.0
+LIMIAR_MAX_VALIDACAO_KM = 500.0
+_INATIVO_RE = r"inativ|desativ|extint|baixad|fora de uso|não atende|nao atende"
 
 
 def _cfg() -> dict:
@@ -104,10 +109,18 @@ def osrm_trajeto(
     for i in range(n):
         metros = row_d[i] if i < len(row_d) else None
         segs = row_t[i] if i < len(row_t) else None
-        km = None if metros is None else round(float(metros) / 1000.0, 1)
+        km = None if metros is None else _metros_para_km(metros)
         mins = None if segs is None else round(float(segs) / 60.0, 0)
         out.append((km, mins))
     return out
+
+
+def _metros_para_km(valor: Any) -> float:
+    """OSRM table devolve metros. Valores já em km (>10 mil) são recusados como unidade errada."""
+    v = float(valor)
+    if v > 10_000:
+        v = v / 1000.0
+    return round(v, 1)
 
 
 def osrm_trajeto_km(
@@ -155,6 +168,35 @@ def _ibge7(s: pd.Series) -> pd.Series:
     return s.astype(str).str.replace(r"\D", "", regex=True).str.extract(r"(\d{7})", expand=False)
 
 
+def _estabelecimento_ativo(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return df
+    out = df.copy()
+    for col in ("ativo", "st_ativo", "situacao", "situacao_funcionamento", "descricao_situacao"):
+        if col not in out.columns:
+            continue
+        s = out[col].astype(str).str.lower()
+        inativo = s.str.contains(_INATIVO_RE, regex=True, na=False)
+        if col in {"ativo", "st_ativo"}:
+            inativo = inativo | s.isin({"0", "false", "nao", "não", "n"})
+        out = out.loc[~inativo]
+    return out
+
+
+def _uf_mt(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return df
+    out = df.copy()
+    if "cod_ibge" in out.columns:
+        ibge = out["cod_ibge"].astype(str)
+        mask = ibge.str.startswith("51") | ibge.isin({"", "nan", "None", "<NA>"})
+        out = out.loc[mask]
+    if "uf" in out.columns:
+        uf = out["uf"].astype(str).str.upper()
+        out = out.loc[uf.isin({"MT", "51", "", "NAN", "NONE"}) | out["uf"].isna()]
+    return out
+
+
 def unidades_oficiais(cnes: pd.DataFrame) -> pd.DataFrame:
     if cnes is None or cnes.empty:
         return pd.DataFrame()
@@ -162,9 +204,16 @@ def unidades_oficiais(cnes: pd.DataFrame) -> pd.DataFrame:
     if "fonte_coord" in out.columns:
         fonte = out["fonte_coord"].astype(str)
         out = out[fonte.isin(_FONTES_OFICIAIS)]
+    out = _corrige_lat_lon(out)
+    out = _estabelecimento_ativo(out)
+    out = _uf_mt(out)
     out["lat"] = pd.to_numeric(out.get("lat"), errors="coerce")
     out["lon"] = pd.to_numeric(out.get("lon"), errors="coerce")
-    return out.dropna(subset=["lat", "lon"])
+    ok = coords_validas_mt(out["lat"], out["lon"])
+    out = out.loc[ok].dropna(subset=["lat", "lon"])
+    if "cnes" in out.columns:
+        out = out.drop_duplicates("cnes", keep="first")
+    return out
 
 
 def _grupo(df: pd.DataFrame) -> pd.Series:
@@ -197,6 +246,8 @@ def _nearest(
         f"cnes_{prefix}": pd.NA,
         f"nome_{prefix}": pd.NA,
         f"tipo_{prefix}": pd.NA,
+        f"rota_valida_{prefix}": False,
+        f"fallback_geodesico_ok_{prefix}": False,
     }
     out = pd.DataFrame(cols, index=territorios.index)
     if territorios.empty or unidades.empty:
@@ -234,13 +285,23 @@ def _nearest(
             if melhores:
                 best_km, best_min, best_pos = min(melhores, key=lambda t: t[0])
                 metodo = "trajeto"
+                reta0 = float(reta[0]) if np.isfinite(reta[0]) else None
+                if reta0 is not None and best_km > 2000 and reta0 < 400:
+                    best_km = best_km / 1000.0
         if not np.isfinite(best_km):
             continue
         picked = units.iloc[best_pos]
+        reta_km = float(reta[0]) if np.isfinite(reta[0]) else np.nan
+        rota_ok = metodo == "trajeto" and np.isfinite(best_km) and float(best_km) > 0
+        if rota_ok and np.isfinite(reta_km) and float(best_km) > max(LIMIAR_ROUTE_WARNING_KM, 4 * reta_km):
+            rota_ok = False
+        fallback_ok = metodo == "linha_reta" and np.isfinite(best_km) and 0 < float(best_km) <= LIMIAR_ROUTE_WARNING_KM
         out.at[terr_idx, f"km_{prefix}"] = round(float(best_km), 1)
-        out.at[terr_idx, f"km_{prefix}_linha_reta"] = round(float(reta[0]), 1) if np.isfinite(reta[0]) else np.nan
+        out.at[terr_idx, f"km_{prefix}_linha_reta"] = round(reta_km, 1) if np.isfinite(reta_km) else np.nan
         out.at[terr_idx, f"min_{prefix}"] = round(float(best_min), 0) if best_min is not None else np.nan
         out.at[terr_idx, f"metodo_{prefix}"] = metodo
+        out.at[terr_idx, f"rota_valida_{prefix}"] = bool(rota_ok)
+        out.at[terr_idx, f"fallback_geodesico_ok_{prefix}"] = bool(fallback_ok)
         if cnes_col:
             out.at[terr_idx, f"cnes_{prefix}"] = picked[cnes_col]
         if nome_col:
@@ -275,13 +336,14 @@ def calcular_cobertura(
     terr = territorios.copy()
     if "categoria" in terr.columns:
         terr = terr[terr["categoria"].isin(_TERRITORIOS)]
-    terr["lat"] = pd.to_numeric(terr.get("lat"), errors="coerce")
-    terr["lon"] = pd.to_numeric(terr.get("lon"), errors="coerce")
-    terr = terr.dropna(subset=["lat", "lon"])
+    terr = _corrige_lat_lon(terr)
+    ok_orig = coords_validas_mt(terr["lat"], terr["lon"])
+    terr = terr.loc[ok_orig].dropna(subset=["lat", "lon"])
     if terr.empty:
         return pd.DataFrame()
     if "cod_ibge" in terr.columns:
         terr["cod_ibge"] = _ibge7(terr["cod_ibge"])
+    terr = terr.drop_duplicates(subset=[c for c in ("nome", "lat", "lon", "cod_ibge") if c in terr.columns])
 
     units = unidades_oficiais(cnes)
     grupos = _grupo(units) if not units.empty else pd.Series(dtype=str)
@@ -298,6 +360,15 @@ def calcular_cobertura(
     cob["longe_rede"] = cob["longe_aps"] | cob["longe_hospital"]
     cob["aps_km_limiar"] = lim_aps
     cob["hospital_km_limiar"] = lim_hosp
+    rota = pd.to_numeric(cob["km_aps"], errors="coerce")
+    reta = pd.to_numeric(cob.get("km_aps_linha_reta"), errors="coerce")
+    cob["alerta_distancia_rota"] = (rota > LIMIAR_ROUTE_WARNING_KM) | (
+        (rota.notna() & reta.notna()) & (rota > reta * 4) & (rota > 150)
+    )
+    n_warn = int(cob["alerta_distancia_rota"].fillna(False).sum())
+    if n_warn:
+        log.warning("ROUTE_DISTANCE_WARNING n=%s (km_aps>300 ou rota>>linha reta)", n_warn)
+    cob["exige_validacao_aps"] = (rota > LIMIAR_MAX_VALIDACAO_KM) | cob["alerta_distancia_rota"].fillna(False)
 
     if resumo is not None and not resumo.empty and "cod_ibge" in resumo.columns and "cod_ibge" in cob.columns:
         r = resumo.copy()
@@ -327,6 +398,8 @@ def calcular_cobertura(
             "cnes_aps",
             "nome_aps",
             "tipo_aps",
+            "rota_valida_aps",
+            "fallback_geodesico_ok_aps",
             "km_hospital",
             "km_hospital_linha_reta",
             "min_hospital",
@@ -334,9 +407,13 @@ def calcular_cobertura(
             "cnes_hospital",
             "nome_hospital",
             "tipo_hospital",
+            "rota_valida_hospital",
+            "fallback_geodesico_ok_hospital",
             "longe_aps",
             "longe_hospital",
             "longe_rede",
+            "alerta_distancia_rota",
+            "exige_validacao_aps",
             "aps_km_limiar",
             "hospital_km_limiar",
             "atualizado_em",

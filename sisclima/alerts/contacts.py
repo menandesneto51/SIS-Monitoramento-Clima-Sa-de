@@ -114,6 +114,29 @@ def recipients_for(
     return emails, chats
 
 
+def lookup_contato_por_email(email: str) -> dict[str, str] | None:
+    """Município/regional catalogados para o e-mail (COSEMS / planilha de alertas)."""
+    mail = str(email or "").strip().lower()
+    if "@" not in mail:
+        return None
+    c = load_contacts()
+    if c.empty or "email" not in c.columns:
+        return None
+    hit = c[c["email"].astype(str).str.strip().str.lower() == mail]
+    if hit.empty:
+        return None
+    row = hit.iloc[0]
+    return {
+        "email": mail,
+        "municipio": str(row.get("municipio") or "").strip(),
+        "regional_saude": str(row.get("regional_saude") or "").strip(),
+        "cod_ibge": str(row.get("cod_ibge") or "").strip(),
+        "tipo": str(row.get("tipo_destinatario") or "").strip().lower(),
+        "nome": str(row.get("nome") or "").strip(),
+        "ativo": str(row.get("ativo") or "").strip(),
+    }
+
+
 def summarize_contacts() -> dict[str, Any]:
     c = _active(load_contacts())
     if c.empty:

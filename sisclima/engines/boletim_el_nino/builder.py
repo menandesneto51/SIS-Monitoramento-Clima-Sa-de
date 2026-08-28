@@ -12,6 +12,7 @@ from sisclima.core.config import ROOT
 from sisclima.core.logging_utils import get_logger
 from sisclima.engines.boletim_el_nino.alertas_oficiais import build_alertas_oficiais
 from sisclima.engines.boletim_el_nino.cenario import load_cenario_oficial, semana_iso
+from sisclima.engines.boletim_el_nino.classificacao import build_current_municipal_classification
 from sisclima.engines.boletim_el_nino.determinantes_projecao import quadro_determinantes_projecao
 from sisclima.engines.boletim_el_nino.documento import format_markdown
 from sisclima.engines.boletim_el_nino.estoque_saf import build_estoque_saf_section
@@ -84,11 +85,49 @@ def build_boletim_semanal(
         cemaden_db=cemaden_df,
         titan_db=titan_df,
         fetch_live=True,
+        classes_araras=snap.get("niveis") or {},
+        n_municipios=snap.get("n_municipios"),
+    )
+    blob_alerta = " ".join(
+        str(alertas.get(k) or "")
+        for k in ("inmet_sintese_md", "inmet_vigentes_md", "inmet_futuros_md", "cemaden_md")
+    ).lower()
+    snap["evidencia_inundacao"] = bool((snap.get("hydro_facts") or {}).get("flood_risk_high")) or any(
+        tok in blob_alerta
+        for tok in ("chuva intensa", "inund", "enxurr", "alagamento", "cheia", "tempestade severa")
     )
     estoque_saf = build_estoque_saf_section(estoque_df)
 
     assets_dir = dest / f"_assets_{semana['rotulo'].replace(' ', '_').replace('/', '-')}"
-    maps = export_maps(resumo_enriched, assets_dir, data_ref=str(snap.get("data_referencia") or ""))
+    data_ref = str(snap.get("data_referencia") or "")
+    cmc = build_current_municipal_classification(resumo_enriched, data_hora_rodada=data_ref or None)
+    snap["CURRENT_MUNICIPAL_CLASSIFICATION"] = {
+        "disponivel": cmc.get("disponivel"),
+        "n": cmc.get("n"),
+        "counts_atual": cmc.get("counts_atual"),
+        "counts_proj": cmc.get("counts_proj"),
+        "classification_hash": cmc.get("classification_hash"),
+        "data_hora_rodada": cmc.get("data_hora_rodada"),
+        "MAP_REGEN_REQUIRED": True,
+    }
+    snap["REPORT_FACTS"] = {
+        "current_total": cmc.get("n"),
+        "current_classes": cmc.get("counts_atual"),
+        "projected_classes": cmc.get("counts_proj"),
+        "classification_hash": cmc.get("classification_hash"),
+        "n_municipios": snap.get("n_municipios"),
+        "niveis": snap.get("niveis"),
+        "niveis_projecao_7d": snap.get("niveis_projecao_7d"),
+        "delta_projecao": snap.get("delta_projecao"),
+        "delta_n_comparavel": snap.get("delta_n_comparavel"),
+        "hydro_facts": snap.get("hydro_facts"),
+    }
+    maps = export_maps(
+        resumo_enriched,
+        assets_dir,
+        data_ref=data_ref,
+        cmc=cmc,
+    )
     if maps.get("disponivel"):
         for key in ("mapa_atual_projecao", "mapa_delta"):
             if maps.get(key):
@@ -102,16 +141,23 @@ def build_boletim_semanal(
             snap["delta_n_comparavel"] = int(maps["delta_n"])
             if maps.get("delta_counts"):
                 snap["delta_projecao"] = dict(maps["delta_counts"])
+                dc = maps["delta_counts"]
+                snap["n_agravadores"] = int(dc.get("aumento_1") or 0) + int(dc.get("aumento_2plus") or 0)
             n_tot = snap.get("n_municipios")
             if n_tot is not None:
                 snap["delta_sem_pareamento"] = max(0, int(n_tot) - int(maps["delta_n"]))
+        if maps.get("map1_counts"):
+            rf = snap.setdefault("REPORT_FACTS", {})
+            rf["map1_classes"] = maps["map1_counts"]
+            rf["map1_classification_hash"] = maps.get("classification_hash")
 
     prontidao = compute_prontidao(resumo_enriched)
     snap["prontidao"] = prontidao
     territorios = build_territorios(
         resumo_enriched,
         assets_dir=assets_dir,
-        data_ref=str(snap.get("data_referencia") or ""),
+        data_ref=data_ref,
+        cmc=cmc,
     )
     mapa_terr = (territorios.get("mapa") or {})
     if mapa_terr.get("disponivel") and mapa_terr.get("mapa_territorios"):
@@ -121,9 +167,18 @@ def build_boletim_semanal(
         except ValueError:
             maps["mapa_territorios"] = p.name
         maps["territorio_disponivel"] = True
+        maps["mapa3_qa"] = mapa_terr.get("qa") or {}
+        maps["mapa3_ok_publicacao"] = bool(mapa_terr.get("ok_publicacao"))
+        rf = snap.setdefault("REPORT_FACTS", {})
+        rf["map3_classes"] = mapa_terr.get("counts_atual") or (mapa_terr.get("qa") or {}).get("map3_counts")
+        rf["map3_classification_hash"] = mapa_terr.get("classification_hash")
+        rf["MAP3_QA"] = mapa_terr.get("qa") or {}
     else:
         maps["territorio_disponivel"] = False
+        maps["mapa3_ok_publicacao"] = False
+        maps["mapa3_qa"] = mapa_terr.get("qa") or {}
 
+    snap["rodada_em_pt"] = semana.get("gerado_em_pt") or semana.get("gerado_em")
     snap["determinantes_projecao_md"] = quadro_determinantes_projecao(
         resumo_enriched, predicao, snap=snap
     )
@@ -150,8 +205,24 @@ def build_boletim_semanal(
             "prontidao": prontidao,
             "alertas": alertas,
             "estoque_saf": estoque_saf,
+            "maps": maps,
+            "cmc": cmc,
         },
     )
+    # Bloqueio de publicação do Mapa 3
+    m3qa = mapa_terr.get("qa") or {}
+    if not mapa_terr.get("ok_publicacao"):
+        for flag in (
+            "MAP3_STALE_ERROR",
+            "MAP3_CLASS_DISTRIBUTION_ERROR",
+            "MAP3_FILE_CREATED_THIS_RUN",
+            "MAP3_CLASSIFICATION_HASH_MATCH",
+            "MAP3_MUNICIPAL_DIFF_COUNT",
+        ):
+            if flag in m3qa:
+                qa.setdefault("issues", []).append(f"{flag}={m3qa.get(flag)}")
+        qa["ok"] = False
+        qa["MAP3_BLOQUEIA_APRESENTAVEL"] = True
 
     return {
         "semana": semana,
@@ -164,6 +235,7 @@ def build_boletim_semanal(
         "maps": maps,
         "prontidao": prontidao,
         "territorios": territorios,
+        "cmc": cmc,
         "qa": qa,
         "markdown": md,
         "arquivo": f"Boletim_ElNino_{semana['rotulo'].replace(' ', '_').replace('/', '-')}.md",

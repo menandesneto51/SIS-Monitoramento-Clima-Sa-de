@@ -1230,9 +1230,12 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
                         "cod_ibge",
                         "focos_queimadas_24h",
                         "focos_queimadas_7d",
+                        "deteccoes_queimadas_24h",
+                        "deteccoes_queimadas_7d",
                         "frp_queimadas_7d",
                         "nivel_queimadas",
                         "dias_sem_chuva_max",
+                        "satelite_referencia",
                     )
                     if c in q.columns
                 ]
@@ -1300,6 +1303,14 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
                 resumo = resumo.drop(columns=[col])
         resumo = resumo.merge(inj_ai, on="cod_ibge", how="left")
         write_df(resumo, "resumo_municipal_atual")
+
+    # Índice 0–100 (IndicaSUS · SISREG · SINAN · SIM) — antes da prioridade global.
+    try:
+        from sisclima.engines.indice_pressao_saude import persist_indice_pressao_resumo
+
+        resumo = persist_indice_pressao_resumo(resumo, write=True)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Índice de pressão assistencial não persistido: %s", exc)
 
     # Prioridade global (soma ponderada das camadas 0–100)
     try:

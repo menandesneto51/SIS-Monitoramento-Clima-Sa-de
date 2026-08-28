@@ -82,6 +82,7 @@ def refs_usadas_boletim() -> list[str]:
         "painel_el_nino_02",
         "inmet_alertas",
         "cemaden_alertas",
+        "inpe_queimadas",
         "araras_mt",
         "vigibarragens",
         "ses_estoque_saf",

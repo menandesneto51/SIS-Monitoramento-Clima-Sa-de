@@ -495,6 +495,67 @@ def build_indice_pressao_municipal(
     return df
 
 
+_PRESSAO_PREFIXOS = (
+    "kpi_",
+    "indice_pressao",
+    "semaforo_pressao",
+    "pred_indice",
+    "pred_nivel_clima",
+    "tendencia_pressao",
+)
+
+
+def persist_indice_pressao_resumo(
+    resumo: pd.DataFrame | None = None,
+    *,
+    write: bool = True,
+) -> pd.DataFrame:
+    """Calcula o índice 0–100 e grava no resumo (ETL diária e relatórios).
+
+    A pipeline gravava só o proxy de calor 0–15 em ``epi_pressao_assistencial``.
+    O índice composto (IndicaSUS · SISREG · SINAN · SIM) precisa deste passo.
+    """
+    from sisclima.core.db import read_table, write_df
+
+    if resumo is None:
+        resumo = read_table("resumo_municipal_atual")
+    if resumo is None or resumo.empty:
+        return resumo if resumo is not None else pd.DataFrame()
+
+    pred = read_table("predicao_calor_7d_municipal_v6")
+    sis = read_table("ops_sisreg_municipio")
+    sim = read_table("sim_obitos_calor_municipal_v6")
+    saude = read_table("saude_calor_municipio")
+    press = build_indice_pressao_municipal(
+        resumo,
+        sim_mun=sim if not sim.empty else None,
+        saude_calor_mun=saude if not saude.empty else None,
+        pred_7d=pred if not pred.empty else None,
+        sisreg=sis if not sis.empty else None,
+    )
+    if press.empty or "indice_pressao_saude" not in press.columns:
+        return resumo
+
+    keep = [
+        c
+        for c in press.columns
+        if c == "cod_ibge" or c.startswith(_PRESSAO_PREFIXOS) or c == "pilares_disponiveis"
+    ]
+    snap = press[keep].copy()
+    base = resumo.copy()
+    drop = [c for c in keep if c != "cod_ibge" and c in base.columns]
+    if drop:
+        base = base.drop(columns=drop, errors="ignore")
+    base["cod_ibge"] = base["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+    m = snap.copy()
+    m["cod_ibge"] = m["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+    base = base.merge(m, on="cod_ibge", how="left")
+    if write:
+        write_df(snap, "indice_pressao_saude_municipal_v1", if_exists="replace")
+        write_df(base, "resumo_municipal_atual", if_exists="replace")
+    return base
+
+
 def state_pressao_summary(pressao: pd.DataFrame) -> dict[str, Any]:
     """KPIs estaduais do índice de pressão."""
     if pressao is None or pressao.empty:

@@ -1,0 +1,21 @@
+Para: dtha@ses.mt.gov.br; janainapauli@ses.mt.gov.br; dengue@ses.mt.gov.br; nevh@ses.mt.gov.br; marciabrito@ses.mt.gov.br; covam@ses.mt.gov.br; michelbelmonte@ses.mt.gov.br; veruskanbrito@gmail.com
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Vigilância ambiental e epidemiológica)
+
+Prezados(as) da Vigilância ambiental e epidemiológica,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 0 para informar na Sala; 3 aguardando integração de fonte; 1 com carga defasada.
+
+Prioridade desta semana (documental — Sim + SEI):
+- IND-014: Catálogo de indicadores sentinela vigente e validado — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+Demais pendências:
+- IND-075: Positividade de ovitrampas versus baseline/limiar validado — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAM entomologia
+- IND-076: Índice de densidade de ovos (IDO) padronizado versus baseline/limiar validado — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAM entomologia
+- IND-077: IIP/Índice de Breteau conforme faixas oficiais vigentes — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAM entomologia
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

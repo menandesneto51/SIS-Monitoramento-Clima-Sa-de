@@ -26,7 +26,9 @@ _CAT_TERR = {
 
 
 def _ibge7(s: pd.Series) -> pd.Series:
-    return s.astype(str).str.replace(r"\D", "", regex=True).str.extract(r"(\d{7})", expand=False)
+    """Chave municipal: IBGE-7 (resumo) e IBGE-6 (CNES) cruzam pelos 6 primeiros dígitos."""
+    digits = s.astype(str).str.replace(r"\D", "", regex=True)
+    return digits.str.extract(r"(\d{6,7})", expand=False).str[:6]
 
 
 def _recorte(df: pd.DataFrame, resumo: pd.DataFrame) -> pd.DataFrame:

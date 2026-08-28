@@ -99,27 +99,32 @@ def nivel_pred_from_agg(row: pd.Series | dict) -> str:
 
 def documentacao_regra_projecao_md() -> str:
     """Quadro metodológico público para o boletim."""
-    return """### Como a classe projetada é calculada
+    from sisclima.engines.boletim_el_nino.formatters import bloco_tabela, md_table
+
+    tab = bloco_tabela(
+        "Componentes do risco térmico projetado",
+        md_table(
+            ["Componente", "Variável", "Limiar e pontuação atribuída"],
+            [
+                ["Intensidade", "Tmáx máxima prevista na janela", "≥34 °C → 25 pontos; ≥37 °C → 50 pontos; ≥40 °C → 75 pontos; ≥42 °C → 100 pontos"],
+                ["Estresse térmico", "UTCI máximo previsto", "≥32 °C → 25 pontos; ≥36 °C → 50 pontos; ≥40 °C → 75 pontos; ≥44 °C → 100 pontos"],
+                ["Persistência", "Risco cumulativo de calor (máx. 7d)", "≥3 pontos → 25 pontos; ≥7 pontos → 50 pontos; ≥12 pontos → 75 pontos; ≥18 pontos → 100 pontos"],
+                ["Onda de calor", "Dias com onda prevista no horizonte", "≥1 dia → 40 pontos; ≥2 dias → 60 pontos; ≥3 dias → 80 pontos; ≥4 dias → 100 pontos"],
+            ],
+        ),
+        "Elaboração CIEVS-MT/ARARAS MT.",
+    )
+    return f"""### Como a classe projetada é calculada
 
 A projeção operacional de aproximadamente sete dias nesta versão é uma dimensão única de **risco térmico projetado** (0–100), composta por quatro sinais do mesmo fenômeno térmico:
 
-| Componente | Variável | Limiares → pontos (0–100) |
-|---|---|---|
-| Intensidade | Tmáx máxima prevista na janela | ≥34→25; ≥37→50; ≥40→75; ≥42→100 |
-| Estresse térmico | UTCI proxy máximo previsto | ≥32→25; ≥36→50; ≥40→75; ≥44→100 |
-| Persistência | Risco cumulativo de calor (máx. 7d) | ≥3→25; ≥7→50; ≥12→75; ≥18→100 |
-| Onda de calor | Dias com onda prevista no horizonte | ≥1→40; ≥2→60; ≥3→80; ≥4→100 |
+{tab}
 
-**Composição (anti-redundância):** `RISCO_TÉRMICO_PROJETADO = máximo(intensidade, estresse, persistência, onda)`. Não há soma nem média dos componentes — evita dupla contagem de sinais correlacionados.
+**Composição (anti-redundância):** o risco térmico projetado é o máximo entre intensidade, estresse térmico, persistência e onda de calor — sem soma nem média, para evitar dupla contagem.
 
-**Classes operacionais (score → classe):**
-- 0–24 → verde
-- 25–49 → amarela
-- 50–69 → laranja
-- 70–84 → vermelha
-- 85–100 → roxa
+**Classes:** 0–24 verde; 25–49 amarela; 50–69 laranja; 70–84 vermelha; 85–100 roxa.
 
-**Outras dimensões (fumaça, fogo, hidrologia, pressão assistencial):** nesta versão **não** entram no cálculo da classe projetada, por ausência de previsão específica válida no mesmo horizonte. Constam apenas como **contexto concomitante** na seção de determinantes.
+**Fora do cálculo da classe nesta versão:** fumaça, fogo, hidrologia e pressão assistencial (sem previsão específica no mesmo horizonte); constam como contexto concomitante.
 """
 
 

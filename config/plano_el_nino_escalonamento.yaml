@@ -1,0 +1,1678 @@
+# Escalonamento operacional do Plano El Niño no ARARAS.
+# Homologação CIEVS dos 7 itens B (pendencia_parametro) ainda aberta.
+versao: '1.0'
+fonte: Relatorio_Avaliacao_Escalonamento_Indicadores_ARARA_El_Nino_2026_2027.docx
+produto: ARARAS
+nota: 'ARARA-xxx é codigo_fonte. IDs oficiais no sistema: IND-xxx. Limiares da classe B não foram inventados
+  — pendem homologação CIEVS. Estágio de ativação é decisão do Comando, independente do nível de risco.'
+estagios:
+- verde
+- amarelo
+- laranja
+- vermelho
+- roxo
+classes:
+  A: Pronto para operação escalável
+  B: Usável após parametrizar SLA/limiar/denominador
+  C: Gate de prontidão — não é KPI isolado de crise
+  D: Alias; usar id_canonico
+pesos_completude:
+  fonte: 25
+  atualidade: 25
+  numerador: 20
+  denominador: 15
+  evidencia: 10
+  responsavel: 5
+limiares_completude:
+  calculavel: 95
+  ressalva: 80
+duplicidades:
+- id: IND-068
+  id_canonico: IND-006
+  codigo_fonte: ARARA-068
+- id: IND-073
+  id_canonico: IND-015
+  codigo_fonte: ARARA-073
+- id: IND-074
+  id_canonico: IND-029
+  codigo_fonte: ARARA-074
+perfis:
+  E1:
+    nome: Governança e articulação
+    cadencia_por_estagio:
+      verde: mensal
+      amarelo: 72h
+      laranja: diario
+      vermelho: 12-24h
+      roxo: periodo_operacional
+  E2:
+    nome: Monitoramento e inteligência
+    cadencia_por_estagio:
+      verde: semanal_mensal
+      amarelo: 72h
+      laranja: diario
+      vermelho: 12-24h
+      roxo: 6-12h
+  E3:
+    nome: Comunicação e alerta
+    cadencia_por_estagio:
+      verde: preventivo
+      amarelo: alerta_prioritario
+      laranja: diario
+      vermelho: a_cada_mudanca
+      roxo: continuo
+  E4:
+    nome: Logística e recursos
+    cadencia_por_estagio:
+      verde: estoque_minimo
+      amarelo: 72h
+      laranja: diario
+      vermelho: 12h
+      roxo: turno
+  E5:
+    nome: Assistência e serviços
+    cadencia_por_estagio:
+      verde: baseline
+      amarelo: prontidao
+      laranja: diario
+      vermelho: 12-24h
+      roxo: continuo
+  E6:
+    nome: Vigilância sanitária
+    cadencia_por_estagio:
+      verde: norma_cadastro
+      amarelo: orientar_visa
+      laranja: 24-48h
+      vermelho: fiscalizacao_focal
+      roxo: risco_essencial
+  E7:
+    nome: Água / VIGIÁGUA
+    cadencia_por_estagio:
+      verde: plano_amostral
+      amarelo: ampliar_vulneraveis
+      laranja: 24-48h
+      vermelho: diario
+      roxo: humanitario
+  E8:
+    nome: Imunização e Rede de Frio
+    cadencia_por_estagio:
+      verde: rede_frio
+      amarelo: autonomia_prioritarios
+      laranja: diario
+      vermelho: 12-24h
+      roxo: servico_essencial
+  E9:
+    nome: Saúde do trabalhador
+    cadencia_por_estagio:
+      verde: perfis
+      amarelo: grupos_expostos
+      laranja: vigilancia_ativa
+      vermelho: eventos_rapidos
+      roxo: equipes_resposta
+  E10:
+    nome: Vulnerabilidade
+    cadencia_por_estagio:
+      verde: camadas
+      amarelo: 72h
+      laranja: busca_ativa_pai
+      vermelho: protecao_integrada
+      roxo: humanitario
+  E11:
+    nome: Simulado e melhoria
+    cadencia_por_estagio:
+      verde: simulado
+      amarelo: checklist_prontidao
+      laranja: licoes_durante
+      vermelho: corretivas
+      roxo: pos_incidente
+  E12:
+    nome: Gatilho de risco (não é meta)
+    cadencia_por_estagio:
+      verde: baseline
+      amarelo: sinal_precoce
+      laranja: ativacao_comando
+      vermelho: resposta_ampliada
+      roxo: mobilizacao_maxima
+  E13:
+    nome: Gestão da resposta / PAI
+    cadencia_por_estagio:
+      verde: matriz_decisao
+      amarelo: pai_simplificado
+      laranja: pai_completo_diario
+      vermelho: 12-24h
+      roxo: periodo_operacional
+  E14:
+    nome: Gestão territorial
+    cadencia_por_estagio:
+      verde: cadastro_territorial
+      amarelo: 72h
+      laranja: diario
+      vermelho: 12-24h
+      roxo: coordenacao_continua
+  E15:
+    nome: Sistema e continuidade digital
+    cadencia_por_estagio:
+      verde: disponibilidade
+      amarelo: backup
+      laranja: suporte_prioritario
+      vermelho: 24x7
+      roxo: contingencia_maxima
+indicadores:
+- id: IND-001
+  codigo_fonte: ARARA-001
+  classe_emergencia: C
+  perfil_escalonamento: E1
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+  automacao_relatorio: semiautomatico
+- id: IND-002
+  codigo_fonte: ARARA-002
+  classe_emergencia: C
+  perfil_escalonamento: E1
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+  automacao_relatorio: documental
+- id: IND-003
+  codigo_fonte: ARARA-003
+  classe_emergencia: C
+  perfil_escalonamento: E1
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+  automacao_relatorio: semiautomatico
+- id: IND-004
+  codigo_fonte: ARARA-004
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+- id: IND-005
+  codigo_fonte: ARARA-005
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+- id: IND-006
+  codigo_fonte: ARARA-006
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+- id: IND-007
+  codigo_fonte: ARARA-007
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-008
+  codigo_fonte: ARARA-008
+  classe_emergencia: A
+  perfil_escalonamento: E7
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: plano_amostral
+    amarelo: ampliar_vulneraveis
+    laranja: 24-48h
+    vermelho: diario
+    roxo: humanitario
+  automacao_relatorio: automatico
+- id: IND-009
+  codigo_fonte: ARARA-009
+  classe_emergencia: A
+  perfil_escalonamento: E7
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: plano_amostral
+    amarelo: ampliar_vulneraveis
+    laranja: 24-48h
+    vermelho: diario
+    roxo: humanitario
+  automacao_relatorio: semiautomatico
+- id: IND-010
+  codigo_fonte: ARARA-010
+  classe_emergencia: A
+  perfil_escalonamento: E7
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: plano_amostral
+    amarelo: ampliar_vulneraveis
+    laranja: 24-48h
+    vermelho: diario
+    roxo: humanitario
+  automacao_relatorio: semiautomatico
+- id: IND-011
+  codigo_fonte: ARARA-011
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-012
+  codigo_fonte: ARARA-012
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-013
+  codigo_fonte: ARARA-013
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-014
+  codigo_fonte: ARARA-014
+  classe_emergencia: C
+  perfil_escalonamento: E2
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: documental
+- id: IND-015
+  codigo_fonte: ARARA-015
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+- id: IND-016
+  codigo_fonte: ARARA-016
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-017
+  codigo_fonte: ARARA-017
+  classe_emergencia: C
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+- id: IND-018
+  codigo_fonte: ARARA-018
+  classe_emergencia: A
+  perfil_escalonamento: E5
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-019
+  codigo_fonte: ARARA-019
+  classe_emergencia: A
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-020
+  codigo_fonte: ARARA-020
+  classe_emergencia: A
+  perfil_escalonamento: E5
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+- id: IND-021
+  codigo_fonte: ARARA-021
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-022
+  codigo_fonte: ARARA-022
+  classe_emergencia: C
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+- id: IND-023
+  codigo_fonte: ARARA-023
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: semiautomatico
+- id: IND-024
+  codigo_fonte: ARARA-024
+  classe_emergencia: A
+  perfil_escalonamento: E4
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: estoque_minimo
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12h
+    roxo: turno
+  automacao_relatorio: automatico
+- id: IND-025
+  codigo_fonte: ARARA-025
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-026
+  codigo_fonte: ARARA-026
+  classe_emergencia: A
+  perfil_escalonamento: E4
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: estoque_minimo
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12h
+    roxo: turno
+  automacao_relatorio: semiautomatico
+- id: IND-027
+  codigo_fonte: ARARA-027
+  classe_emergencia: C
+  perfil_escalonamento: E4
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: estoque_minimo
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12h
+    roxo: turno
+  automacao_relatorio: semiautomatico
+- id: IND-028
+  codigo_fonte: ARARA-028
+  classe_emergencia: C
+  perfil_escalonamento: E4
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: estoque_minimo
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12h
+    roxo: turno
+  automacao_relatorio: documental
+- id: IND-029
+  codigo_fonte: ARARA-029
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-030
+  codigo_fonte: ARARA-030
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-031
+  codigo_fonte: ARARA-031
+  classe_emergencia: C
+  perfil_escalonamento: E10
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: camadas
+    amarelo: 72h
+    laranja: busca_ativa_pai
+    vermelho: protecao_integrada
+    roxo: humanitario
+  automacao_relatorio: semiautomatico
+- id: IND-032
+  codigo_fonte: ARARA-032
+  classe_emergencia: C
+  perfil_escalonamento: E10
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: camadas
+    amarelo: 72h
+    laranja: busca_ativa_pai
+    vermelho: protecao_integrada
+    roxo: humanitario
+  automacao_relatorio: automatico
+- id: IND-033
+  codigo_fonte: ARARA-033
+  classe_emergencia: C
+  perfil_escalonamento: E11
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: simulado
+    amarelo: checklist_prontidao
+    laranja: licoes_durante
+    vermelho: corretivas
+    roxo: pos_incidente
+  automacao_relatorio: documental
+- id: IND-034
+  codigo_fonte: ARARA-034
+  classe_emergencia: A
+  perfil_escalonamento: E11
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: simulado
+    amarelo: checklist_prontidao
+    laranja: licoes_durante
+    vermelho: corretivas
+    roxo: pos_incidente
+  automacao_relatorio: semiautomatico
+- id: IND-035
+  codigo_fonte: ARARA-035
+  classe_emergencia: C
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: documental
+- id: IND-036
+  codigo_fonte: ARARA-036
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-037
+  codigo_fonte: ARARA-037
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-038
+  codigo_fonte: ARARA-038
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-039
+  codigo_fonte: ARARA-039
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-040
+  codigo_fonte: ARARA-040
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-041
+  codigo_fonte: ARARA-041
+  classe_emergencia: B
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+  pendencia_parametro: Homologar universo de estabelecimentos-alvo e meta de fiscalização no período crítico.
+- id: IND-042
+  codigo_fonte: ARARA-042
+  classe_emergencia: C
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: documental
+- id: IND-043
+  codigo_fonte: ARARA-043
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-044
+  codigo_fonte: ARARA-044
+  classe_emergencia: C
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: documental
+- id: IND-045
+  codigo_fonte: ARARA-045
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-046
+  codigo_fonte: ARARA-046
+  classe_emergencia: C
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: documental
+- id: IND-047
+  codigo_fonte: ARARA-047
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-048
+  codigo_fonte: ARARA-048
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-049
+  codigo_fonte: ARARA-049
+  classe_emergencia: B
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+  pendencia_parametro: Homologar universo de EAS/EIS-alvo para sinantrópicos.
+- id: IND-050
+  codigo_fonte: ARARA-050
+  classe_emergencia: C
+  perfil_escalonamento: E6
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: documental
+- id: IND-051
+  codigo_fonte: ARARA-051
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-052
+  codigo_fonte: ARARA-052
+  classe_emergencia: A
+  perfil_escalonamento: E6
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: automatico
+- id: IND-053
+  codigo_fonte: ARARA-053
+  classe_emergencia: B
+  perfil_escalonamento: E6
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: norma_cadastro
+    amarelo: orientar_visa
+    laranja: 24-48h
+    vermelho: fiscalizacao_focal
+    roxo: risco_essencial
+  automacao_relatorio: automatico
+  pendencia_parametro: Pactuar SLA de denúncias prioritárias (COVSAN).
+- id: IND-054
+  codigo_fonte: ARARA-054
+  classe_emergencia: A
+  perfil_escalonamento: E8
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: rede_frio
+    amarelo: autonomia_prioritarios
+    laranja: diario
+    vermelho: 12-24h
+    roxo: servico_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-055
+  codigo_fonte: ARARA-055
+  classe_emergencia: A
+  perfil_escalonamento: E8
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: rede_frio
+    amarelo: autonomia_prioritarios
+    laranja: diario
+    vermelho: 12-24h
+    roxo: servico_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-056
+  codigo_fonte: ARARA-056
+  classe_emergencia: A
+  perfil_escalonamento: E8
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: rede_frio
+    amarelo: autonomia_prioritarios
+    laranja: diario
+    vermelho: 12-24h
+    roxo: servico_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-057
+  codigo_fonte: ARARA-057
+  classe_emergencia: A
+  perfil_escalonamento: E8
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: rede_frio
+    amarelo: autonomia_prioritarios
+    laranja: diario
+    vermelho: 12-24h
+    roxo: servico_essencial
+  automacao_relatorio: semiautomatico
+- id: IND-058
+  codigo_fonte: ARARA-058
+  classe_emergencia: A
+  perfil_escalonamento: E4
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: estoque_minimo
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12h
+    roxo: turno
+  automacao_relatorio: automatico
+- id: IND-059
+  codigo_fonte: ARARA-059
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-060
+  codigo_fonte: ARARA-060
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+- id: IND-061
+  codigo_fonte: ARARA-061
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+- id: IND-062
+  codigo_fonte: ARARA-062
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: semiautomatico
+- id: IND-063
+  codigo_fonte: ARARA-063
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-064
+  codigo_fonte: ARARA-064
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: semiautomatico
+- id: IND-065
+  codigo_fonte: ARARA-065
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: semiautomatico
+- id: IND-066
+  codigo_fonte: ARARA-066
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: semiautomatico
+- id: IND-067
+  codigo_fonte: ARARA-067
+  classe_emergencia: A
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+- id: IND-068
+  codigo_fonte: ARARA-068
+  classe_emergencia: D
+  perfil_escalonamento: E2
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+  id_canonico: IND-006
+- id: IND-069
+  codigo_fonte: ARARA-069
+  classe_emergencia: A
+  perfil_escalonamento: E7
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: plano_amostral
+    amarelo: ampliar_vulneraveis
+    laranja: 24-48h
+    vermelho: diario
+    roxo: humanitario
+  automacao_relatorio: automatico
+- id: IND-070
+  codigo_fonte: ARARA-070
+  classe_emergencia: A
+  perfil_escalonamento: E7
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: plano_amostral
+    amarelo: ampliar_vulneraveis
+    laranja: 24-48h
+    vermelho: diario
+    roxo: humanitario
+  automacao_relatorio: automatico
+- id: IND-071
+  codigo_fonte: ARARA-071
+  classe_emergencia: C
+  perfil_escalonamento: E7
+  tipo_emergencia: execucao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: plano_amostral
+    amarelo: ampliar_vulneraveis
+    laranja: 24-48h
+    vermelho: diario
+    roxo: humanitario
+  automacao_relatorio: semiautomatico
+- id: IND-072
+  codigo_fonte: ARARA-072
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-073
+  codigo_fonte: ARARA-073
+  classe_emergencia: D
+  perfil_escalonamento: E2
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+  automacao_relatorio: automatico
+  id_canonico: IND-015
+- id: IND-074
+  codigo_fonte: ARARA-074
+  classe_emergencia: D
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  automacao_relatorio: automatico
+  id_canonico: IND-029
+- id: IND-075
+  codigo_fonte: ARARA-075
+  classe_emergencia: B
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+  pendencia_parametro: Validar limiar técnico de positividade de ovitrampas.
+- id: IND-076
+  codigo_fonte: ARARA-076
+  classe_emergencia: B
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+  pendencia_parametro: Validar regra oficial do IDO.
+- id: IND-077
+  codigo_fonte: ARARA-077
+  classe_emergencia: B
+  perfil_escalonamento: E12
+  tipo_emergencia: risco_gatilho
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: sinal_precoce
+    laranja: ativacao_comando
+    vermelho: resposta_ampliada
+    roxo: mobilizacao_maxima
+  automacao_relatorio: automatico
+  pendencia_parametro: Validar IIP/Breteau e fonte LIRAa/LIA.
+- id: IND-078
+  codigo_fonte: ARARA-078
+  classe_emergencia: C
+  perfil_escalonamento: E9
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: perfis
+    amarelo: grupos_expostos
+    laranja: vigilancia_ativa
+    vermelho: eventos_rapidos
+    roxo: equipes_resposta
+  automacao_relatorio: semiautomatico
+- id: IND-079
+  codigo_fonte: ARARA-079
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-080
+  codigo_fonte: ARARA-080
+  classe_emergencia: B
+  perfil_escalonamento: E9
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: perfis
+    amarelo: grupos_expostos
+    laranja: vigilancia_ativa
+    vermelho: eventos_rapidos
+    roxo: equipes_resposta
+  automacao_relatorio: semiautomatico
+  pendencia_parametro: Definir denominador de municípios prioritários COVSAT.
+- id: IND-081
+  codigo_fonte: ARARA-081
+  classe_emergencia: A
+  perfil_escalonamento: E9
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: perfis
+    amarelo: grupos_expostos
+    laranja: vigilancia_ativa
+    vermelho: eventos_rapidos
+    roxo: equipes_resposta
+  automacao_relatorio: semiautomatico
+- id: IND-082
+  codigo_fonte: ARARA-082
+  classe_emergencia: C
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+- id: IND-083
+  codigo_fonte: ARARA-083
+  classe_emergencia: C
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-084
+  codigo_fonte: ARARA-084
+  classe_emergencia: C
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+- id: IND-085
+  codigo_fonte: ARARA-085
+  classe_emergencia: A
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+- id: IND-086
+  codigo_fonte: ARARA-086
+  classe_emergencia: A
+  perfil_escalonamento: E5
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: automatico
+- id: IND-087
+  codigo_fonte: ARARA-087
+  classe_emergencia: A
+  perfil_escalonamento: E5
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+- id: IND-088
+  codigo_fonte: ARARA-088
+  classe_emergencia: A
+  perfil_escalonamento: E5
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: baseline
+    amarelo: prontidao
+    laranja: diario
+    vermelho: 12-24h
+    roxo: continuo
+  automacao_relatorio: semiautomatico
+indicadores_cievs:
+- id: CIEVS-01
+  nome: Sala com pontos focais designados
+  classe_emergencia: C
+  perfil_escalonamento: E1
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-02
+  nome: Fluxo da Sala formalizado e vigente
+  classe_emergencia: C
+  perfil_escalonamento: E1
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-03
+  nome: ERS com contato da Sala atualizado
+  classe_emergencia: B
+  perfil_escalonamento: E1
+  tipo_emergencia: prontidao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+  pendencia_parametro: Definir denominador de ERS/contatos da Sala.
+- id: CIEVS-04
+  nome: Briefing da Sala no prazo do estágio
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-05
+  nome: SitRep emitido no prazo do estágio
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-06
+  nome: Decisões da Sala com responsável e prazo
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-07
+  nome: Decisões concluídas no prazo
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-08
+  nome: Pendências críticas em aberto
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-09
+  nome: Pendências críticas vencidas
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-10
+  nome: Tempo de deliberação da Sala
+  classe_emergencia: B
+  perfil_escalonamento: E13
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+  pendencia_parametro: Pactuar SLA de deliberação da Sala.
+- id: CIEVS-11
+  nome: Avaliações de risco no prazo
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+- id: CIEVS-12
+  nome: Latência da análise de risco
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+- id: CIEVS-13
+  nome: Territórios com avaliação de risco válida
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: capacidade
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+- id: CIEVS-14
+  nome: Alertas emitidos no SLA
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+- id: CIEVS-15
+  nome: Confirmação de recebimento dos alertas
+  classe_emergencia: B
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+  pendencia_parametro: Definir meio de confirmação de recebimento do alerta.
+- id: CIEVS-16
+  nome: Oportunidade dos alertas ao evento
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+- id: CIEVS-17
+  nome: Municípios prioritários acompanhados
+  classe_emergencia: A
+  perfil_escalonamento: E14
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: cadastro_territorial
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: coordenacao_continua
+- id: CIEVS-18
+  nome: Demandas territoriais em fila atualizada
+  classe_emergencia: A
+  perfil_escalonamento: E14
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: cadastro_territorial
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: coordenacao_continua
+- id: CIEVS-19
+  nome: Produtos da Sala publicados no período
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+- id: CIEVS-20
+  nome: Fontes críticas com dado válido
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: capacidade
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+- id: CIEVS-21
+  nome: Completude das fontes da Sala
+  classe_emergencia: A
+  perfil_escalonamento: E2
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: semanal_mensal
+    amarelo: 72h
+    laranja: diario
+    vermelho: 12-24h
+    roxo: 6-12h
+- id: CIEVS-22
+  nome: Mensagens de risco no prazo
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+- id: CIEVS-23
+  nome: Alcance da comunicação de risco
+  classe_emergencia: A
+  perfil_escalonamento: E3
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: preventivo
+    amarelo: alerta_prioritario
+    laranja: diario
+    vermelho: a_cada_mudanca
+    roxo: continuo
+- id: CIEVS-24
+  nome: PAI vigente a partir do Amarelo
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-25
+  nome: Ações do PAI atualizadas no SLA
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: resultado
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-26
+  nome: Escalonamentos registrados e rastreados
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-27
+  nome: Checklist de prontidão da Sala
+  classe_emergencia: C
+  perfil_escalonamento: E11
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: simulado
+    amarelo: checklist_prontidao
+    laranja: licoes_durante
+    vermelho: corretivas
+    roxo: pos_incidente
+- id: CIEVS-28
+  nome: Lições e ações corretivas registradas
+  classe_emergencia: A
+  perfil_escalonamento: E11
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: simulado
+    amarelo: checklist_prontidao
+    laranja: licoes_durante
+    vermelho: corretivas
+    roxo: pos_incidente
+- id: CIEVS-29
+  nome: Trilha de auditoria das decisões
+  classe_emergencia: A
+  perfil_escalonamento: E13
+  tipo_emergencia: execucao
+  gate_prontidao: false
+  cadencia_por_estagio:
+    verde: matriz_decisao
+    amarelo: pai_simplificado
+    laranja: pai_completo_diario
+    vermelho: 12-24h
+    roxo: periodo_operacional
+- id: CIEVS-30
+  nome: Disponibilidade operacional do ARARAS
+  classe_emergencia: C
+  perfil_escalonamento: E15
+  tipo_emergencia: prontidao
+  gate_prontidao: true
+  cadencia_por_estagio:
+    verde: disponibilidade
+    amarelo: backup
+    laranja: suporte_prioritario
+    vermelho: 24x7
+    roxo: contingencia_maxima

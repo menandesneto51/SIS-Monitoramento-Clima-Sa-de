@@ -50,7 +50,11 @@ class AlertSchedulerEtlGateTests(unittest.TestCase):
                 clear=False,
             ):
                 ready, meta = _etl_health_status()
-                result = run_once()
+                with patch(
+                    "sisclima.alerts.scheduler.send_digest",
+                    return_value={"status": "enviado"},
+                ):
+                    result = run_once()
             self.assertTrue(ready)
             self.assertEqual(meta["status"], "fresh")
             self.assertEqual(result["status"], "enviado")

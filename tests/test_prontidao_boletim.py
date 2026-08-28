@@ -22,6 +22,6 @@ class ProntidaoV2Tests(unittest.TestCase):
         self.assertGreater(len(vals), 1)
         self.assertLess(max(vals) - min(vals), 80)
         self.assertTrue(any(v < 99.5 for v in vals))
-        self.assertIn("Prioridade de preparação", out["tabela_md"])
+        self.assertIn("Índice", out["tabela_md"])
         self.assertNotIn("prioridade global", out["tabela_md"].lower())
         self.assertNotIn("| 100 | 100 | 100 |", out["tabela_md"].replace(",0", ""))

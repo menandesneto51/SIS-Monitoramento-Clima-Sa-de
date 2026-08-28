@@ -14,6 +14,26 @@ SELSAZ = "CENÁRIO SAZONAL"
 SELDERIV = "INDICADOR DERIVADO"
 SELIND = "DADO INDISPONÍVEL"
 
+# Título institucional atual (padrão). Alternativa da Sala de Situação: só após validação.
+USAR_TITULO_SALA_SITUACAO = False
+TITULO_PRODUTO_ATUAL = "RELATÓRIO SEMANAL EL NIÑO"
+TITULO_SALA_SITUACAO = "BOLETIM SEMANAL DA SALA DE SITUAÇÃO SAÚDE E CLIMA"
+SUBTITULO_SALA_SITUACAO = "El Niño 2026–2027 e eventos climáticos extremos"
+UNIEVS_NOME_OFICIAL = (
+    "Unidade de Informações Estratégicas de Vigilância em Saúde (UNIEVS/CIEVS-MT)"
+)
+SUBTITULO_INSTITUCIONAL = (
+    "Sala de Situação da Unidade de Informações Estratégicas de "
+    "Vigilância em Saúde (CIEVS-MT)"
+)
+# Denominação pública do satélite de referência INPE/Queimadas (código interno: AQUA_M-T).
+FOGO_SATELITE_REFERENCIA_PUBLICO = (
+    "satélite de referência do Programa Queimadas/INPE (sensor MODIS)"
+)
+FOGO_SATELITE_REFERENCIA_CURTO = "satélite de referência INPE"
+
+NIVEIS_CLASSE_ORDEM = ["verde", "amarela", "laranja", "vermelha", "roxa"]
+
 # Sigla → primeira expansão (minúsculas preservadas onde couber)
 SIGLAS: dict[str, str] = {
     "INMET": "Instituto Nacional de Meteorologia (INMET)",
@@ -31,17 +51,22 @@ SIGLAS: dict[str, str] = {
     "CPTEC": "Centro de Previsão de Tempo e Estudos Climáticos (CPTEC)",
     "FUNCEME": "Fundação Cearense de Meteorologia e Recursos Hídricos (FUNCEME)",
     "ASO": "agosto–setembro–outubro (ASO)",
-    "PM2,5": "material particulado fino (PM2,5)",
-    "PM2.5": "material particulado fino (PM2,5)",
-    "UTCI": "Índice Universal de Temperatura Térmica (UTCI)",
+    "PM2,5": "material particulado fino com diâmetro aerodinâmico de até 2,5 micrômetros (PM2,5)",
+    "PM2.5": "material particulado fino com diâmetro aerodinâmico de até 2,5 micrômetros (PM2,5)",
+    "UTCI": "*Universal Thermal Climate Index* (UTCI)",
+    "APS": "Atenção Primária à Saúde (APS)",
+    "CNES": "Cadastro Nacional de Estabelecimentos de Saúde (CNES)",
+    "RENAME": "Relação Nacional de Medicamentos Essenciais (RENAME)",
+    "PCDT": "Protocolos Clínicos e Diretrizes Terapêuticas (PCDT)",
+    "SEMA-MT": "Secretaria de Estado de Meio Ambiente de Mato Grosso (SEMA-MT)",
     "SRAG": "Síndrome Respiratória Aguda Grave (SRAG)",
     "LACEN": "Laboratório Central de Saúde Pública (LACEN)",
     "LACEN-MT": "Laboratório Central de Saúde Pública de Mato Grosso (LACEN-MT)",
     "DDA": "Doença Diarreica Aguda (DDA)",
     "IQA": "Índice de Qualidade do Ar (IQA)",
     "ETA": "tempo estimado (ETA)",
-    "CIEVS-MT": "Centro Integrado de Vigilância Epidemiológica e Sanitária de Mato Grosso (CIEVS-MT)",
-    "CIEVS": "Centro Integrado de Vigilância Epidemiológica e Sanitária (CIEVS)",
+    "CIEVS-MT": "Centro de Informações Estratégicas em Vigilância em Saúde de Mato Grosso (CIEVS-MT)",
+    "CIEVS": "Centro de Informações Estratégicas em Vigilância em Saúde (CIEVS)",
     "SES-MT": "Secretaria de Estado de Saúde de Mato Grosso (SES-MT)",
     "SES": "Secretaria de Estado de Saúde (SES)",
     "SMS": "Secretaria Municipal de Saúde (SMS)",
@@ -52,12 +77,13 @@ SIGLAS: dict[str, str] = {
     "SESAI": "Secretaria Especial de Saúde Indígena (SESAI)",
     "COSEMS-MT": "Conselho de Secretarias Municipais de Saúde de Mato Grosso (COSEMS-MT)",
     "VISAT": "Vigilância em Saúde do Trabalhador (VISAT)",
-    "SAF": "Assistência Farmacêutica (SAF)",
+    "UNIEVS": UNIEVS_NOME_OFICIAL,
+    "DPOC": "Doença Pulmonar Obstrutiva Crônica (DPOC)",
     "ARARAS": "Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde (ARARAS)",
     "ARARAS MT": "Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde (ARARAS MT)",
     "Tmáx": "temperatura máxima (Tmáx)",
     "UR": "umidade relativa (UR)",
-    # UNIEVS: expansão institucional a confirmar na revisão editorial — não inventar denominação
+    "AMACRO": "AMACRO (Acre, Amazonas e Rondônia)",
 }
 
 HIDRO_LABEL: dict[str, str] = {
@@ -71,12 +97,12 @@ HIDRO_LABEL: dict[str, str] = {
 }
 
 NIVEL_LEGENDA: dict[str, str] = {
-    "verde": "Situação favorável — monitoramento de rotina.",
-    "amarela": "Atenção — acompanhar evolução e reforçar comunicação.",
-    "laranja": "Alerta — preparação proporcional e articulação regional.",
-    "vermelha": "Alerta elevado — revisar capacidade assistencial e estoques.",
-    "roxa": "Situação excepcional — mobilização plena e validação pela gestão.",
-    "cinza": "Sem classificação operacional nesta rodada.",
+    "verde": "Verde — situação favorável; monitoramento de rotina.",
+    "amarela": "Amarela — atenção; acompanhar evolução e reforçar comunicação.",
+    "laranja": "Laranja — alerta; preparação proporcional e articulação regional.",
+    "vermelha": "Vermelha — alerta elevado; revisar capacidade assistencial e estoques.",
+    "roxa": "Roxa — situação excepcional; mobilização proporcional e validação pela gestão.",
+    "cinza": "Cinza — sem classificação operacional nesta rodada.",
 }
 
 REFERENCIAS_PADRAO: list[str] = [
@@ -85,7 +111,7 @@ REFERENCIAS_PADRAO: list[str] = [
     "E ALERTAS DE DESASTRES NATURAIS; SERVIÇO GEOLÓGICO DO BRASIL; SECRETARIA NACIONAL "
     "DE PROTEÇÃO E DEFESA CIVIL; CENTRO GESTOR E OPERACIONAL DO SISTEMA DE PROTEÇÃO DA "
     "AMAZÔNIA. Painel El Niño 2026–2027, boletim mensal n.º 02. Brasília, jul. 2026.",
-    "SECRETARIA DE ESTADO DE SAÚDE DE MATO GROSSO; CENTRO INTEGRADO DE VIGILÂNCIA "
-    "EPIDEMIOLÓGICA E SANITÁRIA DE MATO GROSSO. ARARAS MT — Análise, Resposta e "
+    "SECRETARIA DE ESTADO DE SAÚDE DE MATO GROSSO; CENTRO DE INFORMAÇÕES ESTRATÉGICAS "
+    "EM VIGILÂNCIA EM SAÚDE DE MATO GROSSO. ARARAS MT — Análise, Resposta e "
     "Acompanhamento de Riscos, Agravos e Saúde. Cuiabá, 2026.",
 ]

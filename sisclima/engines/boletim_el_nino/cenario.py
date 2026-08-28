@@ -44,21 +44,41 @@ def load_cenario_oficial(path: Path | None = None) -> dict[str, Any]:
         return {}
 
 
-def semana_iso(hoje: date | None = None) -> dict[str, Any]:
+def semana_sinan(hoje: date | None = None) -> dict[str, Any]:
+    """Semana epidemiológica SINAN (domingo a sábado; 1ª semana contém 4 de janeiro).
+
+    Fonte: calendário oficial do Ministério da Saúde / SINAN.
+    Não usar isocalendar() (ISO, segunda a domingo): na segunda a semana ISO
+    já avança, enquanto a SE SINAN só muda no domingo.
+    """
     d = hoje or date.today()
-    iso = d.isocalendar()
-    inicio = d - timedelta(days=d.weekday())
+    inicio = d - timedelta(days=(d.weekday() + 1) % 7)
     fim = inicio + timedelta(days=6)
+    ancora = inicio + timedelta(days=3)  # quarta-feira: maior número de dias no ano
+    ano = ancora.year
+    jan4 = date(ano, 1, 4)
+    se1 = jan4 - timedelta(days=(jan4.weekday() + 1) % 7)
+    semana = ((inicio - se1).days // 7) + 1
     gerado = datetime.now()
+    if inicio.month == fim.month:
+        periodo = f"{inicio.day:02d} a {fim.day:02d} de {_MESES[inicio.month]} de {ano}"
+    else:
+        periodo = (
+            f"{inicio.day:02d} de {_MESES[inicio.month]} a "
+            f"{fim.day:02d} de {_MESES[fim.month]} de {ano}"
+        )
     return {
-        "ano": int(iso.year),
-        "semana": int(iso.week),
-        "rotulo": f"SE {iso.week:02d}/{iso.year}",
+        "ano": int(ano),
+        "semana": int(semana),
+        "rotulo": f"SE {semana:02d}/{ano}",
         "inicio": inicio.isoformat(),
         "fim": fim.isoformat(),
-        "periodo_pt": (
-            f"{inicio.day:02d} a {fim.day:02d} de {_MESES[inicio.month]} de {iso.year}"
-        ),
+        "periodo_pt": periodo,
         "gerado_em": gerado.isoformat(timespec="minutes"),
         "gerado_em_pt": gerado.strftime("%d/%m/%Y às %Hh%M"),
     }
+
+
+def semana_iso(hoje: date | None = None) -> dict[str, Any]:
+    """Rótulo da semana do boletim: calendário SINAN (não ISO)."""
+    return semana_sinan(hoje)

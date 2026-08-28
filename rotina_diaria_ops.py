@@ -170,6 +170,44 @@ def step_pressao() -> dict:
     return step_pressao_alertas()
 
 
+def step_plano_indicadores() -> dict:
+    """Lê tabelas que o pipeline já gravou e reanexa medições do Plano El Niño."""
+    _step("Coleta indicadores automáticos do Plano El Niño")
+    try:
+        from sisclima.plano.indicadores import atualizar_automaticos
+
+        out = dict(atualizar_automaticos() or {})
+        print(
+            f"[INFO] plano gravados={out.get('gravados')} "
+            f"inalterados={out.get('inalterados')} "
+            f"aguardando_fonte={out.get('aguardando_fonte')} erros={out.get('erros')}"
+        )
+        try:
+            from sisclima.plano.cobranca import resumo_cobranca
+            from sisclima.plano.relatorio_pdf import gerar_pdf_cobranca
+
+            cob = resumo_cobranca()
+            path = gerar_pdf_cobranca()
+            from sisclima.plano.cobranca import exportar_rascunhos
+
+            pasta = exportar_rascunhos()
+            out["cobranca"] = cob
+            out["cobranca_pdf"] = str(path)
+            out["cobranca_emails"] = str(pasta)
+            print(
+                f"[INFO] cobrança pendencias={cob.get('n_pendencias')} "
+                f"area={cob.get('n_cobrar_area')} fonte={cob.get('n_aguardar_fonte')} "
+                f"pdf={path.name}"
+            )
+        except Exception as cob_exc:  # noqa: BLE001
+            print(f"[AVISO] Relatório de cobrança do Plano: {cob_exc}")
+            out["cobranca_erro"] = str(cob_exc)
+        return out
+    except Exception as exc:  # noqa: BLE001
+        print(f"[AVISO] Coleta Plano El Niño: {exc}")
+        return {"status": "erro", "error": str(exc)}
+
+
 def step_alerta_cuiaba(*, force: bool = False) -> dict:
     """Gera/envia boletim municipal de Cuiabá (Vigidesastre) na rotina diária."""
     _step("7/8 Alerta municipal Cuiabá (Vigidesastre)")
@@ -271,6 +309,7 @@ def main(argv: list[str] | None = None) -> int:
         report["steps"]["enrichment"] = step_enrichment(try_indicasus=not offline)
         report["steps"]["sisreg"] = step_sisreg(prefer_live=not offline)
         report["steps"]["pressao"] = step_pressao()
+        report["steps"]["plano_indicadores"] = step_plano_indicadores()
         report["steps"]["alerta_cuiaba"] = step_alerta_cuiaba()
         if not args.skip_cloud_export:
             report["steps"]["cloud"] = step_cloud()

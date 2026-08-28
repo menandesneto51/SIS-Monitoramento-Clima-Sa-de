@@ -1,0 +1,88 @@
+# ARARAS MT — Plano de Ação El Niño 2026 (operação)
+# Fonte da planilha: Controle_Indicacoes_El_Nino_SES_MT_2026.xlsx
+# E-mail/WhatsApp = notificação/cobrança. Sistema de registro = esta Sala (restrita).
+# IDs ARARA-### na planilha são códigos-fonte; o produto permanece ARARAS.
+
+plano:
+  id: plano-el-nino-2026
+  nome: Plano de Ação El Niño SES-MT 2026–2027
+  produto: ARARAS MT
+  expansao: Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde
+  vigencia: "2026-2027"
+  ato_referencia: Portaria nº 0590/2026/GBSES — Sala de Situação Saúde e Clima
+  fonte_xlsx: Controle_Indicacoes_El_Nino_SES_MT_2026.xlsx
+  catalogo: config/plano_el_nino_2026_catalogo.yaml
+  n_acoes_originais: 40
+  n_indicadores_fonte: 88
+  indice_implementacao: "Execução + Capacidade/Prontidão + Resultado; exclui Risco/Gatilho"
+  cem_por_cento_oficial: "Somente com itens do índice concluídos e validados pelo CIEVS"
+
+acesso:
+  painel_climatico_inalterado: [publico, municipal, regional, ses, admin]
+  sala_exige_nivel: [ses, admin]
+  perfis_plano:
+    - admin_araras
+    - secretaria_executiva_cievs
+    - coordenador_area
+    - tecnico_area
+    - gestor
+    - consulta
+  isolamento_area: true
+  evidencia_nunca_no_painel_publico: true
+
+status_acao:
+  - nao_iniciada
+  - em_andamento
+  - em_validacao
+  - concluida
+  - impedida
+  - suspensa
+  - nao_aplicavel
+
+modos_indicador:
+  automatico: lido de sistema/fonte
+  semiautomatico: sistema sugere; área confirma
+  documental: área envia evidência (SEI/PDF)
+
+validacao:
+  fluxo: [informado, em_validacao, validado, rejeitado]
+  historico: append-only
+
+evidencia:
+  processo_oficial: SEI
+  araras_guarda: [link_sei, copia_pdf_opcional]
+  campos:
+    - tipo
+    - documento
+    - data
+    - area
+    - acao_id
+    - versao
+    - responsavel_envio
+    - uploaded_at
+    - situacao
+    - link_sei
+    - arquivo
+    - observacao
+
+notificacoes:
+  canal_inicial: email
+  whatsapp: cobranca_apenas
+  eventos:
+    - nova_acao
+    - prazo_15d
+    - prazo_7d
+    - prazo_3d
+    - vencido
+    - evidencia_enviada
+    - evidencia_rejeitada
+    - meta_atingida
+    - indicador_critico
+    - escalonamento
+
+sti:
+  login_institucional: posterior
+  dominio_previsto: araras.saude.mt.gov.br
+  vinculos_perfil_area: tabela plano_vinculo até SSO/STI
+  catalogo_participantes: config/plano_el_nino_participantes.yaml
+  catalogo_municipios: data/input/ARARAS_MT_Destinatarios_Alertas_2026.xlsx

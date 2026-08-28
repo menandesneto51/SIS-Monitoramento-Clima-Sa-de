@@ -1,0 +1,17 @@
+Para: saf@ses.mt.gov.br; farmaciabasica@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Assistência Farmacêutica)
+
+Prezados(as) da Assistência Farmacêutica,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 1 para informar na Sala; 2 com carga defasada.
+
+- IND-024: Itens estratégicos com autonomia operacional acima do mínimo por estágio — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+- IND-025: Ruptura de estoque estratégico ponderada por duração e criticidade — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+- IND-026: Demandas prioritárias atendidas dentro do SLA do estágio — Informar numerador e denominador na Sala (não inventar zero)
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

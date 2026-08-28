@@ -1,0 +1,62 @@
+# Mapeamento dos indicadores automáticos → tabelas que a rotina diária já grava.
+# Sem dado da fonte, o ARARAS NÃO inventa valor (status: aguardando_fonte).
+# IDs ARARA-* são da planilha; o produto continua ARARAS MT.
+
+sistema: ARARAS MT
+denominador_estado: 142
+
+conectores:
+  portaria_focais:
+    descricao: Cadastro Portaria 0590 (config/plano_el_nino_participantes.yaml)
+    tabelas: []
+    indicadores: [IND-001]
+  infra:
+    descricao: Falha de água/energia/climatização/gerador (ops_infraestrutura_unidade)
+    tabelas: [ops_infraestrutura_unidade, ops_infraestrutura_resumo]
+    indicadores: [IND-023]
+  resumo_municipal:
+    descricao: Tabela operacional resumo_municipal_atual (pipeline ARARAS)
+    tabelas: [resumo_municipal_atual]
+    indicadores: [IND-006, IND-007, IND-013, IND-019, IND-021, IND-032, IND-060, IND-068]
+  epi_sinan:
+    descricao: epi_sinan_agravos + epi_arboviroses (z-score/alerta_aumento do pipeline); exclui IBGE 510000
+    tabelas: [epi_sinan_agravos, epi_arboviroses, epi_arboviroses_municipal]
+    indicadores: [IND-015, IND-016, IND-062, IND-063, IND-064, IND-066, IND-067, IND-073]
+  cnes_local:
+    descricao: Capacidade/CNES local (pipeline + enrichment)
+    tabelas: [cnes_unidades_geo, hospital_capacidade_unidade, ops_cnes_municipio]
+    indicadores: [IND-083]
+  estoque:
+    descricao: Autonomia de insumos (stock_autonomy do pipeline)
+    tabelas: [ops_estoque_autonomia]
+    indicadores: [IND-024, IND-025, IND-058, IND-059]
+  qualidade_ar:
+    descricao: qualidade_ar_municipal persistida pelo pipeline
+    tabelas: [qualidade_ar_municipal]
+    indicadores: [IND-011, IND-012, IND-061]
+  comunicacao:
+    descricao: ops_comunicacao (communication_latency); fallback inmet_alertas/cemaden_alertas
+    tabelas: [ops_comunicacao, inmet_alertas, cemaden_alertas]
+    indicadores: [IND-018, IND-029, IND-030, IND-072, IND-074, IND-079, IND-086]
+  metadados_internos:
+    descricao: data_referencia de resumo_municipal_atual + logs da rotina diária
+    tabelas: [resumo_municipal_atual]
+    indicadores: [IND-004, IND-005]
+  sisagua:
+    descricao: SISAGUA / VIGIÁGUA — lê ops_sisagua (ou sisagua_municipal) se a área carregar; senão aguarda fonte
+    tabelas: [ops_sisagua, sisagua_municipal, vigiagua_municipal]
+    indicadores: [IND-008, IND-069, IND-070]
+    colunas: monitoramento_valido, amostras_realizadas, amostras_planejadas, saa_mapeadas, saa_identificadas, cod_ibge
+    status: le_se_existir
+  entomologia:
+    descricao: LIRAa / ovitrampa / IDO — lê ops_entomologia se COVSAM carregar; senão aguarda fonte
+    tabelas: [ops_entomologia, liraa_municipal, ovitrampa_municipal]
+    indicadores: [IND-075, IND-076, IND-077]
+    colunas: ovitrampas_positivas, ovitrampas_examinadas, ido, n_ovos, iip, breteau, cod_ibge
+    status: le_se_existir
+  denuncias:
+    descricao: Denúncias climato-sanitárias — lê ops_denuncias se COVSAN carregar; senão aguarda fonte
+    tabelas: [ops_denuncias, covsan_denuncias]
+    indicadores: [IND-052, IND-053]
+    colunas: status, denuncias_recebidas, denuncias_respondidas, dentro_sla, prioritaria, data_recebimento, data_resposta
+    status: le_se_existir

@@ -12,7 +12,7 @@ from typing import Any
 import pandas as pd
 
 from sisclima.alerts.contacts import fanout_enabled, recipients_for, summarize_contacts
-from sisclima.alerts.notifier import send_email, send_telegram
+from sisclima.alerts.notifier import send_email, send_telegram, send_telegram_photo
 from sisclima.core.config import as_bool, env
 from sisclima.core.db import db_conn, execute, fetchone, read_table, table_exists
 from sisclima.core.logging_utils import get_logger
@@ -49,6 +49,7 @@ ICON = {
     "rodape": "✅",
     "legenda": "📎",
     "resumo": "📋",
+    "mapa": "🗺️",
 }
 
 IND_ICON = {
@@ -63,6 +64,9 @@ IND_ICON = {
     "risco_cumulativo_3d": "🔥",
     "ocupacao_leitos_pct": "🛏️",
     "pressao_calor_pct": "🏥",
+    "indice_pressao_saude": "🩺",
+    "semaforo_pressao": "🩺",
+    "distribuicao_semaforo_pressao": "🩺",
     "pm25_ugm3": "💨",
     "incidencia_arbovirus_100k": "🦟",
     "casos_srag": "🫁",
@@ -80,6 +84,7 @@ STATUS_THRESHOLDS: dict[str, list[tuple[float, str]]] = {
     "utci_proxy": [(0, "rotina"), (26, "atenção"), (32, "ALERTA"), (38, "INTENSIFICADO"), (46, "PLENO")],
     "risco_cumulativo_3d": [(0, "rotina"), (3, "atenção"), (7, "ALERTA"), (12, "INTENSIFICADO"), (18, "PLENO")],
     "pressao_calor_pct": [(0, "rotina"), (2, "atenção"), (4, "ALERTA"), (7, "INTENSIFICADO"), (10, "PLENO")],
+    "indice_pressao_saude": [(0, "verde"), (40, "amarela"), (70, "vermelha")],
     "ocupacao_leitos_pct": [(0, "abaixo do limiar de alerta"), (75, "atenção"), (85, "ALERTA"), (95, "INTENSIFICADO"), (100, "PLENO")],
     "pm25_ugm3": [(0, "dentro/próximo ref. OMS"), (15, "acima da ref. OMS (~15)")],
 }
@@ -298,7 +303,7 @@ def build_orientacoes_ses_setores(payload: dict[str, Any]) -> dict[str, str]:
 def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
     """Valor + status curto; limiares completos ficam só na legenda da seção."""
     campo = str(ind.get("campo") or "")
-    if campo in {"n_municipios", "distribuicao_niveis", "cobertura_ocupacao"}:
+    if campo in {"n_municipios", "distribuicao_niveis", "cobertura_ocupacao", "distribuicao_semaforo_pressao"}:
         return None
     icon = IND_ICON.get(campo, "•")
     rotulo = str(ind.get("rotulo") or campo)
@@ -313,6 +318,8 @@ def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
         "pressao_calor_pct": "Pressão calor pico",
         "pm25_ugm3": "PM2,5 pico",
         "ocupacao_leitos_pct": ocup_short,
+        "indice_pressao_saude": "Pressão assistencial pico",
+        "semaforo_pressao": "Semáforo pressão",
         "incidencia_arbovirus_100k": "Arboviroses pico /100 mil",
         "casos_srag": "SRAG (soma)",
     }.get(campo, rotulo)
@@ -329,6 +336,8 @@ def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
         valor_txt = f"{_br(num)}%" if num is not None else str(valor)
     elif campo == "pressao_calor_pct":
         valor_txt = f"{_br(num)} /15" if num is not None else f"{valor} /15"
+    elif campo == "indice_pressao_saude":
+        valor_txt = f"{_br(num)} /100" if num is not None else str(valor)
     elif campo in {"tmax", "utci_proxy"}:
         valor_txt = f"{_br(num)} °C" if num is not None else str(valor)
     elif campo == "pm25_ugm3":
@@ -398,6 +407,14 @@ def _priority_one_liner(m: dict[str, Any], idx: int) -> str:
         f"risco3d {_f(risco)}",
         f"ocup {_f(ocup)}%{ocup_tag}" if ocup is not None else "ocup —",
     ]
+    pressao = _parse_num(m.get("indice_pressao_saude"))
+    if pressao is None:
+        for ind in m.get("indicadores") or []:
+            if ind.get("campo") == "indice_pressao_saude":
+                pressao = _parse_num(ind.get("valor"))
+                break
+    if pressao is not None:
+        parts.append(f"pressão {_f(pressao)}/100")
     al = m.get("n_aldeias")
     qi = m.get("n_quilombos")
     asst = m.get("n_assentamentos")
@@ -511,6 +528,23 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
     for ind in inds:
         if ind.get("campo") == "cobertura_ocupacao":
             lines.append(f"📡 cobertura local: {ind.get('valor')}")
+        if ind.get("campo") == "distribuicao_semaforo_pressao":
+            lines.append(f"🩺 pressão G/A/V: {ind.get('valor')}")
+    rp = p.get("risco_pressao") or {}
+    lines += ["", f"{ICON['mapa']} Risco e pressão assistencial"]
+    if rp.get("disponivel"):
+        lines.append(f"Risco: {rp.get('dist_nivel_txt') or dist_txt}")
+        lines.append(
+            f"Pressão 0–100: média {rp.get('pressao_media_txt') or '—'} · "
+            f"máx {rp.get('pressao_max_txt') or '—'} · semáforo {rp.get('semaforo_txt') or '—'}"
+        )
+        lines.append(
+            f"Ocupação leitos: média {rp.get('ocupacao_media_txt') or '—'}% "
+            f"(máx {rp.get('ocupacao_max_txt') or '—'}%) · "
+            f"pressão calor 0–15: média {rp.get('calor_media_txt') or '—'} · máx {rp.get('calor_max_txt') or '—'}"
+        )
+    else:
+        lines.append(str(rp.get("motivo") or "Registro de pressão indisponível nesta rodada."))
     lines += [f"{ICON['legenda']} Legenda: {LEGENDA_RAPIDA}", ""]
 
     lines.append(f"{ICON['orient_gestor']} Ações por setor (checklist)")
@@ -548,17 +582,25 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
 
 def format_ses_html(p: dict[str, Any]) -> str:
     """HTML com seções para leitura no e-mail (sem rodapé duplicado)."""
-    return _format_sectioned_html(
+    body = _format_sectioned_html(
         "Alerta 1/4 — Gestão SES-MT / CIEVS",
         format_ses_telegram(p),
         [
             ("Resumo executivo", ICON["resumo"]),
             ("Situação estadual", ICON["indicadores"]),
+            ("Risco e pressão assistencial", ICON["mapa"]),
             ("Ações por setor", ICON["orient_gestor"]),
             ("Orientações da IA", ICON["ia"]),
             ("Municípios prioritários", ICON["prioridade"]),
         ],
     )
+    if p.get("mapa_risco_path"):
+        body = body.replace(
+            "</h1>",
+            "</h1><p style='margin:8px 0 14px'><img src='cid:mapa-risco' alt='Mapa de risco operacional de Mato Grosso' style='max-width:100%;border-radius:8px;border:1px solid #e2e8f0'/></p>",
+            1,
+        )
+    return body
 
 
 def build_orientacoes_regional(payload: dict[str, Any]) -> dict[str, str]:
@@ -810,6 +852,7 @@ def format_municipal_telegram(p: dict[str, Any], *, cuiaba: bool = False) -> str
         ("utci_proxy", "Sensação", False),
         ("risco_cumulativo_3d", "Risco 3d", False),
         ("pressao_calor_pct", "Pressão calor", False),
+        ("indice_pressao_saude", "Pressão assistencial", False),
         ("pm25_ugm3", "PM2,5", False),
         ("ocupacao_leitos_pct", "Ocupação leitos", False),
     ]
@@ -843,6 +886,8 @@ def format_municipal_telegram(p: dict[str, Any], *, cuiaba: bool = False) -> str
             valor_txt = f"{num:.1f}%{tag}".replace(".", ",")
         elif campo == "pressao_calor_pct" and num is not None:
             valor_txt = f"{num:.1f} /15".replace(".", ",")
+        elif campo == "indice_pressao_saude" and num is not None:
+            valor_txt = f"{num:.1f} /100".replace(".", ",")
         elif num is not None:
             valor_txt = f"{num:.1f}".replace(".", ",")
         else:
@@ -1023,11 +1068,30 @@ def _active_layers() -> set[str]:
     return {x.strip().lower() for x in raw.split(",") if x.strip()}
 
 
+def _ibge_tokens(value: Any) -> set[str]:
+    digits = "".join(ch for ch in str(value or "") if ch.isdigit())
+    if len(digits) < 6:
+        return set()
+    out = {digits[:6]}
+    if len(digits) >= 7:
+        out.add(digits[:7])
+    return out
+
+
+def _force_municipio_ids() -> set[str]:
+    raw = env("ALERT_FORCE_MUNICIPIOS", "") or ""
+    out: set[str] = set()
+    for part in raw.replace(";", ",").split(","):
+        out |= _ibge_tokens(part)
+    return out
+
+
 def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Seleciona payloads por camada (para meta/persistência lógica). Envio é separado."""
     layers = _active_layers()
     max_mun = int(env("ALERT_MAX_MUNICIPIOS", "12") or 12)
     max_reg = int(env("ALERT_MAX_REGIONAIS", "20") or 20)
+    force_ids = _force_municipio_ids()
 
     out: list[dict[str, Any]] = []
     if "ses" in layers or "estadual" in layers:
@@ -1049,6 +1113,7 @@ def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         municipais = [p for p in payloads if p.get("escopo") == "municipal"]
         if "cuiaba" in layers and cuiaba_ids:
             municipais = [p for p in municipais if str(p.get("alvo_id")) not in cuiaba_ids]
+        forced = [p for p in municipais if _ibge_tokens(p.get("alvo_id")) & force_ids]
         if not send_all_mun:
             municipais = [
                 p for p in municipais if STAGE_ORDER.get(_norm_level(p.get("nivel")), -1) >= min_mun_rank
@@ -1060,6 +1125,12 @@ def _select_payloads(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
             return (rank, score)
 
         municipais = sorted(municipais, key=_mun_key, reverse=True)[:max_mun]
+        seen = {frozenset(_ibge_tokens(p.get("alvo_id"))) for p in municipais}
+        for p in forced:
+            tokens = frozenset(_ibge_tokens(p.get("alvo_id")))
+            if tokens and tokens not in seen:
+                municipais.append(p)
+                seen.add(tokens)
         out.extend(municipais)
 
     if "cuiaba" in layers:
@@ -1132,6 +1203,26 @@ def format_payload_telegram(p: dict[str, Any], *, compact: bool = False) -> str:
     return txt
 
 
+def _anexar_risco_pressao(payloads: list[dict[str, Any]], resumo: pd.DataFrame | None) -> None:
+    """Anexa mapa e quadro de risco/pressão ao payload estadual (in-place)."""
+    from pathlib import Path
+
+    from sisclima.engines.boletim_el_nino.maps import export_mapa_risco
+    from sisclima.reporting.quadro_risco_pressao import quadro_risco_pressao
+
+    quadro = quadro_risco_pressao(resumo)
+    mapa = {"disponivel": False}
+    if resumo is not None and not resumo.empty:
+        mapa = export_mapa_risco(resumo)
+    path = str(mapa.get("path") or "")
+    for p in payloads:
+        if p.get("escopo") != "estadual":
+            continue
+        p["risco_pressao"] = quadro
+        if mapa.get("disponivel") and path and Path(path).is_file():
+            p["mapa_risco_path"] = path
+
+
 def format_payload_html(p: dict[str, Any]) -> str:
     escopo = p.get("escopo")
     if escopo == "estadual":
@@ -1180,6 +1271,10 @@ def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict
     )
     selected = _select_payloads(payloads)
     selected = _enrich_payloads_with_ai(selected)
+    try:
+        _anexar_risco_pressao(selected, resumo)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Falha ao anexar mapa/pressão ao digest: %s", exc)
     try:
         persist_payloads(payloads)
     except Exception as exc:  # noqa: BLE001
@@ -1238,10 +1333,21 @@ def _split_telegram(text: str) -> list[str]:
 
 def _send_telegram_batches(payloads: list[dict[str, Any]], *, chat_id: str | None = None) -> bool:
     """Envia boletins ao chat indicado (padrão: canal central TELEGRAM_CHAT_ID)."""
+    from pathlib import Path
+
     ok_any = False
     order = {"estadual": 0, "regional": 1, "municipal": 2, "cuiaba": 3}
     ordered = sorted(payloads, key=lambda p: (order.get(str(p.get("escopo")), 9), str(p.get("alvo_nome") or "")))
     for p in ordered:
+        mapa = Path(str(p.get("mapa_risco_path") or ""))
+        if p.get("escopo") == "estadual" and mapa.is_file():
+            if send_telegram_photo(
+                mapa,
+                caption="ARARAS MT · mapa de risco operacional (classificação municipal)",
+                chat_id=chat_id,
+            ):
+                ok_any = True
+            time.sleep(0.35)
         txt = format_payload_telegram(p, compact=False)
         for chunk in _split_telegram(txt):
             if send_telegram(chunk, chat_id=chat_id):
@@ -1259,7 +1365,13 @@ def _send_email_pack(payloads: list[dict[str, Any]], meta: dict, *, to: str | li
         p = payloads[0]
         subject = f"[SIS] {ICON['estado']} Alerta SES-MT / CIEVS — {LEVEL_LABEL.get(niv, niv)}"
         plain = format_ses_telegram(p)
-        return send_email(subject, plain, html_body=format_ses_html(p), to=to)
+        inline = None
+        from pathlib import Path
+
+        mapa = Path(str(p.get("mapa_risco_path") or ""))
+        if mapa.is_file():
+            inline = {"mapa-risco": mapa}
+        return send_email(subject, plain, html_body=format_ses_html(p), to=to, inline_images=inline)
 
     subject = (
         f"[SIS Clima-Saúde] {EMOJI.get(niv, '⚪')} Boletim · "

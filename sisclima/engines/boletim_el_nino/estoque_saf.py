@@ -10,7 +10,7 @@ import yaml
 from sisclima.core.config import ROOT
 from sisclima.core.logging_utils import get_logger
 from sisclima.engines.boletim_el_nino.constants import INDISPONIVEL, SELOBS
-from sisclima.engines.boletim_el_nino.formatters import fmt_date_pt, fmt_int, fmt_num, md_table
+from sisclima.engines.boletim_el_nino.formatters import bloco_tabela, fmt_date_pt, fmt_int, fmt_num, md_table
 from sisclima.engines.boletim_el_nino.referencias import cite
 
 log = get_logger(__name__)
@@ -80,7 +80,7 @@ def build_estoque_saf_section(estoque: pd.DataFrame | None) -> dict[str, Any]:
         return {
             "disponivel": False,
             "resumo_md": (
-                f"Estoques estratégicos SES/SAF **indisponíveis nesta rodada**. "
+                f"Estoques estratégicos da Assistência Farmacêutica **indisponíveis nesta rodada**. "
                 f"Avaliar conferência junto à Assistência Farmacêutica {citacao}."
             ),
             "tabela_md": INDISPONIVEL,
@@ -142,7 +142,7 @@ def build_estoque_saf_section(estoque: pd.DataFrame | None) -> dict[str, Any]:
             f"> **Atenção — última atualização da base de estoque: {data_txt}.**\n"
             f"> Os valores devem ser confirmados no sistema oficial antes de qualquer decisão operacional.\n"
             f"> **Status atual: NÃO AVALIÁVEL POR DEFASAGEM** "
-            f"(carga com {fmt_int(idade_dias)} dias; limite institucional {fmt_int(idade_max)} dias)."
+            f"(carga com {fmt_int(idade_dias)} dias; limite operacional adotado para este boletim: {fmt_int(idade_max)} dias)."
         )
         resumo = (
             f"{alerta}\n\n"
@@ -151,16 +151,16 @@ def build_estoque_saf_section(estoque: pd.DataFrame | None) -> dict[str, Any]:
             f"**{fmt_int(hist_crit)}** registros que apresentavam autonomia crítica na última carga disponível "
             "e requerem validação no sistema oficial. "
             "Não se classifica ruptura atual nem ranking operacional com esta carga. "
-            "O detalhamento municipal/item permanece no **painel operacional** e em anexo interno, "
-            "fora do corpo principal deste boletim."
+            "O detalhamento municipal por item permanece disponível no **painel operacional** "
+            "e deve ser consultado após validação no sistema oficial de estoques."
         )
         return {
             "disponivel": True,
             "defasado": True,
             "resumo_md": resumo,
             "tabela_md": (
-                "_Detalhamento de registros históricos omitido do corpo principal "
-                "(consultar painel / anexo interno após validação no sistema oficial)._"
+                "_O detalhamento municipal por item permanece disponível no painel operacional "
+                "e deve ser consultado após validação no sistema oficial de estoques._"
             ),
             "titulo_tabela": "Última situação registrada — sujeita a validação",
             "data_referencia": data_txt,
@@ -183,7 +183,7 @@ def build_estoque_saf_section(estoque: pd.DataFrame | None) -> dict[str, Any]:
     if n_calc == 0:
         resumo = (
             f"{alerta_defasagem}\n\n"
-            f"Estoques SES/SAF — última carga **{data_txt}** {citacao}. "
+            f"Estoques da Assistência Farmacêutica — última carga **{data_txt}** {citacao}. "
             f"Cobertura cadastral: **{fmt_int(n_mun)}** municípios · **{fmt_int(n_itens)}** itens. "
             "A ausência de **consumo médio diário válido** impede o cálculo de autonomia em dias "
             "e a classificação de risco de desabastecimento nesta rodada. "
@@ -251,14 +251,18 @@ def build_estoque_saf_section(estoque: pd.DataFrame | None) -> dict[str, Any]:
     if n_crit > n_exib:
         resumo += f" Exibidos **{fmt_int(n_exib)}** de **{fmt_int(n_crit)}** registros."
 
-    tab_prefix = "### Última situação registrada — sujeita a validação\n\n"
+    tab_prefix = ""
     if n_crit > n_exib:
-        tab_prefix += f"_Exibidos {fmt_int(n_exib)} de {fmt_int(n_crit)} registros._\n\n"
+        tab_prefix = f"_Exibidos {fmt_int(n_exib)} de {fmt_int(n_crit)} registros._\n\n"
 
-    tab = tab_prefix + md_table(
-        ["Município", "Insumo", "Autonomia", "Classe", "Estoque", "Consumo médio/d"],
-        rows,
-        vazio="_Nenhum item abaixo do limiar laranja entre as combinações calculáveis._",
+    tab = tab_prefix + bloco_tabela(
+        "Última situação registrada — sujeita a validação",
+        md_table(
+            ["Município", "Insumo", "Autonomia", "Classe", "Estoque", "Consumo médio/d"],
+            rows,
+            vazio="_Nenhum item abaixo do limiar laranja entre as combinações calculáveis._",
+        ),
+        "ARARAS MT/CIEVS-MT. Confirmar no sistema oficial da Assistência Farmacêutica.",
     )
 
     return {

@@ -93,6 +93,16 @@ class AccessCadastroTests(unittest.TestCase):
         self.assertEqual(recorte["municipios"], ["Cuiabá"])
         self.assertTrue(recorte["regionais"])
 
+    def test_matriz_sala_so_ses_admin(self) -> None:
+        from sisclima.plano.acesso import MATRIZ_ACESSO_PAINEL, pode_abrir_sala
+
+        by_nivel = {r["nivel"]: r for r in MATRIZ_ACESSO_PAINEL}
+        self.assertEqual(by_nivel["municipal"]["abre_sala"], "não")
+        self.assertEqual(by_nivel["ses"]["abre_sala"], "sim")
+        self.assertFalse(pode_abrir_sala({"email": "a@b.c", "nivel": "publico", "status": "ativo"}))
+        self.assertTrue(pode_abrir_sala({"email": "a@b.c", "nivel": "ses", "status": "ativo"}))
+        self.assertFalse(pode_abrir_sala({"email": "a@b.c", "nivel": "ses", "status": "pendente"}))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,226 @@
+Para: gimvisa@ses.mt.gov.br; covsan@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Vigilância Sanitária)
+
+Prezados(as) da Vigilância Sanitária,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 12 para informar na Sala; 2 aguardando integração de fonte; 5 com carga defasada.
+
+Prioridade desta semana (documental — Sim + SEI):
+- IND-035: Orientação sanitária sobre água em estabelecimentos vigente e disseminada — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-042: Orientação sobre conservação de medicamentos/imunobiológicos vigente — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-044: Orientação e capacitação sobre contingência energética concluídas — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-046: Orientação sobre climatização e conforto térmico vigente — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-050: Orientação sobre equipamentos médico-hospitalares vigente — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+Demais pendências:
+- IND-036: Municípios prioritários com orientação recebida e ação local registrada — água em estabelecimentos — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-037: Cobertura de inspeção dos estabelecimentos-alvo priorizados por risco — água envasada/gelo — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-038: Cumprimento do plano amostral de água envasada/gelo por estágio — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-039: Resultados insatisfatórios com ação sanitária iniciada e encerrada no prazo — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-040: Municípios prioritários com comunicação sobre segurança de alimentos confirmada — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-041: Cobertura de monitoramento de estabelecimentos prioritários durante calor extremo — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-043: Conformidade de controle térmico nos estabelecimentos avaliados — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-045: EAS críticos com contingência energética funcional e testada — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-047: EAS prioritários com climatização funcional e controle térmico/PMOC adequados — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-048: VISAs prioritárias com orientação recebida e plano de ação para animais sinantrópicos — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-049: Cobertura de monitoramento de animais sinantrópicos em EAS/EIS prioritários — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-051: Disponibilidade operacional dos equipamentos críticos em EAS — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-052: Denúncias climato-sanitárias com resposta e encerramento dentro do SLA — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAN denúncias
+- IND-053: Tempo de resposta às denúncias prioritárias (P50/P90) — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAN denúncias
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: cas@ses.mt.gov.br; coapre@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Atenção à Saúde / Regulação)
+
+Prezados(as) da Atenção à Saúde / Regulação,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 4 para informar na Sala; 5 com carga defasada.
+
+- IND-017: Protocolos assistenciais prioritários vigentes e acionáveis — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-020: Situações críticas assistenciais com mitigação iniciada no SLA — Informar numerador e denominador na Sala (não inventar zero)
+- IND-022: Unidades estratégicas com plano de continuidade vigente, testado e acionável — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-031: Territórios prioritários com estratégia operacional para populações vulneráveis — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-082: Hospitais prioritários com plano de contingência vigente, testado e acionável — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-084: Hospitais prioritários com protocolos assistenciais críticos vigentes e equipe orientada — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-085: Territórios prioritários com prontidão da Atenção Secundária validada — Informar numerador e denominador na Sala (não inventar zero)
+- IND-087: Serviços prioritários de Urgência/Emergência com prontidão operacional validada — Confirmar a leitura sugerida pelo ARARAS na Sala e enviar à validação CIEVS (—/268)
+- IND-088: Gaps críticos da Urgência/Emergência com mitigação iniciada no SLA e encerramento monitorado — Informar numerador e denominador na Sala (não inventar zero)
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: tacianaferreira@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Imunização e Rede de Frio)
+
+Prezados(as) da Imunização e Rede de Frio,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 4 para informar na Sala; 2 com carga defasada.
+
+- IND-054: Municípios ativados com situação vacinal e de Rede de Frio atualizada — Informar numerador e denominador na Sala (não inventar zero)
+- IND-055: Ocorrências que afetam vacinação com suporte iniciado no SLA — Informar numerador e denominador na Sala (não inventar zero)
+- IND-056: Ocorrências de Rede de Frio com acompanhamento completo — Informar numerador e denominador na Sala (não inventar zero)
+- IND-057: Ocorrências de Rede de Frio com contingência iniciada no SLA — Informar numerador e denominador na Sala (não inventar zero)
+- IND-058: Regiões com risco de desabastecimento e ação mitigadora ativa — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+- IND-059: Regiões com autonomia de imunobiológicos abaixo do mínimo do estágio — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: robertaorrigo@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Vigiágua)
+
+Prezados(as) da Vigiágua,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 2 para informar na Sala; 3 aguardando integração de fonte; 1 com carga defasada.
+
+- IND-008: Cobertura de monitoramento VIGIÁGUA nos territórios ativados/prioritários — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — VIGIÁGUA / SISAGUA
+- IND-009: Não conformidades de água com ação corretiva iniciada no SLA — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-010: Tempo de resposta às não conformidades de água (P50/P90) — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-069: Cumprimento do plano amostral VIGIÁGUA nas áreas críticas — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — VIGIÁGUA / SISAGUA
+- IND-070: Cobertura de mapeamento SAA/SAC/SAI com criticidade e atualização válidas — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — VIGIÁGUA / SISAGUA
+- IND-071: Municípios prioritários com pelo menos um técnico VIGIÁGUA capacitado e habilitado — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: menandesneto@ses.mt.gov.br; suzicruz@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (CIEVS / Vigidesastres)
+
+Prezados(as) da CIEVS / Vigidesastres,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 0 para informar na Sala; 4 com carga defasada.
+
+Prioridade desta semana (documental — Sim + SEI):
+- IND-002: Fluxo estadual de comunicação e resposta vigente, testado e versionado — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-033: Exercício simulado de prontidão realizado antes do período crítico — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+Demais pendências:
+- IND-003: ERS com ponto focal, contato e fluxo válidos — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-034: Ações corretivas pós-simulado concluídas no prazo e por criticidade — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: dtha@ses.mt.gov.br; janainapauli@ses.mt.gov.br; dengue@ses.mt.gov.br; nevh@ses.mt.gov.br; marciabrito@ses.mt.gov.br; covam@ses.mt.gov.br; michelbelmonte@ses.mt.gov.br; veruskanbrito@gmail.com
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Vigilância ambiental e epidemiológica)
+
+Prezados(as) da Vigilância ambiental e epidemiológica,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 0 para informar na Sala; 3 aguardando integração de fonte; 1 com carga defasada.
+
+Prioridade desta semana (documental — Sim + SEI):
+- IND-014: Catálogo de indicadores sentinela vigente e validado — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+Demais pendências:
+- IND-075: Positividade de ovitrampas versus baseline/limiar validado — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAM entomologia
+- IND-076: Índice de densidade de ovos (IDO) padronizado versus baseline/limiar validado — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAM entomologia
+- IND-077: IIP/Índice de Breteau conforme faixas oficiais vigentes — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAM entomologia
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: saf@ses.mt.gov.br; farmaciabasica@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Assistência Farmacêutica)
+
+Prezados(as) da Assistência Farmacêutica,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 1 para informar na Sala; 2 com carga defasada.
+
+- IND-024: Itens estratégicos com autonomia operacional acima do mínimo por estágio — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+- IND-025: Ruptura de estoque estratégico ponderada por duração e criticidade — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+- IND-026: Demandas prioritárias atendidas dentro do SLA do estágio — Informar numerador e denominador na Sala (não inventar zero)
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: flaviatortorelli@ses.mt.gov.br; costra@ses.mt.gov.br; victorlima@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Saúde do Trabalhador)
+
+Prezados(as) da Saúde do Trabalhador,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 2 para informar na Sala; 1 com carga defasada.
+
+- IND-078: ERS com perfil de risco ocupacional climato-sensível atualizado — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-080: Cobertura de vigilância de ambientes/processos de trabalho em territórios de risco — Informar numerador e denominador na Sala (não inventar zero)
+- IND-081: Não conformidades ocupacionais críticas com mitigação iniciada e encerrada — Informar numerador e denominador na Sala (não inventar zero)
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT
+
+
+-----
+
+Para: (sem e-mail no cadastro da Portaria 0590)
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Logística)
+
+Prezados(as) da Logística,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 0 para informar na Sala; 2 com carga defasada.
+
+Prioridade desta semana (documental — Sim + SEI):
+- IND-028: Plano logístico estadual vigente e acionável — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+Demais pendências:
+- IND-027: ERS com rota primária e alternativa logística validadas — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

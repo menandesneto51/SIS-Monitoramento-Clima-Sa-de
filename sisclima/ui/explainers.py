@@ -161,18 +161,23 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "como_ler": "Cruze com os alertas do Cemaden e com a chuva recente. Sem dado ≠ risco zero.",
     },
     "focos_queimadas_7d": {
-        "nome": "Focos de queimadas (7 dias)",
-        "leigo": "Quantidade de focos de calor detectados pelo INPE no município na última semana.",
-        "como_ler": "≥20 amarelo/laranja operacional · ≥50 vermelho · ≥120 roxo — cruzar com PM2,5 e SRAG.",
+        "nome": "Focos de queimadas AQUA_M-T (7 dias)",
+        "leigo": "Focos de calor do satélite de referência AQUA_M-T (INPE/BDQueimadas) no município na última semana.",
+        "como_ler": "Comparável ao Portal Queimadas. ≥20 amarelo/laranja · ≥50 vermelho · ≥120 roxo — cruzar com PM2,5 e SRAG.",
     },
     "focos_queimadas_24h": {
-        "nome": "Focos de queimadas (24 h)",
-        "leigo": "Focos INPE no último dia — sinal quase em tempo real de fogo ativo.",
+        "nome": "Focos de queimadas AQUA_M-T (24 h)",
+        "leigo": "Focos AQUA_M-T no último dia — sinal quase em tempo real de fogo ativo.",
         "como_ler": "Pico diário ajuda a priorizar comunicação e atenção respiratória imediata.",
+    },
+    "deteccoes_queimadas_7d": {
+        "nome": "Detecções multi-satélite (7 dias)",
+        "leigo": "Soma de detecções de todos os satélites do CSV INPE (GOES, NPP, NOAA etc.). Não equivale a focos distintos.",
+        "como_ler": "Usar como sensibilidade/contexto; o indicador oficial de focos é AQUA_M-T.",
     },
     "nivel_queimadas": {
         "nome": "Nível operacional de queimadas",
-        "leigo": "Semáforo Verde→Roxa só dos focos INPE (independente do nível climático geral).",
+        "leigo": "Semáforo Verde→Roxa baseado nos focos AQUA_M-T (independente do nível climático geral).",
         "como_ler": "Use junto com qualidade do ar — muitos focos sem PM2,5 ainda exigem atenção.",
     },
     "onda_fria_2d": {

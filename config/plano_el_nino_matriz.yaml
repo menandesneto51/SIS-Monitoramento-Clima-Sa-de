@@ -1,0 +1,2779 @@
+plano:
+  id: plano-el-nino-ses-mt-2026-2027
+  nome: Plano Estadual El Niño 2026–2027 — SES-MT
+  secretaria_executiva: UNIEVS/CIEVS
+  base_legal: Portaria n.º 0590/2026/GBSES
+  fonte_planilha: Controle_Indicacoes_El_Nino_SES_MT_2026.xlsx
+totais:
+  acoes_originais: 40
+  indicadores: 88
+  automaticos: 38
+  semiautomaticos: 41
+  manuais: 9
+acoes:
+- linha_fonte: 6
+  meta: 100% de governança e fluxo de coordenação estabelecidos para preparação e resposta aos efeitos
+    do El Niño.
+  acao: Designar pontos focais das áreas técnicas e estabelecer fluxo de comunicação, avaliação de risco
+    e resposta.
+  responsavel_texto: CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo: Até 30 dias após validação do Plano
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 7
+  meta: Garantir que os 16 ERS disponham de fluxo atualizado para comunicação e resposta aos eventos associados
+    ao El Niño.
+  acao: Atualizar contatos, pontos focais e fluxos de comunicação entre SES-MT, ERS e municípios.
+  responsavel_texto: CIEVS/VIGIDESASTRES + ERS
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo: Até 30 dias
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 8
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño.
+  acao: Implantar rotina integrada de análise de indicadores climáticos, ambientais, epidemiológicos,
+    assistenciais, de água e de queimadas.
+  responsavel_texto: CIEVS/VIGIDESASTRES + Vigilâncias + Atenção
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 9
+  meta: Garantir monitoramento dos municípios e populações prioritárias.
+  acao: Atualizar periodicamente a classificação territorial de risco considerando seca, calor, focos
+    de calor, fumaça, qualidade do ar, abastecimento de água, situação epidemiológica, capacidade assistencial
+    e vulnerabilidade populacional.
+  responsavel_texto: Vigilância Ambiental + CIEVS/VIGIDESASTRES
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Mensal e conforme agravamento
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 10
+  meta: Garantir capacidade de vigilância da qualidade da água nos territórios prioritários.
+  acao: Intensificar o monitoramento da qualidade da água para consumo humano nos municípios afetados
+    por seca, estiagem ou comprometimento do abastecimento e orientar medidas diante de não conformidades.
+  responsavel_texto: VIGIAGUA + ERS + SMS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Contínuo, conforme risco
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 11
+  meta: Estabelecer vigilância integrada dos impactos da fumaça e da poluição atmosférica sobre a saúde.
+  acao: Integrar dados de focos de calor, queimadas, fumaça/qualidade do ar e agravos à saúde e emitir
+    recomendações aos territórios sob risco.
+  responsavel_texto: VIGIAR + Vigilância Epidemiológica + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Semanal nos períodos críticos ou conforme risco
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 12
+  meta: Garantir a capacidade de detecção precoce de alterações no perfil de morbimortalidade relacionadas
+    aos eventos climáticos.
+  acao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex.
+    nº de internações) manter o monitoramento epidemiológico para eventos associados a calor, fumaça,
+    seca, água e outros efeitos do El Niño.
+  responsavel_texto: Vigilância Epidemiológica + CIEVS
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo: Até 60 dias e monitoramento contínuo
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 13
+  meta: Preparar a Rede de Atenção à Saúde para aumento da demanda decorrente dos efeitos do El Niño.
+  acao: Definir e divulgar orientações e fluxos assistenciais para manejo dos principais agravos relacionados
+    a calor extremo, fumaça, baixa umidade, desidratação e comprometimento da qualidade da água.
+  responsavel_texto: Atenção à Saúde + Regulação + Urgência/Emergência
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo: Até 120 dias
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 14
+  meta: Monitorar precocemente situações de sobrecarga ou comprometimento da capacidade assistencial.
+  acao: Estabelecer rotina de acompanhamento de demanda, regulação, disponibilidade de serviços estratégicos,
+    profissionais, medicamentos e insumos nos territórios prioritários.
+  responsavel_texto: Atenção/Regulação + CIEVS + ERS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo: Contínuo durante alerta/emergência
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 15
+  meta: Garantir continuidade dos serviços essenciais de saúde durante eventos críticos.
+  acao: Identificar unidades estratégicas vulneráveis à interrupção de água, energia, comunicação ou acesso
+    e apoiar elaboração/atualização de planos de continuidade.
+  responsavel_texto: Atenção + Gestão/Infraestrutura + ERS/SMS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo: Até 120 dias
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 16
+  meta: Assegurar capacidade logística para garantir a disponibilidade e a distribuição oportuna de medicamentos
+    e insumos prioritários às regiões e municípios afetados por eventos climáticos adversos, inclusive
+    em territórios de difícil acesso.
+  acao: Definir itens estratégicos, avaliar e dimensionar estoques central e regionais, estabelecer fluxos
+    de reposição, remanejamento e distribuição emergencial, mapear rotas e pontos críticos e definir meios
+    alternativos de transporte para atendimento dos territórios prioritários ou de difícil acesso.
+  responsavel_texto: Assistência Farmacêutica e Escritórios Regionais
+  area_id: saf
+  area_nome: Superintendência de Assistência Farmacêutica
+  prazo: Antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 17
+  meta: Fortalecer a capacidade logística para resposta em áreas remotas e de difícil acesso.
+  acao: Mapear rotas, meios de transporte e alternativas para deslocamento de equipes, amostras, medicamentos,
+    insumos e outros recursos essenciais.
+  responsavel_texto: Logística + ERS
+  area_id: ers
+  area_nome: Escritórios Regionais de Saúde
+  prazo: Até 60 dias
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 18
+  meta: Garantir comunicação de risco oportuna e coordenada.
+  acao: Elaborar e divulgar mensagens padronizadas para calor extremo, baixa umidade, fumaça, queimadas,
+    escassez/qualidade da água e medidas de proteção à saúde.
+  responsavel_texto: Comunicação + CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: comunicacao
+  area_nome: Assessoria de Comunicação / SES-MT
+  prazo: Antes e durante períodos críticos
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 19
+  meta: Incorporar populações vulneráveis à priorização da preparação e resposta.
+  acao: Identificar e mapear populações e territórios de maior vulnerabilidade e definir estratégias específicas
+    de comunicação, vigilância, assistência e acesso.
+  responsavel_texto: Vigilâncias + Atenção + ERS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo: Até 60 dias; atualização contínua
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 20
+  meta: Avaliar a prontidão estadual para resposta aos efeitos do El Niño.
+  acao: Realizar exercício simulado envolvendo áreas estratégicas, ERS e parceiros, seguido de avaliação
+    das lacunas e plano de melhoria.
+  responsavel_texto: CIEVS/VIGIDESASTRES + Vigilâncias e áreas participantes
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo: Até 180 dias
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 21
+  meta: Orientar os municípios a intensificar o monitoramento da qualidade da água utilizada nos estabelecimentos
+    sujeitos à vigilância sanitária, contemplando a integridade das tubulações, a higienização periódica
+    e a vedação de reservatórios e caixas d'água.
+  acao: Elaborar e publicar Nota Técnica orientando a intensificação da manutenção, limpeza e vedação
+    de caixas d'água e encanamentos nos estabelecimentos assistenciais de saúde e de interesse à saúde.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: 60 dias
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 22
+  meta: Monitorar os estabelecimentos produtores de águas envasadas e de gelo destinado ao consumo humano
+    durante eventos climáticos extremos de calor, bem como o monitoramento de águas envasadas em períodos
+    de chuvas intensas, em razão do aumento do risco de contaminação das fontes de captação.
+  acao: 1. Orientar as VISAs municipais quanto aos procedimentos adequados de coleta de amostras de águas
+    envasadas e de gelo destinado ao consumo humano durante eventos climáticos extremos, especialmente
+    em períodos de chuvas intensas. 2. Prever coletas de amostras de águas envasadas e de gelo destinado
+    ao consumo humano para o período de eventos climáticos extremos, com ênfase nos episódios de chuvas
+    intensas. 3. Demandar aos municípios sede dos estabelecimentos a realização das coletas em conformidade
+    com os alertas de chuvas intensas. 4. Consolidar as informações obtidas a partir dos laudos de análise
+    laboratorial. 5. Adotar as providências cabíveis, em parceria com as VISAs municipais, nos casos de
+    resultados insatisfatórios.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: Período das chuvas intensas
+  prioridade: Média
+  status_inicial: Em planejamento
+- linha_fonte: 23
+  meta: Garantir apoio às vigilâncias sanitárias municipais no monitoramento de estabelecimentos que manipulem,
+    acondicionem, distribuam ou transportem alimentos para consumo humano, com prioridade nas escolas,
+    instituições de longa permanência para idosos, unidades prisionais e outros ambientes de convivência
+    coletiva com população vulnerável, no período de calor extremo.
+  acao: Orientar as VISAs municipais a intensificar o monitoramento dos estabelecimentos que manipulem,
+    distribuam, acondicionem ou transportem alimentos destinados ao consumo humano, incluindo escolas,
+    instituições de longa permanência para idosos, unidades prisionais e demais ambientes de convivência
+    coletiva, especialmente aqueles que atendem população vulnerável, no período de calor extremo.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: 30 dias
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 24
+  meta: Orientar os estabelecimentos que armazenam medicamentos e imunobiológicos quanto às condições
+    adequadas de conservação, incluindo o controle e o registro de temperatura, em conformidade com as
+    especificações do fabricante e a legislação sanitária vigente.
+  acao: Elaborar e publicar Nota Técnica dispondo sobre as condições de armazenamento, conservação e controle
+    de temperatura de medicamentos e insumos em estabelecimentos sujeitos à vigilância sanitária.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: 30 dias
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 25
+  meta: Orientar os estabelecimentos assistenciais de saúde quanto a existência, da manutenção e da capacidade
+    operacional de geradores e demais fontes alternativas de energia em ambientes prioritários, com vistas
+    à continuidade da cadeia de frio de medicamentos, imunobiológicos e alimentos e ao funcionamento dos
+    serviços críticos em situações de interrupção do fornecimento de energia elétrica.
+  acao: Elaborar e publicar Nota Técnica orientativa para os estabelecimentos dotados de fonte alternativa
+    de energia (geradores), visando à garantia do funcionamento em situações de interrupção do fornecimento
+    elétrico. Para os estabelecimentos desprovidos de geradores, orientar a elaboração e implementação
+    de Plano de Contingência específico. Realizar webinar junto aos municípios estratégicos para apresentação
+    e alinhamento das diretrizes estabelecidas nas Notas Técnicas publicadas.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: 30 dias
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 26
+  meta: Orientar os estabelecimentos para que estes garantam condições mínimas de climatização e conforto
+    térmico, visando à proteção da saúde de trabalhadores, usuários e à preservação de insumos durante
+    períodos de ondas de calor extremo.
+  acao: Elaborar e publicar Nota Técnica aos estabelecimentos providenciem equipamentos apropriados, elaborem
+    e implementem o PMOC ou Plano de manutenção, com cronograma de execução.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: 30 dias
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 27
+  meta: Orientar as Vigilâncias Sanitárias Municipais (VISAs) a intensificarem a fiscalização do monitoramento
+    e controle de animais sinantrópicos em Estabelecimentos de Assistência à Saúde (EAS) e de Interesse
+    à Saúde (EIS), priorizando aqueles voltados ao atendimento de populações vulneráveis.
+  acao: Elaborar Nota Técnica direcionada às VISAs municipais para que intensifiquem o monitoramento do
+    controle de animais sinantrópicos nos estabelecimento de assistência a saúde e de interesse a saúde,
+    principalmente os de atendimento a população vulnerável.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: 30 dias
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 28
+  meta: Orientar os estabelecimentos assistenciais de saúde a garantirem as condições adequadas de operacionalidade,
+    segurança e manutenção dos equipamentos médico-hospitalares.
+  acao: Elaborar e publicar Nota Técnica direcionada aos estabelecimentos assistenciais de saúde, orientando-os
+    sobre a obrigatoriedade de assegurar as condições adequadas de operação, segurança e funcionalidade
+    dos equipamentos médico-hospitalares.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: 30 dias
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 29
+  meta: Priorizar e realizar o atendimento de denúncias sobre irregularidades sanitárias decorrentes ou
+    agravadas por eventos climáticos extremos, visando à mitigação de riscos à saúde pública.
+  acao: Atender prioritariamente às denúncias recebidas relativas aos impactos de eventos climáticos extremos
+    e, quando couber, solicitar o apoio da Vigilância Sanitária (VISA) municipal para a realização da
+    averiguação in loco.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo: Durante os eventos climáticos extremos
+  prioridade: Média
+  status_inicial: Não iniciada
+- linha_fonte: 30
+  meta: Monitorar os municípios afetados ou sob risco de impactos do El Niño nas ações de imunização
+  acao: Monitorar, por meio dos ERS, os impactos dos eventos climáticos nas ações de imunização, identificando
+    alterações na rotina da vacinação, dificuldade de acesso aos serviços e demais situações que possam
+    comprometer a continuidade das ações; Prestar suporte técnico conforme as necessidades identificadas.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo: Durante o período de ocorrência do evento
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 31
+  meta: Assegurar a adoção de medidas de contingência da Rede de Frio dos municípios sob risco de eventos.
+  acao: Monitorar, por meio dos ERS, as ocorrências relacionadas a eventos climáticos que possam comprometer
+    a conservação dos imunobiológicos; Orientar tecnicamente os ERS quanto às medidas de contingência
+    da Rede de Frio.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo: Durante o período de ocorrência do evento
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 32
+  meta: Garantir o abastecimento de imunobiológicos.
+  acao: Monitorar os estoques de imunobiológicos nas regionais e municípios; Remanejar, quando necessário,
+    os imunobiológicos entre regionais, considerando a disponibilidade de estoque e as necessidades identificadas.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo: Monitoramento mensal
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 33
+  meta: Fortalecer o VIGIAR em Mato Grosso, para mitigar os efeitos das emissões das queimadas e secas
+    severas nas populações e territórios mais expostos.
+  acao: 1) Avaliar os dados de focos de calor e taxas de internações por Doenças Respiratórias para mapear
+    os municípios com maior risco socioambiental. 2) Acompanhar os índices de material particulado e gases
+    tóxicos, disponibilizados por órgãos oficiais. 3) Emitir boletins, alertas, para informar as Unidades
+    de Saúde e a população sobre qualidade do ar e medidas de autoproteção.
+  responsavel_texto: COVSAM/Área técnica do Programa Vigiar estadual.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Contínuo
+  prioridade: Alta
+  status_inicial: Em execução
+- linha_fonte: 34
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de
+    vigilância em saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
+  acao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para
+    consumo humano, animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação
+    oficiais, denúncias e rumores
+  responsavel_texto: Vigilância Ambiental e Epidemiológica
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Contínuo com periodicidade semanal; intensificar conforme risco
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 35
+  meta: Realizar o monitoramento dos municípios e populações prioritárias
+  acao: Atualizar periodicamente a classificação territorial de risco considerando seca, calor, focos
+    de calor, fumaça, qualidade do ar, abastecimento de água, situação epidemiológica e vulnerabilidade
+    populacional.
+  responsavel_texto: COVSAM (VIGIAGUA, VIGIAR e VIGIDESASTRES) + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Mensal e conforme agravamento
+  prioridade: Alta
+  status_inicial: Validado
+- linha_fonte: 36
+  meta: Fortalecer a Vigilâcia da Qualidade da Água para Consumo Humano - VIGIÁGUA em Mato Grosso, para
+    garantir respostas rápidas aos riscos de contaminação decorrentes de secas extremas e inundações.
+  acao: 1) Intensificar as coletas e análises laboratoriais de campo para os parâmetros básicos (cloro
+    residual livre, turbidez, pH e coliformes totais/Escherichia coli) em municípios em situação de emergência
+    ou calamidade hídrica; 2) Cadastrar e mapear todos os Sistemas (SAA), Soluções Alternativas Coletivas
+    (SAC) e Soluções Alternativas Individuais (SAI) de abastecimento de água operando em territórios vulneráveis
+    a seca, estiagem e inundações; 3) Capacitação para os técnicos municipais sobre vigilância da qualidade
+    da água em cenários de desastres e operação do sistema SISAGUA. 4) Emitir boletins informativos e
+    alertas técnicos para a população sobre os cuidados e métodos de desinfecção domiciliar da água durante
+    eventos climáticos extremos.
+  responsavel_texto: 1) Secretaria Municipal de Saúde (cadastro e coleta de amostras de água) e Laboratório
+    Central de Saúde Pública de Mato Grosso - LACEN-MT (análise laboratorial), 2) Equipe técnica da SES
+    (Nível Central e Regional), realizar inspeção dos SAA, SAC. 3) Equipe técnica da SES; 4) Área técnica
+    do VIGIAGUA Estadual em conjunto com a Assessoria de Comunicação da SES-MT.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 37
+  meta: Detectar precocemente alterações no perfil de morbimortalidade relacionadas aos eventos climáticos.
+  acao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex.
+    nº de internações) manter o monitoramento epidemiológico para eventos associados a calor, fumaça,
+    seca, água e outros efeitos do El Niño.
+  responsavel_texto: Vigilância Epidemiológica e Vigilância Ambiental + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Até 60 dias e monitoramento contínuo
+  prioridade: Alta
+  status_inicial: Validado
+- linha_fonte: 38
+  meta: Garantir comunicação de risco oportuna e coordenada.
+  acao: Elaborar e divulgar mensagens padronizadas para calor extremo, baixa umidade, fumaça, queimadas,
+    escassez/qualidade da água para consumo humano e medidas de proteção à saúde.
+  responsavel_texto: Comunicação + CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: comunicacao
+  area_nome: Assessoria de Comunicação / SES-MT
+  prazo: Antes e durante períodos críticos
+  prioridade: Alta
+  status_inicial: Validado
+- linha_fonte: 39
+  meta: Responder em tempo oportuno aos municípios que apresentarem aumento dos indicadores de infestação
+    vetorial ou risco de transmissão de arboviroses.
+  acao: Intensificar o acompanhamento dos indicadores de infestação por Aedes aegypti e Aedes albopictus
+    nos municípios prioritários, utilizando LIRAa/LIA e/ou outras metodologias de vigilância entomológica
+    aplicáveis à realidade local (ovitrampas).
+  responsavel_texto: COVSAM
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  status_inicial: Validado
+- linha_fonte: 40
+  meta: Fortalecer a Vigilância em Saúde do Trabalhador
+  acao: Entregar aos ERS o perfil epidemiológico da sua área de abrângencia
+  responsavel_texto: COVSAT
+  area_id: covsat
+  area_nome: Coordenadoria de Vigilância em Saúde do Trabalhador
+  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 41
+  meta: Comunicação e educação em saúde do trabalhador
+  acao: Comunicar de forma efetiva trabalhadores e profissionais de saúde
+  responsavel_texto: COVSAT
+  area_id: covsat
+  area_nome: Coordenadoria de Vigilância em Saúde do Trabalhador
+  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 42
+  meta: Orientar os trabalhadores quanto os processos e ambientes de trabalho adequado frente aos efeitos
+    do El Niño, a partir do monitoramento da sala de situação
+  acao: Realizar vigilâncias em ambientes e processo de trabalho nos municípios prioritários
+  responsavel_texto: COVSAT/CEREST REGIONAIS E MUNICIPAIS
+  area_id: covsat
+  area_nome: Coordenadoria de Vigilância em Saúde do Trabalhador
+  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 43
+  meta: Fortalecer a capacidade de resposta da Rede Hospitalar.
+  acao: 1) Demandar ao gabinete de Gestão Hospitalar e a Superintendência de Gestão das Parcerias a elaboração
+    e atualização dos Planos de contingência das unidades de saúde; 2) Solicitar ao Gabinete de Gestão
+    Hospitalar a Superintendência de Gestão das Parcerias o levantamento da capacidade instalada (leitos,
+    equipamentos e apoio diagnóstico) e do potencial de expansão assistencial sob demanda; 3) Solicitar
+    ao Gabinete de Gestão Hospitalar a Superintendência de Gestão das Parcerias protocolos assistenciais
+    focados em eventos cardiovasculares, renais e respiratórios.
+  responsavel_texto: Coordenadoria de Atenção Terciária/SAS
+  area_id: sas_terciaria
+  area_nome: Coordenadoria de Atenção Terciária / SAS
+  prazo: Antes e durante o período crítico
+  prioridade: Alta
+  status_inicial: Em planejamento
+- linha_fonte: 44
+  meta: Fortalecer o apoio técnico à Atenção Secundária nos municípios e regiões prioritárias.
+  acao: Orientar e prestar apoio técnico aos Escritórios Regionais de Saúde e municípios quanto à preparação
+    dos serviços de Atenção Secundária, por meio do compartilhamento de orientações e da realização de
+    reuniões técnicas, preferencialmente virtuais, conforme necessidade identificada ou demanda encaminhada.
+  responsavel_texto: Coordenadoria de Atenção Secundária/SAS, em articulação com os Escritórios Regionais
+    de Saúde.
+  area_id: sas_secundaria
+  area_nome: Coordenadoria de Atenção Secundária / SAS
+  prazo: Antes e durante o período crítico.
+  prioridade: Alta
+  status_inicial: A validar
+- linha_fonte: 45
+  meta: Fortalecer a capacidade de resposta da Rede de Urgência e Emergência.
+  acao: 'Orientar os serviços de Urgência e Emergência para: 1) organizar protocolos de triagem, classificação
+    de risco e priorização dos atendimentos; 2) definir fluxos para transporte e encaminhamento de pacientes;
+    3) estabelecer o fluxo de envio de informações dos Núcleos de Vigilância Epidemiológica Hospitalar
+    ao CIEVS/SES-MT; e 4) verificar a disponibilidade de medicamentos, insumos e correlatos para o atendimento
+    pré-hospitalar.'
+  responsavel_texto: Coordenadoria de Organização de Redes de Urgência e Emergência e Escritórios Regionais
+  area_id: sas_urgencia
+  area_nome: Coordenadoria de Organização de Redes de Urgência e Emergência
+  prazo: Antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  status_inicial: A validar
+indicadores:
+- id: ARARA-001
+  linha_origem: 6
+  eixo: Governança e articulação
+  meta: 100% de governança e fluxo de coordenação estabelecidos para preparação e resposta aos efeitos
+    do El Niño.
+  acao: Designar pontos focais das áreas técnicas e estabelecer fluxo de comunicação, avaliação de risco
+    e resposta.
+  responsavel_texto: CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 30 dias após validação do Plano
+  prioridade: Alta
+  tipo: execucao
+  indicador: Cobertura de áreas com ponto focal designado
+  formula: áreas com ponto focal formalizado ÷ áreas previstas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Cadastro de pontos focais / Secretaria-executiva ARARA
+  periodicidade: Mensal e a cada alteração
+  automacao: automatico
+  automacao_detalhe: Automático (Portaria 0590)
+  viabilidade: Alta
+  semaforo: Verde=100%; Amarelo=80–99%; Vermelho<80%
+  evidencia_minima: Registro de designação e contato válido
+- id: ARARA-002
+  linha_origem: 6
+  eixo: Governança e articulação
+  meta: 100% de governança e fluxo de coordenação estabelecidos para preparação e resposta aos efeitos
+    do El Niño.
+  acao: Designar pontos focais das áreas técnicas e estabelecer fluxo de comunicação, avaliação de risco
+    e resposta.
+  responsavel_texto: CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 30 dias após validação do Plano
+  prioridade: Alta
+  tipo: execucao
+  indicador: Fluxo estadual de comunicação e resposta formalizado
+  formula: 1 se fluxo vigente, aprovado e disponível; 0 caso contrário
+  meta_gatilho: Sim
+  unidade: Binário
+  direcao: Maior é melhor
+  fonte: Repositório documental ARARA
+  periodicidade: A cada revisão
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=Sim; Vermelho=Não
+  evidencia_minima: Documento/fluxograma aprovado e versão vigente
+- id: ARARA-003
+  linha_origem: 7
+  eixo: Governança e articulação
+  meta: Garantir que os 16 ERS disponham de fluxo atualizado para comunicação e resposta aos eventos associados
+    ao El Niño.
+  acao: Atualizar contatos, pontos focais e fluxos de comunicação entre SES-MT, ERS e municípios.
+  responsavel_texto: CIEVS/VIGIDESASTRES + ERS
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 30 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: ERS com contatos e fluxo atualizados
+  formula: ERS com ponto focal + contato válido + fluxo vigente ÷ 16 × 100
+  meta_gatilho: 100% (16/16)
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Cadastro ARARA / ERS
+  periodicidade: Mensal
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde=100%; Amarelo=75–99%; Vermelho<75%
+  evidencia_minima: Cadastro validado por ERS
+- id: ARARA-004
+  linha_origem: 8
+  eixo: Inteligência e avaliação de risco
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño.
+  acao: Implantar rotina integrada de análise de indicadores climáticos, ambientais, epidemiológicos,
+    assistenciais, de água e de queimadas.
+  responsavel_texto: CIEVS/VIGIDESASTRES + Vigilâncias + Atenção
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  tipo: execucao
+  indicador: Pontualidade das avaliações integradas de risco
+  formula: avaliações emitidas no prazo ÷ avaliações previstas × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Logs de geração/publicação do ARARA
+  periodicidade: Semanal/mensal conforme estágio
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de geração e publicação
+- id: ARARA-005
+  linha_origem: 8
+  eixo: Inteligência e avaliação de risco
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño.
+  acao: Implantar rotina integrada de análise de indicadores climáticos, ambientais, epidemiológicos,
+    assistenciais, de água e de queimadas.
+  responsavel_texto: CIEVS/VIGIDESASTRES + Vigilâncias + Atenção
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  tipo: resultado
+  indicador: Latência da avaliação integrada de risco
+  formula: mediana(data/hora de publicação − data/hora de fechamento dos dados)
+  meta_gatilho: ≤24 h
+  unidade: Horas
+  direcao: Menor é melhor
+  fonte: Metadados de ingestão + publicação ARARA
+  periodicidade: A cada avaliação
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≤24h; Amarelo>24–48h; Vermelho>48h
+  evidencia_minima: Timestamp das fontes e do relatório
+- id: ARARA-006
+  linha_origem: 9
+  eixo: Inteligência e avaliação de risco
+  meta: Garantir monitoramento dos municípios e populações prioritárias.
+  acao: Atualizar periodicamente a classificação territorial de risco considerando seca, calor, focos
+    de calor, fumaça, qualidade do ar, abastecimento de água, situação epidemiológica, capacidade assistencial
+    e vulnerabilidade populacional.
+  responsavel_texto: Vigilância Ambiental + CIEVS/VIGIDESASTRES
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Mensal e conforme agravamento
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Cobertura territorial com classificação de risco válida
+  formula: municípios com dados mínimos e classificação atualizada ÷ municípios monitorados × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Motor de risco ARARA
+  periodicidade: Semanal/mensal conforme estágio
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Classificação com data, fonte e completude
+- id: ARARA-007
+  linha_origem: 9
+  eixo: Inteligência e avaliação de risco
+  meta: Garantir monitoramento dos municípios e populações prioritárias.
+  acao: Atualizar periodicamente a classificação territorial de risco considerando seca, calor, focos
+    de calor, fumaça, qualidade do ar, abastecimento de água, situação epidemiológica, capacidade assistencial
+    e vulnerabilidade populacional.
+  responsavel_texto: Vigilância Ambiental + CIEVS/VIGIDESASTRES
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Mensal e conforme agravamento
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Municípios em risco elevado persistente
+  formula: nº de municípios em Vermelho/Roxo por ≥2 ciclos consecutivos
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Nº
+  direcao: Gatilho
+  fonte: Motor de risco ARARA
+  periodicidade: A cada ciclo
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Gatilho operacional conforme persistência e população exposta
+  evidencia_minima: Histórico de classificação
+- id: ARARA-008
+  linha_origem: 10
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Garantir capacidade de vigilância da qualidade da água nos territórios prioritários.
+  acao: Intensificar o monitoramento da qualidade da água para consumo humano nos municípios afetados
+    por seca, estiagem ou comprometimento do abastecimento e orientar medidas diante de não conformidades.
+  responsavel_texto: VIGIAGUA + ERS + SMS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo, conforme risco
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Municípios prioritários com monitoramento da água válido
+  formula: municípios prioritários com dado válido na janela ÷ municípios prioritários × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: SISAGUA / registros VIGIÁGUA integrados ao ARARA
+  periodicidade: Semanal/mensal conforme risco
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Amostras/monitoramento com competência válida
+- id: ARARA-009
+  linha_origem: 10
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Garantir capacidade de vigilância da qualidade da água nos territórios prioritários.
+  acao: Intensificar o monitoramento da qualidade da água para consumo humano nos municípios afetados
+    por seca, estiagem ou comprometimento do abastecimento e orientar medidas diante de não conformidades.
+  responsavel_texto: VIGIAGUA + ERS + SMS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo, conforme risco
+  prioridade: Alta
+  tipo: resultado
+  indicador: Não conformidades de água com resposta registrada
+  formula: não conformidades com providência registrada ÷ total de não conformidades × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: SISAGUA + registro de providências ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro de providência e data
+- id: ARARA-010
+  linha_origem: 10
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Garantir capacidade de vigilância da qualidade da água nos territórios prioritários.
+  acao: Intensificar o monitoramento da qualidade da água para consumo humano nos municípios afetados
+    por seca, estiagem ou comprometimento do abastecimento e orientar medidas diante de não conformidades.
+  responsavel_texto: VIGIAGUA + ERS + SMS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo, conforme risco
+  prioridade: Alta
+  tipo: resultado
+  indicador: Tempo de resposta à não conformidade da água
+  formula: mediana(data/hora da providência − data/hora da detecção)
+  meta_gatilho: ≤48 h
+  unidade: Horas
+  direcao: Menor é melhor
+  fonte: SISAGUA + ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≤48h; Amarelo>48–72h; Vermelho>72h
+  evidencia_minima: Timestamps de detecção e providência
+- id: ARARA-011
+  linha_origem: 11
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Estabelecer vigilância integrada dos impactos da fumaça e da poluição atmosférica sobre a saúde.
+  acao: Integrar dados de focos de calor, queimadas, fumaça/qualidade do ar e agravos à saúde e emitir
+    recomendações aos territórios sob risco.
+  responsavel_texto: VIGIAR + Vigilância Epidemiológica + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Semanal nos períodos críticos ou conforme risco
+  prioridade: Alta
+  tipo: execucao
+  indicador: Análises integradas fumaça–saúde realizadas no prazo
+  formula: análises emitidas no prazo ÷ análises previstas × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: 'ARARA: focos de calor/qualidade do ar + saúde'
+  periodicidade: Semanal em período crítico
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log da análise integrada
+- id: ARARA-012
+  linha_origem: 11
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Estabelecer vigilância integrada dos impactos da fumaça e da poluição atmosférica sobre a saúde.
+  acao: Integrar dados de focos de calor, queimadas, fumaça/qualidade do ar e agravos à saúde e emitir
+    recomendações aos territórios sob risco.
+  responsavel_texto: VIGIAR + Vigilância Epidemiológica + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Semanal nos períodos críticos ou conforme risco
+  prioridade: Alta
+  tipo: resultado
+  indicador: Cobertura territorial dos alertas de fumaça/qualidade do ar
+  formula: territórios prioritários que receberam orientação ÷ territórios alvo × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de alertas ARARA
+  periodicidade: A cada alerta
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de destinatários e entrega
+- id: ARARA-013
+  linha_origem: 11
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Estabelecer vigilância integrada dos impactos da fumaça e da poluição atmosférica sobre a saúde.
+  acao: Integrar dados de focos de calor, queimadas, fumaça/qualidade do ar e agravos à saúde e emitir
+    recomendações aos territórios sob risco.
+  responsavel_texto: VIGIAR + Vigilância Epidemiológica + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Semanal nos períodos críticos ou conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: População sob exposição relevante à fumaça/PM2,5
+  formula: população residente em territórios acima do limiar técnico vigente
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Pessoas
+  direcao: Gatilho
+  fonte: Qualidade do ar + população + georreferenciamento ARARA
+  periodicidade: Diário/semanal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Nível de risco conforme limiar técnico validado
+  evidencia_minima: Dado ambiental + população
+- id: ARARA-014
+  linha_origem: 12
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Garantir a capacidade de detecção precoce de alterações no perfil de morbimortalidade relacionadas
+    aos eventos climáticos.
+  acao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex.
+    nº de internações) manter o monitoramento epidemiológico para eventos associados a calor, fumaça,
+    seca, água e outros efeitos do El Niño.
+  responsavel_texto: Vigilância Epidemiológica + CIEVS
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 60 dias e monitoramento contínuo
+  prioridade: Alta
+  tipo: execucao
+  indicador: Conjunto de indicadores sentinela formalmente definido
+  formula: 1 se catálogo vigente de agravos, fontes, baseline e regras estiver aprovado
+  meta_gatilho: Sim
+  unidade: Binário
+  direcao: Maior é melhor
+  fonte: Catálogo de indicadores ARARA
+  periodicidade: A cada revisão
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=Sim; Vermelho=Não
+  evidencia_minima: Documento técnico/versão do catálogo
+- id: ARARA-015
+  linha_origem: 12
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Garantir a capacidade de detecção precoce de alterações no perfil de morbimortalidade relacionadas
+    aos eventos climáticos.
+  acao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex.
+    nº de internações) manter o monitoramento epidemiológico para eventos associados a calor, fumaça,
+    seca, água e outros efeitos do El Niño.
+  responsavel_texto: Vigilância Epidemiológica + CIEVS
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 60 dias e monitoramento contínuo
+  prioridade: Alta
+  tipo: execucao
+  indicador: Períodos com análise de morbimortalidade realizada
+  formula: períodos analisados ÷ períodos previstos × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: DW/Sistemas epidemiológicos + ARARA
+  periodicidade: Semanal/mensal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de processamento
+- id: ARARA-016
+  linha_origem: 12
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Garantir a capacidade de detecção precoce de alterações no perfil de morbimortalidade relacionadas
+    aos eventos climáticos.
+  acao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex.
+    nº de internações) manter o monitoramento epidemiológico para eventos associados a calor, fumaça,
+    seca, água e outros efeitos do El Niño.
+  responsavel_texto: Vigilância Epidemiológica + CIEVS
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 60 dias e monitoramento contínuo
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Municípios com agravo sentinela acima do esperado
+  formula: nº de municípios com indicador acima do baseline/limiar estatístico
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Nº
+  direcao: Gatilho
+  fonte: DW/SINAN/SIH e séries históricas ARARA
+  periodicidade: Semanal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Muito alta
+  semaforo: Gatilho conforme desvio/baseline validado
+  evidencia_minima: Série temporal e regra de detecção
+- id: ARARA-017
+  linha_origem: 13
+  eixo: Atenção e capacidade assistencial
+  meta: Preparar a Rede de Atenção à Saúde para aumento da demanda decorrente dos efeitos do El Niño.
+  acao: Definir e divulgar orientações e fluxos assistenciais para manejo dos principais agravos relacionados
+    a calor extremo, fumaça, baixa umidade, desidratação e comprometimento da qualidade da água.
+  responsavel_texto: Atenção à Saúde + Regulação + Urgência/Emergência
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Até 120 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Protocolos assistenciais prioritários definidos e vigentes
+  formula: protocolos concluídos e vigentes ÷ protocolos previstos × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Repositório documental ARARA
+  periodicidade: Mensal até conclusão; depois revisão
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde=100%; Amarelo=75–99%; Vermelho<75%
+  evidencia_minima: Protocolo aprovado e versão vigente
+- id: ARARA-018
+  linha_origem: 13
+  eixo: Atenção e capacidade assistencial
+  meta: Preparar a Rede de Atenção à Saúde para aumento da demanda decorrente dos efeitos do El Niño.
+  acao: Definir e divulgar orientações e fluxos assistenciais para manejo dos principais agravos relacionados
+    a calor extremo, fumaça, baixa umidade, desidratação e comprometimento da qualidade da água.
+  responsavel_texto: Atenção à Saúde + Regulação + Urgência/Emergência
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Até 120 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: ERS que receberam orientações assistenciais
+  formula: ERS com registro de envio/ciência ÷ 16 × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de comunicação ARARA
+  periodicidade: A cada publicação
+  automacao: automatico
+  automacao_detalhe: Automático se envio pelo ARARA
+  viabilidade: Alta
+  semaforo: Verde=100%; Amarelo=80–99%; Vermelho<80%
+  evidencia_minima: Log de envio/ciência
+- id: ARARA-019
+  linha_origem: 14
+  eixo: Atenção e capacidade assistencial
+  meta: Monitorar precocemente situações de sobrecarga ou comprometimento da capacidade assistencial.
+  acao: Estabelecer rotina de acompanhamento de demanda, regulação, disponibilidade de serviços estratégicos,
+    profissionais, medicamentos e insumos nos territórios prioritários.
+  responsavel_texto: Atenção/Regulação + CIEVS + ERS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Contínuo durante alerta/emergência
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Territórios prioritários com situação assistencial monitorada
+  formula: territórios prioritários com dados assistenciais válidos ÷ territórios prioritários × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Regulação/CNES/assistência + ARARA
+  periodicidade: Diário/semanal em alerta
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Dados assistenciais com competência válida
+- id: ARARA-020
+  linha_origem: 14
+  eixo: Atenção e capacidade assistencial
+  meta: Monitorar precocemente situações de sobrecarga ou comprometimento da capacidade assistencial.
+  acao: Estabelecer rotina de acompanhamento de demanda, regulação, disponibilidade de serviços estratégicos,
+    profissionais, medicamentos e insumos nos territórios prioritários.
+  responsavel_texto: Atenção/Regulação + CIEVS + ERS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Contínuo durante alerta/emergência
+  prioridade: Alta
+  tipo: resultado
+  indicador: Situações críticas assistenciais com encaminhamento no prazo
+  formula: situações críticas com encaminhamento dentro do SLA ÷ total de situações críticas × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Fila de pendências/decisões ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro de ocorrência, decisão e encerramento
+- id: ARARA-021
+  linha_origem: 14
+  eixo: Atenção e capacidade assistencial
+  meta: Monitorar precocemente situações de sobrecarga ou comprometimento da capacidade assistencial.
+  acao: Estabelecer rotina de acompanhamento de demanda, regulação, disponibilidade de serviços estratégicos,
+    profissionais, medicamentos e insumos nos territórios prioritários.
+  responsavel_texto: Atenção/Regulação + CIEVS + ERS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Contínuo durante alerta/emergência
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Índice de pressão assistencial
+  formula: escore parametrizado de ocupação, demanda, espera, capacidade e disponibilidade
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Índice
+  direcao: Gatilho
+  fonte: Regulação/CNES/produção/ocupação + ARARA
+  periodicidade: Diário
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Faixas Verde–Roxo conforme validação técnica
+  evidencia_minima: Componentes e versão do algoritmo
+- id: ARARA-022
+  linha_origem: 15
+  eixo: Atenção e capacidade assistencial
+  meta: Garantir continuidade dos serviços essenciais de saúde durante eventos críticos.
+  acao: Identificar unidades estratégicas vulneráveis à interrupção de água, energia, comunicação ou acesso
+    e apoiar elaboração/atualização de planos de continuidade.
+  responsavel_texto: Atenção + Gestão/Infraestrutura + ERS/SMS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Até 120 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Unidades estratégicas com plano de continuidade vigente
+  formula: unidades prioritárias com plano vigente ÷ unidades prioritárias × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Cadastro de unidades + documentos ARARA
+  periodicidade: Mensal/trimestral
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Plano vigente + data de revisão
+- id: ARARA-023
+  linha_origem: 15
+  eixo: Atenção e capacidade assistencial
+  meta: Garantir continuidade dos serviços essenciais de saúde durante eventos críticos.
+  acao: Identificar unidades estratégicas vulneráveis à interrupção de água, energia, comunicação ou acesso
+    e apoiar elaboração/atualização de planos de continuidade.
+  responsavel_texto: Atenção + Gestão/Infraestrutura + ERS/SMS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Até 120 dias
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Unidades com interrupção de serviço essencial
+  formula: nº de unidades com falha ativa de água, energia, conectividade ou acesso
+  meta_gatilho: '0'
+  unidade: Nº
+  direcao: Menor é melhor
+  fonte: Registro de incidentes ARARA
+  periodicidade: Contínuo
+  automacao: automatico
+  automacao_detalhe: Automático (infraestrutura)
+  viabilidade: Alta
+  semaforo: Verde=0; Amarelo=1–2; Vermelho≥3 ou unidade crítica
+  evidencia_minima: Ocorrência validada e status
+- id: ARARA-024
+  linha_origem: 16
+  eixo: Assistência farmacêutica e logística
+  meta: Assegurar capacidade logística para garantir a disponibilidade e a distribuição oportuna de medicamentos
+    e insumos prioritários às regiões e municípios afetados por eventos climáticos adversos, inclusive
+    em territórios de difícil acesso.
+  acao: Definir itens estratégicos, avaliar e dimensionar estoques central e regionais, estabelecer fluxos
+    de reposição, remanejamento e distribuição emergencial, mapear rotas e pontos críticos e definir meios
+    alternativos de transporte para atendimento dos territórios prioritários ou de difícil acesso.
+  responsavel_texto: Assistência Farmacêutica e Escritórios Regionais
+  area_id: saf
+  area_nome: Superintendência de Assistência Farmacêutica
+  prazo_original: Antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Itens estratégicos com autonomia acima do mínimo
+  formula: itens com dias de autonomia ≥ mínimo técnico ÷ itens estratégicos × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Estoque central/regional + consumo médio + ARARA
+  periodicidade: Diário/semanal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Estoque, consumo médio e estoque mínimo
+- id: ARARA-025
+  linha_origem: 16
+  eixo: Assistência farmacêutica e logística
+  meta: Assegurar capacidade logística para garantir a disponibilidade e a distribuição oportuna de medicamentos
+    e insumos prioritários às regiões e municípios afetados por eventos climáticos adversos, inclusive
+    em territórios de difícil acesso.
+  acao: Definir itens estratégicos, avaliar e dimensionar estoques central e regionais, estabelecer fluxos
+    de reposição, remanejamento e distribuição emergencial, mapear rotas e pontos críticos e definir meios
+    alternativos de transporte para atendimento dos territórios prioritários ou de difícil acesso.
+  responsavel_texto: Assistência Farmacêutica e Escritórios Regionais
+  area_id: saf
+  area_nome: Superintendência de Assistência Farmacêutica
+  prazo_original: Antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Episódios de ruptura de estoque estratégico
+  formula: nº de ocorrências de estoque zero em item estratégico
+  meta_gatilho: '0'
+  unidade: Nº
+  direcao: Menor é melhor
+  fonte: Sistema de estoque + ARARA
+  periodicidade: Diário
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Muito alta
+  semaforo: Verde=0; Amarelo=1; Vermelho≥2 ou item crítico
+  evidencia_minima: Saldo de estoque e histórico
+- id: ARARA-026
+  linha_origem: 16
+  eixo: Assistência farmacêutica e logística
+  meta: Assegurar capacidade logística para garantir a disponibilidade e a distribuição oportuna de medicamentos
+    e insumos prioritários às regiões e municípios afetados por eventos climáticos adversos, inclusive
+    em territórios de difícil acesso.
+  acao: Definir itens estratégicos, avaliar e dimensionar estoques central e regionais, estabelecer fluxos
+    de reposição, remanejamento e distribuição emergencial, mapear rotas e pontos críticos e definir meios
+    alternativos de transporte para atendimento dos territórios prioritários ou de difícil acesso.
+  responsavel_texto: Assistência Farmacêutica e Escritórios Regionais
+  area_id: saf
+  area_nome: Superintendência de Assistência Farmacêutica
+  prazo_original: Antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  tipo: resultado
+  indicador: Demandas prioritárias atendidas no prazo
+  formula: demandas prioritárias atendidas dentro do SLA ÷ demandas prioritárias × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Solicitações/logística ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Solicitação, prazo e entrega
+- id: ARARA-027
+  linha_origem: 17
+  eixo: Assistência farmacêutica e logística
+  meta: Fortalecer a capacidade logística para resposta em áreas remotas e de difícil acesso.
+  acao: Mapear rotas, meios de transporte e alternativas para deslocamento de equipes, amostras, medicamentos,
+    insumos e outros recursos essenciais.
+  responsavel_texto: Logística + ERS
+  area_id: ers
+  area_nome: Escritórios Regionais de Saúde
+  prazo_original: Até 60 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: ERS com rotas e alternativas logísticas mapeadas
+  formula: ERS com mapa/rota vigente ÷ 16 × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Cadastro logístico ARARA
+  periodicidade: Trimestral e após evento
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde=100%; Amarelo=75–99%; Vermelho<75%
+  evidencia_minima: Mapa/rota com data de validação
+- id: ARARA-028
+  linha_origem: 17
+  eixo: Assistência farmacêutica e logística
+  meta: Fortalecer a capacidade logística para resposta em áreas remotas e de difícil acesso.
+  acao: Mapear rotas, meios de transporte e alternativas para deslocamento de equipes, amostras, medicamentos,
+    insumos e outros recursos essenciais.
+  responsavel_texto: Logística + ERS
+  area_id: ers
+  area_nome: Escritórios Regionais de Saúde
+  prazo_original: Até 60 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Plano de contingência logística estadual vigente
+  formula: 1 se plano aprovado e vigente
+  meta_gatilho: Sim
+  unidade: Binário
+  direcao: Maior é melhor
+  fonte: Repositório documental ARARA
+  periodicidade: A cada revisão
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=Sim; Vermelho=Não
+  evidencia_minima: Plano vigente
+- id: ARARA-029
+  linha_origem: 18
+  eixo: Comunicação de risco e vulnerabilidade
+  meta: Garantir comunicação de risco oportuna e coordenada.
+  acao: Elaborar e divulgar mensagens padronizadas para calor extremo, baixa umidade, fumaça, queimadas,
+    escassez/qualidade da água e medidas de proteção à saúde.
+  responsavel_texto: Comunicação + CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: comunicacao
+  area_nome: Assessoria de Comunicação / SES-MT
+  prazo_original: Antes e durante períodos críticos
+  prioridade: Alta
+  tipo: resultado
+  indicador: Alertas de comunicação de risco emitidos dentro do prazo
+  formula: alertas emitidos dentro do SLA ÷ alertas previstos/disparados × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de alertas ARARA
+  periodicidade: A cada alerta
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de disparo
+- id: ARARA-030
+  linha_origem: 18
+  eixo: Comunicação de risco e vulnerabilidade
+  meta: Garantir comunicação de risco oportuna e coordenada.
+  acao: Elaborar e divulgar mensagens padronizadas para calor extremo, baixa umidade, fumaça, queimadas,
+    escassez/qualidade da água e medidas de proteção à saúde.
+  responsavel_texto: Comunicação + CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: comunicacao
+  area_nome: Assessoria de Comunicação / SES-MT
+  prazo_original: Antes e durante períodos críticos
+  prioridade: Alta
+  tipo: resultado
+  indicador: Cobertura de comunicação de risco
+  formula: territórios/destinatários prioritários alcançados ÷ alvos previstos × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de alertas ARARA
+  periodicidade: A cada alerta
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de entrega/alcance
+- id: ARARA-031
+  linha_origem: 19
+  eixo: Comunicação de risco e vulnerabilidade
+  meta: Incorporar populações vulneráveis à priorização da preparação e resposta.
+  acao: Identificar e mapear populações e territórios de maior vulnerabilidade e definir estratégias específicas
+    de comunicação, vigilância, assistência e acesso.
+  responsavel_texto: Vigilâncias + Atenção + ERS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Até 60 dias; atualização contínua
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Territórios prioritários com estratégia para populações vulneráveis
+  formula: territórios prioritários com estratégia específica vigente ÷ territórios prioritários × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Cadastro territorial ARARA
+  periodicidade: Mensal/trimestral
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Mapa de vulnerabilidade + estratégia registrada
+- id: ARARA-032
+  linha_origem: 19
+  eixo: Comunicação de risco e vulnerabilidade
+  meta: Incorporar populações vulneráveis à priorização da preparação e resposta.
+  acao: Identificar e mapear populações e territórios de maior vulnerabilidade e definir estratégias específicas
+    de comunicação, vigilância, assistência e acesso.
+  responsavel_texto: Vigilâncias + Atenção + ERS
+  area_id: sas_atencao
+  area_nome: Superintendência de Atenção à Saúde
+  prazo_original: Até 60 dias; atualização contínua
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Cobertura de mapeamento de populações vulneráveis
+  formula: territórios prioritários com camada de vulnerabilidade válida ÷ territórios prioritários ×
+    100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Camadas sociodemográficas/geográficas ARARA
+  periodicidade: Mensal/trimestral
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Camada geográfica com data e fonte
+- id: ARARA-033
+  linha_origem: 20
+  eixo: Prontidão, simulado e melhoria
+  meta: Avaliar a prontidão estadual para resposta aos efeitos do El Niño.
+  acao: Realizar exercício simulado envolvendo áreas estratégicas, ERS e parceiros, seguido de avaliação
+    das lacunas e plano de melhoria.
+  responsavel_texto: CIEVS/VIGIDESASTRES + Vigilâncias e áreas participantes
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 180 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: Exercício simulado estadual realizado
+  formula: 1 se exercício realizado e documentado no período
+  meta_gatilho: ≥1
+  unidade: Nº
+  direcao: Maior é melhor
+  fonte: Agenda/evidências ARARA
+  periodicidade: Semestral/anual
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde≥1; Vermelho=0 após prazo
+  evidencia_minima: Relatório do exercício
+- id: ARARA-034
+  linha_origem: 20
+  eixo: Prontidão, simulado e melhoria
+  meta: Avaliar a prontidão estadual para resposta aos efeitos do El Niño.
+  acao: Realizar exercício simulado envolvendo áreas estratégicas, ERS e parceiros, seguido de avaliação
+    das lacunas e plano de melhoria.
+  responsavel_texto: CIEVS/VIGIDESASTRES + Vigilâncias e áreas participantes
+  area_id: cievs
+  area_nome: UNIEVS/CIEVS — secretaria-executiva
+  prazo_original: Até 180 dias
+  prioridade: Alta
+  tipo: resultado
+  indicador: Ações corretivas pós-simulado concluídas
+  formula: ações corretivas encerradas ÷ recomendações do plano de melhoria × 100
+  meta_gatilho: ≥90% no prazo definido
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Plano de melhoria ARARA
+  periodicidade: Mensal até encerramento
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Muito alta
+  semaforo: Verde≥90%; Amarelo=70–89%; Vermelho<70%
+  evidencia_minima: Plano de melhoria e evidências
+- id: ARARA-035
+  linha_origem: 21
+  eixo: Vigilância Sanitária
+  meta: Orientar os municípios a intensificar o monitoramento da qualidade da água utilizada nos estabelecimentos
+    sujeitos à vigilância sanitária, contemplando a integridade das tubulações, a higienização periódica
+    e a vedação de reservatórios e caixas d'água.
+  acao: Elaborar e publicar Nota Técnica orientando a intensificação da manutenção, limpeza e vedação
+    de caixas d'água e encanamentos nos estabelecimentos assistenciais de saúde e de interesse à saúde.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 60 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: Nota Técnica sobre água em estabelecimentos publicada
+  formula: 1 se Nota Técnica publicada e vigente
+  meta_gatilho: Sim
+  unidade: Binário
+  direcao: Maior é melhor
+  fonte: Repositório documental ARARA
+  periodicidade: Uma vez + revisão
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=Sim; Vermelho=Não após prazo
+  evidencia_minima: Nota Técnica publicada
+- id: ARARA-036
+  linha_origem: 21
+  eixo: Vigilância Sanitária
+  meta: Orientar os municípios a intensificar o monitoramento da qualidade da água utilizada nos estabelecimentos
+    sujeitos à vigilância sanitária, contemplando a integridade das tubulações, a higienização periódica
+    e a vedação de reservatórios e caixas d'água.
+  acao: Elaborar e publicar Nota Técnica orientando a intensificação da manutenção, limpeza e vedação
+    de caixas d'água e encanamentos nos estabelecimentos assistenciais de saúde e de interesse à saúde.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 60 dias
+  prioridade: Alta
+  tipo: resultado
+  indicador: Municípios estratégicos orientados sobre água em estabelecimentos
+  formula: municípios orientados ÷ municípios estratégicos × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Registro de comunicação COVSAN/ARARA
+  periodicidade: Mensal até conclusão
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro de envio/ciência
+- id: ARARA-037
+  linha_origem: 22
+  eixo: Vigilância Sanitária
+  meta: Monitorar os estabelecimentos produtores de águas envasadas e de gelo destinado ao consumo humano
+    durante eventos climáticos extremos de calor, bem como o monitoramento de águas envasadas em períodos
+    de chuvas intensas, em razão do aumento do risco de contaminação das fontes de captação.
+  acao: 1. Orientar as VISAs municipais quanto aos procedimentos adequados de coleta de amostras de águas
+    envasadas e de gelo destinado ao consumo humano durante eventos climáticos extremos, especialmente
+    em períodos de chuvas intensas. 2. Prever coletas de amostras de águas envasadas e de gelo destinado
+    ao consumo humano para o período de eventos climáticos extremos, com ênfase nos episódios de chuvas
+    intensas. 3. Demandar aos municípios sede dos estabelecimentos a realização das coletas em conformidade
+    com os alertas de chuvas intensas. 4. Consolidar as informações obtidas a partir dos laudos de análise
+    laboratorial. 5. Adotar as providências cabíveis, em parceria com as VISAs municipais, nos casos de
+    resultados insatisfatórios.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: Período das chuvas intensas
+  prioridade: Média
+  tipo: execucao
+  indicador: Estabelecimentos-alvo inspecionados — água envasada/gelo
+  formula: estabelecimentos inspecionados ÷ estabelecimentos-alvo × 100
+  meta_gatilho: Meta anual/sazonal definida pela COVSAN
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Vigilância Sanitária / ARARA
+  periodicidade: Durante chuvas intensas
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Média-alta
+  semaforo: Semáforo conforme meta pactuada
+  evidencia_minima: Registro de inspeção
+- id: ARARA-038
+  linha_origem: 22
+  eixo: Vigilância Sanitária
+  meta: Monitorar os estabelecimentos produtores de águas envasadas e de gelo destinado ao consumo humano
+    durante eventos climáticos extremos de calor, bem como o monitoramento de águas envasadas em períodos
+    de chuvas intensas, em razão do aumento do risco de contaminação das fontes de captação.
+  acao: 1. Orientar as VISAs municipais quanto aos procedimentos adequados de coleta de amostras de águas
+    envasadas e de gelo destinado ao consumo humano durante eventos climáticos extremos, especialmente
+    em períodos de chuvas intensas. 2. Prever coletas de amostras de águas envasadas e de gelo destinado
+    ao consumo humano para o período de eventos climáticos extremos, com ênfase nos episódios de chuvas
+    intensas. 3. Demandar aos municípios sede dos estabelecimentos a realização das coletas em conformidade
+    com os alertas de chuvas intensas. 4. Consolidar as informações obtidas a partir dos laudos de análise
+    laboratorial. 5. Adotar as providências cabíveis, em parceria com as VISAs municipais, nos casos de
+    resultados insatisfatórios.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: Período das chuvas intensas
+  prioridade: Média
+  tipo: execucao
+  indicador: Amostras planejadas de água envasada/gelo coletadas
+  formula: amostras coletadas ÷ amostras planejadas × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: VISA/LACEN + ARARA
+  periodicidade: Durante chuvas intensas
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Plano amostral + coleta
+- id: ARARA-039
+  linha_origem: 22
+  eixo: Vigilância Sanitária
+  meta: Monitorar os estabelecimentos produtores de águas envasadas e de gelo destinado ao consumo humano
+    durante eventos climáticos extremos de calor, bem como o monitoramento de águas envasadas em períodos
+    de chuvas intensas, em razão do aumento do risco de contaminação das fontes de captação.
+  acao: 1. Orientar as VISAs municipais quanto aos procedimentos adequados de coleta de amostras de águas
+    envasadas e de gelo destinado ao consumo humano durante eventos climáticos extremos, especialmente
+    em períodos de chuvas intensas. 2. Prever coletas de amostras de águas envasadas e de gelo destinado
+    ao consumo humano para o período de eventos climáticos extremos, com ênfase nos episódios de chuvas
+    intensas. 3. Demandar aos municípios sede dos estabelecimentos a realização das coletas em conformidade
+    com os alertas de chuvas intensas. 4. Consolidar as informações obtidas a partir dos laudos de análise
+    laboratorial. 5. Adotar as providências cabíveis, em parceria com as VISAs municipais, nos casos de
+    resultados insatisfatórios.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: Período das chuvas intensas
+  prioridade: Média
+  tipo: resultado
+  indicador: Resultados insatisfatórios com providência adotada
+  formula: laudos insatisfatórios com providência registrada ÷ laudos insatisfatórios × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: LACEN/VISA + ARARA
+  periodicidade: Contínuo no período
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Laudo + providência
+- id: ARARA-040
+  linha_origem: 23
+  eixo: Vigilância Sanitária
+  meta: Garantir apoio às vigilâncias sanitárias municipais no monitoramento de estabelecimentos que manipulem,
+    acondicionem, distribuam ou transportem alimentos para consumo humano, com prioridade nas escolas,
+    instituições de longa permanência para idosos, unidades prisionais e outros ambientes de convivência
+    coletiva com população vulnerável, no período de calor extremo.
+  acao: Orientar as VISAs municipais a intensificar o monitoramento dos estabelecimentos que manipulem,
+    distribuam, acondicionem ou transportem alimentos destinados ao consumo humano, incluindo escolas,
+    instituições de longa permanência para idosos, unidades prisionais e demais ambientes de convivência
+    coletiva, especialmente aqueles que atendem população vulnerável, no período de calor extremo.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: resultado
+  indicador: Municípios estratégicos orientados sobre segurança de alimentos no calor
+  formula: municípios orientados ÷ municípios estratégicos × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: COVSAN/ERS + ARARA
+  periodicidade: Mensal até conclusão
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro de envio/ciência
+- id: ARARA-041
+  linha_origem: 23
+  eixo: Vigilância Sanitária
+  meta: Garantir apoio às vigilâncias sanitárias municipais no monitoramento de estabelecimentos que manipulem,
+    acondicionem, distribuam ou transportem alimentos para consumo humano, com prioridade nas escolas,
+    instituições de longa permanência para idosos, unidades prisionais e outros ambientes de convivência
+    coletiva com população vulnerável, no período de calor extremo.
+  acao: Orientar as VISAs municipais a intensificar o monitoramento dos estabelecimentos que manipulem,
+    distribuam, acondicionem ou transportem alimentos destinados ao consumo humano, incluindo escolas,
+    instituições de longa permanência para idosos, unidades prisionais e demais ambientes de convivência
+    coletiva, especialmente aqueles que atendem população vulnerável, no período de calor extremo.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: Estabelecimentos prioritários monitorados no período crítico
+  formula: estabelecimentos monitorados ÷ estabelecimentos prioritários definidos × 100
+  meta_gatilho: Meta pactuada pela COVSAN
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: VISA municipal/ERS
+  periodicidade: Durante calor extremo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Média
+  semaforo: Semáforo conforme meta pactuada
+  evidencia_minima: Registro de fiscalização
+- id: ARARA-042
+  linha_origem: 24
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos que armazenam medicamentos e imunobiológicos quanto às condições
+    adequadas de conservação, incluindo o controle e o registro de temperatura, em conformidade com as
+    especificações do fabricante e a legislação sanitária vigente.
+  acao: Elaborar e publicar Nota Técnica dispondo sobre as condições de armazenamento, conservação e controle
+    de temperatura de medicamentos e insumos em estabelecimentos sujeitos à vigilância sanitária.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: Nota Técnica sobre conservação de medicamentos/imunobiológicos publicada
+  formula: 1 se Nota Técnica publicada e vigente
+  meta_gatilho: Sim
+  unidade: Binário
+  direcao: Maior é melhor
+  fonte: Repositório documental ARARA
+  periodicidade: Uma vez + revisão
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=Sim; Vermelho=Não após prazo
+  evidencia_minima: Nota Técnica publicada
+- id: ARARA-043
+  linha_origem: 24
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos que armazenam medicamentos e imunobiológicos quanto às condições
+    adequadas de conservação, incluindo o controle e o registro de temperatura, em conformidade com as
+    especificações do fabricante e a legislação sanitária vigente.
+  acao: Elaborar e publicar Nota Técnica dispondo sobre as condições de armazenamento, conservação e controle
+    de temperatura de medicamentos e insumos em estabelecimentos sujeitos à vigilância sanitária.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Estabelecimentos avaliados com controle de temperatura conforme
+  formula: estabelecimentos conformes ÷ estabelecimentos avaliados × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Vigilância Sanitária / inspeções
+  periodicidade: Durante período crítico
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Média
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Checklist/registro de temperatura
+- id: ARARA-044
+  linha_origem: 25
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos assistenciais de saúde quanto a existência, da manutenção e da capacidade
+    operacional de geradores e demais fontes alternativas de energia em ambientes prioritários, com vistas
+    à continuidade da cadeia de frio de medicamentos, imunobiológicos e alimentos e ao funcionamento dos
+    serviços críticos em situações de interrupção do fornecimento de energia elétrica.
+  acao: Elaborar e publicar Nota Técnica orientativa para os estabelecimentos dotados de fonte alternativa
+    de energia (geradores), visando à garantia do funcionamento em situações de interrupção do fornecimento
+    elétrico. Para os estabelecimentos desprovidos de geradores, orientar a elaboração e implementação
+    de Plano de Contingência específico. Realizar webinar junto aos municípios estratégicos para apresentação
+    e alinhamento das diretrizes estabelecidas nas Notas Técnicas publicadas.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: Orientação sobre fonte alternativa de energia publicada e difundida
+  formula: Nota Técnica publicada + webinar/ação de difusão realizado
+  meta_gatilho: Sim
+  unidade: Binário composto
+  direcao: Maior é melhor
+  fonte: COVSAN/ARARA
+  periodicidade: Até o prazo
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=ambos concluídos; Amarelo=1 concluído; Vermelho=0
+  evidencia_minima: Nota Técnica + registro do webinar
+- id: ARARA-045
+  linha_origem: 25
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos assistenciais de saúde quanto a existência, da manutenção e da capacidade
+    operacional de geradores e demais fontes alternativas de energia em ambientes prioritários, com vistas
+    à continuidade da cadeia de frio de medicamentos, imunobiológicos e alimentos e ao funcionamento dos
+    serviços críticos em situações de interrupção do fornecimento de energia elétrica.
+  acao: Elaborar e publicar Nota Técnica orientativa para os estabelecimentos dotados de fonte alternativa
+    de energia (geradores), visando à garantia do funcionamento em situações de interrupção do fornecimento
+    elétrico. Para os estabelecimentos desprovidos de geradores, orientar a elaboração e implementação
+    de Plano de Contingência específico. Realizar webinar junto aos municípios estratégicos para apresentação
+    e alinhamento das diretrizes estabelecidas nas Notas Técnicas publicadas.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: EAS prioritários com gerador funcional ou plano de contingência energético
+  formula: EAS prioritários com evidência válida ÷ EAS prioritários avaliados × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Inspeção/cadastro de EAS + ARARA
+  periodicidade: Trimestral e período crítico
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Teste do gerador ou plano vigente
+- id: ARARA-046
+  linha_origem: 26
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos para que estes garantam condições mínimas de climatização e conforto
+    térmico, visando à proteção da saúde de trabalhadores, usuários e à preservação de insumos durante
+    períodos de ondas de calor extremo.
+  acao: Elaborar e publicar Nota Técnica aos estabelecimentos providenciem equipamentos apropriados, elaborem
+    e implementem o PMOC ou Plano de manutenção, com cronograma de execução.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: Nota Técnica sobre climatização e conforto térmico publicada
+  formula: 1 se Nota Técnica publicada e vigente
+  meta_gatilho: Sim
+  unidade: Binário
+  direcao: Maior é melhor
+  fonte: Repositório documental ARARA
+  periodicidade: Uma vez + revisão
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=Sim; Vermelho=Não após prazo
+  evidencia_minima: Nota Técnica publicada
+- id: ARARA-047
+  linha_origem: 26
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos para que estes garantam condições mínimas de climatização e conforto
+    térmico, visando à proteção da saúde de trabalhadores, usuários e à preservação de insumos durante
+    períodos de ondas de calor extremo.
+  acao: Elaborar e publicar Nota Técnica aos estabelecimentos providenciem equipamentos apropriados, elaborem
+    e implementem o PMOC ou Plano de manutenção, com cronograma de execução.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Estabelecimentos prioritários com climatização/PMOC adequado
+  formula: estabelecimentos conformes ÷ estabelecimentos avaliados × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Inspeção sanitária / ARARA
+  periodicidade: Durante ondas de calor
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Média-alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Checklist PMOC/climatização
+- id: ARARA-048
+  linha_origem: 27
+  eixo: Vigilância Sanitária
+  meta: Orientar as Vigilâncias Sanitárias Municipais (VISAs) a intensificarem a fiscalização do monitoramento
+    e controle de animais sinantrópicos em Estabelecimentos de Assistência à Saúde (EAS) e de Interesse
+    à Saúde (EIS), priorizando aqueles voltados ao atendimento de populações vulneráveis.
+  acao: Elaborar Nota Técnica direcionada às VISAs municipais para que intensifiquem o monitoramento do
+    controle de animais sinantrópicos nos estabelecimento de assistência a saúde e de interesse a saúde,
+    principalmente os de atendimento a população vulnerável.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: resultado
+  indicador: VISAs municipais orientadas sobre animais sinantrópicos
+  formula: municípios orientados ÷ municípios estratégicos × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: COVSAN/ERS + ARARA
+  periodicidade: Mensal até conclusão
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro de envio/ciência
+- id: ARARA-049
+  linha_origem: 27
+  eixo: Vigilância Sanitária
+  meta: Orientar as Vigilâncias Sanitárias Municipais (VISAs) a intensificarem a fiscalização do monitoramento
+    e controle de animais sinantrópicos em Estabelecimentos de Assistência à Saúde (EAS) e de Interesse
+    à Saúde (EIS), priorizando aqueles voltados ao atendimento de populações vulneráveis.
+  acao: Elaborar Nota Técnica direcionada às VISAs municipais para que intensifiquem o monitoramento do
+    controle de animais sinantrópicos nos estabelecimento de assistência a saúde e de interesse a saúde,
+    principalmente os de atendimento a população vulnerável.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: EAS/EIS prioritários monitorados para animais sinantrópicos
+  formula: estabelecimentos monitorados ÷ estabelecimentos prioritários definidos × 100
+  meta_gatilho: Meta pactuada
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: VISA municipal/ERS
+  periodicidade: Durante período crítico
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Média
+  semaforo: Semáforo conforme meta pactuada
+  evidencia_minima: Registro de fiscalização
+- id: ARARA-050
+  linha_origem: 28
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos assistenciais de saúde a garantirem as condições adequadas de operacionalidade,
+    segurança e manutenção dos equipamentos médico-hospitalares.
+  acao: Elaborar e publicar Nota Técnica direcionada aos estabelecimentos assistenciais de saúde, orientando-os
+    sobre a obrigatoriedade de assegurar as condições adequadas de operação, segurança e funcionalidade
+    dos equipamentos médico-hospitalares.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: execucao
+  indicador: Nota Técnica sobre equipamentos médico-hospitalares publicada
+  formula: 1 se Nota Técnica publicada e vigente
+  meta_gatilho: Sim
+  unidade: Binário
+  direcao: Maior é melhor
+  fonte: Repositório documental ARARA
+  periodicidade: Uma vez + revisão
+  automacao: manual
+  automacao_detalhe: Manual com evidência
+  viabilidade: Alta
+  semaforo: Verde=Sim; Vermelho=Não após prazo
+  evidencia_minima: Nota Técnica publicada
+- id: ARARA-051
+  linha_origem: 28
+  eixo: Vigilância Sanitária
+  meta: Orientar os estabelecimentos assistenciais de saúde a garantirem as condições adequadas de operacionalidade,
+    segurança e manutenção dos equipamentos médico-hospitalares.
+  acao: Elaborar e publicar Nota Técnica direcionada aos estabelecimentos assistenciais de saúde, orientando-os
+    sobre a obrigatoriedade de assegurar as condições adequadas de operação, segurança e funcionalidade
+    dos equipamentos médico-hospitalares.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: 30 dias
+  prioridade: Alta
+  tipo: capacidade
+  indicador: EAS avaliados com manutenção/operacionalidade de equipamentos adequada
+  formula: EAS conformes ÷ EAS avaliados × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Vigilância Sanitária / inspeções
+  periodicidade: Durante período crítico
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Média
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Checklist/manutenção documentada
+- id: ARARA-052
+  linha_origem: 29
+  eixo: Vigilância Sanitária
+  meta: Priorizar e realizar o atendimento de denúncias sobre irregularidades sanitárias decorrentes ou
+    agravadas por eventos climáticos extremos, visando à mitigação de riscos à saúde pública.
+  acao: Atender prioritariamente às denúncias recebidas relativas aos impactos de eventos climáticos extremos
+    e, quando couber, solicitar o apoio da Vigilância Sanitária (VISA) municipal para a realização da
+    averiguação in loco.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: Durante os eventos climáticos extremos
+  prioridade: Média
+  tipo: resultado
+  indicador: Denúncias climato-sanitárias respondidas
+  formula: denúncias respondidas ÷ denúncias recebidas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Sistema de denúncias + ARARA
+  periodicidade: Durante eventos
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Protocolo e status
+- id: ARARA-053
+  linha_origem: 29
+  eixo: Vigilância Sanitária
+  meta: Priorizar e realizar o atendimento de denúncias sobre irregularidades sanitárias decorrentes ou
+    agravadas por eventos climáticos extremos, visando à mitigação de riscos à saúde pública.
+  acao: Atender prioritariamente às denúncias recebidas relativas aos impactos de eventos climáticos extremos
+    e, quando couber, solicitar o apoio da Vigilância Sanitária (VISA) municipal para a realização da
+    averiguação in loco.
+  responsavel_texto: COVSAN/ERS
+  area_id: covsan
+  area_nome: Coordenadoria de Vigilância Sanitária
+  prazo_original: Durante os eventos climáticos extremos
+  prioridade: Média
+  tipo: resultado
+  indicador: Tempo de resposta às denúncias prioritárias
+  formula: mediana(data/hora resposta − data/hora recebimento)
+  meta_gatilho: SLA a pactuar pela COVSAN
+  unidade: Horas
+  direcao: Menor é melhor
+  fonte: Sistema de denúncias + ARARA
+  periodicidade: Durante eventos
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Semáforo conforme SLA pactuado
+  evidencia_minima: Timestamps do protocolo
+- id: ARARA-054
+  linha_origem: 30
+  eixo: Imunização e Rede de Frio
+  meta: Monitorar os municípios afetados ou sob risco de impactos do El Niño nas ações de imunização
+  acao: Monitorar, por meio dos ERS, os impactos dos eventos climáticos nas ações de imunização, identificando
+    alterações na rotina da vacinação, dificuldade de acesso aos serviços e demais situações que possam
+    comprometer a continuidade das ações; Prestar suporte técnico conforme as necessidades identificadas.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo_original: Durante o período de ocorrência do evento
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Municípios afetados com situação da imunização monitorada
+  formula: municípios afetados monitorados ÷ municípios afetados × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: CPEI/ERS + ARARA
+  periodicidade: Durante o evento
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro de monitoramento
+- id: ARARA-055
+  linha_origem: 30
+  eixo: Imunização e Rede de Frio
+  meta: Monitorar os municípios afetados ou sob risco de impactos do El Niño nas ações de imunização
+  acao: Monitorar, por meio dos ERS, os impactos dos eventos climáticos nas ações de imunização, identificando
+    alterações na rotina da vacinação, dificuldade de acesso aos serviços e demais situações que possam
+    comprometer a continuidade das ações; Prestar suporte técnico conforme as necessidades identificadas.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo_original: Durante o período de ocorrência do evento
+  prioridade: Alta
+  tipo: resultado
+  indicador: Ocorrências que comprometeram vacinação com suporte técnico registrado
+  formula: ocorrências com suporte/encaminhamento ÷ ocorrências identificadas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: CPEI/ERS + ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Ocorrência + suporte
+- id: ARARA-056
+  linha_origem: 31
+  eixo: Imunização e Rede de Frio
+  meta: Assegurar a adoção de medidas de contingência da Rede de Frio dos municípios sob risco de eventos.
+  acao: Monitorar, por meio dos ERS, as ocorrências relacionadas a eventos climáticos que possam comprometer
+    a conservação dos imunobiológicos; Orientar tecnicamente os ERS quanto às medidas de contingência
+    da Rede de Frio.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo_original: Durante o período de ocorrência do evento
+  prioridade: Alta
+  tipo: resultado
+  indicador: Ocorrências de Rede de Frio monitoradas
+  formula: ocorrências monitoradas ÷ ocorrências identificadas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: CPEI/ERS + ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro da ocorrência
+- id: ARARA-057
+  linha_origem: 31
+  eixo: Imunização e Rede de Frio
+  meta: Assegurar a adoção de medidas de contingência da Rede de Frio dos municípios sob risco de eventos.
+  acao: Monitorar, por meio dos ERS, as ocorrências relacionadas a eventos climáticos que possam comprometer
+    a conservação dos imunobiológicos; Orientar tecnicamente os ERS quanto às medidas de contingência
+    da Rede de Frio.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo_original: Durante o período de ocorrência do evento
+  prioridade: Alta
+  tipo: resultado
+  indicador: Ocorrências de Rede de Frio com contingência iniciada no prazo
+  formula: ocorrências com contingência no SLA ÷ ocorrências que exigem contingência × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: CPEI/ERS + ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Timestamps e ação de contingência
+- id: ARARA-058
+  linha_origem: 32
+  eixo: Imunização e Rede de Frio
+  meta: Garantir o abastecimento de imunobiológicos.
+  acao: Monitorar os estoques de imunobiológicos nas regionais e municípios; Remanejar, quando necessário,
+    os imunobiológicos entre regionais, considerando a disponibilidade de estoque e as necessidades identificadas.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo_original: Monitoramento mensal
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Regiões com risco de desabastecimento identificadas e atendidas
+  formula: regiões com risco e ação registrada ÷ regiões com risco identificadas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Estoque de imunobiológicos + CPEI/ARARA
+  periodicidade: Mensal/semanal em risco
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Estoque + remanejamento/atendimento
+- id: ARARA-059
+  linha_origem: 32
+  eixo: Imunização e Rede de Frio
+  meta: Garantir o abastecimento de imunobiológicos.
+  acao: Monitorar os estoques de imunobiológicos nas regionais e municípios; Remanejar, quando necessário,
+    os imunobiológicos entre regionais, considerando a disponibilidade de estoque e as necessidades identificadas.
+  responsavel_texto: CPEI / ERS
+  area_id: cpei
+  area_nome: Coordenadoria do Programa Estadual de Imunização
+  prazo_original: Monitoramento mensal
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Regiões com autonomia crítica de imunobiológicos
+  formula: nº de regiões com dias de autonomia abaixo do mínimo técnico
+  meta_gatilho: '0'
+  unidade: Nº
+  direcao: Menor é melhor
+  fonte: Estoque + consumo médio + ARARA
+  periodicidade: Diário/semanal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde=0; Amarelo=1; Vermelho≥2 ou item crítico
+  evidencia_minima: Saldo, consumo e mínimo técnico
+- id: ARARA-060
+  linha_origem: 33
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Fortalecer o VIGIAR em Mato Grosso, para mitigar os efeitos das emissões das queimadas e secas
+    severas nas populações e territórios mais expostos.
+  acao: 1) Avaliar os dados de focos de calor e taxas de internações por Doenças Respiratórias para mapear
+    os municípios com maior risco socioambiental. 2) Acompanhar os índices de material particulado e gases
+    tóxicos, disponibilizados por órgãos oficiais. 3) Emitir boletins, alertas, para informar as Unidades
+    de Saúde e a população sobre qualidade do ar e medidas de autoproteção.
+  responsavel_texto: COVSAM/Área técnica do Programa Vigiar estadual.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Municípios com classificação VIGIAR integrada atualizada
+  formula: municípios com risco de queimadas/poluição/vulnerabilidade atualizado ÷ municípios monitorados
+    × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Focos de calor + qualidade do ar + saúde + vulnerabilidade ARARA
+  periodicidade: Semanal
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Mapa e data de atualização
+- id: ARARA-061
+  linha_origem: 33
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Fortalecer o VIGIAR em Mato Grosso, para mitigar os efeitos das emissões das queimadas e secas
+    severas nas populações e territórios mais expostos.
+  acao: 1) Avaliar os dados de focos de calor e taxas de internações por Doenças Respiratórias para mapear
+    os municípios com maior risco socioambiental. 2) Acompanhar os índices de material particulado e gases
+    tóxicos, disponibilizados por órgãos oficiais. 3) Emitir boletins, alertas, para informar as Unidades
+    de Saúde e a população sobre qualidade do ar e medidas de autoproteção.
+  responsavel_texto: COVSAM/Área técnica do Programa Vigiar estadual.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo
+  prioridade: Alta
+  tipo: execucao
+  indicador: Boletins/alertas VIGIAR emitidos conforme periodicidade
+  formula: boletins/alertas emitidos ÷ previstos × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de relatórios/alertas ARARA
+  periodicidade: Semanal/período crítico
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de emissão
+- id: ARARA-062
+  linha_origem: 34
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de
+    vigilância em saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
+  acao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para
+    consumo humano, animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação
+    oficiais, denúncias e rumores
+  responsavel_texto: Vigilância Ambiental e Epidemiológica
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade semanal; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Aumento de Domicílios positivos para animais peçonhentos/triatomíneos
+  formula: comparar valor atual com baseline sazonal/limiar validado pela área técnica
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Índice/contagem
+  direcao: Gatilho
+  fonte: Vigilância ambiental/local + ARARA
+  periodicidade: Semanal
+  automacao: automatico
+  automacao_detalhe: Automático (SINAN)
+  viabilidade: Média
+  semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
+  evidencia_minima: Série histórica + dado atual
+- id: ARARA-063
+  linha_origem: 34
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de
+    vigilância em saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
+  acao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para
+    consumo humano, animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação
+    oficiais, denúncias e rumores
+  responsavel_texto: Vigilância Ambiental e Epidemiológica
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade semanal; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Aumento de Notificações de acidentes com animais peçonhentos
+  formula: comparar valor atual com baseline sazonal/limiar validado pela área técnica
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Índice/contagem
+  direcao: Gatilho
+  fonte: SINAN/DW + ARARA
+  periodicidade: Semanal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Média-alta
+  semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
+  evidencia_minima: Série histórica + dado atual
+- id: ARARA-064
+  linha_origem: 34
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de
+    vigilância em saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
+  acao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para
+    consumo humano, animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação
+    oficiais, denúncias e rumores
+  responsavel_texto: Vigilância Ambiental e Epidemiológica
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade semanal; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Aumento de Leishmaniose visceral canina
+  formula: comparar valor atual com baseline sazonal/limiar validado pela área técnica
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Índice/contagem
+  direcao: Gatilho
+  fonte: Vigilância de zoonoses + ARARA
+  periodicidade: Semanal
+  automacao: automatico
+  automacao_detalhe: Automático (SINAN)
+  viabilidade: Média
+  semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
+  evidencia_minima: Série histórica + dado atual
+- id: ARARA-065
+  linha_origem: 34
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de
+    vigilância em saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
+  acao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para
+    consumo humano, animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação
+    oficiais, denúncias e rumores
+  responsavel_texto: Vigilância Ambiental e Epidemiológica
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade semanal; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Aumento de Deslocamento de morcegos para ambiente urbano
+  formula: comparar valor atual com baseline sazonal/limiar validado pela área técnica
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Índice/contagem
+  direcao: Gatilho
+  fonte: Denúncias/rumores + ARARA
+  periodicidade: Semanal
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Média
+  semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
+  evidencia_minima: Série histórica + dado atual
+- id: ARARA-066
+  linha_origem: 34
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de
+    vigilância em saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
+  acao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para
+    consumo humano, animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação
+    oficiais, denúncias e rumores
+  responsavel_texto: Vigilância Ambiental e Epidemiológica
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade semanal; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Aumento de Criadouros/indicadores de Anopheles
+  formula: comparar valor atual com baseline sazonal/limiar validado pela área técnica
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Índice/contagem
+  direcao: Gatilho
+  fonte: Vigilância vetorial + ARARA
+  periodicidade: Semanal
+  automacao: automatico
+  automacao_detalhe: Automático (SINAN; proxy até LIRAa)
+  viabilidade: Média
+  semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
+  evidencia_minima: Série histórica + dado atual
+- id: ARARA-067
+  linha_origem: 34
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de
+    vigilância em saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
+  acao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para
+    consumo humano, animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação
+    oficiais, denúncias e rumores
+  responsavel_texto: Vigilância Ambiental e Epidemiológica
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade semanal; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Aumento de Casos de malária
+  formula: comparar valor atual com baseline sazonal/limiar validado pela área técnica
+  meta_gatilho: Não aplicável — gatilho
+  unidade: Índice/contagem
+  direcao: Gatilho
+  fonte: SINAN/DW + ARARA
+  periodicidade: Semanal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Média-alta
+  semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
+  evidencia_minima: Série histórica + dado atual
+- id: ARARA-068
+  linha_origem: 35
+  eixo: Inteligência e avaliação de risco
+  meta: Realizar o monitoramento dos municípios e populações prioritárias
+  acao: Atualizar periodicamente a classificação territorial de risco considerando seca, calor, focos
+    de calor, fumaça, qualidade do ar, abastecimento de água, situação epidemiológica e vulnerabilidade
+    populacional.
+  responsavel_texto: COVSAM (VIGIAGUA, VIGIAR e VIGIDESASTRES) + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Mensal e conforme agravamento
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Cobertura de classificação territorial válida — Ambiental
+  formula: usar o mesmo indicador da linha 9, evitando duplicidade
+  meta_gatilho: Consolidar com indicador da linha 9
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Motor de risco ARARA
+  periodicidade: Semanal/mensal
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Herdar regra do indicador consolidado
+  evidencia_minima: Referência ao indicador da linha 9
+- id: ARARA-069
+  linha_origem: 36
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Fortalecer a Vigilâcia da Qualidade da Água para Consumo Humano - VIGIÁGUA em Mato Grosso, para
+    garantir respostas rápidas aos riscos de contaminação decorrentes de secas extremas e inundações.
+  acao: 1) Intensificar as coletas e análises laboratoriais de campo para os parâmetros básicos (cloro
+    residual livre, turbidez, pH e coliformes totais/Escherichia coli) em municípios em situação de emergência
+    ou calamidade hídrica; 2) Cadastrar e mapear todos os Sistemas (SAA), Soluções Alternativas Coletivas
+    (SAC) e Soluções Alternativas Individuais (SAI) de abastecimento de água operando em territórios vulneráveis
+    a seca, estiagem e inundações; 3) Capacitação para os técnicos municipais sobre vigilância da qualidade
+    da água em cenários de desastres e operação do sistema SISAGUA. 4) Emitir boletins informativos e
+    alertas técnicos para a população sobre os cuidados e métodos de desinfecção domiciliar da água durante
+    eventos climáticos extremos.
+  responsavel_texto: 1) Secretaria Municipal de Saúde (cadastro e coleta de amostras de água) e Laboratório
+    Central de Saúde Pública de Mato Grosso - LACEN-MT (análise laboratorial), 2) Equipe técnica da SES
+    (Nível Central e Regional), realizar inspeção dos SAA, SAC. 3) Equipe técnica da SES; 4) Área técnica
+    do VIGIAGUA Estadual em conjunto com a Assessoria de Comunicação da SES-MT.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  tipo: execucao
+  indicador: Amostras VIGIÁGUA realizadas em áreas críticas versus planejado
+  formula: amostras realizadas ÷ amostras planejadas no SISAGUA × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: SISAGUA/LACEN + ARARA
+  periodicidade: Mensal e intensificado no evento
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Plano amostral + resultados
+- id: ARARA-070
+  linha_origem: 36
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Fortalecer a Vigilâcia da Qualidade da Água para Consumo Humano - VIGIÁGUA em Mato Grosso, para
+    garantir respostas rápidas aos riscos de contaminação decorrentes de secas extremas e inundações.
+  acao: 1) Intensificar as coletas e análises laboratoriais de campo para os parâmetros básicos (cloro
+    residual livre, turbidez, pH e coliformes totais/Escherichia coli) em municípios em situação de emergência
+    ou calamidade hídrica; 2) Cadastrar e mapear todos os Sistemas (SAA), Soluções Alternativas Coletivas
+    (SAC) e Soluções Alternativas Individuais (SAI) de abastecimento de água operando em territórios vulneráveis
+    a seca, estiagem e inundações; 3) Capacitação para os técnicos municipais sobre vigilância da qualidade
+    da água em cenários de desastres e operação do sistema SISAGUA. 4) Emitir boletins informativos e
+    alertas técnicos para a população sobre os cuidados e métodos de desinfecção domiciliar da água durante
+    eventos climáticos extremos.
+  responsavel_texto: 1) Secretaria Municipal de Saúde (cadastro e coleta de amostras de água) e Laboratório
+    Central de Saúde Pública de Mato Grosso - LACEN-MT (análise laboratorial), 2) Equipe técnica da SES
+    (Nível Central e Regional), realizar inspeção dos SAA, SAC. 3) Equipe técnica da SES; 4) Área técnica
+    do VIGIAGUA Estadual em conjunto com a Assessoria de Comunicação da SES-MT.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Cobertura de mapeamento SAA/SAC/SAI em territórios vulneráveis
+  formula: formas de abastecimento mapeadas ÷ formas identificadas/previstas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: SISAGUA/cadastro territorial
+  periodicidade: Trimestral e atualização no evento
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Cadastro georreferenciado
+- id: ARARA-071
+  linha_origem: 36
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Fortalecer a Vigilâcia da Qualidade da Água para Consumo Humano - VIGIÁGUA em Mato Grosso, para
+    garantir respostas rápidas aos riscos de contaminação decorrentes de secas extremas e inundações.
+  acao: 1) Intensificar as coletas e análises laboratoriais de campo para os parâmetros básicos (cloro
+    residual livre, turbidez, pH e coliformes totais/Escherichia coli) em municípios em situação de emergência
+    ou calamidade hídrica; 2) Cadastrar e mapear todos os Sistemas (SAA), Soluções Alternativas Coletivas
+    (SAC) e Soluções Alternativas Individuais (SAI) de abastecimento de água operando em territórios vulneráveis
+    a seca, estiagem e inundações; 3) Capacitação para os técnicos municipais sobre vigilância da qualidade
+    da água em cenários de desastres e operação do sistema SISAGUA. 4) Emitir boletins informativos e
+    alertas técnicos para a população sobre os cuidados e métodos de desinfecção domiciliar da água durante
+    eventos climáticos extremos.
+  responsavel_texto: 1) Secretaria Municipal de Saúde (cadastro e coleta de amostras de água) e Laboratório
+    Central de Saúde Pública de Mato Grosso - LACEN-MT (análise laboratorial), 2) Equipe técnica da SES
+    (Nível Central e Regional), realizar inspeção dos SAA, SAC. 3) Equipe técnica da SES; 4) Área técnica
+    do VIGIAGUA Estadual em conjunto com a Assessoria de Comunicação da SES-MT.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  tipo: execucao
+  indicador: Técnicos municipais capacitados em VIGIÁGUA/desastres
+  formula: nº de técnicos capacitados no período; complementar com % dos municípios prioritários com ≥1
+    técnico capacitado
+  meta_gatilho: 100% dos municípios prioritários com ≥1 técnico
+  unidade: Nº e %
+  direcao: Maior é melhor
+  fonte: Registros de capacitação ARARA/ESP
+  periodicidade: Anual e antes do período crítico
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Lista de presença/certificação
+- id: ARARA-072
+  linha_origem: 36
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Fortalecer a Vigilâcia da Qualidade da Água para Consumo Humano - VIGIÁGUA em Mato Grosso, para
+    garantir respostas rápidas aos riscos de contaminação decorrentes de secas extremas e inundações.
+  acao: 1) Intensificar as coletas e análises laboratoriais de campo para os parâmetros básicos (cloro
+    residual livre, turbidez, pH e coliformes totais/Escherichia coli) em municípios em situação de emergência
+    ou calamidade hídrica; 2) Cadastrar e mapear todos os Sistemas (SAA), Soluções Alternativas Coletivas
+    (SAC) e Soluções Alternativas Individuais (SAI) de abastecimento de água operando em territórios vulneráveis
+    a seca, estiagem e inundações; 3) Capacitação para os técnicos municipais sobre vigilância da qualidade
+    da água em cenários de desastres e operação do sistema SISAGUA. 4) Emitir boletins informativos e
+    alertas técnicos para a população sobre os cuidados e métodos de desinfecção domiciliar da água durante
+    eventos climáticos extremos.
+  responsavel_texto: 1) Secretaria Municipal de Saúde (cadastro e coleta de amostras de água) e Laboratório
+    Central de Saúde Pública de Mato Grosso - LACEN-MT (análise laboratorial), 2) Equipe técnica da SES
+    (Nível Central e Regional), realizar inspeção dos SAA, SAC. 3) Equipe técnica da SES; 4) Área técnica
+    do VIGIAGUA Estadual em conjunto com a Assessoria de Comunicação da SES-MT.
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo; intensificar conforme risco
+  prioridade: Alta
+  tipo: execucao
+  indicador: Alertas/orientações VIGIÁGUA emitidos no prazo
+  formula: alertas emitidos no prazo ÷ alertas indicados × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de alertas ARARA
+  periodicidade: A cada evento
+  automacao: automatico
+  automacao_detalhe: Automático se emitido pelo ARARA
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de emissão
+- id: ARARA-073
+  linha_origem: 37
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Detectar precocemente alterações no perfil de morbimortalidade relacionadas aos eventos climáticos.
+  acao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex.
+    nº de internações) manter o monitoramento epidemiológico para eventos associados a calor, fumaça,
+    seca, água e outros efeitos do El Niño.
+  responsavel_texto: Vigilância Epidemiológica e Vigilância Ambiental + CIEVS
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Até 60 dias e monitoramento contínuo
+  prioridade: Alta
+  tipo: execucao
+  indicador: Análise de morbimortalidade climato-sensível — consolidada
+  formula: usar indicadores da linha 12
+  meta_gatilho: Consolidar com linha 12
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: DW/Sistemas epidemiológicos + ARARA
+  periodicidade: Semanal/mensal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Muito alta
+  semaforo: Herdar regra da linha 12
+  evidencia_minima: Referência aos indicadores da linha 12
+- id: ARARA-074
+  linha_origem: 38
+  eixo: Comunicação de risco e vulnerabilidade
+  meta: Garantir comunicação de risco oportuna e coordenada.
+  acao: Elaborar e divulgar mensagens padronizadas para calor extremo, baixa umidade, fumaça, queimadas,
+    escassez/qualidade da água para consumo humano e medidas de proteção à saúde.
+  responsavel_texto: Comunicação + CIEVS/VIGIDESASTRES + áreas técnicas
+  area_id: comunicacao
+  area_nome: Assessoria de Comunicação / SES-MT
+  prazo_original: Antes e durante períodos críticos
+  prioridade: Alta
+  tipo: resultado
+  indicador: Comunicação de risco — consolidada
+  formula: usar indicadores da linha 18
+  meta_gatilho: Consolidar com linha 18
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de alertas ARARA
+  periodicidade: A cada alerta
+  automacao: automatico
+  automacao_detalhe: Automático
+  viabilidade: Muito alta
+  semaforo: Herdar regra da linha 18
+  evidencia_minima: Referência aos indicadores da linha 18
+- id: ARARA-075
+  linha_origem: 39
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Responder em tempo oportuno aos municípios que apresentarem aumento dos indicadores de infestação
+    vetorial ou risco de transmissão de arboviroses.
+  acao: Intensificar o acompanhamento dos indicadores de infestação por Aedes aegypti e Aedes albopictus
+    nos municípios prioritários, utilizando LIRAa/LIA e/ou outras metodologias de vigilância entomológica
+    aplicáveis à realidade local (ovitrampas).
+  responsavel_texto: COVSAM
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Positividade de ovitrampas
+  formula: ovitrampas positivas ÷ ovitrampas examinadas × 100
+  meta_gatilho: 'Gatilho original proposto: >50% — validar tecnicamente'
+  unidade: '%'
+  direcao: Gatilho
+  fonte: Vigilância entomológica + ARARA
+  periodicidade: Quinzenal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Acionar quando ultrapassar limiar validado
+  evidencia_minima: Base de ovitrampas
+- id: ARARA-076
+  linha_origem: 39
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Responder em tempo oportuno aos municípios que apresentarem aumento dos indicadores de infestação
+    vetorial ou risco de transmissão de arboviroses.
+  acao: Intensificar o acompanhamento dos indicadores de infestação por Aedes aegypti e Aedes albopictus
+    nos municípios prioritários, utilizando LIRAa/LIA e/ou outras metodologias de vigilância entomológica
+    aplicáveis à realidade local (ovitrampas).
+  responsavel_texto: COVSAM
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Índice de densidade de ovos — IDO
+  formula: nº de ovos ÷ nº de ovitrampas positivas ou regra oficial adotada
+  meta_gatilho: 'Gatilho original proposto: >50 ovos/armadilha — validar tecnicamente'
+  unidade: Ovos/armadilha
+  direcao: Gatilho
+  fonte: Vigilância entomológica + ARARA
+  periodicidade: Quinzenal
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Acionar quando ultrapassar limiar validado
+  evidencia_minima: Base de ovitrampas
+- id: ARARA-077
+  linha_origem: 39
+  eixo: Vigilância ambiental e epidemiológica
+  meta: Responder em tempo oportuno aos municípios que apresentarem aumento dos indicadores de infestação
+    vetorial ou risco de transmissão de arboviroses.
+  acao: Intensificar o acompanhamento dos indicadores de infestação por Aedes aegypti e Aedes albopictus
+    nos municípios prioritários, utilizando LIRAa/LIA e/ou outras metodologias de vigilância entomológica
+    aplicáveis à realidade local (ovitrampas).
+  responsavel_texto: COVSAM
+  area_id: covsam
+  area_nome: Coordenadoria de Vigilância em Saúde Ambiental
+  prazo_original: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  tipo: risco_gatilho
+  indicador: Índice de Infestação Predial / Índice de Breteau
+  formula: calcular segundo metodologia LIRAa/LIA vigente
+  meta_gatilho: 'Gatilho original proposto: >3,9% — validar tecnicamente'
+  unidade: '%/índice'
+  direcao: Gatilho
+  fonte: LIRAa/LIA + ARARA
+  periodicidade: Conforme ciclo LIRAa/LIA
+  automacao: automatico
+  automacao_detalhe: Automático após integração
+  viabilidade: Alta
+  semaforo: Faixas conforme norma/programa vigente
+  evidencia_minima: Base LIRAa/LIA
+- id: ARARA-078
+  linha_origem: 40
+  eixo: Saúde do Trabalhador
+  meta: Fortalecer a Vigilância em Saúde do Trabalhador
+  acao: Entregar aos ERS o perfil epidemiológico da sua área de abrângencia
+  responsavel_texto: COVSAT
+  area_id: covsat
+  area_nome: Coordenadoria de Vigilância em Saúde do Trabalhador
+  prazo_original: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  tipo: execucao
+  indicador: Regiões/ERS com perfil epidemiológico de saúde do trabalhador entregue
+  formula: regiões/ERS que receberam perfil atualizado ÷ regiões/ERS previstas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: COVSAT + ARARA
+  periodicidade: Trimestral e intensificar conforme risco
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Perfil produzido + registro de entrega
+- id: ARARA-079
+  linha_origem: 41
+  eixo: Saúde do Trabalhador
+  meta: Comunicação e educação em saúde do trabalhador
+  acao: Comunicar de forma efetiva trabalhadores e profissionais de saúde
+  responsavel_texto: COVSAT
+  area_id: covsat
+  area_nome: Coordenadoria de Vigilância em Saúde do Trabalhador
+  prazo_original: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  tipo: resultado
+  indicador: Cobertura de comunicação de risco para trabalhadores
+  formula: territórios/ERS prioritários que receberam comunicação ÷ alvos previstos × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: COVSAT + módulo de alertas ARARA
+  periodicidade: A cada alerta
+  automacao: automatico
+  automacao_detalhe: Automático se emitido pelo ARARA
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Log de envio/entrega
+- id: ARARA-080
+  linha_origem: 42
+  eixo: Saúde do Trabalhador
+  meta: Orientar os trabalhadores quanto os processos e ambientes de trabalho adequado frente aos efeitos
+    do El Niño, a partir do monitoramento da sala de situação
+  acao: Realizar vigilâncias em ambientes e processo de trabalho nos municípios prioritários
+  responsavel_texto: COVSAT/CEREST REGIONAIS E MUNICIPAIS
+  area_id: covsat
+  area_nome: Coordenadoria de Vigilância em Saúde do Trabalhador
+  prazo_original: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  tipo: execucao
+  indicador: Municípios prioritários com vigilância de ambiente/processo de trabalho realizada
+  formula: municípios supervisionados ÷ municípios prioritários definidos × 100
+  meta_gatilho: Meta pactuada pela COVSAT
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: COVSAT/CEREST + ARARA
+  periodicidade: Mensal/trimestral conforme risco
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Semáforo conforme meta pactuada
+  evidencia_minima: Registro de vigilância
+- id: ARARA-081
+  linha_origem: 42
+  eixo: Saúde do Trabalhador
+  meta: Orientar os trabalhadores quanto os processos e ambientes de trabalho adequado frente aos efeitos
+    do El Niño, a partir do monitoramento da sala de situação
+  acao: Realizar vigilâncias em ambientes e processo de trabalho nos municípios prioritários
+  responsavel_texto: COVSAT/CEREST REGIONAIS E MUNICIPAIS
+  area_id: covsat
+  area_nome: Coordenadoria de Vigilância em Saúde do Trabalhador
+  prazo_original: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
+  prioridade: Alta
+  tipo: resultado
+  indicador: Não conformidades ocupacionais com plano de ação
+  formula: não conformidades com encaminhamento/plano ÷ não conformidades identificadas × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: COVSAT/CEREST + ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Relatório e plano de ação
+- id: ARARA-082
+  linha_origem: 43
+  eixo: Atenção e capacidade assistencial
+  meta: Fortalecer a capacidade de resposta da Rede Hospitalar.
+  acao: 1) Demandar ao gabinete de Gestão Hospitalar e a Superintendência de Gestão das Parcerias a elaboração
+    e atualização dos Planos de contingência das unidades de saúde; 2) Solicitar ao Gabinete de Gestão
+    Hospitalar a Superintendência de Gestão das Parcerias o levantamento da capacidade instalada (leitos,
+    equipamentos e apoio diagnóstico) e do potencial de expansão assistencial sob demanda; 3) Solicitar
+    ao Gabinete de Gestão Hospitalar a Superintendência de Gestão das Parcerias protocolos assistenciais
+    focados em eventos cardiovasculares, renais e respiratórios.
+  responsavel_texto: Coordenadoria de Atenção Terciária/SAS
+  area_id: sas_terciaria
+  area_nome: Coordenadoria de Atenção Terciária / SAS
+  prazo_original: Antes e durante o período crítico
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Unidades hospitalares com Plano de Contingência atualizado
+  formula: unidades com plano vigente ÷ unidades hospitalares prioritárias × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Gestão hospitalar + ARARA
+  periodicidade: Mensal até conclusão; revisão
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Plano vigente
+- id: ARARA-083
+  linha_origem: 43
+  eixo: Atenção e capacidade assistencial
+  meta: Fortalecer a capacidade de resposta da Rede Hospitalar.
+  acao: 1) Demandar ao gabinete de Gestão Hospitalar e a Superintendência de Gestão das Parcerias a elaboração
+    e atualização dos Planos de contingência das unidades de saúde; 2) Solicitar ao Gabinete de Gestão
+    Hospitalar a Superintendência de Gestão das Parcerias o levantamento da capacidade instalada (leitos,
+    equipamentos e apoio diagnóstico) e do potencial de expansão assistencial sob demanda; 3) Solicitar
+    ao Gabinete de Gestão Hospitalar a Superintendência de Gestão das Parcerias protocolos assistenciais
+    focados em eventos cardiovasculares, renais e respiratórios.
+  responsavel_texto: Coordenadoria de Atenção Terciária/SAS
+  area_id: sas_terciaria
+  area_nome: Coordenadoria de Atenção Terciária / SAS
+  prazo_original: Antes e durante o período crítico
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Unidades hospitalares com capacidade instalada atualizada
+  formula: unidades com leitos/equipamentos/apoio diagnóstico e expansão atualizados ÷ prioritárias ×
+    100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: CNES/cadastro hospitalar + validação local
+  periodicidade: Mensal
+  automacao: automatico
+  automacao_detalhe: Automático após integração + validação
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Cadastro e data de validação
+- id: ARARA-084
+  linha_origem: 43
+  eixo: Atenção e capacidade assistencial
+  meta: Fortalecer a capacidade de resposta da Rede Hospitalar.
+  acao: 1) Demandar ao gabinete de Gestão Hospitalar e a Superintendência de Gestão das Parcerias a elaboração
+    e atualização dos Planos de contingência das unidades de saúde; 2) Solicitar ao Gabinete de Gestão
+    Hospitalar a Superintendência de Gestão das Parcerias o levantamento da capacidade instalada (leitos,
+    equipamentos e apoio diagnóstico) e do potencial de expansão assistencial sob demanda; 3) Solicitar
+    ao Gabinete de Gestão Hospitalar a Superintendência de Gestão das Parcerias protocolos assistenciais
+    focados em eventos cardiovasculares, renais e respiratórios.
+  responsavel_texto: Coordenadoria de Atenção Terciária/SAS
+  area_id: sas_terciaria
+  area_nome: Coordenadoria de Atenção Terciária / SAS
+  prazo_original: Antes e durante o período crítico
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Unidades hospitalares com protocolos assistenciais prioritários atualizados
+  formula: unidades com protocolos vigentes ÷ unidades prioritárias × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Gestão hospitalar + ARARA
+  periodicidade: Trimestral/período crítico
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Protocolos vigentes
+- id: ARARA-085
+  linha_origem: 44
+  eixo: Atenção e capacidade assistencial
+  meta: Fortalecer o apoio técnico à Atenção Secundária nos municípios e regiões prioritárias.
+  acao: Orientar e prestar apoio técnico aos Escritórios Regionais de Saúde e municípios quanto à preparação
+    dos serviços de Atenção Secundária, por meio do compartilhamento de orientações e da realização de
+    reuniões técnicas, preferencialmente virtuais, conforme necessidade identificada ou demanda encaminhada.
+  responsavel_texto: Coordenadoria de Atenção Secundária/SAS, em articulação com os Escritórios Regionais
+    de Saúde.
+  area_id: sas_secundaria
+  area_nome: Coordenadoria de Atenção Secundária / SAS
+  prazo_original: Antes e durante o período crítico.
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Territórios prioritários com prontidão da Atenção Secundária validada
+  formula: territórios com checklist mínimo de prontidão validado ÷ territórios prioritários × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: SAS/ERS + ARARA
+  periodicidade: Mensal durante período crítico
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Checklist de prontidão
+- id: ARARA-086
+  linha_origem: 44
+  eixo: Atenção e capacidade assistencial
+  meta: Fortalecer o apoio técnico à Atenção Secundária nos municípios e regiões prioritárias.
+  acao: Orientar e prestar apoio técnico aos Escritórios Regionais de Saúde e municípios quanto à preparação
+    dos serviços de Atenção Secundária, por meio do compartilhamento de orientações e da realização de
+    reuniões técnicas, preferencialmente virtuais, conforme necessidade identificada ou demanda encaminhada.
+  responsavel_texto: Coordenadoria de Atenção Secundária/SAS, em articulação com os Escritórios Regionais
+    de Saúde.
+  area_id: sas_secundaria
+  area_nome: Coordenadoria de Atenção Secundária / SAS
+  prazo_original: Antes e durante o período crítico.
+  prioridade: Alta
+  tipo: resultado
+  indicador: Demandas de apoio técnico da Atenção Secundária respondidas no SLA
+  formula: demandas respondidas no prazo ÷ demandas recebidas × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Fila de demandas ARARA
+  periodicidade: Contínuo
+  automacao: automatico
+  automacao_detalhe: Automático se demandas forem registradas no ARARA
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Registro de demanda e resposta
+- id: ARARA-087
+  linha_origem: 45
+  eixo: Atenção e capacidade assistencial
+  meta: Fortalecer a capacidade de resposta da Rede de Urgência e Emergência.
+  acao: 'Orientar os serviços de Urgência e Emergência para: 1) organizar protocolos de triagem, classificação
+    de risco e priorização dos atendimentos; 2) definir fluxos para transporte e encaminhamento de pacientes;
+    3) estabelecer o fluxo de envio de informações dos Núcleos de Vigilância Epidemiológica Hospitalar
+    ao CIEVS/SES-MT; e 4) verificar a disponibilidade de medicamentos, insumos e correlatos para o atendimento
+    pré-hospitalar.'
+  responsavel_texto: Coordenadoria de Organização de Redes de Urgência e Emergência e Escritórios Regionais
+  area_id: sas_urgencia
+  area_nome: Coordenadoria de Organização de Redes de Urgência e Emergência
+  prazo_original: Antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  tipo: capacidade
+  indicador: Serviços de Urgência/Emergência com checklist de prontidão validado
+  formula: serviços prioritários com triagem, fluxo de transporte, notificação NVEH e insumos verificados
+    ÷ serviços prioritários × 100
+  meta_gatilho: ≥95%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Urgência/Emergência + ERS + ARARA
+  periodicidade: Mensal e intensificar conforme risco
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Muito alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Checklist validado
+- id: ARARA-088
+  linha_origem: 45
+  eixo: Atenção e capacidade assistencial
+  meta: Fortalecer a capacidade de resposta da Rede de Urgência e Emergência.
+  acao: 'Orientar os serviços de Urgência e Emergência para: 1) organizar protocolos de triagem, classificação
+    de risco e priorização dos atendimentos; 2) definir fluxos para transporte e encaminhamento de pacientes;
+    3) estabelecer o fluxo de envio de informações dos Núcleos de Vigilância Epidemiológica Hospitalar
+    ao CIEVS/SES-MT; e 4) verificar a disponibilidade de medicamentos, insumos e correlatos para o atendimento
+    pré-hospitalar.'
+  responsavel_texto: Coordenadoria de Organização de Redes de Urgência e Emergência e Escritórios Regionais
+  area_id: sas_urgencia
+  area_nome: Coordenadoria de Organização de Redes de Urgência e Emergência
+  prazo_original: Antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  tipo: resultado
+  indicador: Gaps críticos da Urgência/Emergência com ação corretiva registrada
+  formula: gaps críticos com ação e responsável definidos ÷ gaps críticos identificados × 100
+  meta_gatilho: 100%
+  unidade: '%'
+  direcao: Maior é melhor
+  fonte: Módulo de pendências ARARA
+  periodicidade: Contínuo
+  automacao: semiautomatico
+  automacao_detalhe: Semiautomático
+  viabilidade: Alta
+  semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
+  evidencia_minima: Gap, responsável, prazo e evidência

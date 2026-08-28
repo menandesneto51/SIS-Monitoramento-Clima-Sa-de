@@ -54,6 +54,18 @@ def _rank_0_100(s: pd.Series) -> pd.Series:
     return r
 
 
+def metodologia_indice_md() -> str:
+    return """**Índice de prioridade de preparação clima–saúde (metodologia resumida)**
+
+- **Componentes:** pressão assistencial, exposição ambiental, vulnerabilidade e prioridade operacional global.
+- **Normalização:** cada componente é convertido para escala 0–100 por percentil empírico municipal.
+- **Pesos:** prioridade operacional (30%), exposição (25%), pressão assistencial (25%), vulnerabilidade (20%).
+- **Índice composto:** média ponderada renormalizada dos componentes disponíveis por município.
+- **Faixas:** Acompanhamento (<35); Moderada (35 a <55); Alta (55 a <75); Crítica (≥75).
+- **Dados ausentes:** não entram no numerador; pesos são renormalizados entre os componentes válidos.
+- **Classe climática ARARAS:** contexto territorial; não entra no cálculo do índice."""
+
+
 def compute_prontidao(resumo: pd.DataFrame) -> dict[str, Any]:
     """Calcula necessidade de preparação (maior = maior urgência de preparação).
 
@@ -122,7 +134,7 @@ def compute_prontidao(resumo: pd.DataFrame) -> dict[str, Any]:
     vc = pd.Series([d for d in dets if d and d != INDISPONIVEL]).value_counts(normalize=True)
     monopolio = bool(len(vc) and float(vc.iloc[0]) >= 0.70)
 
-    ranked = df.sort_values("_prep", ascending=False, na_position="last").head(15)
+    ranked = df.sort_values("_prep", ascending=False, na_position="last").head(10)
     rows: list[list[str]] = []
     top: list[dict[str, Any]] = []
     for _, row in ranked.iterrows():
@@ -132,15 +144,16 @@ def compute_prontidao(resumo: pd.DataFrame) -> dict[str, Any]:
         pr_f = float(pr)
         det1 = str(row.get("_determinante") or "—")
         det2 = str(row.get("_determinante2") or "").strip()
-        det_txt = det1 if not det2 else f"{det1}; 2º: {det2}"
+        atual = _nivel_pt(row.get("nivel"))
+        proj = _nivel_pt(row.get("nivel_predicao_7d")) if "nivel_predicao_7d" in row.index else "—"
         rows.append(
             [
                 str(row.get("municipio") or "—"),
                 str(row.get("regional_saude") or "—"),
-                _nivel_pt(row.get("nivel")),
+                f"{atual} → {proj}",
                 fmt_num(pr_f, 1),
                 _faixa(pr_f),
-                det_txt,
+                det1,
             ]
         )
         top.append({"municipio": row.get("municipio"), "prontidao": pr_f, "faixa": _faixa(pr_f), "determinante": det1})
@@ -150,11 +163,12 @@ def compute_prontidao(resumo: pd.DataFrame) -> dict[str, Any]:
     validado = n_calc > 0 and (n_sat / max(n_calc, 1) < 0.8)
 
     nota = (
-        "O **índice de prioridade de preparação** (0–100) expressa a **necessidade** de preparação "
-        "clima–saúde (maior valor = maior urgência). Internamente combina `score_pressao`, "
-        "`score_exposicao`, `score_vulnerabilidade` e `score_prioridade_operacional`, "
-        "normalizados em percentil 0–100 antes da ponderação, para evitar domínio artificial "
-        "de uma escala bruta. A classe climática atual é contexto territorial e não entra no score."
+        "O índice combina pressão assistencial, exposição ambiental, vulnerabilidade e "
+        "prioridade operacional em escala normalizada de 0 a 100. A classe climática atual "
+        "é contexto territorial e não entra no cálculo. "
+        "Faixas qualitativas: Acompanhamento (<35); Moderada (35 a <55); Alta (55 a <75); Crítica (≥75). "
+        "Para os municípios do Top 10, recomenda-se preparação assistencial e intensificação "
+        "da vigilância, moduladas pelo principal determinante identificado."
     )
     if monopolio:
         nota += (
@@ -168,10 +182,10 @@ def compute_prontidao(resumo: pd.DataFrame) -> dict[str, Any]:
         [
             "Município",
             "Regional",
-            "Classe atual",
-            "Prioridade de preparação (0–100)",
+            "Atual → ~7 dias",
+            "Índice",
             "Faixa",
-            "Determinantes (1º; 2º)",
+            "Determinante principal",
         ],
         rows if validado else [],
         vazio=NAO_CALCULADO if not validado else INDISPONIVEL,

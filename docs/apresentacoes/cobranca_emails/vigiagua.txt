@@ -1,0 +1,20 @@
+Para: robertaorrigo@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Vigiágua)
+
+Prezados(as) da Vigiágua,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 2 para informar na Sala; 3 aguardando integração de fonte; 1 com carga defasada.
+
+- IND-008: Cobertura de monitoramento VIGIÁGUA nos territórios ativados/prioritários — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — VIGIÁGUA / SISAGUA
+- IND-009: Não conformidades de água com ação corretiva iniciada no SLA — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-010: Tempo de resposta às não conformidades de água (P50/P90) — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-069: Cumprimento do plano amostral VIGIÁGUA nas áreas críticas — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — VIGIÁGUA / SISAGUA
+- IND-070: Cobertura de mapeamento SAA/SAC/SAI com criticidade e atualização válidas — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — VIGIÁGUA / SISAGUA
+- IND-071: Municípios prioritários com pelo menos um técnico VIGIÁGUA capacitado e habilitado — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

@@ -1,0 +1,36 @@
+Para: gimvisa@ses.mt.gov.br; covsan@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Vigilância Sanitária)
+
+Prezados(as) da Vigilância Sanitária,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 12 para informar na Sala; 2 aguardando integração de fonte; 5 com carga defasada.
+
+Prioridade desta semana (documental — Sim + SEI):
+- IND-035: Orientação sanitária sobre água em estabelecimentos vigente e disseminada — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-042: Orientação sobre conservação de medicamentos/imunobiológicos vigente — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-044: Orientação e capacitação sobre contingência energética concluídas — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-046: Orientação sobre climatização e conforto térmico vigente — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-050: Orientação sobre equipamentos médico-hospitalares vigente — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+Demais pendências:
+- IND-036: Municípios prioritários com orientação recebida e ação local registrada — água em estabelecimentos — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-037: Cobertura de inspeção dos estabelecimentos-alvo priorizados por risco — água envasada/gelo — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-038: Cumprimento do plano amostral de água envasada/gelo por estágio — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-039: Resultados insatisfatórios com ação sanitária iniciada e encerrada no prazo — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-040: Municípios prioritários com comunicação sobre segurança de alimentos confirmada — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-041: Cobertura de monitoramento de estabelecimentos prioritários durante calor extremo — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-043: Conformidade de controle térmico nos estabelecimentos avaliados — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-045: EAS críticos com contingência energética funcional e testada — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-047: EAS prioritários com climatização funcional e controle térmico/PMOC adequados — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-048: VISAs prioritárias com orientação recebida e plano de ação para animais sinantrópicos — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-049: Cobertura de monitoramento de animais sinantrópicos em EAS/EIS prioritários — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-051: Disponibilidade operacional dos equipamentos críticos em EAS — Informar numerador real — não registrar zero (derruba o operacional)
+- IND-052: Denúncias climato-sanitárias com resposta e encerramento dentro do SLA — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAN denúncias
+- IND-053: Tempo de resposta às denúncias prioritárias (P50/P90) — Disponibilizar a base para o conector automático (CIEVS + área dona da fonte) — COVSAN denúncias
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

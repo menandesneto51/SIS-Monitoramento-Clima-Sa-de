@@ -1,0 +1,21 @@
+Para: menandesneto@ses.mt.gov.br; suzicruz@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (CIEVS / Vigidesastres)
+
+Prezados(as) da CIEVS / Vigidesastres,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 0 para informar na Sala; 4 com carga defasada.
+
+Prioridade desta semana (documental — Sim + SEI):
+- IND-002: Fluxo estadual de comunicação e resposta vigente, testado e versionado — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-033: Exercício simulado de prontidão realizado antes do período crítico — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+Demais pendências:
+- IND-003: ERS com ponto focal, contato e fluxo válidos — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-034: Ações corretivas pós-simulado concluídas no prazo e por criticidade — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

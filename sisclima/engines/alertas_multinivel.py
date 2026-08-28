@@ -132,6 +132,8 @@ INDICADOR_COLS = [
     ("risco_cumulativo_3d", "Risco de calor acumulado em 3 dias"),
     ("ocupacao_leitos_pct", "Ocupação de leitos hospitalares (%)"),
     ("pressao_calor_pct", "Pressão assistencial estimada (%)"),
+    ("indice_pressao_saude", "Índice de pressão assistencial (0 a 100)"),
+    ("semaforo_pressao", "Semáforo de pressão assistencial"),
     ("pm25_ugm3", "Partículas finas no ar — PM2,5 (µg/m³)"),
     ("indice_saturacao_solo", "Índice de saturação do solo (0 a 100)"),
     ("classe_saturacao_solo", "Situação do solo"),
@@ -536,6 +538,13 @@ def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> lis
             "max",
         ),
         (
+            "indice_pressao_saude",
+            "Índice de pressão assistencial (pico)",
+            "0 a 100",
+            "verde ≤39 · amarela ≤69 · vermelha >69",
+            "max",
+        ),
+        (
             "pm25_ugm3",
             "Partículas finas no ar — PM2,5 (pico)",
             "µg/m³",
@@ -587,6 +596,19 @@ def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> lis
                 "limiar": "baixa cobertura exige cautela na interpretação hospitalar",
             }
         )
+    if "semaforo_pressao" in df.columns:
+        vc = df["semaforo_pressao"].astype(str).str.lower().str.strip().value_counts()
+        if not vc.empty:
+            dist = ", ".join(f"{k}:{int(v)}" for k, v in vc.items())
+            inds.append(
+                {
+                    "campo": "distribuicao_semaforo_pressao",
+                    "rotulo": "Municípios por semáforo de pressão assistencial",
+                    "valor": dist,
+                    "escala": "verde / amarela / vermelha",
+                    "limiar": "distinto da classificação operacional verde→roxa",
+                }
+            )
     return inds
 
 
@@ -616,6 +638,8 @@ def _top_prioritarios(base: pd.DataFrame, n: int = 8) -> list[dict[str, Any]]:
                 "utci_proxy": row.get("utci_proxy"),
                 "risco_cumulativo_3d": row.get("risco_cumulativo_3d"),
                 "ocupacao_leitos_pct": row.get("ocupacao_leitos_pct"),
+                "indice_pressao_saude": row.get("indice_pressao_saude"),
+                "semaforo_pressao": row.get("semaforo_pressao"),
                 "fonte_ocupacao": row.get("fonte_ocupacao"),
                 "n_aldeias": row.get("n_aldeias"),
                 "n_quilombos": row.get("n_quilombos"),
@@ -625,6 +649,26 @@ def _top_prioritarios(base: pd.DataFrame, n: int = 8) -> list[dict[str, Any]]:
                 "indicadores": _pick_indicadores(row),
             }
         )
+    return out
+
+
+def _ibge_tokens(value: Any) -> set[str]:
+    digits = "".join(ch for ch in str(value or "") if ch.isdigit())
+    if len(digits) < 6:
+        return set()
+    out = {digits[:6]}
+    if len(digits) >= 7:
+        out.add(digits[:7])
+    return out
+
+
+def _force_municipio_ids() -> set[str]:
+    from sisclima.core.config import env
+
+    raw = env("ALERT_FORCE_MUNICIPIOS", "") or ""
+    out: set[str] = set()
+    for part in raw.replace(";", ",").split(","):
+        out |= _ibge_tokens(part)
     return out
 
 
@@ -709,6 +753,15 @@ def build_alertas_multinivel(
 
     # 3) Municipais
     crit = base[base["_rank"] >= min_rank].copy()
+    force_ids = _force_municipio_ids()
+    if force_ids and "cod_ibge" in base.columns:
+        extra_mask = base["cod_ibge"].map(lambda x: bool(_ibge_tokens(x) & force_ids))
+        extra = base[extra_mask]
+        if not extra.empty:
+            key = "cod_ibge" if "cod_ibge" in crit.columns else None
+            crit = pd.concat([crit, extra], ignore_index=True)
+            if key:
+                crit = crit.drop_duplicates(key, keep="first")
     for _, row in crit.iterrows():
         mun = str(row.get("municipio") or row.get("cod_ibge") or "Município")
         mp = _build_payload(
@@ -738,6 +791,8 @@ def build_alertas_multinivel(
         mp["ocupacao_leitos_pct"] = row.get("ocupacao_leitos_pct")
         mp["fonte_ocupacao"] = row.get("fonte_ocupacao")
         mp["pressao_calor_pct"] = row.get("pressao_calor_pct")
+        mp["indice_pressao_saude"] = row.get("indice_pressao_saude")
+        mp["semaforo_pressao"] = row.get("semaforo_pressao")
         mp["pm25_ugm3"] = row.get("pm25_ugm3")
         mp["iq_ar_score"] = row.get("iq_ar_score")
         mp["qualidade_ar_nivel"] = row.get("qualidade_ar_nivel")

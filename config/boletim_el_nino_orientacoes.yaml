@@ -9,12 +9,12 @@ cenarios:
     vulneraveis: "Crianças, idosos, gestantes, pessoas com comorbidades, trabalhadores expostos ao ar livre."
     situacao_campo: "municipios_hidro_alerta"
     acoes_municipio:
-      Vigilância em Saúde: "Monitorar notificações de desidratação, arboviroses e qualidade da água; reforçar comunicação de risco."
+      Vigilância em Saúde: "Monitorar notificações de desidratação e arboviroses; acompanhar qualidade da água; reforçar comunicação de risco."
       Atenção Primária: "Identificar população vulnerável; orientar hidratação e sinais de alerta."
       Urgência e Emergência: "Revisar fluxo de atendimento por desidratação e insolação."
       Assistência Farmacêutica: "Avaliar estoques de soluções de reidratação oral e insumos de suporte — conforme RENAME/PCDT aplicáveis."
       Gestão: "Articular com Defesa Civil, saneamento e abastecimento de água."
-    acoes_ses: "Consolidar municípios em estiagem; apoiar regionais; monitorar disponibilidade estratégica de insumos."
+    acoes_ses: "Consolidar e acompanhar os municípios com sinal de baixa disponibilidade hídrica; apoiar regionais; monitorar disponibilidade estratégica de insumos."
     referencias: "Ministério da Saúde — RENAME; protocolos estaduais de vigilância em desastres."
 
   - id: onda_calor
@@ -64,8 +64,8 @@ cenarios:
 
 impactos_saude:
   - evento: "Seca e estiagem"
-    exposicao: "Baixa umidade"
-    agravos: "Desidratação e irritações ocular e respiratória"
+    exposicao: "Baixa disponibilidade hídrica"
+    agravos: "Desidratação e irritações oculares e respiratórias"
     indicadores: "UR, Tmáx e atendimentos"
   - evento: "Incêndios e fumaça"
     exposicao: "PM2,5"

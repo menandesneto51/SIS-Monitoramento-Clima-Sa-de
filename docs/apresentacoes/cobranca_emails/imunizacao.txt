@@ -1,0 +1,20 @@
+Para: tacianaferreira@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Imunização e Rede de Frio)
+
+Prezados(as) da Imunização e Rede de Frio,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 4 para informar na Sala; 2 com carga defasada.
+
+- IND-054: Municípios ativados com situação vacinal e de Rede de Frio atualizada — Informar numerador e denominador na Sala (não inventar zero)
+- IND-055: Ocorrências que afetam vacinação com suporte iniciado no SLA — Informar numerador e denominador na Sala (não inventar zero)
+- IND-056: Ocorrências de Rede de Frio com acompanhamento completo — Informar numerador e denominador na Sala (não inventar zero)
+- IND-057: Ocorrências de Rede de Frio com contingência iniciada no SLA — Informar numerador e denominador na Sala (não inventar zero)
+- IND-058: Regiões com risco de desabastecimento e ação mitigadora ativa — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+- IND-059: Regiões com autonomia de imunobiológicos abaixo do mínimo do estágio — Atualizar a carga oficial de estoque — leitura atual pode estar defasada
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

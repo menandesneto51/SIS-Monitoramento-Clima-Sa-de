@@ -814,7 +814,9 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             qcols = [
                 c for c in (
                     'cod_ibge', 'focos_queimadas_24h', 'focos_queimadas_7d',
+                    'deteccoes_queimadas_24h', 'deteccoes_queimadas_7d',
                     'frp_queimadas_7d', 'nivel_queimadas', 'dias_sem_chuva_max',
+                    'satelite_referencia',
                 ) if c in queimadas.columns
             ]
             qm = queimadas[qcols].drop_duplicates('cod_ibge')

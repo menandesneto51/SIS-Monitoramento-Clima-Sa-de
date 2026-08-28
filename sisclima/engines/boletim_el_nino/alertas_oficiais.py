@@ -10,7 +10,7 @@ import pandas as pd
 from sisclima.core.recorte_mt import RECORTE_NOME, RECORTE_UF
 from sisclima.core.logging_utils import get_logger
 from sisclima.engines.boletim_el_nino.constants import INDISPONIVEL, SELPREV, SELOBS
-from sisclima.engines.boletim_el_nino.formatters import fmt_int, md_table
+from sisclima.engines.boletim_el_nino.formatters import fmt_int, fmt_plural, md_table
 from sisclima.engines.boletim_el_nino.inmet_section import _norm_severidade
 from sisclima.engines.boletim_el_nino.referencias import cite
 from sisclima.ingestion.cemaden import fetch_cemaden_alerts, normalize_cemaden_alerts
@@ -60,6 +60,26 @@ def _classificar_vigencia(
 
     out["classe_vigencia"] = out.apply(_rotulo, axis=1)
     return out
+
+
+def _sintese_inmet(df: pd.DataFrame) -> str:
+    if df is None or df.empty:
+        return "_Nenhum aviso INMET no recorte da semana._"
+    work = df.copy()
+    ev = work.get("evento")
+    if ev is None:
+        return _tabela_inmet(df)
+    grp = work.groupby(work["evento"].astype(str), dropna=False)
+    linhas = []
+    for nome, sub in grp:
+        n = len(sub)
+        sev = ", ".join(
+            sorted({_norm_severidade(str(x)) for x in sub.get("nivel_alerta", sub.get("severidade", pd.Series(dtype=str))).dropna().astype(str)})
+        ) or "—"
+        linhas.append(
+            f"- **{nome}** — {fmt_plural(n, 'aviso', 'avisos')}; severidade {sev}; abrangência em Mato Grosso."
+        )
+    return "\n".join(linhas)
 
 
 def _tabela_inmet(df: pd.DataFrame) -> str:
@@ -120,16 +140,28 @@ def _rotulo_nivel_alerta(k: Any) -> str:
     return mapa.get(s, str(k))
 
 
-def _sintese_titan(titan: pd.DataFrame | None) -> dict[str, Any]:
+def _sintese_titan(
+    titan: pd.DataFrame | None,
+    *,
+    classes_araras: dict[str, int] | None = None,
+    n_mun: int | None = None,
+) -> dict[str, Any]:
     if titan is None or titan.empty:
         return {"disponivel": False, "resumo_md": INDISPONIVEL}
-    niv = titan["nivel_alerta_integrado"].value_counts().to_dict() if "nivel_alerta_integrado" in titan.columns else {}
-    partes_niv = [f"{_rotulo_nivel_alerta(k)}: {fmt_int(v)}" for k, v in sorted(niv.items(), key=lambda kv: str(kv[0]))]
+    # Sempre a classificação ARARAS da rodada — não a série TITAN em cache.
+    if classes_araras:
+        ordem = ("verde", "amarela", "laranja", "vermelha", "roxa")
+        partes_niv = [f"{k}: {fmt_int(classes_araras.get(k, 0))}" for k in ordem]
+        n_txt = fmt_int(n_mun or sum(int(classes_araras.get(k, 0) or 0) for k in ordem))
+    else:
+        niv = titan["nivel_alerta_integrado"].value_counts().to_dict() if "nivel_alerta_integrado" in titan.columns else {}
+        partes_niv = [f"{_rotulo_nivel_alerta(k)}: {fmt_int(v)}" for k, v in sorted(niv.items(), key=lambda kv: str(kv[0]))]
+        n_txt = fmt_int(len(titan))
     linhas = [
-        f"- Municípios no recorte: **{fmt_int(len(titan))}**",
-        f"- Distribuição da classificação integrada: {'; '.join(partes_niv) or '—'}",
+        f"- Municípios no recorte: **{n_txt}**",
+        f"- Distribuição da classificação ARARAS desta rodada: {'; '.join(partes_niv) or '—'}",
     ]
-    return {"disponivel": True, "resumo_md": "\n".join(linhas), "niveis": niv, "componentes": {}}
+    return {"disponivel": True, "resumo_md": "\n".join(linhas), "niveis": classes_araras or {}, "componentes": {}}
 
 
 def build_alertas_oficiais(
@@ -142,6 +174,8 @@ def build_alertas_oficiais(
     cemaden_db: pd.DataFrame | None = None,
     titan_db: pd.DataFrame | None = None,
     fetch_live: bool = True,
+    classes_araras: dict[str, int] | None = None,
+    n_municipios: int | None = None,
 ) -> dict[str, Any]:
     """Monta pacote de alertas oficiais para a semana do relatório."""
     ts = consulta_em or datetime.now()
@@ -183,7 +217,7 @@ def build_alertas_oficiais(
     futuros = inmet_sem[inmet_sem["classe_vigencia"] == "futuro"] if not inmet_sem.empty else pd.DataFrame()
     nao_validados = inmet_sem[inmet_sem["classe_vigencia"] == "vigencia_nao_validada"] if not inmet_sem.empty else pd.DataFrame()
 
-    titan = _sintese_titan(titan_db)
+    titan = _sintese_titan(titan_db, classes_araras=classes_araras, n_mun=n_municipios)
 
     cite_inmet = cite("inmet_alertas")
     cite_cem = cite("cemaden_alertas")
@@ -257,6 +291,13 @@ def build_alertas_oficiais(
         "n_cemaden": len(cemaden),
         "resumo_climatico_md": "\n\n".join(resumo_clim),
         "inmet_vigentes_md": _tabela_inmet(vigentes),
+        "inmet_vigentes_sintese_md": _sintese_inmet(vigentes),
+        "inmet_futuros_sintese_md": _sintese_inmet(futuros),
+        "inmet_sintese_md": _sintese_inmet(
+            pd.concat([vigentes, futuros], ignore_index=True)
+            if (not vigentes.empty or not futuros.empty)
+            else pd.DataFrame()
+        ),
         "inmet_futuros_md": _tabela_inmet(futuros),
         "cemaden_md": _tabela_cemaden(cemaden),
         "titan": titan,

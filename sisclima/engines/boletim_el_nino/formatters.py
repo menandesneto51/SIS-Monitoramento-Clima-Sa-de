@@ -7,7 +7,7 @@ from typing import Any
 
 import pandas as pd
 
-from sisclima.engines.boletim_el_nino.constants import HIDRO_LABEL, INDISPONIVEL, NAO_CALCULADO, SIGLAS
+from sisclima.engines.boletim_el_nino.constants import HIDRO_LABEL, INDISPONIVEL, NAO_CALCULADO, NIVEIS_CLASSE_ORDEM, SIGLAS, UNIEVS_NOME_OFICIAL
 
 _FMT_INT_ZERO_OK = True  # zero observado é válido quando explicitamente contado
 
@@ -62,6 +62,21 @@ def fmt_frac(num: Any, den: Any, *, pct: bool = True) -> str:
         return INDISPONIVEL
 
 
+def plural_pt(n: Any, singular: str, plural: str | None = None) -> str:
+    """Retorna só a forma verbal: plural_pt(1, 'aviso', 'avisos') → 'aviso'."""
+    if n is None or (isinstance(n, float) and pd.isna(n)):
+        return plural or (singular + "s")
+    try:
+        k = int(round(float(n)))
+    except (TypeError, ValueError):
+        return plural or (singular + "s")
+    pl = plural or (singular + "s")
+    return singular if k == 1 else pl
+
+
+pluralize_pt = plural_pt  # alias QA de publicação
+
+
 def fmt_plural(n: Any, singular: str, plural: str | None = None) -> str:
     """Formata contagem com singular/plural correto (ex.: 1 município / 2 municípios)."""
     if n is None or (isinstance(n, float) and pd.isna(n)):
@@ -70,8 +85,50 @@ def fmt_plural(n: Any, singular: str, plural: str | None = None) -> str:
         k = int(round(float(n)))
     except (TypeError, ValueError):
         return INDISPONIVEL
-    pl = plural or (singular + "s")
-    return f"{_pt_int(k)} {singular if k == 1 else pl}"
+    return f"{_pt_int(k)} {plural_pt(k, singular, plural)}"
+
+
+def _fix_singular_plural(text: str) -> str:
+    """Corrige '1 avisos', '1 municípios' e formas com (s)."""
+    out = str(text or "")
+    pares = (
+        ("aviso", "avisos"),
+        ("município", "municípios"),
+        ("comunidade", "comunidades"),
+        ("aldeia", "aldeias"),
+        ("registro", "registros"),
+        ("nível", "níveis"),
+        ("nivel", "niveis"),
+        ("caso", "casos"),
+        ("foco", "focos"),
+        ("alerta", "alertas"),
+    )
+    for sing, plur in pares:
+        out = re.sub(
+            rf"(?<![0-9.,])1\s+{re.escape(plur)}\b",
+            f"1 {sing}",
+            out,
+            flags=re.I,
+        )
+        out = re.sub(
+            rf"(?<![0-9.,])1\s+{re.escape(sing)}\(s\)",
+            f"1 {sing}",
+            out,
+            flags=re.I,
+        )
+        out = re.sub(
+            rf"(?<![0-9.,])(\d{{2,}}|[2-9])\s+{re.escape(sing)}\(s\)",
+            rf"\1 {plur}",
+            out,
+            flags=re.I,
+        )
+        out = re.sub(
+            rf"\b{re.escape(sing)}\(s\)",
+            plur,
+            out,
+            flags=re.I,
+        )
+    return out
 
 
 def fmt_date_pt(v: Any, *, longo: bool = False) -> str:
@@ -106,6 +163,25 @@ def humanize_label(chave: str) -> str:
     if k in HIDRO_LABEL:
         return HIDRO_LABEL[k]
     return k.replace("_", " ")
+
+
+def fmt_distribuicao_niveis(d: dict[str, Any] | None) -> str:
+    """Sempre lista as cinco classes, inclusive quando o valor é zero."""
+    d = d or {}
+    return "; ".join(f"{k} {fmt_int(d.get(k, 0))}" for k in NIVEIS_CLASSE_ORDEM)
+
+
+def fmt_pareamento(sem: Any, n_tot: Any) -> str:
+    """1 de 142 municípios (0,7%). — sem aninhar '1 município (1 de 142 …)'."""
+    if not sem:
+        return ""
+    try:
+        n, d = float(sem), float(n_tot)
+        if d <= 0:
+            return ""
+        return f"{fmt_int(n)} de {fmt_int(d)} municípios ({fmt_num(100.0 * n / d, 1, '%')})."
+    except (TypeError, ValueError):
+        return ""
 
 
 def fmt_counts(d: dict[str, Any] | None, *, ordem: list[str] | None = None) -> str:
@@ -147,36 +223,71 @@ def fmt_metric_box(
 def expand_siglas(text: str) -> str:
     """Expande siglas na primeira ocorrência no texto; normaliza setas e classes."""
     out = str(text or "")
-    out = out.replace("->", "→")
+    out = out.replace("UNIEVS/CIEVS-MT", UNIEVS_NOME_OFICIAL)
+    dup = (
+        "Unidade de Informações Estratégicas de Vigilância em Saúde "
+        f"({UNIEVS_NOME_OFICIAL})"
+    )
+    out = out.replace(dup, UNIEVS_NOME_OFICIAL)
+    out = out.replace("->", "→").replace("^", "↑")
+    out = re.sub(r"(?<![A-Za-zÀ-ÿ])v(?=\s*\d)", "↓", out)
+    out = re.sub(r"sinal hidrológico de alerta", "sinal hidrológico de baixa disponibilidade", out, flags=re.I)
+    out = re.sub(r"não tratar a classes", "não interpretar as classes", out, flags=re.I)
     out = re.sub(r"\bclasses?\s+vermelh[oa]/rox[oa]\b", "classes vermelha e roxa", out, flags=re.I)
     out = re.sub(r"\bem\s+vermelho/rox[oa]\b", "nas classes vermelha e roxa", out, flags=re.I)
     out = re.sub(r"\bvermelho/rox[oa]\b", "classes vermelha e roxa", out, flags=re.I)
     out = re.sub(r"\bvermelha/rox[oa]\b", "vermelha e roxa", out, flags=re.I)
-    out = re.sub(r"\bmunicípio\(s\)", "municípios", out, flags=re.I)
-    out = re.sub(r"\baviso\(s\)", "avisos", out, flags=re.I)
-    out = re.sub(r"\balerta\(s\)", "alertas", out, flags=re.I)
-    out = re.sub(r"\bregistro\(s\)", "registros", out, flags=re.I)
+    out = _fix_singular_plural(out)
     seen: set[str] = set()
+    if UNIEVS_NOME_OFICIAL in out:
+        seen.add("UNIEVS")
+    if re.search(
+        r"Sala de Situação da Unidade de Informações Estratégicas de "
+        r"Vigilância em Saúde \(CIEVS-MT\)",
+        out,
+    ):
+        seen.add("CIEVS-MT")
     for sigla, expansao in sorted(SIGLAS.items(), key=lambda x: -len(x[0])):
         if sigla in seen:
             continue
-        # PM2,5 e similares: vírgula quebra \b no meio do token
-        if re.search(r"[,.]", sigla):
+        if sigla == "UNIEVS":
+            pattern = re.compile(rf"\b{re.escape(sigla)}\b(?!/)")
+        elif re.search(r"[,.]", sigla):
             pattern = re.compile(rf"(?<![\w]){re.escape(sigla)}(?![\w])")
         else:
             pattern = re.compile(rf"\b{re.escape(sigla)}\b(?!-)")
-        # Evita expansão duplicada quando o nome por extenso já aparece no texto
+        m = pattern.search(out)
+        if not m:
+            continue
+        prefix = out[: m.start()]
         core = expansao.split(" (")[0].strip()
-        if core and core in out:
+        core_plain = re.sub(r"[*_]", "", core)
+        if expansao in prefix or (core and core in prefix) or (core_plain and core_plain in prefix):
             seen.add(sigla)
             continue
-        if expansao in out:
-            seen.add(sigla)
-            continue
-        if pattern.search(out):
-            out = pattern.sub(expansao, out, count=1)
-            seen.add(sigla)
-    return out
+        out = pattern.sub(expansao, out, count=1)
+        seen.add(sigla)
+    return _fix_singular_plural(out)
+
+
+def bloco_tabela(titulo: str, corpo: str, fonte: str, nota: str | None = None) -> str:
+    """Identificação acima + tabela + fonte abaixo (NBR 14724). Numeração sequencial no fechamento."""
+    parts = [f"**Tabela – {titulo}**", "", corpo, "", f"Fonte: {fonte}"]
+    if nota:
+        parts.extend(["", f"Nota: {nota}"])
+    return "\n".join(parts)
+
+
+def numerar_tabelas(text: str) -> str:
+    """Atribui Tabela 1, 2, 3… na ordem de aparição. Não reinicia."""
+    n = 0
+
+    def _repl(m: re.Match) -> str:
+        nonlocal n
+        n += 1
+        return f"**Tabela {n} – {m.group(1).strip()}**"
+
+    return re.sub(r"\*\*Tabela(?:\s+\d+)?\s*[–-]\s*([^*]+)\*\*", _repl, str(text or ""))
 
 
 def md_table(headers: list[str], rows: list[list[str]], *, vazio: str = INDISPONIVEL) -> str:

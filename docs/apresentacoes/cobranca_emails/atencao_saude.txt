@@ -1,0 +1,23 @@
+Para: cas@ses.mt.gov.br; coapre@ses.mt.gov.br
+Cc: menandesneto@ses.mt.gov.br; tatianabelmonte@ses.mt.gov.br
+Assunto: Plano El Niño — pendências de indicadores (Atenção à Saúde / Regulação)
+
+Prezados(as) da Atenção à Saúde / Regulação,
+
+Segue a cobrança dos indicadores do Plano El Niño (Portaria SES-MT 0590/2026) com leitura em 28/08/2026 16:11.
+
+Pendências desta área: 4 para informar na Sala; 5 com carga defasada.
+
+- IND-017: Protocolos assistenciais prioritários vigentes e acionáveis — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-020: Situações críticas assistenciais com mitigação iniciada no SLA — Informar numerador e denominador na Sala (não inventar zero)
+- IND-022: Unidades estratégicas com plano de continuidade vigente, testado e acionável — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-031: Territórios prioritários com estratégia operacional para populações vulneráveis — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-082: Hospitais prioritários com plano de contingência vigente, testado e acionável — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-084: Hospitais prioritários com protocolos assistenciais críticos vigentes e equipe orientada — Gate de prontidão (Verde/Amarelo) — não tratar como atraso de crise
+- IND-085: Territórios prioritários com prontidão da Atenção Secundária validada — Informar numerador e denominador na Sala (não inventar zero)
+- IND-087: Serviços prioritários de Urgência/Emergência com prontidão operacional validada — Confirmar a leitura sugerida pelo ARARAS na Sala e enviar à validação CIEVS (—/268)
+- IND-088: Gaps críticos da Urgência/Emergência com mitigação iniciada no SLA e encerramento monitorado — Informar numerador e denominador na Sala (não inventar zero)
+
+O registro oficial é a Sala de Situação do ARARAS MT (painel interno → Sala de Situação / Plano El Niño → Indicadores). Responder só por e-mail não atualiza o índice. Não informar zero na ausência de dado.
+
+CIEVS / Secretaria-executiva — SES-MT

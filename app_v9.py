@@ -793,10 +793,12 @@ from sisclima.auth.access import (
     catalogo_municipios,
     catalogo_regionais,
     current_user,
+    is_admin,
     modo_publico,
     recorte_usuario,
 )
-from sisclima.ui.acesso import render_access_bar
+from sisclima.plano.acesso import pode_abrir_sala
+from sisclima.ui.acesso import render_access_bar, render_gestao_usuarios
 
 bootstrap_admin()
 apply_local_interno_preview()
@@ -820,6 +822,7 @@ if not _pub_mun:
     )
 render_access_bar(regionais=_pub_reg, municipios=_pub_mun)
 _PAINEL_PUBLICO = modo_publico()
+_ABRIR_SALA = (not _PAINEL_PUBLICO) and pode_abrir_sala(current_user())
 
 # Núcleo compartilhado: header, pressão e predição 7d (público reutiliza o painel restrito, com recortes)
 def _with_norm_ibge(df: pd.DataFrame) -> pd.DataFrame:
@@ -1014,17 +1017,8 @@ if _PAINEL_PUBLICO:
 else:
     ui_theme.hero(
         SYSTEM_NAME,
-        f"{SYSTEM_EXPANSION} · "
-        "SES-MT | CIEVS-MT | Rede CIEVS | Vigidesastres · "
-        f"base {backend_name()}",
-        chips=[
-            "SES-MT",
-            "CIEVS-MT",
-            "AdaptaSUS",
-            "Sala de Situação",
-            "Alerta operacional ARARAS",
-            f"Envio: {'ON' if alerts_enabled() else 'OFF'}",
-        ],
+        f"{SYSTEM_EXPANSION} · painel interno · SES-MT | CIEVS-MT",
+        chips=["SES-MT", "CIEVS-MT", "Interno", "Clima e saúde"],
     )
 
 # Aviso de backend (sqlite vs Postgres) fica na aba «Fontes e qualidade» — não na home.
@@ -1176,110 +1170,116 @@ NAV_SECTIONS: list[str] = [
     "Alertas",
     "Cálculos",
 ]
+SALA_PLANO_NAV = "Sala de Situação / Plano El Niño"
+if _ABRIR_SALA:
+    NAV_SECTIONS.append(SALA_PLANO_NAV)
+
+
+def _nav_button_groups(*, publico: bool, abrir_sala: bool) -> list[tuple[str, list[tuple[str, str]]]]:
+    """Mesmo layout de botões do painel público; o interno só acrescenta abas no mesmo padrão."""
+    leitura = [
+        ("Guia do leitor", "Guia do leitor"),
+        ("Visão", "Visão executiva"),
+        ("Mapas", "Mapas"),
+        ("Território", "Geografia"),
+    ]
+    clima = [
+        ("Qualidade do ar", "Qualidade do ar"),
+        ("El Niño", "El Niño / Contingência"),
+        ("Cemaden / ANA", "Cemaden / ANA"),
+    ]
+    saude = [
+        ("Arboviroses", "Arboviroses"),
+    ]
+    analise = [
+        ("Sazonalidade / OR", "Sazonalidade / OR"),
+        ("Cálculos", "Cálculos"),
+    ]
+    if not publico:
+        leitura.extend(
+            [
+                ("Fontes", "Fontes e qualidade"),
+                ("Prontidão", "Prontidão climática"),
+            ]
+        )
+        clima.extend(
+            [
+                ("Clima / TITAN", "Clima / TITAN"),
+                ("GeoCalor", "GeoCalor"),
+            ]
+        )
+        saude.extend(
+            [
+                ("Assistência", "Assistência"),
+                ("SIVEP", "SIVEP"),
+                ("Sentinela SG", "Sentinela SG"),
+                ("AdaptaSUS", "AdaptaSUS / Guia MS"),
+                ("Eventos", "Eventos em saúde"),
+            ]
+        )
+        analise.extend(
+            [
+                ("Correlação", "Correlação clima-saúde"),
+                ("Inteligência", "Inteligência"),
+            ]
+        )
+    groups: list[tuple[str, list[tuple[str, str]]]] = [
+        ("Leitura", leitura),
+        ("Clima e ambiente", clima),
+        ("Saúde", saude),
+        ("Análise", analise),
+    ]
+    if not publico:
+        operacao = [
+            ("Alertas", "Alertas"),
+            ("Operacional", "Operacional"),
+        ]
+        if abrir_sala:
+            operacao.append(("Sala / Plano", SALA_PLANO_NAV))
+        groups.append(("Operação", operacao))
+    return groups
+
+
+NAV_BUTTON_GROUPS = _nav_button_groups(publico=_PAINEL_PUBLICO, abrir_sala=_ABRIR_SALA)
 NAV_GROUPS: dict[str, list[str]] = {
-    "Visão": ["Guia do leitor", "Visão executiva", "Mapas", "Fontes e qualidade", "El Niño / Contingência", "Prontidão climática"],
-    "Clima e ar": ["Clima / TITAN", "Qualidade do ar", "Cemaden / ANA", "GeoCalor"],
-    "Saúde": [
-        "Assistência",
-        "Arboviroses",
-        "SIVEP",
-        "Sentinela SG",
-        "AdaptaSUS / Guia MS",
-        "Eventos em saúde",
-    ],
-    "Análise": ["Correlação clima-saúde", "Sazonalidade / OR", "Inteligência", "Cálculos"],
-    "Operação": ["Alertas", "Operacional", "Geografia"],
+    titulo: [key for _lbl, key in itens] for titulo, itens in NAV_BUTTON_GROUPS
 }
 if _PAINEL_PUBLICO:
     NAV_SECTIONS = [s for s in NAV_SECTIONS if s != "Eventos em saúde"]
-    NAV_GROUPS["Saúde"] = [s for s in NAV_GROUPS["Saúde"] if s != "Eventos em saúde"]
-_PUBLIC_NAV_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
-    (
-        "Leitura",
-        [
-            ("Guia do leitor", "Guia do leitor"),
-            ("Visão", "Visão executiva"),
-            ("Mapas", "Mapas"),
-            ("Território", "Geografia"),
-        ],
-    ),
-    (
-        "Clima e ambiente",
-        [
-            ("Qualidade do ar", "Qualidade do ar"),
-            ("El Niño", "El Niño / Contingência"),
-            ("Cemaden / ANA", "Cemaden / ANA"),
-        ],
-    ),
-    (
-        "Saúde",
-        [
-            ("Arboviroses", "Arboviroses"),
-        ],
-    ),
-    (
-        "Análise",
-        [
-            ("Sazonalidade / OR", "Sazonalidade / OR"),
-            ("Cálculos", "Cálculos"),
-        ],
-    ),
-]
-_nav_sfx = "_pub" if _PAINEL_PUBLICO else ""
+_NAV_VALID = {key for _g, itens in NAV_BUTTON_GROUPS for _lbl, key in itens}
+_NAV_STATE = "nav_aba_painel"
+if st.session_state.get(_NAV_STATE) not in _NAV_VALID:
+    _legado = str(
+        st.session_state.get("nav_aba_publica")
+        or st.session_state.get("nav_aba_completa")
+        or ""
+    )
+    st.session_state[_NAV_STATE] = _legado if _legado in _NAV_VALID else "Guia do leitor"
 with st.sidebar:
     st.markdown('<div class="sis-nav-kicker">Navegação</div>', unsafe_allow_html=True)
-    if _PAINEL_PUBLICO:
-        _pub_valid = {key for _g, items in _PUBLIC_NAV_GROUPS for _lbl, key in items}
-        if st.session_state.get("nav_aba_publica") not in _pub_valid:
-            st.session_state.nav_aba_publica = "Guia do leitor"
-        for _grupo, _itens in _PUBLIC_NAV_GROUPS:
-            ui_theme.nav_label(_grupo)
-            for _lbl, _key in _itens:
-                _ativo = st.session_state.nav_aba_publica == _key
-                _nav_key = _key.replace(" / ", "_").replace(" ", "_")
-                if st.button(
-                    _lbl,
-                    key=f"nav_pub_{_nav_key}{_nav_sfx}",
-                    use_container_width=True,
-                    type="primary" if _ativo else "secondary",
-                ):
-                    st.session_state.nav_aba_publica = _key
-                    st.rerun()
-        SECTION_KEY = st.session_state.nav_aba_publica
-    else:
-        ui_theme.nav_label("Modo")
-        _modo_nav = st.radio(
-            "Modo de navegação",
-            ["Por módulo", "Todas as abas"],
-            key=f"nav_modo_painel{_nav_sfx}",
-            label_visibility="collapsed",
-            help="Padrão: por módulo (menos ruído). ‘Todas as abas’ lista o menu completo.",
-        )
-        if _modo_nav == "Todas as abas":
-            ui_theme.nav_label("Abas do painel")
-            SECTION_KEY = st.radio(
-                "Aba",
-                NAV_SECTIONS,
-                key=f"nav_aba_completa{_nav_sfx}",
-                label_visibility="collapsed",
-            )
-        else:
-            ui_theme.nav_label("Módulo")
-            _nav_mod = st.radio(
-                "Módulo",
-                list(NAV_GROUPS.keys()),
-                key=f"nav_modulo_principal{_nav_sfx}",
-                label_visibility="collapsed",
-            )
-            ui_theme.nav_label(f"Abas · {_nav_mod}")
-            SECTION_KEY = st.radio(
-                "Aba",
-                NAV_GROUPS[_nav_mod],
-                key=f"nav_aba_{_nav_mod}{_nav_sfx}",
-                label_visibility="collapsed",
-            )
+    for _grupo, _itens in NAV_BUTTON_GROUPS:
+        ui_theme.nav_label(_grupo)
+        for _lbl, _key in _itens:
+            _ativo = st.session_state[_NAV_STATE] == _key
+            _nav_key = _key.replace(" / ", "_").replace(" ", "_")
+            if st.button(
+                _lbl,
+                key=f"nav_btn_{_nav_key}",
+                use_container_width=True,
+                type="primary" if _ativo else "secondary",
+            ):
+                st.session_state[_NAV_STATE] = _key
+                st.rerun()
+    if is_admin(current_user()) and not _PAINEL_PUBLICO:
+        ui_theme.nav_label("Administração")
+        with st.expander("Gestão de cadastros e níveis", expanded=False):
+            render_gestao_usuarios()
+    SECTION_KEY = st.session_state[_NAV_STATE]
 
-_mostrar_home = (not _PAINEL_PUBLICO) or SECTION_KEY == "Visão executiva"
+if SECTION_KEY == SALA_PLANO_NAV and not _ABRIR_SALA:
+    SECTION_KEY = "Visão executiva"
+
+_mostrar_home = SECTION_KEY == "Visão executiva"
 
 intel_state = state_indicator_summary(_view)
 prioridade_state = state_prioridade_summary(_view)
@@ -1314,9 +1314,8 @@ if _mostrar_home:
 
     ui_theme.callout(AVISO_SINAL_VS_ATIVACAO, "warn")
 
-    if _PAINEL_PUBLICO:
-        with st.expander("Por que este nível? (município sentinela / crítico)", expanded=True):
-            st.markdown(explicar_nivel_municipio(sentinel))
+    with st.expander("Por que este nível? (município sentinela / crítico)", expanded=True):
+        st.markdown(explicar_nivel_municipio(sentinel))
 
 # Frescor / cobertura (não interpretar ausência como risco zero)
 _frescor_home = build_fonte_frescor_home(resumo_all)
@@ -1364,53 +1363,15 @@ _sit_cards = [
     ),
 ]
 if _mostrar_home:
-    if _PAINEL_PUBLICO:
-        ui_theme.section_title(
-            f"Situação · {_rotulo_recorte}",
-            "Nível operacional, tendência e pressão no recorte do filtro territorial",
-        )
-        ui_theme.insight_cards(_sit_cards)
-        st.caption(
-            "Nível Roxa ≠ pressão hospitalar alta. Tendência usa % do recorte "
-            "(agravamento ≥15%). Pressão em escala 0–100 (alta ≥70)."
-        )
-    else:
-        ui_theme.section_title(
-            f"Situação · {_rotulo_recorte}",
-            f"Atualização do resumo: {_data_proc} · fontes OK {_frescor_sum['n_ok']}/{_frescor_sum['n_total']} "
-            f"({_frescor_sum['pct_ok']:.0f}%) · {_frescor_sum['n_problema']} com defasagem/parcial/indisponível",
-        )
-        ui_theme.insight_cards(
-            _sit_cards + [("Frescor dos dados", f"{_frescor_sum['pct_ok']:.0f}%", "fontes na janela esperada")]
-        )
-        st.caption(
-            "Nível Roxa ≠ pressão hospitalar alta. Tendência usa % do estado "
-            f"(agravamento ≥15%). Pressão em escala 0–100 (alta ≥70). "
-            "Detalhe de fontes → aba **Fontes e qualidade**."
-        )
-        ui_theme.section_title(
-            "Prioridades de hoje",
-            "Até 10 municípios para contato — situação → motivo → tendência → ação",
-        )
-        _prio_hoje = tabela_prioridades_hoje(_view, n=10)
-        if _prio_hoje.empty:
-            st.info("Sem municípios para priorizar neste recorte.")
-        else:
-            show_df(_prio_hoje, height=320)
-            if "flag_persistencia_roxa" in _view.columns:
-                _n_persist = int(pd.to_numeric(_view["flag_persistencia_roxa"], errors="coerce").fillna(0).gt(0).sum())
-                if _n_persist:
-                    st.caption(
-                        f"{_n_persist} município(s) com flag de persistência roxa "
-                        f"(EHF/onda ≥ limiar de dias em settings)."
-                    )
-            with st.expander("Por que este nível? (município sentinela / crítico)", expanded=False):
-                st.markdown(explicar_nivel_municipio(sentinel))
-
-        with st.expander("Como ler este painel (comece aqui se for sua 1ª vez)", expanded=False):
-            for line in HOW_TO_READ_PANEL:
-                st.markdown(f"- {line}")
-            st.caption("Predição numérica do ARARAS ≈ 7 dias. Cenários sazonais vêm de boletins oficiais, não deste número.")
+    ui_theme.section_title(
+        f"Situação · {_rotulo_recorte}",
+        "Nível operacional, tendência e pressão no recorte do filtro territorial",
+    )
+    ui_theme.insight_cards(_sit_cards)
+    st.caption(
+        "Nível Roxa ≠ pressão hospitalar alta. Tendência usa % do recorte "
+        "(agravamento ≥15%). Pressão em escala 0–100 (alta ≥70)."
+    )
 
     metrics = state_summary_with_prediction(_view, pred_v6)
     _semaforo_top = (
@@ -1510,23 +1471,6 @@ if _mostrar_home:
                 unsafe_allow_html=True,
             )
 
-    if not _PAINEL_PUBLICO:
-        ui_theme.glossary_expander(
-            [
-                "indice_prioridade_global",
-                "faixa_prioridade_global",
-                "tendencia_prioridade_7d",
-                "indice_tensao_climatica",
-                "indice_carga_saude",
-                "indice_vigilancia_integrada",
-                "tendencia_7d",
-                "completude_dados_pct",
-                "risco_cumulativo_3d",
-                "utci_proxy",
-                "pressao_calor_pct",
-            ]
-        )
-
     ui_theme.section_title(
         "Mapa de risco cumulativo 3 dias",
         f"Recorte: {_rotulo_recorte} · Tmáx, UTCI e nível no hover",
@@ -1543,6 +1487,29 @@ if _mostrar_home:
         )
     else:
         st.info("Indicador risco_cumulativo_3d indisponível neste recorte.")
+
+    if not _PAINEL_PUBLICO:
+        ui_theme.section_title(
+            "Prioridades de hoje",
+            "Até 10 municípios para contato — situação → motivo → tendência → ação",
+        )
+        st.caption(
+            f"Atualização do resumo: {_data_proc} · fontes OK {_frescor_sum['n_ok']}/{_frescor_sum['n_total']} "
+            f"({_frescor_sum['pct_ok']:.0f}%) · {_frescor_sum['n_problema']} com defasagem/parcial/indisponível. "
+            "Detalhe de fontes → aba **Fontes e qualidade**."
+        )
+        _prio_hoje = tabela_prioridades_hoje(_view, n=10)
+        if _prio_hoje.empty:
+            st.info("Sem municípios para priorizar neste recorte.")
+        else:
+            show_df(_prio_hoje, height=320)
+            if "flag_persistencia_roxa" in _view.columns:
+                _n_persist = int(pd.to_numeric(_view["flag_persistencia_roxa"], errors="coerce").fillna(0).gt(0).sum())
+                if _n_persist:
+                    st.caption(
+                        f"{_n_persist} município(s) com flag de persistência roxa "
+                        f"(EHF/onda ≥ limiar de dias em settings)."
+                    )
 
 # Índice de pressão (IndicaSUS · SISREG · SINAN · SIM) — semáforo G/A/V
 from sisclima.engines.indice_pressao_saude import (
@@ -1625,8 +1592,6 @@ if "cod_ibge" in map_df_all.columns and "indice_prioridade_global" in resumo_all
 prioridade_state = state_prioridade_summary(resumo)
 
 hydrate_section_tables(SECTION_KEY)
-if not _PAINEL_PUBLICO:
-    ui_theme.section_guide(SECTION_KEY)
 
 # ---------------------------------------------------------------------
 # Seções do painel
@@ -2040,6 +2005,11 @@ elif SECTION_KEY == "Eventos em saúde":
     from sisclima.ui.eventos_saude import render_eventos_saude
 
     render_eventos_saude(resumo)
+
+elif SECTION_KEY == "Sala de Situação / Plano El Niño":
+    from sisclima.ui.sala_situacao_plano import render_sala_situacao_plano
+
+    render_sala_situacao_plano()
 
 elif SECTION_KEY == "Prontidão climática":
     render_prontidao(resumo)

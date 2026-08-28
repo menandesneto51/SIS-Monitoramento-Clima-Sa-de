@@ -33,7 +33,7 @@ MARGIN_L = 2.0 * cm
 MARGIN_R = 2.0 * cm
 TOP_BAR_H = 0.55 * cm
 ACCENT_BAR_H = 0.12 * cm
-HEADER_BODY_H = 2.85 * cm
+HEADER_BODY_H = 3.15 * cm
 FOOTER_H = 1.35 * cm
 
 HEADER_TOTAL = TOP_BAR_H + HEADER_BODY_H + ACCENT_BAR_H
@@ -65,12 +65,64 @@ def register_institutional_fonts() -> tuple[str, str]:
     return _FONT, _FONT_BOLD
 
 
+def _trim_whitespace(im, *, white: int = 248, pad_frac: float = 0.04):
+    """Corta padding branco/transparente interno, mantendo área de proteção (~4%)."""
+    rgba = im.convert("RGBA")
+    w, h = rgba.size
+    px = rgba.load()
+    minx, miny, maxx, maxy = w, h, 0, 0
+    found = False
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a < 12:
+                continue
+            if r >= white and g >= white and b >= white:
+                continue
+            found = True
+            if x < minx:
+                minx = x
+            if y < miny:
+                miny = y
+            if x > maxx:
+                maxx = x
+            if y > maxy:
+                maxy = y
+    if not found:
+        box = im.getbbox()
+        return im.crop(box) if box else im
+    pad = max(2, int(min(w, h) * pad_frac))
+    box = (max(0, minx - pad), max(0, miny - pad), min(w, maxx + 1 + pad), min(h, maxy + 1 + pad))
+    return rgba.crop(box)
+
+
+def _opaque_lockup(src: Path) -> Path:
+    """Grava lockup opaco e recortado: a marca preenche a caixa do cabeçalho."""
+    dest = src.with_name("governo-ses-mt-cabecalho-recorte.png")
+    try:
+        if dest.exists() and dest.stat().st_mtime >= src.stat().st_mtime:
+            return dest
+        from PIL import Image
+
+        im = Image.open(src)
+        im = _trim_whitespace(im)
+        if im.mode in {"RGBA", "LA"}:
+            bg = Image.new("RGBA", im.size, (255, 255, 255, 255))
+            bg.alpha_composite(im.convert("RGBA"))
+            bg.convert("RGB").save(dest, "PNG")
+        else:
+            im.convert("RGB").save(dest, "PNG")
+        return dest
+    except Exception:
+        return src
+
+
 def _gov_logo() -> Path:
-    # Preferir lockup oficial Governo/SES (alta resolução no projeto)
-    if GOV_SES_LOCKUP_PATH.exists():
-        return GOV_SES_LOCKUP_PATH
-    if GOV_SES_LOGO_PATH.exists():
-        return GOV_SES_LOGO_PATH
+    # Preferir lockup com painel SES em azul-marinho (texto branco legível).
+    # Não usar mask=auto: o ReportLab apagaria o preto/marinho da marca.
+    for cand in (GOV_SES_LOGO_PATH, GOV_SES_LOCKUP_PATH):
+        if cand.exists():
+            return _opaque_lockup(cand)
     return GOV_SES_LOCKUP_PATH
 
 
@@ -94,7 +146,8 @@ def _draw_image_fit(
     w, h = iw * scale, ih * scale
     dx = x + ((max_w - w) / 2.0 if center else 0)
     dy = y + ((max_h - h) / 2.0 if center else 0)
-    canvas.drawImage(img, dx, dy, width=w, height=h, preserveAspectRatio=True, mask="auto")
+    # mask="auto" trata preto como transparência e apaga o painel SES da marca oficial.
+    canvas.drawImage(img, dx, dy, width=w, height=h, preserveAspectRatio=True, mask=None)
 
 
 def draw_institutional_page(
@@ -127,14 +180,14 @@ def draw_institutional_page(
     canvas.setFillColor(SES_ACCENT)
     canvas.rect(0, header_bottom - ACCENT_BAR_H, PAGE_W, ACCENT_BAR_H, fill=1, stroke=0)
 
-    logo_max_h = HEADER_BODY_H - 0.36 * cm
+    logo_max_h = HEADER_BODY_H - 0.18 * cm
     logo_y = header_bottom + (HEADER_BODY_H - logo_max_h) / 2.0
-    gap = 0.18 * cm
+    gap = 0.14 * cm
     usable = PAGE_W - MARGIN_L - MARGIN_R
-    # Pesos ópticos: Gov/SES maior, ARARAS reduzido, CIEVS ampliado (~8–12%)
-    w_gov = usable * 0.38
-    w_araras = usable * 0.28
-    w_cievs = usable * 0.34
+    # Mesma altura visual; SES/Gov mais larga (lockup duplo) após corte de padding
+    w_gov = usable * 0.42
+    w_araras = usable * 0.29
+    w_cievs = usable * 0.29
     used = w_gov + w_araras + w_cievs + 2 * gap
     if used > usable:
         scale = usable / used

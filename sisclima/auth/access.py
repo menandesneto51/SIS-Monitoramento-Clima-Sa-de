@@ -28,6 +28,9 @@ NIVEIS: list[tuple[str, str]] = [
     ("ses", "SES / CIEVS — painel interno completo"),
     ("admin", "Administração — cadastros e níveis"),
 ]
+# Perfis do Plano El Niño (admin_araras, secretaria_executiva_cievs, coordenador_area,
+# tecnico_area, gestor, consulta) NÃO entram nesta lista: ficam em sisclima.plano.acesso
+# para não alterar o ranking nem o cadastro do painel climático.
 NIVEL_RANK = {k: i for i, (k, _lbl) in enumerate(NIVEIS)}
 NIVEIS_AUTO = {"publico"}
 NIVEIS_SOLICITAVEL = ("publico", "municipal", "regional", "ses")
@@ -243,6 +246,29 @@ def register_user(
         regional_saude=regional_saude,
         cod_ibge=cod_ibge,
     )
+    try:
+        from sisclima.alerts.contacts import lookup_contato_por_email
+
+        catalogo = lookup_contato_por_email(mail)
+    except Exception:
+        catalogo = None
+    if catalogo:
+        if nivel_solicitado == "municipal":
+            if mun and catalogo.get("municipio") and mun.casefold() != catalogo["municipio"].casefold():
+                return False, (
+                    f"Este e-mail está catalogado para {catalogo['municipio']} "
+                    f"({catalogo.get('regional_saude') or 'regional não informada'})."
+                )
+            if not mun:
+                mun = catalogo.get("municipio") or ""
+            if not reg:
+                reg = catalogo.get("regional_saude") or ""
+            if not ibge:
+                ibge = catalogo.get("cod_ibge") or ""
+            mun, reg, ibge = lookup_territorio(municipio=mun, regional_saude=reg, cod_ibge=ibge)
+        elif nivel_solicitado == "regional" and catalogo.get("regional_saude") and not reg:
+            reg = catalogo["regional_saude"]
+            mun, reg, ibge = lookup_territorio(regional_saude=reg)
     if nivel_solicitado == "municipal" and not mun:
         return False, "Nível municipal exige o município de atuação."
     if nivel_solicitado == "regional" and not reg:
@@ -337,7 +363,14 @@ def current_user(session: dict | None = None) -> dict[str, Any] | None:
         except Exception:
             return None
     user = session.get(SESSION_KEY) if session is not None else None
-    return user if isinstance(user, dict) and user.get("email") else None
+    if not (isinstance(user, dict) and user.get("email")):
+        return None
+    try:
+        from sisclima.plano.acesso import anexar_vinculo
+
+        return anexar_vinculo(user)
+    except Exception:
+        return user
 
 
 def login_to_session(user: dict[str, Any], session: dict) -> None:

@@ -1,0 +1,470 @@
+fonte: Controle_Indicacoes_El_Nino_SES_MT_2026.xlsx
+ato: Portaria nº 0590/2026/GBSES
+atualizado_em: '2026-08-25'
+regra: Sala só abre para ses/admin. SMS usa e-mail municipal no painel interno, sem a Sala. Vínculo não cria senha.
+participantes:
+- nome: CLAUDIA MOLINA DE FRANÇA
+  email: cotgr@ses.mt.gov.br
+  sigla: SGR
+  superintendencia: Superintendência de Gestão Regional
+  area_id: multi_area
+  papel: grupo_tecnico
+  telefone: (65) 98110-3295
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: consulta
+- nome: EMMANUEL SANTANA ARDAIA
+  email: saf@ses.mt.gov.br
+  sigla: SAF
+  area_texto: Assistência Farmacêutica
+  superintendencia: Superintendência de Assistência Farmacêutica
+  area_id: assistencia_farmaceutica
+  papel: grupo_tecnico
+  telefone: (65) 98462-7045
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: FABIANA COELHO DA SILVA ALVES
+  email: dtha@ses.mt.gov.br
+  sigla: CVE
+  area_texto: DTHA
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: FLÁVIA RIBEIRO CARDOSO FERNANDES TORTORELLI
+  email: flaviatortorelli@ses.mt.gov.br
+  sigla: COVST
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: saude_trabalhador
+  papel: grupo_tecnico
+  telefone: (65) 98145-2468
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: GUILHERME VIEIRA BOTELHO DE ALMEIDA
+  email: gimvisa@ses.mt.gov.br
+  sigla: COVSAN
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_sanitaria
+  papel: grupo_tecnico
+  telefone: (65) 98464-2437
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: GUSTAVO CORDEIRO CANDOTE DE SOUZA
+  email: cas@ses.mt.gov.br
+  sigla: Não enquadrado automaticamente
+  area_texto: Coordenadoria de Atenção Secundária
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: atencao_saude
+  papel: grupo_tecnico
+  telefone: (65) 99680-4817
+  status_indicacao: Indicado no Grupo Técnico — lotação a validar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: JANAÍNA PAULI
+  email: janainapauli@ses.mt.gov.br
+  sigla: CVE
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: JOÃO PEDRO ROCHA NOGUEIRA
+  email: dengue@ses.mt.gov.br
+  sigla: CVE
+  area_texto: Arboviroses
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: LAURA ALVES DA SILVA
+  email: farmaciabasica@ses.mt.gov.br
+  sigla: SAF
+  area_texto: Assistência Farmacêutica
+  superintendencia: Superintendência de Assistência Farmacêutica
+  area_id: assistencia_farmaceutica
+  papel: grupo_tecnico
+  telefone: (65) 98432-2593
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: LAUREN CRISTIANE LEITE OCAMPOS
+  email: costra@ses.mt.gov.br
+  sigla: COVST
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: saude_trabalhador
+  papel: grupo_tecnico
+  telefone: (65) 99249-3790
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: LÍDIA FOLLETO
+  email: nevh@ses.mt.gov.br
+  sigla: CVE
+  area_texto: RENAVEH
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: MARCIA ALVES BRITO
+  email: marciabrito@ses.mt.gov.br
+  sigla: COVAM
+  area_texto: Animais Peçonhentos
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  telefone: (65) 99696-8828
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: MARLENE DA COSTA BARROS
+  email: covam@ses.mt.gov.br
+  sigla: COVAM
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  telefone: (65) 98464-5551
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: MENANDES ALVES DE SOUZA NETO
+  email: menandesneto@ses.mt.gov.br
+  area_texto: CIEVS
+  superintendencia: Gabinete da Secretaria Adjunta de Atenção e Vigilância em Saúde
+  area_id: cievs
+  papel: secretaria_executiva
+  status_indicacao: Função no Plano a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: secretaria_executiva_cievs
+- nome: MICHEL BELMONTE
+  email: michelbelmonte@ses.mt.gov.br
+  sigla: CVE
+  area_texto: COVID/Influenza e Vírus Respiratórios
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: NARA F. S. M. MILOMEM
+  email: coapre@ses.mt.gov.br
+  sigla: SAS / Coord. Organização de Redes de Atenção à Saúde
+  area_texto: Coordenadoria de Organização de Redes de Atenção à Saúde
+  superintendencia: Superintendência de Atenção à Saúde
+  area_id: atencao_saude
+  papel: grupo_tecnico
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: NORANEY NASCIMENTO ALMEIDA
+  email: noraneyalmeida@ses.mt.gov.br
+  sigla: COVAM
+  area_texto: VIGIAR
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigiar
+  papel: grupo_tecnico
+  telefone: (65) 98113-2038
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: ROBERTA SOUZA SILVA ORRIGO
+  email: robertaorrigo@ses.mt.gov.br
+  sigla: COVAM
+  area_texto: VIGIÁGUA
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigiagua
+  papel: grupo_tecnico
+  telefone: (65) 98404-4831
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: SIRIANA MARIA DA SILVA
+  email: sgr@ses.mt.gov.br
+  sigla: SGR
+  superintendencia: Superintendência de Gestão Regional
+  area_id: multi_area
+  papel: grupo_tecnico
+  telefone: (65) 99951-0569
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: consulta
+- nome: SUZI MONTE DA CRUZ
+  email: suzicruz@ses.mt.gov.br
+  sigla: COVAM / VIGIDESASTRE
+  area_texto: VIGIDESASTRE
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: cievs
+  papel: titular
+  telefone: (65) 98140-5200
+  status_indicacao: Papel formal informado
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: coordenador_area
+- nome: SÔNIA CRISTINA FIGUEIREDO OLIVEIRA
+  email: covsan@ses.mt.gov.br
+  sigla: COVSAN
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_sanitaria
+  papel: grupo_tecnico
+  telefone: (65) 98464-5561
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: TACIANA KATUCIA BESERRA DE OLIVEIRA FERREIRA
+  email: tacianaferreira@ses.mt.gov.br
+  sigla: CPEI
+  area_texto: Imunização
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: imunizacao
+  papel: grupo_tecnico
+  telefone: (66) 99988-5398
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: TATIANA HELENA BELMONTE
+  email: tatianabelmonte@ses.mt.gov.br
+  area_texto: CIEVS
+  superintendencia: Gabinete da Secretaria Adjunta de Atenção e Vigilância em Saúde
+  area_id: cievs
+  papel: secretaria_executiva
+  telefone: (65) 98111-2625
+  status_indicacao: Função no Plano a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: secretaria_executiva_cievs
+- nome: VERUSKA NOGUEIRA DE BRITO
+  email: veruskanbrito@gmail.com
+  sigla: COVAM
+  area_texto: Arboviroses
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: vigilancia_ambiental
+  papel: grupo_tecnico
+  telefone: (65) 99222-9868
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+- nome: VICTOR SILVA LIMA
+  email: victorlima@ses.mt.gov.br
+  sigla: COVST
+  superintendencia: Superintendência de Vigilância em Saúde
+  area_id: saude_trabalhador
+  papel: grupo_tecnico
+  telefone: (66) 99663-4072
+  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
+  fonte: Cadastro_Pessoas
+  perfil_sugerido: tecnico_area
+sem_email:
+- FLÁVIA PIZZOLIO ALVES FABRINI
+- IGOR BARROS SALDANHA DE MORAES
+- KAROL STÉFFANI GUIMARÃES
+- LUIZ FERNANDO APARECIDO OLIANI
+- MARA PATRICIA FERREIRA DA PENHA
+- REJANE CONDE
+municipios_estrategicos:
+- municipio: Cáceres
+  regional_saude: Cáceres
+  cod_ibge: '5102504'
+  email_sms: saude2@caceres.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Pontes e Lacerda
+  regional_saude: Pontes e Lacerda
+  cod_ibge: '5106752'
+  email_sms: saude@ponteselacerda.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Cuiabá
+  regional_saude: Baixada Cuiabana
+  cod_ibge: '5103403'
+  email_sms: gab.sms@cuiaba.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Tangará da Serra
+  regional_saude: Tangará da Serra
+  cod_ibge: '5107958'
+  email_sms: gabinetesaude@tangaradaserra.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Poconé
+  regional_saude: Baixada Cuiabana
+  cod_ibge: '5106505'
+  email_sms: saude@pocone.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Marcelândia
+  regional_saude: Colíder
+  cod_ibge: '5105580'
+  email_sms: smsmarcelandiamt@gmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Barra do Garças
+  regional_saude: Barra do Garças
+  cod_ibge: '5101803'
+  email_sms: gab.saude@barradogarcas.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Nova Mutum
+  regional_saude: Sinop
+  cod_ibge: '5106224'
+  email_sms: admsaude@novamutum.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Várzea Grande
+  regional_saude: Baixada Cuiabana
+  cod_ibge: '5108402'
+  email_sms: saudevarzeagrande@gmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Vila Bela da Santíssima Trindade
+  regional_saude: Pontes e Lacerda
+  cod_ibge: '5105507'
+  email_sms: ''
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Comodoro
+  regional_saude: Pontes e Lacerda
+  cod_ibge: '5103304'
+  email_sms: saude@comodoro.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Lucas do Rio Verde
+  regional_saude: Sinop
+  cod_ibge: '5105259'
+  email_sms: saude@lucasdorioverde.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Feliz Natal
+  regional_saude: Sinop
+  cod_ibge: '5103700'
+  email_sms: saude@feliznatal.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Nova Bandeirantes
+  regional_saude: Alta Floresta
+  cod_ibge: '5106158'
+  email_sms: novabandsaude@yahoo.com.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Confresa
+  regional_saude: Porto Alegre do Norte
+  cod_ibge: '5103353'
+  email_sms: saude@confresa.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Sorriso
+  regional_saude: Sinop
+  cod_ibge: '5107925'
+  email_sms: saude@sorriso.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Sinop
+  regional_saude: Sinop
+  cod_ibge: '5107909'
+  email_sms: gabinete.saude@sinop.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Brasnorte
+  regional_saude: Juína
+  cod_ibge: '5101902'
+  email_sms: saude@brasnorte.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Juara
+  regional_saude: Juara
+  cod_ibge: '5105101'
+  email_sms: saude@juara.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Colniza
+  regional_saude: Juína
+  cod_ibge: '5103254'
+  email_sms: gestao.saude@colniza.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Guarantã do Norte
+  regional_saude: Peixoto de Azevedo
+  cod_ibge: '5104104'
+  email_sms: smsguaranta@gmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Apiacás
+  regional_saude: Alta Floresta
+  cod_ibge: '5100805'
+  email_sms: saude@apiacas.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Aripuanã
+  regional_saude: Juína
+  cod_ibge: '5101407'
+  email_sms: semusa@aripuana.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Juína
+  regional_saude: Juína
+  cod_ibge: '5105150'
+  email_sms: saudejuina@gmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Rondonópolis
+  regional_saude: Rondonópolis
+  cod_ibge: '5107602'
+  email_sms: secretariaadjuntasms.roo@gmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Campo Novo do Parecis
+  regional_saude: Tangará da Serra
+  cod_ibge: '5102637'
+  email_sms: saude@camponovodoparecis.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Alta Floresta
+  regional_saude: Alta Floresta
+  cod_ibge: '5100250'
+  email_sms: secretariadesaude@altafloresta.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Primavera do Leste
+  regional_saude: Rondonópolis
+  cod_ibge: '5107040'
+  email_sms: saude@pva.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Mirassol d'Oeste
+  regional_saude: Cáceres
+  cod_ibge: '5105622'
+  email_sms: saude@mirassoldoeste.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Barão de Melgaço
+  regional_saude: Baixada Cuiabana
+  cod_ibge: '5101605'
+  email_sms: sms.baraomelgaco@gmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Cotriguaçu
+  regional_saude: Juína
+  cod_ibge: '5103379'
+  email_sms: secretariodesaude@cotriguacu.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Porto dos Gaúchos
+  regional_saude: Juara
+  cod_ibge: '5106802'
+  email_sms: smsportodosgauchos@hotmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Paranatinga
+  regional_saude: Rondonópolis
+  cod_ibge: '5106307'
+  email_sms: administrativo.saude@paranatinga.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Peixoto de Azevedo
+  regional_saude: Peixoto de Azevedo
+  cod_ibge: '5106422'
+  email_sms: secsaude@peixotodeazevedo.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Cláudia
+  regional_saude: Sinop
+  cod_ibge: '5103056'
+  email_sms: saude@claudia.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Campinápolis
+  regional_saude: Barra do Garças
+  cod_ibge: '5102603'
+  email_sms: smscampinapolis.gab@gmail.com
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Querência
+  regional_saude: Água Boa
+  cod_ibge: '5107065'
+  email_sms: saude@querencia.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Água Boa
+  regional_saude: Água Boa
+  cod_ibge: '5100201'
+  email_sms: saude@aguaboa.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Nossa Senhora do Livramento
+  regional_saude: Baixada Cuiabana
+  cod_ibge: '5106109'
+  email_sms: saude@livramento.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional
+- municipio: Diamantino
+  regional_saude: Diamantino
+  cod_ibge: '5103502'
+  email_sms: saude.atencaobasica@diamantino.mt.gov.br
+  indicacao_local: Não auditado na caixa institucional

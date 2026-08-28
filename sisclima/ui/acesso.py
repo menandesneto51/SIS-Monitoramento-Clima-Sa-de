@@ -13,7 +13,6 @@ from sisclima.auth.access import (
     catalogo_municipios,
     catalogo_regionais,
     current_user,
-    is_admin,
     is_interno,
     list_users,
     login_to_session,
@@ -64,9 +63,6 @@ def render_access_bar(
                 st.rerun()
     if not user and st.session_state.get(GATE_KEY):
         render_acesso_restrito(regionais=regionais, municipios=municipios)
-    elif is_admin(user) and str(st.session_state.get(MODO_KEY) or "interno") == "interno":
-        with st.expander("Gestão de cadastros e níveis", expanded=False):
-            render_gestao_usuarios()
     return user
 
 
@@ -80,6 +76,29 @@ def render_acesso_restrito(regionais: list[str] | None = None, municipios: list[
     muns = list(municipios or catalogo_municipios())
     tab_login, tab_cadastro = st.tabs(["Entrar", "Cadastrar"])
     with tab_login:
+        from sisclima.auth.sti_oidc import novo_state, sti_pronto, url_autorizacao, concluir_login_sti
+
+        params = st.query_params
+        code = str(params.get("code") or "")
+        state_q = str(params.get("state") or "")
+        if code and state_q and state_q == str(st.session_state.get("sti_oidc_state") or ""):
+            user_sti, msg_sti = concluir_login_sti(code)
+            st.query_params.clear()
+            if user_sti:
+                login_to_session(user_sti, st.session_state)
+                st.success("Acesso institucional STI reconhecido.")
+                st.rerun()
+            else:
+                st.error(msg_sti)
+        if sti_pronto():
+            st.caption("Conta SES/MT: entre com o login institucional da STI (OpenID).")
+            if st.button("Entrar com conta SES / STI", type="primary"):
+                state, nonce = novo_state()
+                st.session_state["sti_oidc_state"] = state
+                st.session_state["sti_oidc_nonce"] = nonce
+                st.link_button("Continuar na STI", url_autorizacao(state=state, nonce=nonce))
+            st.divider()
+            st.caption("Ou use e-mail e senha locais (cadastro ARARAS).")
         with st.form("form_login_araras"):
             email = st.text_input("E-mail institucional")
             senha = st.text_input("Senha", type="password")
@@ -194,3 +213,23 @@ def render_gestao_usuarios() -> None:
         st.rerun()
     if pendentes:
         st.caption(f"{len(pendentes)} cadastro(s) aguardando aprovação.")
+    if str(escolhido.get("nivel") or pedido) in {"ses", "admin"} or nivel in {"ses", "admin"}:
+        st.markdown("##### Vínculo do Plano El Niño")
+        st.caption("A Sala só abre para ses/admin. Coordenador e técnico precisam da área.")
+        from sisclima.plano.acesso import gravar_vinculo
+        from sisclima.plano.areas import AREAS_CANONICAS
+        from sisclima.plano.constants import PERFIS_PLANO
+
+        perfil_opts = {lbl: key for key, lbl in PERFIS_PLANO}
+        perfil_lbl = st.selectbox("Perfil do Plano", list(perfil_opts), key="admin_perfil_plano")
+        area_opts = {lbl: key for key, lbl in AREAS_CANONICAS}
+        area_lbl = st.selectbox("Área (se coordenador/técnico)", ["—"] + list(area_opts), key="admin_area_plano")
+        if st.button("Gravar vínculo do Plano", key="admin_vinc_plano"):
+            area = "" if area_lbl == "—" else area_opts[area_lbl]
+            ok_v, msg_v = gravar_vinculo(
+                email=email,
+                perfil_plano=perfil_opts[perfil_lbl],
+                area_id=area,
+                ator_email=who,
+            )
+            st.success(msg_v) if ok_v else st.error(msg_v)

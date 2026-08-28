@@ -152,3 +152,67 @@ def compute_climate_health_ors(
     df["data_processamento"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
     return df
 
+
+def compute_or_timeline(
+    daily: pd.DataFrame,
+    exposure_col: str,
+    outcome_col: str,
+    *,
+    window_days: int = 28,
+    step_days: int = 7,
+) -> pd.DataFrame:
+    """OR ecológico em janelas móveis (dias de alta exposição × desfecho alto)."""
+    if daily is None or daily.empty or "data" not in daily.columns:
+        return pd.DataFrame()
+    if exposure_col not in daily.columns or outcome_col not in daily.columns:
+        return pd.DataFrame()
+    work = daily.copy()
+    work["data"] = pd.to_datetime(work["data"], errors="coerce")
+    work = work.dropna(subset=["data"]).sort_values("data")
+    if len(work) < 14:
+        return pd.DataFrame()
+    dates = work["data"].dt.normalize().drop_duplicates().sort_values()
+    rows: list[dict] = []
+    start = dates.min()
+    end = dates.max()
+    cursor = start + pd.Timedelta(days=window_days)
+    while cursor <= end:
+        win = work[(work["data"] > cursor - pd.Timedelta(days=window_days)) & (work["data"] <= cursor)]
+        item = or_binary(win, exposure_col, outcome_col)
+        if item:
+            item["data"] = cursor.strftime("%Y-%m-%d")
+            item["janela_dias"] = window_days
+            rows.append(item)
+        cursor += pd.Timedelta(days=step_days)
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows)
+
+
+def compute_or_by_group(
+    resumo: pd.DataFrame,
+    group_col: str,
+    exposure_col: str,
+    outcome_col: str,
+    *,
+    min_n: int = 12,
+) -> pd.DataFrame:
+    """OR por grupo territorial (regional, etc.) — grupos com mais chance de desfecho na alta exposição."""
+    if resumo is None or resumo.empty or group_col not in resumo.columns:
+        return pd.DataFrame()
+    if exposure_col not in resumo.columns or outcome_col not in resumo.columns:
+        return pd.DataFrame()
+    rows: list[dict] = []
+    for grupo, sub in resumo.groupby(group_col, dropna=True):
+        if len(sub) < min_n:
+            continue
+        item = or_binary(sub, exposure_col, outcome_col)
+        if not item:
+            continue
+        item["grupo"] = str(grupo)
+        item["n_municipios"] = int(len(sub))
+        rows.append(item)
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows).sort_values(["significativo_005", "or"], ascending=[False, False])
+

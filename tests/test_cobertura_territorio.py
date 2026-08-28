@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+import unittest.mock
 
 import pandas as pd
 
@@ -119,6 +120,45 @@ class CoberturaTerritorioTests(unittest.TestCase):
         self.assertEqual(len(off), 1)
         self.assertEqual(str(off.iloc[0]["cnes"]), "2")
         self.assertEqual(str(off.iloc[0]["fonte_coord"]), "opendata_cnes")
+
+    def test_lat_lon_trocados_sao_corrigidos_e_invalidos_excluidos(self) -> None:
+        cnes = pd.DataFrame(
+            {
+                "cnes": ["ok", "swap", "fora"],
+                "fonte_coord": ["opendata_cnes"] * 3,
+                "lat": [-15.70, -56.20, 0.0],
+                "lon": [-56.20, -15.70, 0.0],
+            }
+        )
+        off = unidades_oficiais(cnes)
+        self.assertEqual(set(off["cnes"].astype(str)), {"ok", "swap"})
+        self.assertTrue(off["lat"].between(-18.2, -7.2).all())
+        self.assertTrue(off["lon"].between(-61.8, -50.0).all())
+
+    def test_p90_extremo_exige_validacao_e_sai_do_ranking(self) -> None:
+        cob = pd.DataFrame(
+            {
+                "municipio": ["Apiacás"] * 3 + ["Cuiabá"] * 3,
+                "nome": list("abcdef"),
+                "nivel": ["vermelha"] * 6,
+                "nivel_predicao_7d": ["roxa"] * 6,
+                "km_aps": [1000.0, 1050.0, 1100.0, 40.0, 50.0, 60.0],
+                "km_hospital": [80.0] * 6,
+                "longe_rede": [True] * 6,
+            }
+        )
+        with unittest.mock.patch(
+            "sisclima.engines.cobertura_territorio.load_cobertura",
+            return_value=cob,
+        ):
+            from sisclima.engines.boletim_el_nino.territorios import _quadro_cobertura_rede
+
+            tabela, _nota, recs, qa = _quadro_cobertura_rede()
+        self.assertIn("Cuiabá", tabela)
+        self.assertNotIn("Apiacás", tabela)
+        self.assertIn("Distância em validação", recs)
+        self.assertGreaterEqual(int(qa.get("n_route_validation_required") or 0), 1)
+        self.assertTrue(any("Apiacás" in x for x in (qa.get("rotas_validacao") or [])))
 
 
 if __name__ == "__main__":
