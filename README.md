@@ -94,6 +94,8 @@ docker compose run --rm pipeline
 
 Detalhes: `docs/DOCKER_BASE_UNICA.md`.
 
+Pacote de produção (painéis, alertas, decretos, boletim, Sala/Plano): `docs/RELEASE_PRODUCAO.md`.
+
 Fluxo rápido:
 
 ```bat

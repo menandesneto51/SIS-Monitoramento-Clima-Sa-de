@@ -1882,6 +1882,14 @@ elif SECTION_KEY == "El Niño / Contingência":
         st.caption(f"Boletim semanal indisponível: {exc}")
 
     if not _PAINEL_PUBLICO:
+        try:
+            from sisclima.ui.decretos_emergencia import render_decretos_emergencia
+
+            render_decretos_emergencia(allow_refresh=True)
+        except Exception as exc:
+            st.caption(f"Módulo de decretos indisponível: {exc}")
+
+    if not _PAINEL_PUBLICO:
         st.caption(
             "Eventos de campo (rumor/cluster/impacto climático): aba **Eventos em saúde** "
             "(SMS/CRS notifica · CIEVS tria). Não substitui o SINAN."

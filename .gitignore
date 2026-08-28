@@ -77,6 +77,13 @@ scripts/_tmp_*
 docs/apresentacoes/*_pages/
 docs/apresentacoes/*_v2.pdf
 docs/apresentacoes/*_v3.pdf
+docs/apresentacoes/*_apresentavel_v4.pdf
+docs/apresentacoes/*_apresentavel_v5.pdf
+docs/apresentacoes/*_apresentavel_v6.pdf
+docs/apresentacoes/*_apresentavel_v7.pdf
+docs/apresentacoes/*_apresentavel_v8.pdf
+docs/apresentacoes/*_apresentavel_v9.pdf
+docs/apresentacoes/_qa_se34/
 docs/apresentacoes/*.qa.log
 docs/apresentacoes/_*.txt
 docs/apresentacoes/*.js
