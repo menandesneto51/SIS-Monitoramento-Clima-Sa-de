@@ -28,13 +28,13 @@ class AccessCadastroTests(unittest.TestCase):
 
     def test_publico_fica_ativo_na_hora(self) -> None:
         ok, msg = self.acc.register_user(
-            email="cidadao@example.com",
+            email="cidadao_ativo@example.com",
             nome="Cidadao Teste",
             password="senha1234",
             nivel_solicitado="publico",
         )
         self.assertTrue(ok, msg)
-        user, auth_msg = self.acc.authenticate("cidadao@example.com", "senha1234")
+        user, auth_msg = self.acc.authenticate("cidadao_ativo@example.com", "senha1234")
         self.assertIsNotNone(user, auth_msg)
         self.assertEqual(user["nivel"], "publico")
         self.assertEqual(user["status"], "ativo")
@@ -102,6 +102,41 @@ class AccessCadastroTests(unittest.TestCase):
         self.assertFalse(pode_abrir_sala({"email": "a@b.c", "nivel": "publico", "status": "ativo"}))
         self.assertTrue(pode_abrir_sala({"email": "a@b.c", "nivel": "ses", "status": "ativo"}))
         self.assertFalse(pode_abrir_sala({"email": "a@b.c", "nivel": "ses", "status": "pendente"}))
+
+
+    def test_rate_limit_login_apos_falhas(self) -> None:
+        self.acc.register_user(
+            email="rate@example.com",
+            nome="Cidadao Teste",
+            password="senha1234",
+            nivel_solicitado="publico",
+        )
+        for _ in range(self.acc._LOGIN_MAX_FAILS):
+            user, msg = self.acc.authenticate("rate@example.com", "errada")
+            self.assertIsNone(user)
+        user, msg = self.acc.authenticate("rate@example.com", "senha1234")
+        self.assertIsNone(user)
+        self.assertIn("tentativas", msg.lower())
+
+    def test_current_user_revoga_se_suspenso(self) -> None:
+        self.acc.register_user(
+            email="suspenso@example.com",
+            nome="Cidadao Teste",
+            password="senha1234",
+            nivel_solicitado="publico",
+        )
+        user, _ = self.acc.authenticate("suspenso@example.com", "senha1234")
+        session: dict = {}
+        self.acc.login_to_session(user, session)
+        self.assertIsNotNone(self.acc.current_user(session))
+        self.acc.set_user_status("suspenso@example.com", status="suspenso", aprovado_por="admin")
+        self.assertIsNone(self.acc.current_user(session))
+
+    def test_preview_interno_desligado_por_padrao(self) -> None:
+        os.environ.pop("ARARAS_ALLOW_LOCAL_PREVIEW", None)
+        session: dict = {}
+        self.assertFalse(self.acc.apply_local_interno_preview(session))
+        self.assertIsNone(session.get(self.acc.SESSION_KEY))
 
 
 if __name__ == "__main__":

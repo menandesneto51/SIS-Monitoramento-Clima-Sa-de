@@ -133,10 +133,14 @@ def concluir_login_sti(code: str) -> tuple[dict[str, Any] | None, str]:
             )
             if not ok and "já" not in msg.casefold():
                 return None, msg
-            set_user_status(email, status="ativo", nivel="ses", aprovado_por="sti_oidc")
+            # Produção: não auto-promove a SES salvo STI_OIDC_AUTO_SES=true.
+            if as_bool(env("STI_OIDC_AUTO_SES"), False):
+                set_user_status(email, status="ativo", nivel="ses", aprovado_por="sti_oidc")
             row = get_user_by_email(email)
         if not row:
             return None, "Não foi possível materializar o usuário institucional."
+        if str(row.get("status") or "") != "ativo":
+            return None, "Conta institucional pendente de aprovação do CIEVS/SES."
         row = dict(row)
         row["auth_via"] = "sti_oidc"
         row["auth_em"] = int(time.time())

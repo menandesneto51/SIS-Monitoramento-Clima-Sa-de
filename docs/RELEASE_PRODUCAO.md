@@ -53,3 +53,12 @@
 - Alguns conectores do Plano ainda em espera de tabela (`SISAGUA`, entomologia, denúncias)
 - Fontes DW marcadas `pendente_sql_dw` no catálogo de agravos
 - Cobertura hidrológica municipal parcial no boletim
+
+## Hardening de segurança (mínimo)
+
+- `?interno=1` só com `ARARAS_ALLOW_LOCAL_PREVIEW=true` **e** Host loopback (nunca LAN/Cloud)
+- Sessão revalida status/nível no banco a cada acesso
+- Rate-limit de login (bloqueio após falhas repetidas)
+- Postgres Compose **sem** porta publicada no host (só rede Docker)
+- E-mails de alerta com vários destinatários usam **Bcc**
+- OIDC STI não auto-promove a SES salvo `STI_OIDC_AUTO_SES=true`

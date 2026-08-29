@@ -151,8 +151,14 @@ def send_email(
         return False
     msg = EmailMessage()
     msg['Subject'] = branded_subject(subject)
-    msg['From'] = env('SMTP_FROM') or env('SMTP_USER') or 'araras@ses.mt.gov.br'
-    msg['To'] = ', '.join(recipients)
+    envelope_from = env('SMTP_FROM') or env('SMTP_USER') or 'araras@ses.mt.gov.br'
+    msg['From'] = envelope_from
+    # Privacidade: múltiplos destinatários não se veem (Bcc). Um único vai em To.
+    if len(recipients) == 1:
+        msg['To'] = recipients[0]
+    else:
+        msg['To'] = env('ALERT_EMAIL_ENVELOPE_TO') or envelope_from
+        msg['Bcc'] = ', '.join(recipients)
     branded_plain = wrap_plain_message(body)
     msg.set_content(branded_plain)
     rendered_body = html_body or (

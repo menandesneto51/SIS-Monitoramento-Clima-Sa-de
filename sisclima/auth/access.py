@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from typing import Any
 
-from sisclima.core.config import ROOT, env
+from sisclima.core.config import ROOT, as_bool, env
 from sisclima.core.db import db_conn, execute, fetchall, fetchone, is_postgres
 from sisclima.core.logging_utils import get_logger
 
@@ -20,6 +20,13 @@ log = get_logger(__name__)
 SESSION_KEY = "araras_user"
 MODO_KEY = "araras_modo"
 GATE_KEY = "araras_mostrar_acesso"
+PREVIEW_KEY = "_araras_preview_local"
+
+# Rate-limit de login (em memória do processo — suficiente para Cloud/container único).
+_LOGIN_FAILS: dict[str, list[float]] = {}
+_LOGIN_MAX_FAILS = 8
+_LOGIN_WINDOW_SEC = 900.0
+_LOGIN_LOCK_SEC = 900.0
 
 NIVEIS: list[tuple[str, str]] = [
     ("publico", "Público — painel aberto"),
@@ -313,18 +320,46 @@ def register_user(
 
 
 def authenticate(email: str, password: str) -> tuple[dict[str, Any] | None, str]:
+    key = _norm_email(email)
+    if _login_is_locked(key):
+        return None, "Muitas tentativas de login. Aguarde alguns minutos e tente novamente."
     row = get_user_by_email(email)
     if not row:
+        _login_record_failure(key)
         return None, "E-mail ou senha inválidos."
     if not _verify(password, str(row.get("password_salt") or ""), str(row.get("password_hash") or "")):
-        log.warning("Falha de login no painel para %s", _norm_email(email))
+        _login_record_failure(key)
+        log.warning("Falha de login no painel para %s", key)
         return None, "E-mail ou senha inválidos."
     status = str(row.get("status") or "")
     if status == "pendente":
         return None, "Cadastro ainda pendente de aprovação do CIEVS/SES."
     if status != "ativo":
         return None, "Esta conta está suspensa ou recusada."
+    _login_clear_failures(key)
     return _row_public(row), "ok"
+
+
+def _login_is_locked(email: str) -> bool:
+    import time
+
+    now = time.time()
+    stamps = [t for t in _LOGIN_FAILS.get(email, []) if now - t < _LOGIN_LOCK_SEC]
+    _LOGIN_FAILS[email] = stamps
+    return len(stamps) >= _LOGIN_MAX_FAILS
+
+
+def _login_record_failure(email: str) -> None:
+    import time
+
+    now = time.time()
+    stamps = [t for t in _LOGIN_FAILS.get(email, []) if now - t < _LOGIN_WINDOW_SEC]
+    stamps.append(now)
+    _LOGIN_FAILS[email] = stamps
+
+
+def _login_clear_failures(email: str) -> None:
+    _LOGIN_FAILS.pop(email, None)
 
 
 def set_user_status(
@@ -365,6 +400,34 @@ def current_user(session: dict | None = None) -> dict[str, Any] | None:
     user = session.get(SESSION_KEY) if session is not None else None
     if not (isinstance(user, dict) and user.get("email")):
         return None
+
+    # Prévia local sintética (só com ARARAS_ALLOW_LOCAL_PREVIEW) — não revalida no banco.
+    if session.get(PREVIEW_KEY) and as_bool(env("ARARAS_ALLOW_LOCAL_PREVIEW"), False):
+        try:
+            from sisclima.plano.acesso import anexar_vinculo
+
+            return anexar_vinculo(user)
+        except Exception:
+            return user
+
+    # Revalida status/nível a cada acesso (revoga sessão se suspenso/rebaixado).
+    row = get_user_by_email(str(user.get("email") or ""))
+    if not row or str(row.get("status") or "") != "ativo":
+        try:
+            session.pop(SESSION_KEY, None)
+            session[MODO_KEY] = "publico"
+            session.pop(PREVIEW_KEY, None)
+        except Exception:
+            pass
+        return None
+    fresh = _row_public(row) or {}
+    for key in ("nome", "nivel", "status", "regional_saude", "municipio", "cod_ibge", "instituicao"):
+        if key in fresh:
+            user[key] = fresh.get(key)
+    session[SESSION_KEY] = user
+    if not is_interno(user):
+        session[MODO_KEY] = "publico"
+
     try:
         from sisclima.plano.acesso import anexar_vinculo
 
@@ -393,6 +456,7 @@ def login_to_session(user: dict[str, Any], session: dict) -> None:
 
 def logout_session(session: dict) -> None:
     session.pop(SESSION_KEY, None)
+    session.pop(PREVIEW_KEY, None)
     session[MODO_KEY] = "publico"
     session[GATE_KEY] = False
 
@@ -450,8 +514,8 @@ def bootstrap_admin() -> None:
     log.info("Administrador do painel criado via ambiente: %s", email)
 
 
-def _is_localhost_request() -> bool:
-    """Localhost ou rede privada (10/172.16-31/192.168) — não vale para IP público."""
+def _is_loopback_request() -> bool:
+    """Somente loopback (127.0.0.1 / localhost / ::1). Rede privada NÃO conta."""
     try:
         import streamlit as st
 
@@ -459,17 +523,17 @@ def _is_localhost_request() -> bool:
     except Exception:
         host = ""
     host = host.split(":")[0].strip().lower()
-    if host in {"127.0.0.1", "localhost", "::1"}:
-        return True
-    parts = host.split(".")
-    if len(parts) != 4 or not all(p.isdigit() for p in parts):
-        return False
-    a, b = int(parts[0]), int(parts[1])
-    return a == 10 or a == 192 and b == 168 or a == 172 and 16 <= b <= 31
+    return host in {"127.0.0.1", "localhost", "::1"}
 
 
 def apply_local_interno_preview(session: dict | None = None) -> bool:
-    """Abre o painel interno em localhost/LAN, com ?interno=1, para validação local."""
+    """Prévia interna só em loopback e com ARARAS_ALLOW_LOCAL_PREVIEW=true.
+
+    Em produção (Cloud/Docker SES) o atalho ?interno=1 fica desligado por padrão
+    e nunca concede admin em IP de rede privada.
+    """
+    if not as_bool(env("ARARAS_ALLOW_LOCAL_PREVIEW"), False):
+        return False
     try:
         import streamlit as st
 
@@ -486,12 +550,14 @@ def apply_local_interno_preview(session: dict | None = None) -> bool:
     if current_user(session):
         session[MODO_KEY] = "interno"
         return True
-    if not _is_localhost_request():
+    if not _is_loopback_request():
+        log.warning("Bloqueado ?interno=1 fora de loopback (Host não é localhost).")
         return False
     email = _norm_email(env("ARARAS_ADMIN_EMAIL", "") or "") or "preview.local@ses.mt.gov.br"
     row = get_user_by_email(email)
     if row and str(row.get("status") or "") == "ativo" and is_interno(_row_public(row)):
         login_to_session(_row_public(row) or {}, session)
+        session.pop(PREVIEW_KEY, None)
     else:
         login_to_session(
             {
@@ -506,5 +572,6 @@ def apply_local_interno_preview(session: dict | None = None) -> bool:
             },
             session,
         )
+        session[PREVIEW_KEY] = True
     session[MODO_KEY] = "interno"
     return True
