@@ -65,6 +65,7 @@ from sisclima.ui.home_ops import (
     AVISO_SINAL_VS_ATIVACAO,
     ameaca_dominante_estado,
     build_fonte_frescor_home,
+    build_trajetoria_7d,
     explicar_nivel_municipio,
     frescor_resumo,
     pressao_card_caption,
@@ -91,7 +92,9 @@ except ImportError:
         "7. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
         "8. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
         "9. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
-        "10. Em Cálculos, leia como cada indicador publicado é composto.",
+        "10. Em Série ambiental, veja calor/ar no tempo e o desvio da janela atual vs a série.",
+        "11. Em Óbitos e clima, acompanhe a série SIM sensível ao calor e leia a metodologia.",
+        "12. Em Cálculos, leia como cada indicador publicado é composto.",
     ]
     GLOSSARIO_PUBLICO = [
         "nivel",
@@ -319,35 +322,43 @@ def load_shapefile_geojson() -> tuple[Optional[dict], pd.DataFrame, str]:
 
 
 def _enrich_assistencia(resumo: pd.DataFrame) -> pd.DataFrame:
-    """Completa ocupação/pressão a partir das tabelas assistenciais quando faltarem no resumo."""
+    """Completa ocupação/pressão a partir das tabelas assistenciais (IndicaSUS municipal prevalece)."""
     out = resumo.copy()
     if "cod_ibge" not in out.columns:
         return out
     out["cod_ibge"] = normalize_cod_ibge(out["cod_ibge"])
 
-    if "ocupacao_leitos_pct" not in out.columns or out["ocupacao_leitos_pct"].isna().all():
-        occ = load_table("hospital_ocupacao_municipio")
-        if not occ.empty and "cod_ibge" in occ.columns:
-            occ = occ.copy()
-            occ["cod_ibge"] = normalize_cod_ibge(occ["cod_ibge"])
-            rename = {
-                "ocupacao_pct": "ocupacao_leitos_pct",
-                "leitos_existentes": "leitos_total",
-                "fonte": "fonte_ocupacao",
-            }
-            occ = occ.rename(columns={k: v for k, v in rename.items() if k in occ.columns})
-            keep = [
-                c for c in [
-                    "cod_ibge", "ocupacao_leitos_pct", "leitos_total", "leitos_ocupados",
-                    "leitos_livres", "fonte_ocupacao",
-                ]
-                if c in occ.columns
+    occ = load_table("hospital_ocupacao_municipio")
+    if not occ.empty and "cod_ibge" in occ.columns:
+        occ = occ.copy()
+        occ["cod_ibge"] = normalize_cod_ibge(occ["cod_ibge"])
+        rename = {
+            "ocupacao_pct": "ocupacao_leitos_pct",
+            "leitos_existentes": "leitos_total",
+            "fonte": "fonte_ocupacao",
+        }
+        occ = occ.rename(columns={k: v for k, v in rename.items() if k in occ.columns})
+        keep = [
+            c
+            for c in [
+                "cod_ibge",
+                "ocupacao_leitos_pct",
+                "leitos_total",
+                "leitos_ocupados",
+                "leitos_livres",
+                "fonte_ocupacao",
             ]
-            occ = occ[keep].drop_duplicates("cod_ibge")
-            drop_overlap = [c for c in keep if c != "cod_ibge" and c in out.columns]
-            if drop_overlap:
-                out = out.drop(columns=drop_overlap)
-            out = out.merge(occ, on="cod_ibge", how="left")
+            if c in occ.columns
+        ]
+        occ = occ[keep].drop_duplicates("cod_ibge")
+        # Remove valores antigos (fallback estadual) só onde há IndicaSUS municipal.
+        for c in keep:
+            if c != "cod_ibge" and c in out.columns:
+                out = out.drop(columns=[c])
+        out = out.merge(occ, on="cod_ibge", how="left")
+        if "fonte_ocupacao" in out.columns:
+            # Municípios sem leitos no BdSES: não rotular como tempo real.
+            out["fonte_ocupacao"] = out["fonte_ocupacao"].fillna("SEM_LEITOS_INDICASUS")
 
     if "pressao_calor_pct" not in out.columns or out["pressao_calor_pct"].isna().all():
         press = load_table("epi_pressao_assistencial")
@@ -730,23 +741,32 @@ def state_summary_with_prediction(resumo: pd.DataFrame, pred: pd.DataFrame) -> d
             "tendencia_clima": _modal_tendencia(resumo),
         }
     )
-    if pred is None or pred.empty:
-        for n in pred_levels:
-            out[f"tendencia_{n}"] = "—"
-        return out
-
-    pv = pred.copy()
-    if "cod_ibge" in resumo.columns and "cod_ibge" in pv.columns:
+    pv = pred.copy() if pred is not None and not pred.empty else pd.DataFrame()
+    if not pv.empty and "cod_ibge" in resumo.columns and "cod_ibge" in pv.columns:
         ids = set(normalize_cod_ibge(resumo["cod_ibge"]).dropna())
         pv["cod_ibge"] = normalize_cod_ibge(pv["cod_ibge"])
         pv = pv[pv["cod_ibge"].isin(ids)]
 
-    if "nivel_predicao_7d" in pv.columns:
+    if not pv.empty and "nivel_predicao_7d" in pv.columns:
         for n in pred_levels:
             pred_levels[n] = int((pv["nivel_predicao_7d"].astype(str).str.lower() == n).sum())
+    elif "pred_nivel_clima_7d" in resumo.columns:
+        for n in pred_levels:
+            pred_levels[n] = int(
+                (resumo["pred_nivel_clima_7d"].astype(str).str.lower() == n).sum()
+            )
+    elif "nivel_predicao_7d" in resumo.columns:
+        for n in pred_levels:
+            pred_levels[n] = int(
+                (resumo["nivel_predicao_7d"].astype(str).str.lower() == n).sum()
+            )
+
     out["pred_levels"] = pred_levels
     for n in pred_levels:
         out[f"tendencia_{n}"] = _trend_from_counts(int(out.get(n, 0)), int(pred_levels[n]))
+
+    if pv.empty:
+        return out
 
     if "tmax_max_7d" in pv.columns:
         out["tmax_pred"] = pd.to_numeric(pv["tmax_max_7d"], errors="coerce").max()
@@ -1156,13 +1176,14 @@ NAV_SECTIONS: list[str] = [
     "Qualidade do ar",
     "Assistência",
     "Arboviroses",
-    "SIVEP",
-    "Sentinela SG",
+    "SIVEP / Sentinela SG",
     "GeoCalor",
     "AdaptaSUS / Guia MS",
     "Eventos em saúde",
     "Correlação clima-saúde",
     "Cemaden / ANA",
+    "Série histórica ambiental",
+    "Óbitos e clima",
     "Sazonalidade / OR",
     "Operacional",
     "Geografia",
@@ -1185,11 +1206,13 @@ def _nav_button_groups(*, publico: bool, abrir_sala: bool) -> list[tuple[str, li
     ]
     clima = [
         ("Qualidade do ar", "Qualidade do ar"),
+        ("Série ambiental", "Série histórica ambiental"),
         ("El Niño", "El Niño / Contingência"),
         ("Cemaden / ANA", "Cemaden / ANA"),
     ]
     saude = [
         ("Arboviroses", "Arboviroses"),
+        ("Óbitos e clima", "Óbitos e clima"),
     ]
     analise = [
         ("Sazonalidade / OR", "Sazonalidade / OR"),
@@ -1211,8 +1234,7 @@ def _nav_button_groups(*, publico: bool, abrir_sala: bool) -> list[tuple[str, li
         saude.extend(
             [
                 ("Assistência", "Assistência"),
-                ("SIVEP", "SIVEP"),
-                ("Sentinela SG", "Sentinela SG"),
+                ("SIVEP / Sentinela", "SIVEP / Sentinela SG"),
                 ("AdaptaSUS", "AdaptaSUS / Guia MS"),
                 ("Eventos", "Eventos em saúde"),
             ]
@@ -1373,6 +1395,44 @@ if _mostrar_home:
         "(agravamento ≥15%). Pressão em escala 0–100 (alta ≥70)."
     )
 
+    _traj = build_trajetoria_7d(_view, pred_v6 if not pred_v6.empty else None)
+    ui_theme.section_title(
+        f"Trajetória ~7 dias · {_rotulo_recorte}",
+        "Leitura de agravamento: elevação de classe hoje → projeção da semana seguinte",
+    )
+    if _traj.get("ok"):
+        ui_theme.callout(_traj["narrativa"], str(_traj.get("callout_kind") or "info"))
+        ui_theme.insight_cards(
+            [
+                (
+                    "Elevação de classe",
+                    f"{_traj['n_subindo']}/{_traj['n_total']}",
+                    f"{_traj['pct_subindo']:.0f}% · {_traj['rotulo']}",
+                ),
+                (
+                    "Estáveis / redução",
+                    f"{_traj['n_estavel']} / {_traj['n_descendo']}",
+                    f"+1 nível: {_traj['n_sobe_1']} · ≥2: {_traj['n_sobe_2mais']}",
+                ),
+                (
+                    "Vermelha+roxa hoje",
+                    f"{_traj['crit_atual']}/{_traj['n_total']}",
+                    f"{_traj['pct_crit_atual']:.0f}% do recorte",
+                ),
+                (
+                    "Vermelha+roxa em ~7d",
+                    f"{_traj['crit_proj']}/{_traj['n_total']}",
+                    f"{_traj['pct_crit_proj']:.0f}% na projeção operacional",
+                ),
+            ]
+        )
+        st.caption(
+            "Fonte: `tendencia_7d` + `predicao_calor_7d_municipal_v6` (nível projetado). "
+            "Não é cenário sazonal ASO — horizonte operacional da semana seguinte."
+        )
+    else:
+        ui_theme.callout(_traj.get("narrativa") or "Trajetória indisponível.", "warn")
+
     metrics = state_summary_with_prediction(_view, pred_v6)
     _semaforo_top = (
         _view["semaforo_pressao"].astype(str).str.lower().value_counts().to_dict()
@@ -1445,6 +1505,13 @@ if _mostrar_home:
     )
     ui_theme.level_legend()
     _pred_levels = metrics.get("pred_levels") or {}
+    if _traj.get("ok") and _traj.get("crit_proj"):
+        st.caption(
+            f"Leitura rápida da trajetória: vermelha+roxa "
+            f"{_traj['crit_atual']} → {_traj['crit_proj']} municípios "
+            f"({_traj['pct_crit_atual']:.0f}% → {_traj['pct_crit_proj']:.0f}%). "
+            f"Linha «7d:» em cada cor = projeção operacional."
+        )
     dist_cols = st.columns(5)
     for _idx, (_nivel, _label) in enumerate([
         ("verde", "Verde"),
@@ -1695,6 +1762,10 @@ elif SECTION_KEY == "Visão executiva":
     )
 
     st.markdown("#### Prioridades no recorte filtrado")
+    st.caption(
+        "Ocupação IndicaSUS = % leitos (só com hospital notificante). "
+        "Pressão SISREG = solicitações/fila (demanda territorial)."
+    )
     _prio_filtro = tabela_prioridades_hoje(resumo, n=10)
     if _prio_filtro.empty:
         st.info("Sem municípios no filtro atual.")
@@ -1706,6 +1777,33 @@ elif SECTION_KEY == "Visão executiva":
             row = resumo[resumo["municipio"].astype(str) == str(mun_sel)]
             if not row.empty:
                 st.markdown(explicar_nivel_municipio(row.iloc[0]))
+
+    # Cards: ocupação IndicaSUS × pressão SISREG (painel restrito)
+    _fonte_o = resumo.get("fonte_ocupacao", pd.Series(dtype=str)).astype(str) if "fonte_ocupacao" in resumo.columns else pd.Series(dtype=str)
+    _n_ocup = int(_fonte_o.str.contains("TEMPO_REAL", case=False, na=False).sum()) if not _fonte_o.empty else int(
+        pd.to_numeric(resumo.get("ocupacao_leitos_pct"), errors="coerce").notna().sum()
+    ) if "ocupacao_leitos_pct" in resumo.columns else 0
+    _n_sem = int(_fonte_o.str.contains("SEM_LEITOS", case=False, na=False).sum()) if not _fonte_o.empty else max(0, len(resumo) - _n_ocup)
+    _ocup_med = pd.to_numeric(resumo.get("ocupacao_leitos_pct"), errors="coerce").mean() if "ocupacao_leitos_pct" in resumo.columns else None
+    if "kpi_sisreg_disponivel" in resumo.columns:
+        _n_sis = int(resumo["kpi_sisreg_disponivel"].fillna(False).astype(bool).sum())
+    elif "kpi_sisreg_solicitacoes" in resumo.columns:
+        _n_sis = int(pd.to_numeric(resumo["kpi_sisreg_solicitacoes"], errors="coerce").notna().sum())
+    else:
+        _n_sis = 0
+    _sis_med = (
+        pd.to_numeric(resumo.get("kpi_sisreg_solicitacoes"), errors="coerce").mean()
+        if "kpi_sisreg_solicitacoes" in resumo.columns
+        else None
+    )
+    ui_theme.insight_cards(
+        [
+            ("Ocupação IndicaSUS méd.", safe_metric_value(_ocup_med, "%", 1), f"{_n_ocup}/{len(resumo)} com leitos"),
+            ("Sem hospital notificante", str(_n_sem), "SEM_LEITOS_INDICASUS"),
+            ("Pressão SISREG méd.", safe_metric_value(_sis_med, "", 0), f"{_n_sis}/{len(resumo)} com regulação"),
+            ("Índice pressão méd.", safe_metric_value(pd.to_numeric(resumo.get("indice_pressao_saude"), errors="coerce").mean() if "indice_pressao_saude" in resumo.columns else None, "", 1), "0–100 composto"),
+        ]
+    )
 
     # Cards alerta integrado
     if not alerta_integrado.empty and "nivel_alerta_integrado" in alerta_integrado.columns:
@@ -1729,7 +1827,8 @@ elif SECTION_KEY == "Visão executiva":
         "Risco cumulativo 3 dias",
         hover_cols=[
             "regional_saude", "nivel", "tmax", "utci_proxy", "score",
-            "indice_vigilancia_integrada", "ocupacao_leitos_pct", "motivo",
+            "indice_vigilancia_integrada", "ocupacao_leitos_pct", "fonte_ocupacao",
+            "kpi_sisreg_solicitacoes", "indice_pressao_saude", "motivo",
         ],
         categorical=False,
     )
@@ -1742,7 +1841,8 @@ elif SECTION_KEY == "Visão executiva":
             "regional_saude", "score", "tmax", "utci_proxy", "risco_cumulativo_3d",
             "indice_vigilancia_integrada", "indice_saturacao_solo", "nivel_alerta_integrado",
             "tendencia_7d", "orientacao_leiga",
-            "ocupacao_leitos_pct", "pressao_calor_pct", "motivo",
+            "ocupacao_leitos_pct", "fonte_ocupacao", "kpi_sisreg_solicitacoes",
+            "indice_pressao_saude", "pressao_calor_pct", "motivo",
         ],
         categorical=True,
     )
@@ -1770,6 +1870,9 @@ elif SECTION_KEY == "Visão executiva":
                 "utci_proxy",
                 "risco_cumulativo_3d",
                 "ocupacao_leitos_pct",
+                "fonte_ocupacao",
+                "kpi_sisreg_solicitacoes",
+                "kpi_sisreg_semaforo",
                 "pressao_calor_pct",
                 "orientacao_prioridade",
                 "orientacao_leiga",
@@ -2075,6 +2178,9 @@ elif SECTION_KEY == "Mapas":
 
     st.markdown("#### Mapa preditivo 7 dias")
     st.caption("Nível operacional previsto para a semana seguinte no recorte filtrado. Não é cenário sazonal.")
+    _traj_map = build_trajetoria_7d(resumo, pred_v6 if not pred_v6.empty else None)
+    if _traj_map.get("ok"):
+        ui_theme.callout(_traj_map["narrativa"], str(_traj_map.get("callout_kind") or "info"))
     if pred_v6.empty:
         st.info("Predição 7 dias indisponível nesta rodada.")
     else:
@@ -2345,14 +2451,16 @@ elif SECTION_KEY == "Clima / TITAN":
 # ---------------------------------------------------------------------
 elif SECTION_KEY == "Assistência":
     ui_theme.section_title(
-        "Assistência e índice de pressão",
-        "IndicaSUS · SISREG · SINAN · SIM — cenário atual, tendência e previsão ~7 dias (semáforo G/A/V)",
+        "Assistência: ocupação × pressão",
+        "IndicaSUS (leitos) · SISREG (regulação/demanda) · SINAN · SIM — semáforo G/A/V composto",
     )
     ui_theme.callout(
-        "Semáforo de pressão (verde / amarela / vermelha) resume a carga assistencial-epidemiológica. "
-        "É distinto do nível operacional de 5 cores (Verde→Roxa). SISREG entra quando a tabela "
-        "`ops_sisreg_municipio` estiver disponível; até lá o índice renormaliza os demais pilares.",
-        "warn",
+        "Ocupação hospitalar (IndicaSUS) e pressão hospitalar (SISREG) são sinais diferentes. "
+        "Nem todo município tem hospital notificante no IndicaSUS — isso é esperado. "
+        "Todo município pode gerar demanda na Central (SISREG). "
+        "O semáforo G/A/V combina os pilares disponíveis; sem IndicaSUS, o peso da ocupação é redistribuído. "
+        "Nunca interprete fila SISREG como percentual de leitos ocupados.",
+        "info",
     )
     render_interpretacao(
         "assistencia",
@@ -2375,7 +2483,7 @@ elif SECTION_KEY == "Assistência":
             (
                 "Índice pressão méd.",
                 safe_metric_value(idx_med, "", 1) if idx_med is not None else "—",
-                "0–100 · IndicaSUS+SINAN+SIM(+SISREG)",
+                "0–100 · ocupação + SISREG + SINAN + SIM",
             ),
             ("🟢 Verde", n_v, "municípios"),
             ("🟡 Amarela", n_a, "municípios"),
@@ -2387,7 +2495,7 @@ elif SECTION_KEY == "Assistência":
             ("↑ Tendência alta", n_up, "previsão 7d piora"),
             ("→ Estável", n_st, "previsão 7d"),
             ("↓ Tendência queda", n_dn, "previsão 7d melhora"),
-            ("SISREG no recorte", f"{sisreg_cov}/{len(resumo)}", "com fila/regulação"),
+            ("SISREG no recorte", f"{sisreg_cov}/{len(resumo)}", "pressão/regulação"),
         ]
     )
 
@@ -2421,17 +2529,25 @@ elif SECTION_KEY == "Assistência":
 
         pcols = st.columns(4)
         with pcols[0]:
-            st.markdown("**IndicaSUS** (ocupação)")
+            st.markdown("**Ocupação hospitalar** (IndicaSUS)")
             st.markdown(_pillar_state("kpi_indicasus_semaforo", "kpi_indicasus_tendencia", "kpi_indicasus_valor"))
             med_o = pd.to_numeric(pressao_df.get("kpi_indicasus_valor"), errors="coerce").mean()
-            st.caption(f"Ocupação méd.: {med_o:.1f}%" if pd.notna(med_o) else "Ocupação: sem dado")
-        with pcols[1]:
-            st.markdown("**SISREG** (regulação)")
-            if sisreg_cov and sisreg_cov > 0:
-                st.markdown(_pillar_state("kpi_sisreg_semaforo", "kpi_sisreg_tendencia", "kpi_sisreg_fila_h"))
+            n_ind = int(pd.to_numeric(pressao_df.get("kpi_indicasus_valor"), errors="coerce").notna().sum())
+            if pd.notna(med_o):
+                st.caption(f"Ocupação méd. (só com leitos): {med_o:.1f}% · {n_ind} mun.")
             else:
-                st.markdown("⚪ Pendente — integrar `ops_sisreg_municipio`")
-            st.caption("Fila / solicitações abertas")
+                st.caption("Sem hospital notificante no recorte (esperado em vários mun.)")
+        with pcols[1]:
+            st.markdown("**Pressão hospitalar** (SISREG)")
+            _sis_ok = (sisreg_cov and sisreg_cov > 0) or (not sisreg_tab.empty)
+            if _sis_ok:
+                st.markdown(_pillar_state("kpi_sisreg_semaforo", "kpi_sisreg_tendencia", "kpi_sisreg_solicitacoes"))
+                st.caption(
+                    f"Fila / solicitações · {int(sisreg_cov) if sisreg_cov else len(sisreg_tab)} mun. · demanda territorial"
+                )
+            else:
+                st.markdown("⚪ Sem SISREG nesta rodada")
+                st.caption("Popular `ops_sisreg_municipio` via ETL / SQL Server SES")
         with pcols[2]:
             st.markdown("**SINAN** (agravos clima)")
             st.markdown(_pillar_state("kpi_sinan_semaforo", "kpi_sinan_tendencia", "kpi_sinan_casos_7d"))
@@ -2480,15 +2596,13 @@ elif SECTION_KEY == "Assistência":
                 "tendencia_pressao_7d",
                 "kpi_indicasus_valor",
                 "kpi_indicasus_semaforo",
-                "kpi_indicasus_tendencia",
+                "kpi_sisreg_solicitacoes",
+                "kpi_sisreg_fila_h",
                 "kpi_sisreg_semaforo",
-                "kpi_sisreg_tendencia",
                 "kpi_sinan_casos_7d",
                 "kpi_sinan_semaforo",
-                "kpi_sinan_tendencia",
                 "kpi_sim_obitos",
                 "kpi_sim_semaforo",
-                "kpi_sim_tendencia",
                 "pilares_disponiveis",
             ],
             height=420,
@@ -2504,7 +2618,10 @@ elif SECTION_KEY == "Assistência":
             st.caption("Catálogo em `config/indice_pressao_semaforo.yaml`.")
 
     st.divider()
-    ui_theme.section_title("Detalhe assistencial", "Leitos IndicaSUS + proxy clima–saúde quando a ocupação falha")
+    ui_theme.section_title(
+        "Ocupação hospitalar (IndicaSUS)",
+        "Censo de leitos — só municípios com unidade notificante; sem inventar taxa",
+    )
 
     tem_ocup = "ocupacao_leitos_pct" in resumo.columns and pd.to_numeric(resumo["ocupacao_leitos_pct"], errors="coerce").notna().any()
     tem_press = "pressao_calor_pct" in resumo.columns and pd.to_numeric(resumo["pressao_calor_pct"], errors="coerce").notna().any()
@@ -2513,34 +2630,43 @@ elif SECTION_KEY == "Assistência":
     fonte_ocup = resumo.get("fonte_ocupacao", pd.Series(dtype=str)).fillna("").astype(str) if "fonte_ocupacao" in resumo.columns else pd.Series(dtype=str)
     real_mask = fonte_ocup.str.contains("INDICASUS_TEMPO_REAL", case=False, na=False) & ~fonte_ocup.str.contains("FALLBACK|CACHE", case=False, na=False)
     fallback_mask = fonte_ocup.str.contains("FALLBACK|CACHE", case=False, na=False)
+    sem_leitos_mask = fonte_ocup.str.contains("SEM_LEITOS_INDICASUS", case=False, na=False) | (
+        pd.to_numeric(resumo.get("ocupacao_leitos_pct"), errors="coerce").isna() if "ocupacao_leitos_pct" in resumo.columns else pd.Series(False, index=resumo.index)
+    )
     ocup_real = int(real_mask.sum()) if not fonte_ocup.empty else 0
     ocup_fallback = int(fallback_mask.sum()) if not fonte_ocup.empty else 0
+    ocup_sem = int((sem_leitos_mask & ~real_mask).sum()) if len(resumo) else 0
     cov_pct = (100.0 * ocup_real / total_recorte) if total_recorte else 0.0
     fonte_press = ""
     if "fonte_pressao" in resumo.columns:
         fonte_press = str(resumo["fonte_pressao"].dropna().astype(str).mode().iloc[0]) if resumo["fonte_pressao"].notna().any() else ""
 
-    if not tem_ocup:
-        st.warning("Ocupação de leitos indisponível no recorte filtrado.")
+    if not tem_ocup and ocup_real == 0:
+        st.info(
+            "Nenhum município do recorte tem ocupação IndicaSUS. "
+            "Use o pilar **Pressão hospitalar (SISREG)** acima para demanda/regulação."
+        )
     elif ocup_real < total_recorte:
-        st.warning(
-            f"Cobertura municipal de ocupação real: {ocup_real}/{total_recorte} ({cov_pct:.1f}%). "
-            f"Demais municípios usam fallback/proxy ({ocup_fallback})."
+        st.info(
+            f"**Ocupação IndicaSUS:** {ocup_real}/{total_recorte} municípios ({cov_pct:.1f}%) com hospital/leitos "
+            f"notificados no BdSES. "
+            f"**Sem unidade notificante (esperado):** {ocup_sem}. "
+            f"Fallback legado (não deve restar): {ocup_fallback}. "
+            "Nesses municípios a leitura de carga hospitalar vem do SISREG, não de % inventada."
         )
     else:
-        st.success(f"Cobertura municipal de ocupação real: {ocup_real}/{total_recorte} municípios.")
+        st.success(f"Todos os {ocup_real} municípios do recorte têm ocupação IndicaSUS nesta rodada.")
     if tem_press and "PROXY" in fonte_press.upper():
-        st.info(
-            f"Pressão assistencial = **proxy clima+saúde** (`{fonte_press}`). "
-            "Não substitui censo hospitalar / IndicaSUS."
+        st.caption(
+            f"Há ainda proxy clima–saúde (`{fonte_press}`) — complementar; não substitui IndicaSUS nem SISREG."
         )
 
     ui_theme.insight_cards(
         [
-            ("Pressão méd.", safe_metric_value(pd.to_numeric(resumo.get("pressao_calor_pct"), errors="coerce").mean() if tem_press else None, "%", 1), "proxy ou real"),
-            ("Ocupação méd.", safe_metric_value(pd.to_numeric(resumo.get("ocupacao_leitos_pct"), errors="coerce").mean() if tem_ocup else None, "%", 1), "IndicaSUS"),
-            ("Carga saúde méd.", safe_metric_value(pd.to_numeric(resumo.get("indice_carga_saude"), errors="coerce").mean() if "indice_carga_saude" in resumo.columns else None, "", 0), "índice 0–100"),
-            ("Cobertura ocupação real", f"{ocup_real}/{total_recorte}", "municípios no recorte"),
+            ("Ocupação méd.", safe_metric_value(pd.to_numeric(resumo.get("ocupacao_leitos_pct"), errors="coerce").mean() if tem_ocup else None, "%", 1), "só mun. com leitos"),
+            ("Com ocupação real", f"{ocup_real}/{total_recorte}", "IndicaSUS tempo real"),
+            ("Sem hospital notificante", f"{ocup_sem}", "SEM_LEITOS_INDICASUS"),
+            ("SISREG no recorte", f"{sisreg_cov}/{total_recorte}", "pressão/regulação"),
         ]
     )
     if "regional_saude" in resumo.columns and "fonte_ocupacao" in resumo.columns:
@@ -2567,27 +2693,30 @@ elif SECTION_KEY == "Assistência":
 
     col_a, col_b = st.columns(2)
     with col_a:
-        make_bar(resumo, "municipio", "pressao_calor_pct", "Pressão assistencial proxy - Top")
-    with col_b:
         if tem_ocup:
-            make_bar(resumo, "municipio", "ocupacao_leitos_pct", "Ocupação de leitos IndicaSUS - Top")
+            make_bar(resumo, "municipio", "ocupacao_leitos_pct", "Ocupação hospitalar IndicaSUS — Top")
         else:
-            y = "indice_carga_saude" if "indice_carga_saude" in resumo.columns else "indice_vigilancia_integrada"
-            make_bar(resumo, "municipio", y, "Carga em saúde (substituto visual)")
+            st.caption("Sem ocupação IndicaSUS no recorte.")
+    with col_b:
+        _sis_bar = pressao_df if not pressao_df.empty else resumo
+        if "kpi_sisreg_solicitacoes" in _sis_bar.columns and pd.to_numeric(_sis_bar["kpi_sisreg_solicitacoes"], errors="coerce").notna().any():
+            make_bar(_sis_bar, "municipio", "kpi_sisreg_solicitacoes", "Pressão hospitalar SISREG (solicitações) — Top")
+        else:
+            make_bar(resumo, "municipio", "pressao_calor_pct", "Pressão assistencial proxy — Top")
 
-    st.markdown("#### Mapa da ocupação de leitos")
+    st.markdown("#### Mapa da ocupação hospitalar (IndicaSUS)")
     if tem_ocup:
         choropleth_or_points(
             map_df,
             geojson_mun,
             "ocupacao_leitos_pct",
-            "Ocupação de leitos IndicaSUS",
-            hover_cols=["regional_saude", "nivel", "score", "leitos_total", "leitos_ocupados", "pressao_calor_pct"],
+            "Ocupação hospitalar IndicaSUS",
+            hover_cols=["regional_saude", "nivel", "score", "leitos_total", "leitos_ocupados", "fonte_ocupacao"],
         )
     else:
-        st.info("Sem coluna/valores de ocupação para mapear.")
+        st.info("Sem valores de ocupação IndicaSUS para mapear — use o mapa do índice de pressão / SISREG acima.")
 
-    st.markdown("#### Mapa da pressão assistencial")
+    st.markdown("#### Mapa da pressão assistencial proxy (clima–saúde)")
     if tem_press:
         choropleth_or_points(
             map_df,
@@ -2598,7 +2727,9 @@ elif SECTION_KEY == "Assistência":
         )
     else:
         st.info("Sem pressão assistencial calculada para mapear.")
-    ui_theme.glossary_expander(["pressao_calor_pct", "ocupacao_leitos_pct", "indice_carga_saude"])
+    ui_theme.glossary_expander(
+        ["ocupacao_leitos_pct", "fonte_ocupacao", "kpi_sisreg_solicitacoes", "indice_pressao_saude", "pressao_calor_pct"]
+    )
 
     st.markdown("#### Dicionário do monitoramento saúde-calor")
     show_df(saude_dic, ["fonte", "base_dw", "agravo_monitorado", "grupo_agravo_calor"], height=260)
@@ -2884,14 +3015,40 @@ elif SECTION_KEY == "Operacional":
     )
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Estoque/logística", "Base específica pendente" if stock.empty else "Integrado")
-    c2.metric("CNES operacional", "Integrado" if not ops_cnes.empty else ("Integrado" if not ops_proxy.empty else "Pendente"))
-    c3.metric("Índice operacional", "Disponível" if (not ops_cnes.empty or "indice_resiliencia" in resumo.columns) else "Pendente")
+    c1.metric("Estoque/autonomia", f"{len(stock)} registros" if not stock.empty else "Sem dado nesta rodada")
+    c2.metric(
+        "Infraestrutura",
+        f"{len(infra)} unidades" if not infra.empty else ("CNES integrado" if not ops_cnes.empty else "Pendente"),
+    )
+    c3.metric(
+        "SISREG municipal",
+        f"{len(sisreg_tab)} mun." if not sisreg_tab.empty else "Sem dado",
+    )
 
     if stock.empty and infra.empty:
         st.info(
-            "Estoque logístico real ainda depende de base específica. "
-            "A capacidade instalada e infraestrutura assistencial estão sendo representadas por CNES/DW, ocupação IndicaSUS e pressão assistencial."
+            "Estoque e infraestrutura vazios nesta rodada. "
+            "Confira `ops_estoque_autonomia` e `ops_infraestrutura_*` após a ETL."
+        )
+    if not sisreg_tab.empty:
+        st.markdown("#### SISREG — fila e solicitações (municipal)")
+        show_df(
+            sisreg_tab,
+            [
+                c
+                for c in [
+                    "cod_ibge",
+                    "municipio",
+                    "solicitacoes",
+                    "fila_horas",
+                    "tempo_espera_horas",
+                    "pendentes",
+                    "data_processamento",
+                ]
+                if c in sisreg_tab.columns
+            ]
+            or None,
+            height=280,
         )
 
     ops_base = ops_cnes if not ops_cnes.empty else ops_proxy
@@ -3158,7 +3315,9 @@ O `utci_proxy` aproxima o estresse térmico percebido, combinando temperatura, u
 
 ### 5. Ocupação de leitos IndicaSUS
 
-A ocupação de leitos vem da tabela `hospital_ocupacao_municipio`, integrada por `cod_ibge`. Para municípios sem dado municipal no IndicaSUS, o painel aplica fallback estadual para evitar campo vazio no mapa.
+A ocupação de leitos vem da tabela `hospital_ocupacao_municipio` (IndicaSUS/BdSES), integrada por `cod_ibge`.
+Só municípios com unidade notificante têm `% ocupação`. Os demais ficam `fonte_ocupacao=SEM_LEITOS_INDICASUS` (esperado — sem hospital notificante), **sem média estadual inventada**.
+A **pressão hospitalar/regulação** (fila, solicitações) vem do SISREG (`ops_sisreg_municipio`) e cobre a demanda territorial, inclusive onde não há leitos IndicaSUS.
 
 ### 6. Pressão assistencial proxy
 
@@ -3183,13 +3342,14 @@ Cada pilar traz cenário atual, `*_pred_7d` e tendência (↑ alta / → estáve
 Cores: **verde** (baixa), **amarela** (atenção), **vermelha** (alta) — distinto do nível operacional de 5 cores.  
 Catálogo e limiares: `config/indice_pressao_semaforo.yaml`.
 
-### 10. Pendências de integração plena
+### 10. Situação das integrações operacionais
 
-- estoque e autonomia de insumos por município;
-- infraestrutura crítica das unidades;
-- **SISREG** (fila, tempo de espera, solicitações) → popular `ops_sisreg_municipio`;
-- credenciais IndicaSUS válidas para ocupação real em todos os municípios;
-- boletim operacional automatizado.
+- **Estoque / autonomia de insumos** — tabela `ops_estoque_autonomia` (atualizada na ETL).
+- **Infraestrutura crítica das unidades** — `ops_infraestrutura_unidade` / `ops_infraestrutura_resumo`.
+- **SISREG** (fila, tempo, solicitações) — `ops_sisreg_municipio` (carga SQL Server SES ou CSV V16).
+- **IndicaSUS** — ocupação real por município via BdSES (base territorial completa IBGE-MT).
+- **Boletim operacional** — motor El Niño / digest de alertas; narrativa LLM só com `USE_LLM_REPORT=true`.
+- **SAN/SISVAN** — ainda Fase 2 (lacuna explícita).
         """
     )
 
@@ -3273,6 +3433,29 @@ elif SECTION_KEY == "Inteligência":
             )
             make_bar(resumo, "municipio", y2, "Top exposição × vulnerabilidade")
         if "risco_adaptasus_dominante_nome" in resumo.columns:
+            st.markdown("#### Mapa — risco prioritário dominante (AdaptaSUS)")
+            st.caption(
+                "Categoria de risco com maior pressão no município nesta rodada "
+                "(não é o nível ARARAS verde–roxa)."
+            )
+            choropleth_or_points(
+                map_df if "risco_adaptasus_dominante_nome" in map_df.columns else resumo,
+                geojson_mun,
+                "risco_adaptasus_dominante_nome",
+                "Risco prioritário dominante",
+                hover_cols=[
+                    c
+                    for c in [
+                        "regional_saude",
+                        "nivel",
+                        "indice_adaptacao_climatica",
+                        "score_risco_dominante",
+                        "orientacao_adaptasus",
+                    ]
+                    if c in (map_df.columns if not map_df.empty else resumo.columns)
+                ],
+                categorical=True,
+            )
             show_df(
                 safe_sort(resumo, ["indice_adaptacao_climatica"], ascending=[False]),
                 [
@@ -4255,10 +4438,9 @@ elif SECTION_KEY == "Arboviroses":
         _recorte_cod = set(resumo["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False).dropna())
     _call_view(render_arboviroses, publico=_PAINEL_PUBLICO, recorte_codigos=_recorte_cod)
 
-elif SECTION_KEY == "SIVEP":
+elif SECTION_KEY == "SIVEP / Sentinela SG":
     render_sivep()
-
-elif SECTION_KEY == "Sentinela SG":
+    st.divider()
     render_sentinela_sg()
 
 elif SECTION_KEY == "GeoCalor":
@@ -4273,6 +4455,16 @@ elif SECTION_KEY == "Cemaden / ANA":
         _recorte_cod = set(resumo["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False).dropna())
     _call_view(render_hidrologia, publico=_PAINEL_PUBLICO, recorte_codigos=_recorte_cod)
 
+elif SECTION_KEY == "Série histórica ambiental":
+    from sisclima.ui.serie_historica_ambiente import render_serie_historica_ambiente
+
+    render_serie_historica_ambiente(publico=_PAINEL_PUBLICO)
+
+elif SECTION_KEY == "Óbitos e clima":
+    from sisclima.ui.obitos_clima import render_obitos_clima
+
+    render_obitos_clima(publico=_PAINEL_PUBLICO)
+
 elif SECTION_KEY == "Sazonalidade / OR":
     ui_theme.section_title(
         "Sazonalidade e Odds Ratio",
@@ -4283,6 +4475,34 @@ elif SECTION_KEY == "Sazonalidade / OR":
         "Não prova que o clima causou o caso individual.",
         "info",
     )
+    # Comparação atual × série ambiental (mesmo recorte da nova aba)
+    try:
+        from sisclima.engines.serie_historica_ambiente import resumo_serie_ambiente_boletim
+
+        _amb = resumo_serie_ambiente_boletim()
+        _cmp = _amb.get("comparacao") or {}
+        if _cmp.get("ok"):
+            ui_theme.section_title(
+                "Situação atual × série ambiental",
+                "Desvio da janela de 7 dias e z-score do mês corrente vs mesmo mês em anos anteriores",
+            )
+            ui_theme.callout(str(_cmp.get("narrativa") or ""), "warn")
+            _mes = _cmp.get("mes_cmp") or {}
+            if _mes.get("ok") and _mes.get("indicadores"):
+                _cards = []
+                for rot, vals in _mes["indicadores"].items():
+                    _cards.append(
+                        (
+                            rot,
+                            f"z={vals['zscore']:+.2f}",
+                            f"{vals['atual']:.1f} vs {vals['media_historica_mesmo_mes']:.1f}",
+                        )
+                    )
+                if _cards:
+                    ui_theme.insight_cards(_cards[:6])
+            st.caption("Detalhe gráfico na aba **Série ambiental**. |z|≥1 = desvio relevante do padrão do mês.")
+    except Exception:
+        pass
     st.markdown(
         """
 **Como ler estes dados**

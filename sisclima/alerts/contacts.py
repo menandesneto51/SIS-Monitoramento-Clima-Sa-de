@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Destinatários territoriais (regionais / municipais / Cuiabá).
 
-Canal central CIEVS (Menandes + notifica@ses.mt.gov.br) NÃO usa esta planilha:
+Canal central CIEVS (`menandesneto@ses.mt.gov.br` + `notifica@ses.mt.gov.br`) NÃO usa esta planilha:
 ele recebe apenas o alerta estadual via ALERT_EMAIL_TO / TELEGRAM_CHAT_ID.
 
 Fan-out territorial só ocorre quando a planilha existir e ALERT_FANOUT_ENABLED=true.
@@ -76,12 +76,14 @@ def recipients_for(
     regional: str | None = None,
     cod_ibge: str | None = None,
     municipio: str | None = None,
+    include_inactive: bool = False,
 ) -> tuple[list[str], list[str]]:
     """Retorna (emails, telegram_chat_ids) para o escopo territorial.
 
     Nunca inclui destinatários ``estadual`` — esses vão só pelo canal central.
+    ``include_inactive=True`` só para simulação (inclui PENDENTE/ativo=0).
     """
-    c = _active(load_contacts())
+    c = load_contacts() if include_inactive else _active(load_contacts())
     if c.empty:
         return [], []
 
@@ -91,6 +93,9 @@ def recipients_for(
     if escopo_l == "regional":
         reg = str(regional or "").strip()
         sel = c[(tipo == "regional") & (c["regional_saude"].astype(str).str.strip() == reg)]
+        # COSEMS não traz e-mail de escritório: usa SMS da mesma região.
+        if sel.empty and reg:
+            sel = c[(tipo == "municipal") & (c["regional_saude"].astype(str).str.strip() == reg)]
     elif escopo_l == "cuiaba":
         sel = c[tipo.isin(["cuiaba", "vigidesastre", "vigidesastre_cuiaba"])]
         if sel.empty and cod_ibge:
@@ -138,19 +143,28 @@ def lookup_contato_por_email(email: str) -> dict[str, str] | None:
 
 
 def summarize_contacts() -> dict[str, Any]:
-    c = _active(load_contacts())
-    if c.empty:
+    all_rows = load_contacts()
+    c = _active(all_rows)
+    if all_rows.empty:
         return {
             "path": str(contacts_path()),
             "disponivel": False,
             "fanout_enabled": fanout_enabled(),
             "n": 0,
+            "n_total": 0,
+            "n_aprovados": 0,
         }
-    tipos = c["tipo_destinatario"].astype(str).str.lower().value_counts().to_dict()
+    tipos = (
+        c["tipo_destinatario"].astype(str).str.lower().value_counts().to_dict()
+        if not c.empty
+        else {}
+    )
     return {
         "path": str(contacts_path()),
         "disponivel": True,
         "fanout_enabled": fanout_enabled(),
         "n": int(len(c)),
+        "n_total": int(len(all_rows)),
+        "n_aprovados": int(len(c)),
         "por_tipo": tipos,
     }

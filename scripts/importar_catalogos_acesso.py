@@ -34,8 +34,13 @@ def _txt(v) -> str:
 
 
 def _mun_key(s: str) -> str:
+    import re
+    import unicodedata
+
     t = _txt(s).casefold()
-    return t.replace("'", "").replace("’", "").replace("`", "")
+    t = "".join(c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn")
+    t = t.replace("'", "").replace("’", "").replace("`", "")
+    return re.sub(r"[^a-z0-9]+", "", t)
 
 
 def _email(v) -> str:
@@ -62,6 +67,12 @@ def _load_sheet(path: Path, sheet: str) -> pd.DataFrame:
 
 def importar_municipios(xlsx: Path, csv_out: Path) -> dict:
     df = _load_sheet(xlsx, "Destinatarios_Alertas")
+    ibge_map = _ibge_by_municipio()
+    alias = {
+        "santoantoniodoleverger": "santoantoniodeleverger",
+        "vilabeladasanttrindade": "vilabeladasantissimatrindade",
+        "vilabeladasant.trindade": "vilabeladasantissimatrindade",
+    }
     rows = []
     for _, r in df.iterrows():
         email = _email(r.get("E-mail institucional"))
@@ -69,11 +80,19 @@ def importar_municipios(xlsx: Path, csv_out: Path) -> dict:
         if not email or not mun:
             continue
         validacao = _txt(r.get("Validação operacional")).upper() or "PENDENTE"
+        key = _mun_key(mun)
+        key = alias.get(key, key)
+        ibge, regional_sistema = ibge_map.get(key, ("", ""))
+        regional = _txt(r.get("Região de Saúde")) or regional_sistema
+        tipo = "municipal"
+        if key in {"cuiaba", "cuiabá"} or ibge == "5103403":
+            # Linha municipal de Cuiabá; fan-out "cuiaba" também aceita tipo municipal por IBGE.
+            tipo = "municipal"
         rows.append(
             {
-                "tipo_destinatario": "municipal",
-                "regional_saude": _txt(r.get("Região de Saúde")),
-                "cod_ibge": "",
+                "tipo_destinatario": tipo,
+                "regional_saude": regional,
+                "cod_ibge": ibge,
                 "municipio": mun,
                 "nome": _txt(r.get("Secretário(a)")) or f"SMS {mun}",
                 "email": email,
@@ -82,9 +101,54 @@ def importar_municipios(xlsx: Path, csv_out: Path) -> dict:
                 "validacao_operacional": validacao,
             }
         )
+
+    # Contato específico Cuiabá (gabinete) além do SMS COSEMS, se distinto.
+    cuiaba_gab = "gab.sms@cuiaba.mt.gov.br"
+    if not any(r["email"] == cuiaba_gab for r in rows):
+        ibge_c, reg_c = ibge_map.get("cuiaba", ("5103403", "Baixada Cuiabana"))
+        rows.append(
+            {
+                "tipo_destinatario": "cuiaba",
+                "regional_saude": reg_c or "Baixada Cuiabana",
+                "cod_ibge": ibge_c or "5103403",
+                "municipio": "Cuiabá",
+                "nome": "SMS Cuiabá — Gabinete",
+                "email": cuiaba_gab,
+                "telegram_chat_id": "",
+                "ativo": "0",
+                "validacao_operacional": "PENDENTE",
+            }
+        )
+
     csv_out.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(csv_out, index=False, encoding="utf-8-sig")
-    return {"n": len(rows), "aprovados": sum(1 for x in rows if x["ativo"] == "1"), "path": str(csv_out)}
+    com_ibge = sum(1 for x in rows if x.get("cod_ibge"))
+    return {
+        "n": len(rows),
+        "aprovados": sum(1 for x in rows if x["ativo"] == "1"),
+        "com_ibge": com_ibge,
+        "path": str(csv_out),
+    }
+
+
+def _ibge_by_municipio() -> dict[str, tuple[str, str]]:
+    """cod_ibge + regional a partir do resumo operacional (quando disponível)."""
+    out: dict[str, tuple[str, str]] = {}
+    try:
+        from sisclima.core.db import read_table
+
+        resumo = read_table("resumo_municipal_atual")
+        if resumo is None or resumo.empty:
+            return out
+        for _, r in resumo.iterrows():
+            mun = _txt(r.get("municipio"))
+            ibge = _txt(r.get("cod_ibge"))
+            if not mun or not ibge:
+                continue
+            out[_mun_key(mun)] = (ibge[:7], _txt(r.get("regional_saude")))
+    except Exception:
+        pass
+    return out
 
 
 def importar_participantes(xlsx: Path, dest_xlsx: Path, yaml_out: Path) -> dict:
@@ -243,7 +307,10 @@ def main() -> int:
         return 1
     mun = importar_municipios(dest, Path(args.csv_out))
     pes = importar_participantes(ind, dest, Path(args.yaml_out))
-    print(f"Municípios COSEMS: {mun['n']} e-mails ({mun['aprovados']} APROVADO) → {mun['path']}")
+    print(
+        f"Municípios COSEMS: {mun['n']} e-mails "
+        f"({mun['aprovados']} APROVADO, {mun.get('com_ibge', 0)} com IBGE) → {mun['path']}"
+    )
     print(
         f"Sala: {pes['n_participantes']} com e-mail · {pes['sem_email']} sem e-mail · "
         f"{pes['n_municipios']} municípios estratégicos ({pes['com_email_sms']} com e-mail SMS) → {pes['path']}"

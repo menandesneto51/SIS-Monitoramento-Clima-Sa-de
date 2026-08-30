@@ -73,6 +73,24 @@ def quadro_risco_pressao(resumo: pd.DataFrame | None = None) -> dict[str, Any]:
         if "ocupacao_leitos_pct" in df.columns
         else pd.Series(dtype=float)
     )
+    fonte_ocup = (
+        df["fonte_ocupacao"].astype(str)
+        if "fonte_ocupacao" in df.columns
+        else pd.Series(dtype=str)
+    )
+    n_ocup_real = int(fonte_ocup.str.contains("TEMPO_REAL", case=False, na=False).sum()) if not fonte_ocup.empty else int(ocup.notna().sum())
+    n_sem_leitos = int(fonte_ocup.str.contains("SEM_LEITOS", case=False, na=False).sum()) if not fonte_ocup.empty else int(ocup.isna().sum())
+
+    sis_sol = (
+        pd.to_numeric(df["kpi_sisreg_solicitacoes"], errors="coerce")
+        if "kpi_sisreg_solicitacoes" in df.columns
+        else pd.Series(dtype=float)
+    )
+    if "kpi_sisreg_disponivel" in df.columns:
+        n_sisreg = int(df["kpi_sisreg_disponivel"].fillna(False).astype(bool).sum())
+    else:
+        n_sisreg = int(sis_sol.notna().sum())
+
     calor = (
         pd.to_numeric(df["pressao_calor_pct"], errors="coerce")
         if "pressao_calor_pct" in df.columns
@@ -112,9 +130,71 @@ def quadro_risco_pressao(resumo: pd.DataFrame | None = None) -> dict[str, Any]:
                 "indice_pressao_saude": _num(row.get("indice_pressao_saude")),
                 "semaforo_pressao": str(row.get("semaforo_pressao") or "—").lower().strip(),
                 "ocupacao_leitos_pct": _num(row.get("ocupacao_leitos_pct")),
+                "fonte_ocupacao": str(row.get("fonte_ocupacao") or ""),
+                "kpi_sisreg_solicitacoes": _num(row.get("kpi_sisreg_solicitacoes")),
+                "kpi_sisreg_semaforo": str(row.get("kpi_sisreg_semaforo") or "—").lower().strip(),
                 "pressao_calor_pct": _num(row.get("pressao_calor_pct")),
             }
         )
+
+    # Totais IndicaSUS ponderados (filtros SIEGES) + tops para boletim/relatório
+    leitos_total = None
+    leitos_ocupados = None
+    ocupacao_ponderada = None
+    unidades_n = None
+    try:
+        from sisclima.core.db import read_table, table_exists
+
+        if table_exists("hospital_ocupacao_estado"):
+            est = read_table("hospital_ocupacao_estado")
+            if est is not None and not est.empty:
+                row = est.iloc[-1]
+                leitos_total = _num(row.get("leitos_existentes"))
+                leitos_ocupados = _num(row.get("leitos_ocupados"))
+                ocupacao_ponderada = _num(row.get("ocupacao_pct"))
+                unidades_n = _num(row.get("unidades_com_localidade")) or _num(row.get("unidades"))
+        if (leitos_total is None or leitos_ocupados is None) and table_exists("hospital_ocupacao_municipio"):
+            mun = read_table("hospital_ocupacao_municipio")
+            if mun is not None and not mun.empty:
+                leitos_total = float(pd.to_numeric(mun.get("leitos_existentes"), errors="coerce").fillna(0).sum())
+                leitos_ocupados = float(pd.to_numeric(mun.get("leitos_ocupados"), errors="coerce").fillna(0).sum())
+                if leitos_total:
+                    ocupacao_ponderada = 100.0 * leitos_ocupados / leitos_total
+    except Exception:
+        pass
+
+    nome_col = next((c for c in ("municipio", "municipio_base") if c in df.columns), None)
+    top_ocup: list[dict[str, Any]] = []
+    if ocup.notna().any() and nome_col:
+        sub = df.loc[ocup.notna(), [nome_col, "cod_ibge", "ocupacao_leitos_pct"]].copy()
+        if "kpi_sisreg_solicitacoes" in df.columns:
+            sub["kpi_sisreg_solicitacoes"] = sis_sol
+        sub = sub.sort_values("ocupacao_leitos_pct", ascending=False).head(10)
+        for _, row in sub.iterrows():
+            top_ocup.append(
+                {
+                    "municipio": str(row.get(nome_col) or "—"),
+                    "cod_ibge": str(row.get("cod_ibge") or ""),
+                    "ocupacao_leitos_pct": _num(row.get("ocupacao_leitos_pct")),
+                    "kpi_sisreg_solicitacoes": _num(row.get("kpi_sisreg_solicitacoes")),
+                }
+            )
+
+    top_sem_sisreg: list[dict[str, Any]] = []
+    if nome_col and n_sem_leitos and sis_sol.notna().any():
+        sem_mask = fonte_ocup.str.contains("SEM_LEITOS", case=False, na=False) if not fonte_ocup.empty else ocup.isna()
+        sub = df.loc[sem_mask].copy()
+        sub["_sis"] = sis_sol
+        sub = sub.loc[sub["_sis"].notna()].sort_values("_sis", ascending=False).head(10)
+        for _, row in sub.iterrows():
+            top_sem_sisreg.append(
+                {
+                    "municipio": str(row.get(nome_col) or "—"),
+                    "cod_ibge": str(row.get("cod_ibge") or ""),
+                    "kpi_sisreg_solicitacoes": _num(row.get("_sis")),
+                    "regional": str(row.get("regional_saude") or "—"),
+                }
+            )
 
     return {
         "disponivel": True,
@@ -124,8 +204,27 @@ def quadro_risco_pressao(resumo: pd.DataFrame | None = None) -> dict[str, Any]:
         "pressao_media": float(pressao.mean()) if pressao.notna().any() else None,
         "pressao_max": float(pressao.max()) if pressao.notna().any() else None,
         "pressao_n": int(pressao.notna().sum()),
+        # Ocupação hospitalar = IndicaSUS (recorte SIEGES)
         "ocupacao_media": float(ocup.mean()) if ocup.notna().any() else None,
         "ocupacao_max": float(ocup.max()) if ocup.notna().any() else None,
+        "ocupacao_n": int(ocup.notna().sum()),
+        "ocupacao_n_tempo_real": n_ocup_real,
+        "ocupacao_n_sem_leitos": n_sem_leitos,
+        "ocupacao_ponderada": ocupacao_ponderada,
+        "ocupacao_ponderada_txt": _br(ocupacao_ponderada),
+        "leitos_total": leitos_total,
+        "leitos_ocupados": leitos_ocupados,
+        "leitos_total_txt": _br(leitos_total, 0),
+        "leitos_ocupados_txt": _br(leitos_ocupados, 0),
+        "unidades_n": int(unidades_n) if unidades_n is not None else None,
+        "top_ocupacao": top_ocup,
+        "top_sem_leitos_sisreg": top_sem_sisreg,
+        # Pressão hospitalar = SISREG (demanda/regulação)
+        "sisreg_n": n_sisreg,
+        "sisreg_solicitacoes_media": float(sis_sol.mean()) if sis_sol.notna().any() else None,
+        "sisreg_solicitacoes_max": float(sis_sol.max()) if sis_sol.notna().any() else None,
+        "sisreg_solicitacoes_media_txt": _br(float(sis_sol.mean()) if sis_sol.notna().any() else None, 0),
+        "sisreg_solicitacoes_max_txt": _br(float(sis_sol.max()) if sis_sol.notna().any() else None, 0),
         "calor_media": float(calor.mean()) if calor.notna().any() else None,
         "calor_max": float(calor.max()) if calor.notna().any() else None,
         "dist_semaforo": {k: int(dist_semaforo.get(k, 0)) for k in _SEMAFORO_ORDEM},
@@ -137,4 +236,12 @@ def quadro_risco_pressao(resumo: pd.DataFrame | None = None) -> dict[str, Any]:
         "ocupacao_max_txt": _br(float(ocup.max()) if ocup.notna().any() else None),
         "calor_media_txt": _br(float(calor.mean()) if calor.notna().any() else None),
         "calor_max_txt": _br(float(calor.max()) if calor.notna().any() else None),
+        "nota_separacao": (
+            "Ocupação hospitalar (IndicaSUS, filtros SIEGES) ≠ pressão hospitalar (SISREG). "
+            "Sem leitos elegíveis no recorte não inventamos %; use SISREG para demanda territorial."
+        ),
+        "filtros_sieges_txt": (
+            "SituacaoAtual≠Bloqueado · Tipo SUS Habilitado/Não Habilitado · "
+            "TipoLeito≠Pronto Atendimento · exclusão UPA/PA/unidade mista (lista institucional)"
+        ),
     }

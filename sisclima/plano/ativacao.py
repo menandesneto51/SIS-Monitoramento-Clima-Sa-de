@@ -26,7 +26,7 @@ def estagio_atual(*, escopo: str = "estado", escopo_id: str = "") -> dict[str, A
             """
             SELECT estagio, escopo, escopo_id, observacao, autor_email, criado_em
             FROM plano_estagio_ativacao
-            WHERE escopo = ? AND IFNULL(escopo_id, '') = ?
+            WHERE escopo = ? AND COALESCE(escopo_id, '') = ?
             ORDER BY id DESC
             """,
             (alvo, sid),
@@ -89,14 +89,28 @@ def nivel_risco_estadual() -> dict[str, Any]:
         col = _col(df, "nivel", "classe", "estagio_risco")
         if df is None or df.empty or not col:
             return {"nivel": None, "origem": "sem_coluna", "n_municipios": 0}
-        s = df[col].astype(str).str.casefold()
-        ordem = ["roxo", "vermelho", "laranja", "amarelo", "verde"]
-        dominante = next((n for n in ordem if s.str.contains(n).any()), None)
+        s = df[col].astype(str).str.casefold().str.strip()
+        # Painel usa verde/amarela/laranja/vermelha/roxa; ativação da Sala usa masculino.
+        aliases = (
+            ("roxa", ("roxa", "roxo")),
+            ("vermelha", ("vermelha", "vermelho")),
+            ("laranja", ("laranja",)),
+            ("amarela", ("amarela", "amarelo")),
+            ("verde", ("verde",)),
+        )
+        dominante = None
+        contagem: dict[str, int] = {}
+        for canon, alts in aliases:
+            n = int(s.isin(list(alts)).sum())
+            if n:
+                contagem[canon] = n
+                if dominante is None:
+                    dominante = canon
         return {
             "nivel": dominante,
             "origem": "resumo_municipal_atual",
             "n_municipios": int(len(df)),
-            "contagem": {n: int(s.str.contains(n).sum()) for n in ordem if int(s.str.contains(n).sum())},
+            "contagem": contagem,
         }
     except Exception:  # noqa: BLE001
         return {"nivel": None, "origem": "erro", "n_municipios": 0}

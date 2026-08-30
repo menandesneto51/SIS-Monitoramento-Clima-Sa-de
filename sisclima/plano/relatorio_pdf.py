@@ -212,8 +212,7 @@ def pdf_bytes_indicadores_automaticos(
     story.append(Spacer(1, 0.25 * cm))
     story.append(
         Paragraph(
-            "Fonte: sisclima.plano.conectores · catálogo do Plano El Niño 2026. "
-            "Uso interno da Sala de Situação. Validar no painel antes de comunicação oficial.",
+            "Fonte: catálogo do Plano El Niño 2026 · uso interno da Sala de Situação.",
             styles["small"],
         )
     )
@@ -585,17 +584,25 @@ def _story_risco_pressao(styles: dict[str, ParagraphStyle]) -> list[Any]:
         Paragraph(
             f"{quadro.get('n_municipios') or 0} municípios no resumo. "
             f"Risco: {_esc(quadro.get('dist_nivel_txt'))}. "
-            f"Ocupação de leitos: média {_esc(quadro.get('ocupacao_media_txt'))}% "
-            f"(máx {_esc(quadro.get('ocupacao_max_txt'))}%). "
+            f"<b>Ocupação hospitalar (IndicaSUS/SIEGES)</b>: "
+            f"{_esc(quadro.get('ocupacao_ponderada_txt') or quadro.get('ocupacao_media_txt'))}% "
+            f"({_esc(quadro.get('leitos_ocupados_txt'))}/{_esc(quadro.get('leitos_total_txt'))} leitos) · "
+            f"média mun. {_esc(quadro.get('ocupacao_media_txt'))}% · "
+            f"máx {_esc(quadro.get('ocupacao_max_txt'))}% · "
+            f"{quadro.get('ocupacao_n_tempo_real') or '—'} mun. com taxa · "
+            f"{quadro.get('ocupacao_n_sem_leitos') or '—'} sem leitos elegíveis (SIEGES). "
+            f"<b>Pressão hospitalar (SISREG)</b>: {quadro.get('sisreg_n') or '—'} mun. · "
+            f"solicitações média {_esc(quadro.get('sisreg_solicitacoes_media_txt'))} · "
+            f"máx {_esc(quadro.get('sisreg_solicitacoes_max_txt'))}. "
             f"Pressão por calor (0–15): média {_esc(quadro.get('calor_media_txt'))} · "
             f"máx {_esc(quadro.get('calor_max_txt'))}. "
             + (
-                f"Índice de pressão 0–100: média {_esc(quadro.get('pressao_media_txt'))} · "
+                f"Índice composto 0–100: média {_esc(quadro.get('pressao_media_txt'))} · "
                 f"máx {_esc(quadro.get('pressao_max_txt'))} · semáforo G/A/V {_esc(quadro.get('semaforo_txt'))}. "
                 if quadro.get("pressao_n")
-                else "Índice 0–100 (IndicaSUS/SISREG/SINAN/SIM) não está nesta rodada — sem inventar zero. "
+                else "Índice 0–100 (IndicaSUS+SISREG+SINAN+SIM) não está nesta rodada — sem inventar zero. "
             )
-            + "O mapa usa a classificação operacional (verde→roxa); a tabela registra ocupação e pressão.",
+            + "Ocupação ≠ pressão SISREG: fila/regulação não é percentual de leitos.",
             styles["body"],
         )
     )
@@ -610,8 +617,8 @@ def _story_risco_pressao(styles: dict[str, ParagraphStyle]) -> list[Any]:
     header = [
         Paragraph("Município", styles["cell_b"]),
         Paragraph("Risco", styles["cell_b"]),
-        Paragraph("Ocupação", styles["cell_b"]),
-        Paragraph("Pressão calor", styles["cell_b"]),
+        Paragraph("Ocup. IndicaSUS", styles["cell_b"]),
+        Paragraph("SISREG sol.", styles["cell_b"]),
         Paragraph("Pressão 0–100", styles["cell_b"]),
         Paragraph("Regional", styles["cell_b"]),
     ]
@@ -619,18 +626,18 @@ def _story_risco_pressao(styles: dict[str, ParagraphStyle]) -> list[Any]:
     for r in quadro.get("registros") or []:
         pressao = r.get("indice_pressao_saude")
         ocup = r.get("ocupacao_leitos_pct")
-        calor = r.get("pressao_calor_pct")
+        sis = r.get("kpi_sisreg_solicitacoes")
         data.append(
             [
                 Paragraph(_esc(r.get("municipio")), styles["cell"]),
                 Paragraph(_esc(r.get("nivel")), styles["cell"]),
                 Paragraph("—" if ocup is None else f"{ocup:.1f}%".replace(".", ","), styles["cell"]),
-                Paragraph("—" if calor is None else f"{calor:.1f}/15".replace(".", ","), styles["cell"]),
+                Paragraph("—" if sis is None else f"{sis:.0f}".replace(".", ","), styles["cell"]),
                 Paragraph("—" if pressao is None else f"{pressao:.1f}".replace(".", ","), styles["cell"]),
                 Paragraph(_esc((r.get("regional") or "")[:28]), styles["cell"]),
             ]
         )
-    table = Table(data, colWidths=[3.6 * cm, 2.0 * cm, 2.3 * cm, 2.6 * cm, 2.5 * cm, 3.8 * cm], repeatRows=1)
+    table = Table(data, colWidths=[3.6 * cm, 2.0 * cm, 2.8 * cm, 2.4 * cm, 2.5 * cm, 3.5 * cm], repeatRows=1)
     font, font_bold = register_institutional_fonts()
     cmds: list[tuple] = [
         ("BACKGROUND", (0, 0), (-1, 0), SES_NAVY),
@@ -826,8 +833,7 @@ def pdf_bytes_cobranca(
     story.append(Spacer(1, 0.25 * cm))
     story.append(
         Paragraph(
-            "Fonte: sisclima.plano.cobranca · catálogo do Plano El Niño 2026. "
-            "Uso interno da Sala. Validar no painel antes de comunicação oficial. "
+            "Fonte: catálogo do Plano El Niño 2026 · uso interno da Sala. "
             f"Cópia CIEVS: {', '.join(rel.get('cc_cievs') or [])}.",
             styles["small"],
         )

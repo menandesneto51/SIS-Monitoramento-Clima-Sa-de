@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-SIS Clima-Saúde MT - Alertas V10.3 CURTO/CONSOLIDADO
+ARARAS MT - Alertas V10.3 CURTO/CONSOLIDADO
 
 AVISO (legado): preferir o digest atual em `python -m sisclima.alerts.scheduler`.
 O canal central CIEVS (ALERT_EMAIL_TO / TELEGRAM_CHAT_ID) deve receber somente o
@@ -382,7 +382,7 @@ def make_compact_message(df, scope_name, min_rank=2, regional=None):
 
     lines = [
         title,
-        f"SIS Clima-Saúde MT é uma ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.\nGerado em: {now}",
+        f"ARARAS MT é uma ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.\nGerado em: {now}",
         f"Municípios monitorados: {len(base)}",
         f"Municípios em alerta ≥ {LEVEL_LABEL.get(RANK_LEVEL.get(min_rank, 'laranja'))}: {len(affected)}",
         "",
@@ -418,7 +418,7 @@ def make_compact_message(df, scope_name, min_rank=2, regional=None):
 
     html_body = "<html><body>"
     html_body += f"<h2>{html.escape(title)}</h2>"
-    html_body += f"<p><b>SIS Clima-Saúde MT é uma ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.\nGerado em:</b> {html.escape(now)}<br><b>Monitorados:</b> {len(base)}<br><b>Em alerta:</b> {len(affected)}</p>"
+    html_body += f"<p><b>ARARAS MT é uma ferramenta para monitoramento de ondas de calor e apoio à tomada de decisão em saúde pública.\nGerado em:</b> {html.escape(now)}<br><b>Monitorados:</b> {len(base)}<br><b>Em alerta:</b> {len(affected)}</p>"
     html_body += "<h3>Distribuição geral</h3>"
     html_body += f"<p>🟢 Verde: {int(dist.get('verde', 0))} | 🟡 Amarela: {int(dist.get('amarela', 0))} | 🟠 Laranja: {int(dist.get('laranja', 0))} | 🔴 Vermelha: {int(dist.get('vermelha', 0))} | 🟣 Roxa: {int(dist.get('roxa', 0))}</p>"
     html_body += "<h3>Municípios por nível</h3><ul>"

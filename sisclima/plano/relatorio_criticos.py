@@ -230,7 +230,7 @@ def pdf_bytes_relatorio_criticos(*, coletado_em: str = "") -> bytes:
         ),
         Paragraph(
             "Fonte: proposta de adequação 28/08/2026 · catálogo ARARA-001 a ARARA-088 · "
-            "conectores do ARARAS. Uso interno da Sala. Validar no território antes de comunicação oficial.",
+            "conectores do ARARAS. Uso interno da Sala.",
             styles["small"],
         ),
     ]
@@ -339,7 +339,7 @@ def pdf_bytes_apresentacao_criticos(*, coletado_em: str = "") -> bytes:
         ),
         Spacer(1, 0.4 * cm),
         Paragraph(
-            "Documento de apoio à Sala. Validar no painel e no território antes de comunicação oficial.",
+            "Documento de apoio à Sala · ARARAS MT · CIEVS-MT / SES-MT.",
             styles["small"],
         ),
     ]

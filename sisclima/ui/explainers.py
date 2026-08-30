@@ -47,10 +47,12 @@ HOW_TO_READ_PUBLIC = [
     "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
     "4. Em Território, confira a malha municipal e as populações vulneráveis.",
     "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
-    "6. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
-    "7. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
-    "8. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
-    "9. Em Cálculos, leia como cada indicador publicado é composto.",
+    "6. Em Série ambiental, compare a janela atual com a série histórica de calor/ar.",
+    "7. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
+    "8. Em Óbitos e clima, veja a série SIM sensível ao calor e a metodologia.",
+    "9. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
+    "10. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
+    "11. Em Cálculos, leia como cada indicador publicado é composto.",
 ]
 
 GLOSSARIO_PUBLICO = [
@@ -111,19 +113,34 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "como_ler": "Útil para ondas de calor: um dia quente é diferente de três seguidos.",
     },
     "pressao_calor_pct": {
-        "nome": "Pressão assistencial (proxy)",
-        "leigo": "Estimativa de pressão sobre a rede de saúde por clima + sinais de doença.",
-        "como_ler": "É um proxy quando a ocupação real de leitos (IndicaSUS) não está disponível.",
+        "nome": "Pressão assistencial (proxy clima)",
+        "leigo": "Proxy clima+saúde quando se quer um sinal único; não é censo de leitos nem fila SISREG.",
+        "como_ler": "Não substitua ocupação IndicaSUS nem solicitações SISREG por este número.",
     },
     "ocupacao_leitos_pct": {
-        "nome": "Ocupação de leitos",
-        "leigo": "Percentual de leitos ocupados (fonte IndicaSUS/BdSES, quando disponível).",
-        "como_ler": "Se aparecer ‘—’, a fonte assistencial não respondeu nesta rodada.",
+        "nome": "Ocupação hospitalar (IndicaSUS)",
+        "leigo": "% de leitos ocupados no BdSES/IndicaSUS, só onde há unidade notificante.",
+        "como_ler": "‘—’ ou SEM_LEITOS = município sem hospital/leitos no IndicaSUS (normal). Não inventamos ocupação.",
+    },
+    "fonte_ocupacao": {
+        "nome": "Fonte da ocupação",
+        "leigo": "INDICASUS_TEMPO_REAL (censo) ou SEM_LEITOS_INDICASUS (sem unidade notificante).",
+        "como_ler": "Não use SISREG como fonte de ocupação_pct.",
     },
     "indice_pressao_saude": {
         "nome": "Índice de pressão em saúde",
-        "leigo": "Nota 0–100 da pressão sobre a rede (IndicaSUS + SISREG + SINAN + SIM).",
-        "como_ler": "Verde ≤39, amarela 40–69, vermelha ≥70. Inclui previsão ~7d e tendência ↑/→/↓.",
+        "leigo": "Nota 0–100 composta: ocupação (se houver) + pressão SISREG + SINAN + SIM.",
+        "como_ler": "Verde ≤39, amarela 40–69, vermelha ≥70. Sem IndicaSUS, o peso da ocupação é redistribuído.",
+    },
+    "kpi_sisreg_solicitacoes": {
+        "nome": "Pressão hospitalar SISREG (solicitações)",
+        "leigo": "Volume de solicitações/fila de regulação no município (demanda).",
+        "como_ler": "Serve para todos os municípios que usam a Central — distinto da % de leitos ocupados.",
+    },
+    "kpi_sisreg_fila_h": {
+        "nome": "Fila SISREG (horas)",
+        "leigo": "Tempo médio de espera na regulação, quando a base live informar.",
+        "como_ler": "Pressão de acesso, não ocupação de leito.",
     },
     "semaforo_pressao": {
         "nome": "Semáforo de pressão",
@@ -384,9 +401,9 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
         "cuidado": "Cobertura limitada a municípios com dado — não generalize para todo o MT.",
     },
     "Assistência": {
-        "para_que_serve": "Índice de pressão (IndicaSUS, SISREG, SINAN, SIM) com semáforo verde/amarela/vermelha, tendência e previsão ~7 dias.",
-        "como_usar": "Olhe o semáforo de pressão e a tendência (↑/→/↓); depois detalhe ocupação, arbovírus e óbitos. SISREG aparece quando a base estiver integrada.",
-        "cuidado": "Semáforo G/A/V ≠ nível operacional Verde→Roxa. Proxy não substitui censo IndicaSUS nem fila SISREG real.",
+        "para_que_serve": "Separar ocupação hospitalar (IndicaSUS) de pressão hospitalar/regulação (SISREG), mais SINAN/SIM no índice G/A/V.",
+        "como_usar": "1) Ocupação só onde há leitos notificados. 2) SISREG para demanda/fila em todo o território. 3) Semáforo composto e tendência 7d.",
+        "cuidado": "Município sem IndicaSUS não está ‘zerado’ — use SISREG. Nunca trate fila SISREG como % de ocupação de leitos.",
     },
     "Arboviroses": {
         "para_que_serve": "Acompanhar dengue, zika, chikungunya e correlatas no corte municipal.",
@@ -491,10 +508,12 @@ HOW_TO_READ_PUBLIC = [
     "4. Em Território, confira a malha municipal e as populações vulneráveis.",
     "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
     "6. Em El Niño, leia o cenário oficial (ASO) e o boletim da semana.",
-    "7. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
-    "8. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
-    "9. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
-    "10. Em Cálculos, leia como cada indicador publicado é composto.",
+    "7. Em Série ambiental, compare a janela atual com a série histórica de calor/ar.",
+    "8. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
+    "9. Em Óbitos e clima, veja a série SIM sensível ao calor e a metodologia.",
+    "10. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
+    "11. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
+    "12. Em Cálculos, leia como cada indicador publicado é composto.",
 ]
 
 GLOSSARIO_PUBLICO = [

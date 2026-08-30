@@ -72,7 +72,7 @@ ALERT_CHECKLIST = [
     "Prévia SES legível (resumo → KPI → ações → prioritários) está correta?",
     "Destinatários centrais (você + notifica CIEVS / Telegram) estão corretos?",
     "Confirmado: canal central NÃO recebe regionais/municipais/Cuiabá?",
-    "IndicaSUS/ocupação: se offline, a mensagem deixa claro o uso de estimado estadual?",
+    "IndicaSUS/ocupação: se offline, a mensagem deixa claro ausência de censo (sem inventar %)? SISREG cobre pressão/demanda?",
     "Planilha de contatos pronta se for liberar fan-out territorial?",
 ]
 

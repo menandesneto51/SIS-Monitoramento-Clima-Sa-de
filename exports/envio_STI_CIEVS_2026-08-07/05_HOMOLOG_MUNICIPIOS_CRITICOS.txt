@@ -1,0 +1,14 @@
+Homologação municípios críticos — preencher OK/NOK na sala de situação
+Gerado: 2026-08-29T20:53:17 · backend=postgresql
+
+[ ] Alta Floresta | nivel=roxa | pressao=80.8 | ocup=73.11827956989248 | hidro= | cota=
+[ ] Aripuanã | nivel=roxa | pressao=77.0 | ocup=51.515151515151516 | hidro=seca_baixa | cota=274.0
+[ ] Campos de Júlio | nivel=laranja | pressao=69.7 | ocup=8.333333333333334 | hidro=seca_baixa | cota=699.0
+[ ] Cuiabá | nivel=roxa | pressao=80.9 | ocup=73.47799879445449 | hidro= | cota=
+[ ] Pontes e Lacerda | nivel=vermelha | pressao=79.9 | ocup=66.66666666666667 | hidro=seca_baixa | cota=158.0
+[ ] Rondonópolis | nivel=roxa | pressao=81.9 | ocup=79.2507204610951 | hidro= | cota=
+[ ] Sapezal | nivel=roxa | pressao=76.9 | ocup=50.0 | hidro=seca_baixa | cota=147.5
+[ ] Sinop | nivel=roxa | pressao=84.3 | ocup=81.87134502923976 | hidro= | cota=
+[ ] Vila Bela da Santíssima Trindade | nivel=vermelha | pressao=76.7 | ocup=54.54545454545455 | hidro=seca_baixa | cota=114.0
+
+Assinatura CIEVS: ______________________ Data: ____/____/________

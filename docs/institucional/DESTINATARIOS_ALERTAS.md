@@ -16,7 +16,7 @@ Abas:
 
 | Escopo | Destinatário | Condição |
 |--------|--------------|----------|
-| Estadual | `cievs@ses.mt.gov.br` / `notifica@ses.mt.gov.br` via `ALERT_EMAIL_TO` | Alerta estadual |
+| Estadual | `menandesneto@ses.mt.gov.br` + `notifica@ses.mt.gov.br` via `ALERT_EMAIL_TO` | Alerta estadual (canal SES/CIEVS) |
 | Regional | SMS dos municípios da região envolvida | Só municípios impactados |
 | Municipal Cuiabá | `gab.sms@cuiaba.mt.gov.br` | Alerta específico |
 | Demais SMS | 1 e-mail/município | Só se envolvido + **APROVADO** |

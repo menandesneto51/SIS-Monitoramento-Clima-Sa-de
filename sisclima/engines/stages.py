@@ -275,8 +275,9 @@ def classify_stage(latest: dict, settings: dict) -> StageResult:
         True,
         "ocupação de leitos",
     )
-    candidates.append(s)
-    motivos.append(m)
+    if _is_valid_number(latest.get("ocupacao_leitos_pct")):
+        candidates.append(s)
+        motivos.append(m)
 
     s, m = stage_from_value(
         latest.get("zscore_pressao"),

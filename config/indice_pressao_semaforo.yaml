@@ -18,14 +18,18 @@ semaforo:
 pilares:
   indicasus:
     peso: 0.30
-    descricao: Ocupação hospitalar (BdSES / IndicaSUS)
+    descricao: >
+      Ocupação hospitalar (% leitos) — só municípios com unidade notificante no IndicaSUS/BdSES.
+      Ausência = sem hospital/leitos na fonte (esperado), não inventar taxa.
     limiares_ocupacao_pct:
       verde_max: 79
       amarela_max: 89
       # vermelha: >= 90
   sisreg:
     peso: 0.20
-    descricao: Regulação / fila (quando ops_sisreg_municipio disponível)
+    descricao: >
+      Pressão hospitalar / regulação (fila e solicitações) — demanda territorial via Central.
+      Aplica-se a municípios com ou sem hospital próprio; não é % de ocupação de leitos.
     # Filas SISREG no MT costumam ser medidas em dias; limiares em horas
     limiares_fila_horas:
       verde_max: 168      # 7 dias

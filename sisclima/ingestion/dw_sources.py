@@ -34,6 +34,9 @@ def load_dw_sinan_agravos() -> pd.DataFrame:
     3) ficha Zika (quando existir)
     4) filtro de arboviroses na notificação individual
     """
+    from sisclima.core.logging_utils import get_logger
+
+    log = get_logger(__name__)
     parts: list[pd.DataFrame] = []
     for sql_name in (
         'dw_sinan_agravos_calor.sql',
@@ -43,10 +46,14 @@ def load_dw_sinan_agravos() -> pd.DataFrame:
     ):
         try:
             chunk = _load_dw_query(sql_name, 'SINAN')
-        except Exception:
+        except Exception as exc:
+            # View ausente (ex.: VW_SINAN_ZIKA) não interrompe as demais camadas.
+            log.warning("SINAN DW %s indisponível: %s", sql_name, exc)
             chunk = pd.DataFrame()
         if chunk is not None and not chunk.empty:
             parts.append(chunk)
+        elif sql_name == 'dw_sinan_zika.sql':
+            log.info("SINAN Zika: view/arquivo ausente no DW — camada ignorada.")
 
     if not parts:
         return pd.DataFrame()
@@ -56,6 +63,14 @@ def load_dw_sinan_agravos() -> pd.DataFrame:
     if subset:
         out = out.drop_duplicates(subset=subset, keep='first')
     return out.reset_index(drop=True)
+
+
+def load_dw_sivep_srag() -> pd.DataFrame:
+    """SIVEP/SRAG no DW (fallback quando pasta local está vazia). Flag: USE_DW_SIVEP."""
+    try:
+        return _load_dw_query('sivep_srag_residencia.sql', 'SIVEP')
+    except Exception:
+        return pd.DataFrame()
 
 
 def load_dw_sim_obitos() -> pd.DataFrame:

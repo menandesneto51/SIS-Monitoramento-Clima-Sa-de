@@ -191,8 +191,70 @@ def render_sivep() -> None:
         lambda: narrativa_sivep(daily),
     )
 
-    if daily.empty and weekly.empty:
-        st.error("Tabelas SIVEP/MS ainda não geradas. Rode o pipeline.")
+    # Fallback leve: indicadores de SRAG já no resumo municipal (quando a série SIVEP não veio na rodada).
+    resumo = read_table("resumo_municipal_atual")
+    srag_resumo_cols = [
+        c
+        for c in (
+            "casos_srag",
+            "casos_srag_7d",
+            "incidencia_srag_100k",
+            "obitos_srag",
+            "srag_tendencia",
+            "prop_uti_pct",
+        )
+        if c in resumo.columns
+    ]
+    tem_serie = not (daily.empty and weekly.empty)
+    tem_resumo = bool(srag_resumo_cols) and not resumo.empty and any(
+        pd.to_numeric(resumo[c], errors="coerce").fillna(0).sum() > 0
+        if c != "srag_tendencia"
+        else resumo[c].astype(str).str.strip().ne("").any()
+        for c in srag_resumo_cols
+    )
+
+    if not tem_serie and not tem_resumo:
+        callout(
+            "SIVEP/SRAG não entrou com série nesta rodada da ETL (tabelas vazias ou fonte local/DW indisponível). "
+            "A aba permanece disponível; rode o pipeline com `USE_SIVEP_LOCAL=true` ou a carga DW quando a rede SES estiver ok. "
+            "Não interpretar ausência como zero de SRAG no estado.",
+            "warn",
+        )
+        with st.expander("Catálogo oficial MS (referência)", expanded=False):
+            st.dataframe(dic, use_container_width=True, height=240)
+        return
+
+    if not tem_serie and tem_resumo:
+        callout(
+            "Série SIVEP completa não disponível nesta rodada. Exibindo sinais de SRAG já consolidados no resumo municipal "
+            "(fallback operacional). Não substitui o boletim SIVEP-Gripe oficial.",
+            "warn",
+        )
+        c1, c2, c3 = st.columns(3)
+        if "casos_srag_7d" in resumo.columns:
+            c1.metric("Casos SRAG 7d (soma mun.)", int(pd.to_numeric(resumo["casos_srag_7d"], errors="coerce").fillna(0).sum()))
+        elif "casos_srag" in resumo.columns:
+            c1.metric("Casos SRAG (resumo)", int(pd.to_numeric(resumo["casos_srag"], errors="coerce").fillna(0).sum()))
+        else:
+            c1.metric("Casos SRAG", "—")
+        if "incidencia_srag_100k" in resumo.columns:
+            c2.metric(
+                "Incidência máx. /100 mil",
+                f"{float(pd.to_numeric(resumo['incidencia_srag_100k'], errors='coerce').max()):.1f}",
+            )
+        else:
+            c2.metric("Incidência", "—")
+        if "srag_tendencia" in resumo.columns:
+            top_t = resumo["srag_tendencia"].astype(str).value_counts().head(1)
+            c3.metric("Tendência modal", str(top_t.index[0]) if not top_t.empty else "—")
+        else:
+            c3.metric("Tendência", "—")
+        show = resumo[
+            [c for c in ["cod_ibge", "municipio", "regional_saude", "nivel"] + srag_resumo_cols if c in resumo.columns]
+        ].copy()
+        st.dataframe(show, use_container_width=True, height=320)
+        with st.expander("Catálogo oficial MS (referência)", expanded=False):
+            st.dataframe(dic, use_container_width=True, height=240)
         return
 
     c1, c2, c3, c4 = st.columns(4)
@@ -351,6 +413,7 @@ def render_hidrologia(*, publico: bool = False, recorte_codigos: set[str] | None
     met = _filter_recorte(read_table("met_biometeo"), recorte_codigos)
     ana_risco = _filter_recorte(read_table("ana_risco_municipal"), recorte_codigos)
     hidro = _filter_recorte(read_table("hidro_risco_municipal"), recorte_codigos)
+    resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
     if not publico:
         render_interpretacao(
             "cemaden_ana",

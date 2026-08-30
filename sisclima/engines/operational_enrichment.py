@@ -519,7 +519,8 @@ def enrich_resumo_columns(resumo: pd.DataFrame) -> pd.DataFrame:
                     else:
                         out[col] = pd.to_numeric(out[col], errors="coerce").fillna(pd.to_numeric(m[col], errors="coerce"))
 
-    # Ocupação (município ou estado)
+    # Ocupação (município): tabela hospital_ocupacao_* é a fonte canônica do recorte atual
+    # (filtros SIEGES). Município fora dela = sem leitos elegíveis (não conservar valor antigo).
     occ = read_table("hospital_ocupacao_municipio")
     if not occ.empty and "cod_ibge" in occ.columns:
         o = occ.copy()
@@ -528,25 +529,30 @@ def enrich_resumo_columns(resumo: pd.DataFrame) -> pd.DataFrame:
         o = o.rename(columns={k: v for k, v in rename.items() if k in o.columns})
         keep = [c for c in ["cod_ibge", "ocupacao_leitos_pct", "leitos_total", "leitos_ocupados", "leitos_livres", "fonte_ocupacao"] if c in o.columns]
         o = o[keep].drop_duplicates("cod_ibge")
+        m = out[["cod_ibge"]].merge(o, on="cod_ibge", how="left")
         for col in keep:
             if col == "cod_ibge":
                 continue
-            if col not in out.columns:
-                out = out.merge(o[["cod_ibge", col]], on="cod_ibge", how="left")
+            if col == "fonte_ocupacao":
+                out[col] = m[col]
             else:
-                m = out[["cod_ibge"]].merge(o[["cod_ibge", col]], on="cod_ibge", how="left")
-                out[col] = pd.to_numeric(out[col], errors="coerce").fillna(pd.to_numeric(m[col], errors="coerce")) if col != "fonte_ocupacao" else out[col].fillna(m[col])
+                out[col] = pd.to_numeric(m[col], errors="coerce")
 
-    estado = read_table("hospital_ocupacao_estado")
-    if not estado.empty and "ocupacao_pct" in estado.columns:
-        valor = pd.to_numeric(estado["ocupacao_pct"], errors="coerce").dropna()
-        if not valor.empty:
-            if "ocupacao_leitos_pct" not in out.columns:
-                out["ocupacao_leitos_pct"] = np.nan
-            out["ocupacao_leitos_pct"] = pd.to_numeric(out["ocupacao_leitos_pct"], errors="coerce").fillna(float(valor.iloc[0]))
-            if "fonte_ocupacao" not in out.columns:
-                out["fonte_ocupacao"] = pd.NA
-            out["fonte_ocupacao"] = out["fonte_ocupacao"].fillna("INDICASUS_ESTADUAL_FALLBACK")
+    # Não inventar ocupação com média estadual. Sem leitos IndicaSUS → nulo + rótulo explícito.
+    if "ocupacao_leitos_pct" in out.columns:
+        out["ocupacao_leitos_pct"] = pd.to_numeric(out["ocupacao_leitos_pct"], errors="coerce")
+    if "fonte_ocupacao" not in out.columns:
+        out["fonte_ocupacao"] = pd.NA
+    fonte = out["fonte_ocupacao"].astype(str)
+    inventado = fonte.str.contains("FALLBACK|ESTADUAL", case=False, na=False)
+    if inventado.any():
+        out.loc[inventado, "ocupacao_leitos_pct"] = np.nan
+        out.loc[inventado, "fonte_ocupacao"] = "SEM_LEITOS_INDICASUS"
+    if "ocupacao_leitos_pct" in out.columns:
+        sem = out["ocupacao_leitos_pct"].isna()
+        out.loc[sem, "fonte_ocupacao"] = "SEM_LEITOS_INDICASUS"
+    else:
+        out["fonte_ocupacao"] = out["fonte_ocupacao"].fillna("SEM_LEITOS_INDICASUS")
 
     # Pressão proxy se ausente
     needs_press = "pressao_calor_pct" not in out.columns or pd.to_numeric(out["pressao_calor_pct"], errors="coerce").isna().all()

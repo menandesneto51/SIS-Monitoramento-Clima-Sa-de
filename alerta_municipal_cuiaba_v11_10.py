@@ -304,10 +304,16 @@ def build_payload(con: sqlite3.Connection) -> dict[str, Any]:
         "pm25": get(r, "pm25_ugm3", default=None),
         "iqa": get(r, "iq_ar_score", "iqa", default=None),
 
+        # Ocupação hospitalar = IndicaSUS (filtros SIEGES); pressão assistencial = SISREG
         "ocupacao_pct": get(r, "ocupacao_leitos_pct", default=get(h, "ocupacao_leitos_pct", "ocupacao_pct", default=None)),
-        "pressao_pct": get(r, "pressao_calor_pct", default=None),
+        "fonte_ocupacao": get(r, "fonte_ocupacao", default=get(h, "fonte", default=None)),
         "leitos_total": get(r, "leitos_total", default=get(h, "leitos_total", "leitos_existentes", default=None)),
         "leitos_ocupados": get(r, "leitos_ocupados", default=get(h, "leitos_ocupados", default=None)),
+        "pressao_pct": get(r, "pressao_calor_pct", default=None),  # mantido no payload; não é a linha de pressão assistencial
+        "sisreg_solicitacoes": get(r, "kpi_sisreg_solicitacoes", default=None),
+        "sisreg_fila_h": get(r, "kpi_sisreg_fila_h", default=None),
+        "sisreg_semaforo": get(r, "kpi_sisreg_semaforo", default=None),
+        "sisreg_score": get(r, "kpi_sisreg_score", default=None),
 
         "risco_preditivo_score": get(p, "risco_preditivo_score", default=get(a, "risco_preditivo_score", default=None)),
         "onda_p95_prevista": get(p, "onda_calor_p95_2d_prevista", default=None),
@@ -319,6 +325,54 @@ def build_payload(con: sqlite3.Connection) -> dict[str, Any]:
         data["ocupacao_estado_pct"] = get(ocup_est.iloc[0], "ocupacao_leitos_pct", "ocupacao_pct", default=None)
     else:
         data["ocupacao_estado_pct"] = None
+
+    # Preferir resumo operacional (Postgres) para ocupação/SISREG quando disponível.
+    try:
+        from sisclima.core.db import read_table as read_ops
+
+        ops = read_ops("resumo_municipal_atual")
+        if ops is not None and not ops.empty:
+            row_ops = find_cuiaba(ops)
+            if row_ops is not None:
+                data["ocupacao_pct"] = get(
+                    row_ops, "ocupacao_leitos_pct", default=data.get("ocupacao_pct")
+                )
+                data["fonte_ocupacao"] = get(
+                    row_ops, "fonte_ocupacao", default=data.get("fonte_ocupacao")
+                )
+                data["leitos_total"] = get(
+                    row_ops, "leitos_total", default=data.get("leitos_total")
+                )
+                data["leitos_ocupados"] = get(
+                    row_ops, "leitos_ocupados", default=data.get("leitos_ocupados")
+                )
+                data["sisreg_solicitacoes"] = get(
+                    row_ops, "kpi_sisreg_solicitacoes", default=data.get("sisreg_solicitacoes")
+                )
+                data["sisreg_fila_h"] = get(
+                    row_ops, "kpi_sisreg_fila_h", default=data.get("sisreg_fila_h")
+                )
+                data["sisreg_semaforo"] = get(
+                    row_ops, "kpi_sisreg_semaforo", default=data.get("sisreg_semaforo")
+                )
+                data["sisreg_score"] = get(
+                    row_ops, "kpi_sisreg_score", default=data.get("sisreg_score")
+                )
+        occ = read_ops("hospital_ocupacao_municipio")
+        if occ is not None and not occ.empty:
+            h_ops = find_cuiaba(occ)
+            if h_ops is not None:
+                if data.get("ocupacao_pct") is None or (isinstance(data.get("ocupacao_pct"), float) and pd.isna(data.get("ocupacao_pct"))):
+                    data["ocupacao_pct"] = get(h_ops, "ocupacao_pct", "ocupacao_leitos_pct", default=None)
+                data["leitos_total"] = get(
+                    h_ops, "leitos_existentes", "leitos_total", default=data.get("leitos_total")
+                )
+                data["leitos_ocupados"] = get(
+                    h_ops, "leitos_ocupados", default=data.get("leitos_ocupados")
+                )
+                data["fonte_ocupacao"] = get(h_ops, "fonte", default=data.get("fonte_ocupacao"))
+    except Exception:
+        pass
 
     return data
 
@@ -422,55 +476,12 @@ def load_geocalor_cardioresp_cuiaba_block() -> list[str]:
         ]
 
 def compose_text(payload: dict[str, Any]) -> str:
-    emoji = EMOJI.get(payload["nivel_final"], "⚪")
-    recs = recommendations(payload)
+    from sisclima.alerts.municipal_padrao import format_alerta_municipal_padrao
 
-    lines = []
-    lines.append(f"{emoji} Alerta ARARAS MT — Cuiabá — {payload['nivel_final'].capitalize()}")
-    lines.append(PROJECT_DESCRIPTION)
-    lines.append(f"Dados atualizados em: {payload['dados_atualizados_em']}")
-    lines.append(f"Emitido em: {payload['emitido_em']}")
-    lines.append("")
-    lines.append("Município: Cuiabá")
-    lines.append("Código IBGE: 5103403")
-    lines.append("")
-    lines.append("Síntese operacional:")
-    lines.append(f"- Nível operacional atual: {payload['nivel_operacional'].capitalize()}")
-    lines.append(f"- Predição 7 dias: {payload['nivel_predicao_7d'].capitalize()}")
-    lines.append(f"- Alerta inteligente: {payload['nivel_alerta_inteligente'].capitalize()}")
-    lines.append(f"- Prioridade epidemiológica V9: {payload['nivel_prioridade_v9'].capitalize()}")
-    lines.append(f"- Nível final para comunicação: {payload['nivel_final'].capitalize()}")
-    lines.append("")
-    lines.append("Indicadores principais:")
-    lines.append(f"- Tmax atual/proxy: {fmt_num(payload['tmax'], 1, ' °C')}")
-    lines.append(f"- Tmax máxima 7 dias: {fmt_num(payload['tmax_pred'], 1, ' °C')}")
-    lines.append(f"- UTCI/proxy atual: {fmt_num(payload['utci'], 1)}")
-    lines.append(f"- UTCI/proxy máximo 7 dias: {fmt_num(payload['utci_pred'], 1)}")
-    lines.append(f"- Risco cumulativo 3 dias atual: {fmt_num(payload['risco3d'], 2)}")
-    lines.append(f"- Risco cumulativo 3 dias máximo 7 dias: {fmt_num(payload['risco3d_pred'], 2)}")
-    lines.append(f"- PM2.5: {fmt_num(payload['pm25'], 1, ' µg/m³')}")
-    lines.append(f"- IQA/score: {fmt_num(payload['iqa'], 1)}")
-    lines.append(f"- Ocupação de leitos municipal/proxy: {fmt_num(payload['ocupacao_pct'], 1, '%')}")
-    lines.append(f"- Pressão assistencial por calor/proxy: {fmt_num(payload['pressao_pct'], 1, '%')}")
-    lines.append(f"- Leitos totais: {fmt_num(payload['leitos_total'], 0)}")
-    lines.append(f"- Leitos ocupados: {fmt_num(payload['leitos_ocupados'], 0)}")
-    lines.append("")
-    if payload.get("motivo"):
-        lines.append("Motivo técnico resumido:")
-        lines.append(str(payload["motivo"])[:1200])
-        lines.append("")
-
-    lines.append("")
-    for _linha_geo in load_geocalor_cardioresp_cuiaba_block():
-        lines.append(_linha_geo)
-
-    lines.append("Recomendações específicas para Cuiabá:")
-    for r in recs:
-        lines.append(f"- {r}")
-    lines.append("")
-    lines.append("Encaminhamento:")
-    lines.append("- Manter monitoramento diário, registrar ações adotadas e comunicar agravamento de cenário à Regional/CIEVS.")
-    return "\n".join(lines)
+    data = dict(payload)
+    data["recomendacoes"] = recommendations(payload)
+    data["geocalor_linhas"] = load_geocalor_cardioresp_cuiaba_block()
+    return format_alerta_municipal_padrao(data)
 
 
 def compose_html(text: str) -> str:

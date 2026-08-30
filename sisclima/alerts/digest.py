@@ -63,6 +63,7 @@ IND_ICON = {
     "utci_proxy": "🥵",
     "risco_cumulativo_3d": "🔥",
     "ocupacao_leitos_pct": "🛏️",
+    "kpi_sisreg_solicitacoes": "📋",
     "pressao_calor_pct": "🏥",
     "indice_pressao_saude": "🩺",
     "semaforo_pressao": "🩺",
@@ -71,6 +72,7 @@ IND_ICON = {
     "incidencia_arbovirus_100k": "🦟",
     "casos_srag": "🫁",
     "cobertura_ocupacao": "📡",
+    "cobertura_sisreg": "📋",
     "tendencia_7d": "📉",
     "nivel_predicao_7d": "🔮",
 }
@@ -303,11 +305,17 @@ def build_orientacoes_ses_setores(payload: dict[str, Any]) -> dict[str, str]:
 def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
     """Valor + status curto; limiares completos ficam só na legenda da seção."""
     campo = str(ind.get("campo") or "")
-    if campo in {"n_municipios", "distribuicao_niveis", "cobertura_ocupacao", "distribuicao_semaforo_pressao"}:
+    if campo in {
+        "n_municipios",
+        "distribuicao_niveis",
+        "cobertura_ocupacao",
+        "cobertura_sisreg",
+        "distribuicao_semaforo_pressao",
+    }:
         return None
     icon = IND_ICON.get(campo, "•")
     rotulo = str(ind.get("rotulo") or campo)
-    ocup_short = "Ocupação estadual" if escopo == "estadual" else "Ocupação regional"
+    ocup_short = "Ocupação IndicaSUS" if escopo == "estadual" else "Ocupação IndicaSUS (regional)"
     # rótulos curtos no painel
     short = {
         "score": "Pontuação (pior)",
@@ -318,6 +326,7 @@ def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
         "pressao_calor_pct": "Pressão calor pico",
         "pm25_ugm3": "PM2,5 pico",
         "ocupacao_leitos_pct": ocup_short,
+        "kpi_sisreg_solicitacoes": "Pressão SISREG (solicitações)",
         "indice_pressao_saude": "Pressão assistencial pico",
         "semaforo_pressao": "Semáforo pressão",
         "incidencia_arbovirus_100k": "Arboviroses pico /100 mil",
@@ -405,8 +414,16 @@ def _priority_one_liner(m: dict[str, Any], idx: int) -> str:
         f"T {_f(tmax)}",
         f"sens {_f(utci)}",
         f"risco3d {_f(risco)}",
-        f"ocup {_f(ocup)}%{ocup_tag}" if ocup is not None else "ocup —",
+        f"ocup {_f(ocup)}%{ocup_tag}" if ocup is not None else "ocup IndicaSUS —",
     ]
+    sis = _parse_num(m.get("kpi_sisreg_solicitacoes"))
+    if sis is None:
+        for ind in m.get("indicadores") or []:
+            if ind.get("campo") == "kpi_sisreg_solicitacoes":
+                sis = _parse_num(ind.get("valor"))
+                break
+    if sis is not None:
+        parts.append(f"SISREG {_f(sis, 0)} sol.")
     pressao = _parse_num(m.get("indice_pressao_saude"))
     if pressao is None:
         for ind in m.get("indicadores") or []:
@@ -527,31 +544,53 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
     # cobertura
     for ind in inds:
         if ind.get("campo") == "cobertura_ocupacao":
-            lines.append(f"📡 cobertura local: {ind.get('valor')}")
+            lines.append(f"🛏️ ocupação IndicaSUS: {ind.get('valor')}")
+        if ind.get("campo") == "cobertura_sisreg":
+            lines.append(f"📋 pressão SISREG: {ind.get('valor')}")
         if ind.get("campo") == "distribuicao_semaforo_pressao":
             lines.append(f"🩺 pressão G/A/V: {ind.get('valor')}")
     rp = p.get("risco_pressao") or {}
-    lines += ["", f"{ICON['mapa']} Risco e pressão assistencial"]
+    lines += ["", f"{ICON['mapa']} Risco · ocupação IndicaSUS · pressão SISREG"]
     if rp.get("disponivel"):
         lines.append(f"Risco: {rp.get('dist_nivel_txt') or dist_txt}")
         lines.append(
-            f"Pressão 0–100: média {rp.get('pressao_media_txt') or '—'} · "
+            f"Pressão composta 0–100: média {rp.get('pressao_media_txt') or '—'} · "
             f"máx {rp.get('pressao_max_txt') or '—'} · semáforo {rp.get('semaforo_txt') or '—'}"
         )
         lines.append(
-            f"Ocupação leitos: média {rp.get('ocupacao_media_txt') or '—'}% "
-            f"(máx {rp.get('ocupacao_max_txt') or '—'}%) · "
-            f"pressão calor 0–15: média {rp.get('calor_media_txt') or '—'} · máx {rp.get('calor_max_txt') or '—'}"
+            f"Ocupação hospitalar (IndicaSUS/SIEGES): "
+            f"{rp.get('ocupacao_ponderada_txt') or rp.get('ocupacao_media_txt') or '—'}% "
+            f"({rp.get('leitos_ocupados_txt') or '—'}/{rp.get('leitos_total_txt') or '—'} leitos) · "
+            f"média mun. {rp.get('ocupacao_media_txt') or '—'}% · "
+            f"máx {rp.get('ocupacao_max_txt') or '—'}% · "
+            f"{rp.get('ocupacao_n_tempo_real') or '—'} mun. com taxa · "
+            f"{rp.get('ocupacao_n_sem_leitos') or '—'} sem leitos elegíveis"
+        )
+        lines.append(
+            f"Pressão hospitalar (SISREG): {rp.get('sisreg_n') or '—'} mun. · "
+            f"solicitações média {rp.get('sisreg_solicitacoes_media_txt') or '—'} · "
+            f"máx {rp.get('sisreg_solicitacoes_max_txt') or '—'}"
+        )
+        if rp.get("nota_separacao"):
+            lines.append(f"📌 {rp.get('nota_separacao')}")
+        lines.append(
+            f"Pressão calor 0–15: média {rp.get('calor_media_txt') or '—'} · máx {rp.get('calor_max_txt') or '—'}"
         )
     else:
         lines.append(str(rp.get("motivo") or "Registro de pressão indisponível nesta rodada."))
+    try:
+        from sisclima.reporting.decretos_alerta import bloco_decretos_texto_alerta
+
+        lines += ["", bloco_decretos_texto_alerta(max_linhas=7)]
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Bloco decretos no digest SES indisponível: %s", exc)
     lines += [f"{ICON['legenda']} Legenda: {LEGENDA_RAPIDA}", ""]
 
     lines.append(f"{ICON['orient_gestor']} Ações por setor (checklist)")
     setor_labels = [
         ("comando_cievs", "CIEVS / sala de situação"),
-        ("gestao_hospitalar", "Gestão hospitalar e leitos"),
-        ("regulacao", "Regulação e transporte"),
+        ("gestao_hospitalar", "Gestão hospitalar e leitos (IndicaSUS)"),
+        ("regulacao", "Regulação e transporte (SISREG)"),
         ("assistencia_farmaceutica", "Assistência Farmacêutica (SAF)"),
         ("saude_trabalhador", "Saúde do Trabalhador"),
         ("atencao_primaria", "Atenção Primária"),
@@ -572,11 +611,6 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
     for i, m in enumerate(prior, 1):
         lines.append(_priority_one_liner(m, i))
 
-    lines += [
-        "",
-        f"{ICON['rodape']} Validar no painel antes de comunicação oficial.",
-        "Lista de contatos provisória — aguardando atualização CIEVS.",
-    ]
     return "\n".join(lines)
 
 
@@ -588,7 +622,8 @@ def format_ses_html(p: dict[str, Any]) -> str:
         [
             ("Resumo executivo", ICON["resumo"]),
             ("Situação estadual", ICON["indicadores"]),
-            ("Risco e pressão assistencial", ICON["mapa"]),
+            ("Risco · ocupação IndicaSUS · pressão SISREG", ICON["mapa"]),
+            ("Atos oficiais", "📜"),
             ("Ações por setor", ICON["orient_gestor"]),
             ("Orientações da IA", ICON["ia"]),
             ("Municípios prioritários", ICON["prioridade"]),
@@ -802,104 +837,46 @@ def format_regional_telegram(p: dict[str, Any]) -> str:
     for i, m in enumerate(prior, 1):
         lines.append(_priority_one_liner(m, i))
 
-    lines += [
-        "",
-        f"{ICON['rodape']} Validar com a SES/CIEVS antes de envio externo.",
-        "Lista de contatos provisória — aguardando atualização CIEVS.",
-    ]
     return "\n".join(lines)
 
 
 def format_municipal_telegram(p: dict[str, Any], *, cuiaba: bool = False) -> str:
-    """Boletim municipal (e Vigidesastre Cuiabá) no padrão legível."""
-    niv = _norm_level(p.get("nivel"))
-    inds = p.get("indicadores") or []
+    """Boletim municipal (e Vigidesastre Cuiabá) no padrão IndicaSUS + SISREG."""
+    from sisclima.alerts.municipal_padrao import format_alerta_municipal_padrao
+
     pred = p.get("predicao") or {}
     acoes = p.get("orientacoes_municipais") or build_orientacoes_municipal(p)
-    mun = p.get("alvo_nome") or "Município"
-    reg = p.get("regional") or "—"
+    payload = dict(p)
+    payload.setdefault("municipio", p.get("alvo_nome"))
+    payload.setdefault("cod_ibge", p.get("alvo_id"))
+    payload.setdefault("nivel_final", p.get("nivel"))
+    payload.setdefault("nivel_operacional", p.get("nivel"))
+    payload.setdefault("nivel_predicao_7d", pred.get("nivel_predicao_7d"))
+    payload.setdefault("dados_atualizados_em", p.get("data_referencia"))
+    payload.setdefault("emitido_em", p.get("gerado_em"))
+    if payload.get("utci") is None and payload.get("utci_proxy") is not None:
+        payload["utci"] = payload["utci_proxy"]
+    if payload.get("risco3d") is None and payload.get("risco_cumulativo_3d") is not None:
+        payload["risco3d"] = payload["risco_cumulativo_3d"]
+    if payload.get("pm25") is None and payload.get("pm25_ugm3") is not None:
+        payload["pm25"] = payload["pm25_ugm3"]
+    if payload.get("iqa") is None and payload.get("iq_ar_score") is not None:
+        payload["iqa"] = payload["iq_ar_score"]
+    if payload.get("recomendacoes") is None:
+        payload["recomendacoes"] = [
+            acoes.get("gestor"),
+            acoes.get("farmacia"),
+            acoes.get("territorios"),
+            acoes.get("profissional"),
+            acoes.get("populacao"),
+        ]
+        payload["recomendacoes"] = [r for r in payload["recomendacoes"] if r]
 
+    body = format_alerta_municipal_padrao(payload)
+    lines = [body, ""]
     if cuiaba:
-        header = (
-            f"{ICON['cuiaba']} {EMOJI.get(niv, '⚪')} VIGIDESASTRE CUIABÁ · Relatório municipal · "
-            f"{LEVEL_LABEL.get(niv, niv)}"
-        )
-        alvo = f"📨 Remetente: {p.get('remetente', 'VIGIDESASTRE CUIABÁ')} · 🗺️ Regional: {reg}"
-    else:
-        header = (
-            f"{ICON['municipal']} {EMOJI.get(niv, '⚪')} ALERTA MUNICIPAL · {mun} · "
-            f"{LEVEL_LABEL.get(niv, niv)}"
-        )
-        alvo = f"🎯 Município: {mun} · 🗺️ Regional: {reg}"
-
-    lines = [
-        header,
-        f"{EMOJI.get(niv, '⚪')} Classificação: {p.get('nivel_rotulo') or LEVEL_LABEL.get(niv, niv)}",
-        alvo,
-        f"📅 Dados do sistema: {p.get('data_referencia') or '—'}",
-        f"🕒 Boletim montado em: {p.get('gerado_em')}",
-        "",
-        f"{ICON['resumo']} Resumo executivo",
-        f"{ICON['motivo']} {str(p.get('motivo') or '—')[:280]}",
-        f"{ICON['predicao']} {pred.get('icone_predicao', '🔮')} {pred.get('resumo', '—')}",
-        "",
-        f"{ICON['indicadores']} Indicadores do município",
-    ]
-    # KPIs principais a partir do payload + indicadores
-    kpi_fields = [
-        ("score", "Pontuação", True),
-        ("tmax", "Tmáx", False),
-        ("utci_proxy", "Sensação", False),
-        ("risco_cumulativo_3d", "Risco 3d", False),
-        ("pressao_calor_pct", "Pressão calor", False),
-        ("indice_pressao_saude", "Pressão assistencial", False),
-        ("pm25_ugm3", "PM2,5", False),
-        ("ocupacao_leitos_pct", "Ocupação leitos", False),
-    ]
-    shown = set()
-    for campo, short, is_score in kpi_fields:
-        val = p.get(campo)
-        if val is None:
-            for ind in inds:
-                if ind.get("campo") == campo:
-                    val = ind.get("valor")
-                    break
-        if val is None:
-            continue
-        status = _status_for(campo, val)
-        num = _parse_num(val)
-        if is_score and num is not None:
-            valor_txt = f"{int(num)}/4"
-        elif campo == "ocupacao_leitos_pct" and num is not None:
-            fonte = str(p.get("fonte_ocupacao") or "")
-            tag = ""
-            if "TEMPO_REAL" in fonte.upper():
-                tag = " local"
-            elif "FALLBACK" in fonte.upper() or "ESTADUAL" in fonte.upper():
-                tag = " estimado estadual"
-            # também detecta nota no valor string
-            vs = str(val)
-            if "local" in vs.lower():
-                tag = " local"
-            elif "estimado" in vs.lower():
-                tag = " estimado estadual"
-            valor_txt = f"{num:.1f}%{tag}".replace(".", ",")
-        elif campo == "pressao_calor_pct" and num is not None:
-            valor_txt = f"{num:.1f} /15".replace(".", ",")
-        elif campo == "indice_pressao_saude" and num is not None:
-            valor_txt = f"{num:.1f} /100".replace(".", ",")
-        elif num is not None:
-            valor_txt = f"{num:.1f}".replace(".", ",")
-        else:
-            valor_txt = str(val).split("(")[0].strip()
-        icon = IND_ICON.get(campo, "•")
-        line = f"{icon} {short}: {valor_txt}"
-        if status:
-            line += f" — {status}"
-        lines.append(line)
-        shown.add(campo)
-
-    lines += [f"{ICON['legenda']} Legenda: {LEGENDA_RAPIDA}", ""]
+        lines.append(f"Remetente: {p.get('remetente', 'VIGIDESASTRE CUIABÁ')} · Regional: {p.get('regional') or '—'}")
+        lines.append("")
     lines.append(f"{ICON['orient_gestor']} Orientações operacionais")
     lines.append(f"• Gestor municipal — {acoes.get('gestor') or '—'}")
     lines.append(f"• Atenção farmacêutica municipal (CBAF/Visa) — {acoes.get('farmacia') or '—'}")
@@ -911,9 +888,9 @@ def format_municipal_telegram(p: dict[str, Any], *, cuiaba: bool = False) -> str
         lines += ["", f"{ICON['ia']} Orientações da IA (revisar)", str(p["orientacao_ia"])]
 
     footer = (
-        "Relatório dedicado Vigidesastre Cuiabá · validar no território."
+        "Relatório dedicado Vigidesastre Cuiabá · ARARAS MT · CIEVS-MT / SES-MT."
         if cuiaba
-        else "Fonte: SIS Clima-Saúde MT · validar no território."
+        else "Fonte: ARARAS MT · CIEVS-MT / SES-MT."
     )
     lines += ["", f"{ICON['rodape']} {footer}"]
     return "\n".join(lines)
@@ -958,6 +935,9 @@ def _format_sectioned_html(title: str, txt: str, sections: list[tuple[str, str]]
 
 
 def _ensure_digest_table() -> None:
+    from sisclima.core.db import is_postgres
+
+    pk = "INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY" if is_postgres() else "INTEGER PRIMARY KEY AUTOINCREMENT"
     with db_conn() as conn:
         execute(
             conn,
@@ -974,9 +954,9 @@ def _ensure_digest_table() -> None:
         )
         execute(
             conn,
-            """
+            f"""
             CREATE TABLE IF NOT EXISTS alertas_enviados (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {pk},
                 created_at TEXT,
                 nivel_anterior TEXT,
                 nivel_novo TEXT,
@@ -1247,8 +1227,8 @@ def format_payload_html(p: dict[str, Any]) -> str:
         title,
         format_municipal_telegram(p, cuiaba=(escopo == "cuiaba")),
         [
-            ("Resumo executivo", ICON["resumo"]),
-            ("Indicadores do município", ICON["indicadores"]),
+            ("Síntese operacional", "Síntese operacional"),
+            ("Indicadores principais", "Indicadores principais"),
             ("Orientações operacionais", ICON["orient_gestor"]),
         ],
     )
@@ -1363,7 +1343,7 @@ def _send_email_pack(payloads: list[dict[str, Any]], meta: dict, *, to: str | li
     only_ses = len(payloads) == 1 and payloads[0].get("escopo") == "estadual"
     if only_ses:
         p = payloads[0]
-        subject = f"[SIS] {ICON['estado']} Alerta SES-MT / CIEVS — {LEVEL_LABEL.get(niv, niv)}"
+        subject = f"{ICON['estado']} Alerta SES-MT / CIEVS — {LEVEL_LABEL.get(niv, niv)}"
         plain = format_ses_telegram(p)
         inline = None
         from pathlib import Path
@@ -1374,12 +1354,12 @@ def _send_email_pack(payloads: list[dict[str, Any]], meta: dict, *, to: str | li
         return send_email(subject, plain, html_body=format_ses_html(p), to=to, inline_images=inline)
 
     subject = (
-        f"[SIS Clima-Saúde] {EMOJI.get(niv, '⚪')} Boletim · "
+        f"{EMOJI.get(niv, '⚪')} Boletim · "
         f"{niv.upper()} · {len(payloads)} alerta(s)"
     )
     body_html = f"""
     <div style="font-family:Segoe UI,Arial,sans-serif;max-width:860px;margin:0 auto;background:#f8fafc;padding:18px">
-      <h1 style="margin:0 0 6px">{ICON['titulo']} SIS Clima-Saúde MT</h1>
+      <h1 style="margin:0 0 6px">{ICON['titulo']} ARARAS MT</h1>
       <p style="margin:0 0 16px;color:#334155">Boletim operacional · gerado em {html.escape(now_iso())}</p>
       {''.join(format_payload_html(p) for p in payloads)}
     </div>
@@ -1388,13 +1368,27 @@ def _send_email_pack(payloads: list[dict[str, Any]], meta: dict, *, to: str | li
     return send_email(subject, plain, html_body=body_html, to=to)
 
 
-def _fanout_territorial(payloads: list[dict[str, Any]]) -> dict[str, Any]:
-    """Encaminha regionais/municipais/Cuiabá aos destinatários da planilha (nunca ao canal central)."""
+def _fanout_territorial(
+    payloads: list[dict[str, Any]],
+    *,
+    simulate: bool | None = None,
+    include_inactive: bool | None = None,
+) -> dict[str, Any]:
+    """Encaminha regionais/municipais/Cuiabá aos destinatários da planilha (nunca ao canal central).
+
+    simulate=True: monta mensagens e cronometra, sem SMTP/Telegram territorial.
+    include_inactive=True: inclui PENDENTE (só faz sentido em simulação).
+    """
     territorial = _territorial_payloads(payloads)
     if not territorial:
         return {"status": "sem_territoriais", "enviados": 0, "sem_destinatario": 0}
 
-    if not fanout_enabled():
+    if simulate is None:
+        simulate = as_bool(env("ALERT_FANOUT_SIMULATE", "false"), False)
+    if include_inactive is None:
+        include_inactive = simulate and as_bool(env("ALERT_FANOUT_SIMULATE_PENDENTES", "true"), True)
+
+    if not fanout_enabled() and not simulate:
         log.info(
             "Territoriais gerados=%d · fan-out adiado (planilha ausente ou ALERT_FANOUT_ENABLED=false). "
             "Canal central CIEVS recebe somente o estadual.",
@@ -1407,21 +1401,56 @@ def _fanout_territorial(payloads: list[dict[str, Any]]) -> dict[str, Any]:
             "contatos": summarize_contacts(),
         }
 
+    t0 = time.perf_counter()
     enviados = 0
     sem_dest = 0
+    emails_unicos: set[str] = set()
+    detalhes: list[dict[str, Any]] = []
+    format_s = 0.0
+
     for p in territorial:
         emails, chats = recipients_for(
             str(p.get("escopo")),
             regional=str(p.get("alvo_nome") if p.get("escopo") == "regional" else p.get("regional") or ""),
             cod_ibge=str(p.get("alvo_id") or ""),
             municipio=str(p.get("alvo_nome") or ""),
+            include_inactive=bool(include_inactive),
         )
         if not emails and not chats:
             sem_dest += 1
+            detalhes.append(
+                {
+                    "escopo": p.get("escopo"),
+                    "alvo": p.get("alvo_nome"),
+                    "cod_ibge": p.get("alvo_id"),
+                    "emails": 0,
+                    "status": "sem_destinatario",
+                }
+            )
             continue
+
+        tf = time.perf_counter()
         txt = format_payload_telegram(p, compact=False)
         html_body = format_payload_html(p)
-        subject = f"[SIS] {p.get('titulo') or p.get('alvo_nome')}"
+        format_s += time.perf_counter() - tf
+        subject = f"{p.get('titulo') or p.get('alvo_nome')}"
+        emails_unicos.update(emails)
+
+        if simulate:
+            enviados += 1
+            detalhes.append(
+                {
+                    "escopo": p.get("escopo"),
+                    "alvo": p.get("alvo_nome"),
+                    "cod_ibge": p.get("alvo_id"),
+                    "emails": len(emails),
+                    "chars_txt": len(txt),
+                    "chars_html": len(html_body or ""),
+                    "status": "simulado",
+                }
+            )
+            continue
+
         if emails:
             if send_email(subject, txt, html_body=html_body, to=emails):
                 enviados += 1
@@ -1432,9 +1461,36 @@ def _fanout_territorial(payloads: list[dict[str, Any]]) -> dict[str, Any]:
                     enviados += 1
                 time.sleep(0.35)
 
-    status = "enviado" if enviados else "sem_envio"
-    log.info("Fan-out territorial %s · enviados=%s sem_dest=%s", status, enviados, sem_dest)
-    return {"status": status, "enviados": enviados, "sem_destinatario": sem_dest, "gerados": len(territorial)}
+    elapsed = time.perf_counter() - t0
+    # Estimativa de SMTP real: ~0,2 s throttle + ~1,5 s por mensagem (Titan típico).
+    smtp_est_s = round(len(emails_unicos) * 1.7, 1) if emails_unicos else 0.0
+    status = ("simulado" if simulate else ("enviado" if enviados else "sem_envio"))
+    log.info(
+        "Fan-out territorial %s · itens=%s enviados/simulados=%s sem_dest=%s "
+        "emails_unicos=%s format=%.2fs total=%.2fs smtp_est=%.1fs",
+        status,
+        len(territorial),
+        enviados,
+        sem_dest,
+        len(emails_unicos),
+        format_s,
+        elapsed,
+        smtp_est_s,
+    )
+    return {
+        "status": status,
+        "enviados": 0 if simulate else enviados,
+        "simulados": enviados if simulate else 0,
+        "sem_destinatario": sem_dest,
+        "gerados": len(territorial),
+        "emails_unicos": len(emails_unicos),
+        "tempo_format_s": round(format_s, 3),
+        "tempo_total_s": round(elapsed, 3),
+        "smtp_estimado_s": smtp_est_s,
+        "include_inactive": bool(include_inactive),
+        "detalhes_amostra": detalhes[:25],
+        "contatos": summarize_contacts(),
+    }
 
 
 def send_digest(
@@ -1442,9 +1498,12 @@ def send_digest(
     force: bool = False,
     skip_cooldown: bool = False,
     resumo: pd.DataFrame | None = None,
+    simulate_fanout: bool | None = None,
 ) -> dict[str, Any]:
     _ensure_digest_table()
+    t_build = time.perf_counter()
     payloads, fingerprint, meta = build_multilevel_pack(resumo)
+    build_s = time.perf_counter() - t_build
     nivel = meta["nivel"]
     central = _central_payloads(payloads)
 
@@ -1473,12 +1532,16 @@ def send_digest(
     ):
         return {"status": "identico", "nivel": nivel, "fingerprint": fingerprint}
 
-    # 1) Canal central CIEVS: somente estadual
+    # 1) Canal central CIEVS: somente estadual (envio REAL)
+    t_central = time.perf_counter()
     tg_ok = _send_telegram_batches(central) if central else False
     em_ok = _send_email_pack(central, meta) if central else False
+    central_s = time.perf_counter() - t_central
 
-    # 2) Territoriais: gerados sempre; envio só com planilha + ALERT_FANOUT_ENABLED
-    fanout = _fanout_territorial(payloads)
+    # 2) Territoriais: real se ALERT_FANOUT_ENABLED; simulação se ALERT_FANOUT_SIMULATE
+    if simulate_fanout is None:
+        simulate_fanout = as_bool(env("ALERT_FANOUT_SIMULATE", "false"), False)
+    fanout = _fanout_territorial(payloads, simulate=bool(simulate_fanout))
 
     results = {
         "email": em_ok,
@@ -1487,8 +1550,10 @@ def send_digest(
         "n_payloads_central": len(central),
         "n_payloads_gerados": meta.get("n_gerados", len(payloads)),
         "fanout": fanout,
+        "tempo_build_s": round(build_s, 3),
+        "tempo_central_s": round(central_s, 3),
     }
-    status = "enviado" if (tg_ok or em_ok or fanout.get("enviados")) else "registrado_sem_canal"
+    status = "enviado" if (tg_ok or em_ok or fanout.get("enviados") or fanout.get("simulados")) else "registrado_sem_canal"
     with db_conn() as conn:
         execute(
             conn,
@@ -1515,7 +1580,7 @@ def send_digest(
                 now_iso(),
                 (last or {}).get("nivel"),
                 nivel,
-                f"[SIS] SES/CIEVS {EMOJI.get(nivel,'⚪')} {nivel.upper()}",
+                f"SES/CIEVS {EMOJI.get(nivel,'⚪')} {nivel.upper()}",
                 (
                     f"central_ses={len(central)}; gerados={meta.get('n_gerados')}; "
                     f"regionais={meta.get('n_regionais')}; municipais={meta.get('n_municipais')}; "
@@ -1531,7 +1596,7 @@ def send_digest(
 
 def build_digest_message(resumo: pd.DataFrame | None = None) -> tuple[str, str, str, dict]:
     payloads, fingerprint, meta = build_multilevel_pack(resumo)
-    subject = f"[SIS Clima-Saúde] {EMOJI.get(meta['nivel'],'⚪')} SES/CIEVS {meta['nivel'].upper()}"
+    subject = f"{EMOJI.get(meta['nivel'],'⚪')} SES/CIEVS {meta['nivel'].upper()}"
     ses = next((p for p in payloads if p.get("escopo") == "estadual"), None)
     message = format_ses_telegram(ses) if ses else "Sem alerta estadual gerado."
     return subject, message, fingerprint, meta

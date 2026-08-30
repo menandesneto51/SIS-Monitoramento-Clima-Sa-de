@@ -38,6 +38,13 @@ from sisclima.reporting.institutional_pdf import (
 
 DEFAULT_SRC = ROOT / "docs" / "apresentacoes" / "Boletim_ElNino_SE_34-2026.md"
 DEFAULT_OUT = ROOT / "docs" / "apresentacoes" / "Boletim_ElNino_SE_34-2026_apresentavel.pdf"
+# Nome institucional (Sala). O gerador também grava uma cópia com este padrão.
+DEFAULT_OUT_SALA = (
+    ROOT
+    / "docs"
+    / "apresentacoes"
+    / "Boletim Informativo Sala de Situação MT El Niño SE 34-2026.pdf"
+)
 
 SES_BLUE = colors.HexColor("#1351B4")
 SES_DEEP = colors.HexColor("#1D357F")
@@ -1270,6 +1277,18 @@ def main() -> int:
                 return 2
     path = build_pdf(args.src, args.out)
     print(path)
+    # Cópia com nomenclatura oficial da Sala (SE inferida do nome do MD, se possível).
+    try:
+        from sisclima.plano.participantes import nome_arquivo_boletim_sala
+
+        m = re.search(r"SE[_\s-]?(\d+)[-_/]?(\d{4})", args.src.name, re.I)
+        if m:
+            sala_name = nome_arquivo_boletim_sala(se=m.group(1), ano=m.group(2))
+            sala_path = args.out.parent / sala_name
+            sala_path.write_bytes(path.read_bytes())
+            print(sala_path)
+    except Exception as exc:  # noqa: BLE001
+        print("Aviso: não gerou cópia com nome da Sala:", exc)
     if args.render_pages:
         out_dir = path.with_suffix("").as_posix() + "_pages"
         n = _render_pages(path, Path(out_dir))

@@ -533,7 +533,7 @@ def aplicar_na_sessao(valores: dict[str, str]) -> list[str]:
 
 def mensagem_de_teste() -> str:
     return (
-        '[SIS Clima-Saúde MT / VIGIA] Teste de configuração do canal WhatsApp. '
+        '[ARARAS MT / VIGIA] Teste de configuração do canal WhatsApp. '
         'Se você recebeu esta mensagem, os alertas de mudança de nível já podem ser enviados por aqui.'
     )
 
@@ -761,7 +761,7 @@ def _cmd_descobrir(args: argparse.Namespace) -> int:
 def construir_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='python -m sisclima.alerts.whatsapp_agent',
-        description='Agente de configuração do canal de WhatsApp gratuito do SIS Clima-Saúde MT.',
+        description='Agente de configuração do canal de WhatsApp gratuito do ARARAS MT.',
     )
     parser.add_argument('--json', action='store_true', help='Saída em JSON.')
     sub = parser.add_subparsers(dest='comando', required=True)

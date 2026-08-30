@@ -1,272 +1,368 @@
-fonte: Controle_Indicacoes_El_Nino_SES_MT_2026.xlsx
+fonte: Lista operacional CIEVS 2026-08-29 + Rede ERS + COSEMS-MT
 ato: Portaria nº 0590/2026/GBSES
-atualizado_em: '2026-08-25'
-regra: Sala só abre para ses/admin. SMS usa e-mail municipal no painel interno, sem a Sala. Vínculo não cria senha.
+atualizado_em: '2026-08-29'
+regra: Sala só abre para ses/admin. Distribuição do boletim El Niño usa participantes + rede ERS + COSEMS.
+  E-mails individuais dos 16 escritórios regionais ainda pendentes de cadastro.
 participantes:
-- nome: CLAUDIA MOLINA DE FRANÇA
-  email: cotgr@ses.mt.gov.br
-  sigla: SGR
-  superintendencia: Superintendência de Gestão Regional
-  area_id: multi_area
-  papel: grupo_tecnico
-  telefone: (65) 98110-3295
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: consulta
 - nome: EMMANUEL SANTANA ARDAIA
   email: saf@ses.mt.gov.br
-  sigla: SAF
-  area_texto: Assistência Farmacêutica
   superintendencia: Superintendência de Assistência Farmacêutica
+  coordenadoria: ''
+  gerencia: ''
+  area_texto: Assistência Farmacêutica
+  sigla: SAF
   area_id: assistencia_farmaceutica
-  papel: grupo_tecnico
   telefone: (65) 98462-7045
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: FABIANA COELHO DA SILVA ALVES
-  email: dtha@ses.mt.gov.br
-  sigla: CVE
-  area_texto: DTHA
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_ambiental
   papel: grupo_tecnico
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
   perfil_sugerido: tecnico_area
-- nome: FLÁVIA RIBEIRO CARDOSO FERNANDES TORTORELLI
-  email: flaviatortorelli@ses.mt.gov.br
-  sigla: COVST
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: saude_trabalhador
-  papel: grupo_tecnico
-  telefone: (65) 98145-2468
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: GUILHERME VIEIRA BOTELHO DE ALMEIDA
-  email: gimvisa@ses.mt.gov.br
-  sigla: COVSAN
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_sanitaria
-  papel: grupo_tecnico
-  telefone: (65) 98464-2437
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: GUSTAVO CORDEIRO CANDOTE DE SOUZA
-  email: cas@ses.mt.gov.br
-  sigla: Não enquadrado automaticamente
-  area_texto: Coordenadoria de Atenção Secundária
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: atencao_saude
-  papel: grupo_tecnico
-  telefone: (65) 99680-4817
-  status_indicacao: Indicado no Grupo Técnico — lotação a validar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: JANAÍNA PAULI
-  email: janainapauli@ses.mt.gov.br
-  sigla: CVE
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_ambiental
-  papel: grupo_tecnico
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: JOÃO PEDRO ROCHA NOGUEIRA
-  email: dengue@ses.mt.gov.br
-  sigla: CVE
-  area_texto: Arboviroses
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_ambiental
-  papel: grupo_tecnico
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
 - nome: LAURA ALVES DA SILVA
   email: farmaciabasica@ses.mt.gov.br
-  sigla: SAF
-  area_texto: Assistência Farmacêutica
   superintendencia: Superintendência de Assistência Farmacêutica
+  coordenadoria: Coordenadoria de Assistência Farmacêutica Primária e Estratégica
+  gerencia: ''
+  area_texto: Assistência Farmacêutica
+  sigla: SAF
   area_id: assistencia_farmaceutica
-  papel: grupo_tecnico
   telefone: (65) 98432-2593
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: LAUREN CRISTIANE LEITE OCAMPOS
-  email: costra@ses.mt.gov.br
-  sigla: COVST
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: saude_trabalhador
   papel: grupo_tecnico
-  telefone: (65) 99249-3790
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
   perfil_sugerido: tecnico_area
-- nome: LÍDIA FOLLETO
-  email: nevh@ses.mt.gov.br
-  sigla: CVE
-  area_texto: RENAVEH
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_ambiental
-  papel: grupo_tecnico
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: MARCIA ALVES BRITO
-  email: marciabrito@ses.mt.gov.br
-  sigla: COVAM
-  area_texto: Animais Peçonhentos
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_ambiental
-  papel: grupo_tecnico
-  telefone: (65) 99696-8828
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
 - nome: MARLENE DA COSTA BARROS
   email: covam@ses.mt.gov.br
-  sigla: COVAM
   superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde Ambiental
+  gerencia: ''
+  area_texto: Vigilância Ambiental
+  sigla: COVAM
   area_id: vigilancia_ambiental
-  papel: grupo_tecnico
   telefone: (65) 98464-5551
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: MENANDES ALVES DE SOUZA NETO
-  email: menandesneto@ses.mt.gov.br
-  area_texto: CIEVS
-  superintendencia: Gabinete da Secretaria Adjunta de Atenção e Vigilância em Saúde
-  area_id: cievs
-  papel: secretaria_executiva
-  status_indicacao: Função no Plano a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: secretaria_executiva_cievs
-- nome: MICHEL BELMONTE
-  email: michelbelmonte@ses.mt.gov.br
-  sigla: CVE
-  area_texto: COVID/Influenza e Vírus Respiratórios
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_ambiental
   papel: grupo_tecnico
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
   perfil_sugerido: tecnico_area
-- nome: NARA F. S. M. MILOMEM
-  email: coapre@ses.mt.gov.br
-  sigla: SAS / Coord. Organização de Redes de Atenção à Saúde
-  area_texto: Coordenadoria de Organização de Redes de Atenção à Saúde
-  superintendencia: Superintendência de Atenção à Saúde
-  area_id: atencao_saude
-  papel: grupo_tecnico
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: NORANEY NASCIMENTO ALMEIDA
-  email: noraneyalmeida@ses.mt.gov.br
-  sigla: COVAM
-  area_texto: VIGIAR
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigiar
-  papel: grupo_tecnico
-  telefone: (65) 98113-2038
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
 - nome: ROBERTA SOUZA SILVA ORRIGO
   email: robertaorrigo@ses.mt.gov.br
-  sigla: COVAM
-  area_texto: VIGIÁGUA
   superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde Ambiental
+  gerencia: Gerência de Vigilância em Saúde Ambiental
+  area_texto: Vigiágua
+  sigla: VIGIAGUA
   area_id: vigiagua
-  papel: grupo_tecnico
   telefone: (65) 98404-4831
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: SIRIANA MARIA DA SILVA
-  email: sgr@ses.mt.gov.br
-  sigla: SGR
-  superintendencia: Superintendência de Gestão Regional
-  area_id: multi_area
   papel: grupo_tecnico
-  telefone: (65) 99951-0569
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: consulta
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: NORANEY NASCIMENTO ALMEIDA
+  email: noraneyalmeida@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde Ambiental
+  gerencia: Gerência de Vigilância em Saúde Ambiental
+  area_texto: Vigiar
+  sigla: VIGIAR
+  area_id: vigiar
+  telefone: (65) 98113-2038
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
 - nome: SUZI MONTE DA CRUZ
   email: suzicruz@ses.mt.gov.br
-  sigla: COVAM / VIGIDESASTRE
-  area_texto: VIGIDESASTRE
   superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde Ambiental
+  gerencia: Gerência de Vigilância em Saúde Ambiental
+  area_texto: Vigidesastre
+  sigla: VIGIDESASTRE
   area_id: cievs
-  papel: titular
   telefone: (65) 98140-5200
-  status_indicacao: Papel formal informado
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: coordenador_area
-- nome: SÔNIA CRISTINA FIGUEIREDO OLIVEIRA
-  email: covsan@ses.mt.gov.br
-  sigla: COVSAN
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: vigilancia_sanitaria
   papel: grupo_tecnico
-  telefone: (65) 98464-5561
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
   perfil_sugerido: tecnico_area
-- nome: TACIANA KATUCIA BESERRA DE OLIVEIRA FERREIRA
-  email: tacianaferreira@ses.mt.gov.br
-  sigla: CPEI
-  area_texto: Imunização
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: imunizacao
-  papel: grupo_tecnico
-  telefone: (66) 99988-5398
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: TATIANA HELENA BELMONTE
-  email: tatianabelmonte@ses.mt.gov.br
-  area_texto: CIEVS
-  superintendencia: Gabinete da Secretaria Adjunta de Atenção e Vigilância em Saúde
-  area_id: cievs
-  papel: secretaria_executiva
-  telefone: (65) 98111-2625
-  status_indicacao: Função no Plano a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: secretaria_executiva_cievs
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
 - nome: VERUSKA NOGUEIRA DE BRITO
   email: veruskanbrito@gmail.com
-  sigla: COVAM
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde Ambiental
+  gerencia: Gerência de Controle de Vetores e Zoonoses
   area_texto: Arboviroses
-  superintendencia: Superintendência de Vigilância em Saúde
+  sigla: CVE
   area_id: vigilancia_ambiental
-  papel: grupo_tecnico
   telefone: (65) 99222-9868
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
-  perfil_sugerido: tecnico_area
-- nome: VICTOR SILVA LIMA
-  email: victorlima@ses.mt.gov.br
-  sigla: COVST
-  superintendencia: Superintendência de Vigilância em Saúde
-  area_id: saude_trabalhador
   papel: grupo_tecnico
-  telefone: (66) 99663-4072
-  status_indicacao: Indicado no Grupo Técnico — titular/suplente a confirmar
-  fonte: Cadastro_Pessoas
   perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: MARCIA ALVES BRITO
+  email: marciabrito@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde Ambiental
+  gerencia: Gerência de Controle de Vetores e Zoonoses
+  area_texto: Animais peçonhentos
+  sigla: CVE
+  area_id: vigilancia_ambiental
+  telefone: (65) 99696-8828
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: JANAÍNA PAULI
+  email: janainapauli@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Epidemiológica
+  gerencia: ''
+  area_texto: Vigilância Epidemiológica
+  sigla: CVE
+  area_id: vigilancia_ambiental
+  telefone: ''
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: CECÍLIA CINTRA DOS REIS
+  email: dengue@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Epidemiológica
+  gerencia: Gerência em Vigilância em Doenças e Agravos Endêmicos
+  area_texto: Arboviroses
+  sigla: CVE
+  area_id: vigilancia_ambiental
+  telefone: ''
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: MICHEL BELMONTE
+  email: michelbelmonte@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Epidemiológica
+  gerencia: ''
+  area_texto: COVID/Influenza e vírus respiratórios
+  sigla: CVE
+  area_id: vigilancia_ambiental
+  telefone: ''
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: LÍDIA FOLLETO
+  email: nevh@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Epidemiológica
+  gerencia: ''
+  area_texto: RENAVEH
+  sigla: NEVH
+  area_id: vigilancia_ambiental
+  telefone: ''
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: JOÃO PEDRO ROCHA NOGUEIRA
+  email: dengue@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Epidemiológica
+  gerencia: ''
+  area_texto: Arboviroses
+  sigla: CVE
+  area_id: vigilancia_ambiental
+  telefone: ''
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: FABIANA COELHO DA SILVA ALVES
+  email: dtha@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Epidemiológica
+  gerencia: ''
+  area_texto: DTHA
+  sigla: CVE
+  area_id: vigilancia_ambiental
+  telefone: ''
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: SÔNIA CRISTINA FIGUEIREDO OLIVEIRA
+  email: covsan@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Sanitária
+  gerencia: ''
+  area_texto: Vigilância Sanitária
+  sigla: COVSAN
+  area_id: vigilancia_sanitaria
+  telefone: (65) 98464-5561
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: SILVANA CRISTINA SILVA BATISTA
+  email: gimvisa@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Sanitária
+  gerencia: Gerência de Fiscalização, Inspeção e Monitoramento em Vigilância Sanitária
+  area_texto: Vigilância Sanitária
+  sigla: GIMVISA
+  area_id: vigilancia_sanitaria
+  telefone: (65) 98464-2437
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: LETICIA DE CAMPOS FERREIRA
+  email: gimvisa@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Sanitária
+  gerencia: Gerência de Fiscalização, Inspeção e Monitoramento em Vigilância Sanitária
+  area_texto: Vigilância Sanitária
+  sigla: GIMVISA
+  area_id: vigilancia_sanitaria
+  telefone: (65) 98464-2437
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: TACIANA KATUCIA BESERRA DE OLIVEIRA FERREIRA
+  email: tacianaferreira@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria do Programa Estadual de Imunização
+  gerencia: ''
+  area_texto: Imunização
+  sigla: CPEI
+  area_id: imunizacao
+  telefone: (66) 99988-5398
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: GUILHERME VIEIRA BOTELHO DE ALMEIDA
+  email: gimvisa@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância Sanitária
+  gerencia: Gerência de Fiscalização, Inspeção e Monitoramento em Vigilância Sanitária
+  area_texto: Vigilância Sanitária
+  sigla: GIMVISA
+  area_id: vigilancia_sanitaria
+  telefone: (65) 98464-2437
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: SIRIANA MARIA DA SILVA
+  email: sgr@ses.mt.gov.br
+  superintendencia: Superintendência de Gestão Regional
+  coordenadoria: ''
+  gerencia: ''
+  area_texto: Gestão Regional
+  sigla: SGR
+  area_id: multi_area
+  telefone: (65) 99951-0569
+  papel: grupo_tecnico
+  perfil_sugerido: consulta
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: CLAUDIA MOLINA DE FRANÇA
+  email: cotgr@ses.mt.gov.br
+  superintendencia: Superintendência de Gestão Regional
+  coordenadoria: Coordenadoria de Gestão Regional
+  gerencia: ''
+  area_texto: Gestão Regional
+  sigla: SGR
+  area_id: multi_area
+  telefone: (65) 98110-3295
+  papel: grupo_tecnico
+  perfil_sugerido: consulta
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: Lauren Cristiane Leite Ocampos
+  email: costra@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde do Trabalhador
+  gerencia: ''
+  area_texto: Saúde do Trabalhador
+  sigla: COVST
+  area_id: saude_trabalhador
+  telefone: (65) 99249-3790
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: Flávia Ribeiro Cardoso Fernandes Tortorelli
+  email: flaviatortorelli@ses.mt.gov.br
+  superintendencia: Superintendência de Vigilância em Saúde
+  coordenadoria: Coordenadoria de Vigilância em Saúde do Trabalhador
+  gerencia: ''
+  area_texto: Saúde do Trabalhador
+  sigla: COVST
+  area_id: saude_trabalhador
+  telefone: (65) 98145-2468
+  papel: grupo_tecnico
+  perfil_sugerido: tecnico_area
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: Menandes Alves de Souza Neto
+  email: menandesneto@ses.mt.gov.br
+  superintendencia: Gabinete da Secretaria Adjunta de Atenção e Vigilância em Saúde
+  coordenadoria: Centro de Informações Estratégicas de Vigilância em Saúde
+  gerencia: ''
+  area_texto: CIEVS
+  sigla: CIEVS
+  area_id: cievs
+  telefone: ''
+  papel: secretaria_executiva
+  perfil_sugerido: secretaria_executiva_cievs
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+- nome: Tatiana Helena Belmonte
+  email: tatianabelmonte@ses.mt.gov.br
+  superintendencia: Gabinete da Secretaria Adjunta de Atenção e Vigilância em Saúde
+  coordenadoria: Centro de Informações Estratégicas de Vigilância em Saúde
+  gerencia: ''
+  area_texto: CIEVS
+  sigla: CIEVS
+  area_id: cievs
+  telefone: (65) 98111-2625
+  papel: secretaria_executiva
+  perfil_sugerido: secretaria_executiva_cievs
+  status_indicacao: Lista operacional Sala — 2026-08-29
+  fonte: CIEVS_lista_sala_20260829
+escritorios_regionais:
+- nome: Rede CIEVS MT e Escritórios Regionais de Saúde
+  email: rede-cievs-mt-e-ers@ses.mt.gov.br
+  sigla: Rede CIEVS / ERS
+  papel: escritorio_regional
+  status_indicacao: Lista agregada SES — e-mails individuais por escritório ainda pendentes
+  fonte: CONTATOS_AREAS_TECNICAS_SES_MT_2026.xlsx
+pendencias_regionais_email:
+- Alta Floresta
+- Baixada Cuiabana
+- Barra do Garças
+- Cáceres
+- Colíder
+- Diamantino
+- Juara
+- Juína
+- Peixoto de Azevedo
+- Pontes e Lacerda
+- Porto Alegre do Norte
+- Rondonópolis
+- Sinop
+- São Félix do Araguaia
+- Tangará da Serra
+- Água Boa
+cosems:
+- nome: COSEMS-MT — Conselho de Secretarias Municipais de Saúde de Mato Grosso
+  email: cosems@cosemsmt.org
+  sigla: COSEMS/MT
+  papel: convidado_externo
+  telefone: (65) 3644-2406 / (65) 3644-3914
+  status_indicacao: Contato público (site COSEMS-MT)
+  fonte: https://cosemsmt.org.br/quem-somos/
 sem_email:
-- FLÁVIA PIZZOLIO ALVES FABRINI
-- IGOR BARROS SALDANHA DE MORAES
 - KAROL STÉFFANI GUIMARÃES
-- LUIZ FERNANDO APARECIDO OLIANI
-- MARA PATRICIA FERREIRA DA PENHA
-- REJANE CONDE
 municipios_estrategicos:
 - municipio: Cáceres
   regional_saude: Cáceres

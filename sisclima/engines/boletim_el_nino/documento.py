@@ -550,6 +550,99 @@ def _label_nivel(k: str) -> str:
     return {"amarela": "Amarelo", "laranja": "Laranja", "vermelha": "Vermelho", "roxa": "Roxo"}.get(k, k)
 
 
+def _bloco_ocupacao_sisreg_md(*, publico: bool = False) -> str:
+    """Caixa operacional IndicaSUS (SIEGES) × SISREG para o §11.2b."""
+    try:
+        from sisclima.reporting.quadro_risco_pressao import quadro_risco_pressao
+
+        q = quadro_risco_pressao()
+    except Exception:
+        q = {"disponivel": False}
+    if not q.get("disponivel"):
+        return (
+            "Dois sinais distintos na operação CIEVS: **ocupação hospitalar (IndicaSUS)** e "
+            "**pressão hospitalar (SISREG)**. Dados da rodada indisponíveis neste momento."
+        )
+
+    linhas = [
+        "Dois sinais distintos na operação CIEVS:",
+        "",
+        "| Conceito | Fonte | Interpretação |",
+        "|---|---|---|",
+        "| **Ocupação hospitalar** | IndicaSUS / BdSES (filtros SIEGES) | % de leitos ocupados — só municípios com leitos elegíveis |",
+        "| **Pressão hospitalar / regulação** | SISREG | Fila e solicitações — demanda territorial (com ou sem hospital próprio) |",
+        "",
+        "**Rodada atual (ocupação ponderada por leitos)**",
+        "",
+        f"- Ocupação estadual: **{q.get('ocupacao_ponderada_txt') or q.get('ocupacao_media_txt') or '—'}%** "
+        f"({q.get('leitos_ocupados_txt') or '—'} ocupados / {q.get('leitos_total_txt') or '—'} elegíveis)",
+        f"- Cobertura: **{q.get('ocupacao_n_tempo_real') or '—'}** municípios com taxa · "
+        f"**{q.get('ocupacao_n_sem_leitos') or '—'}** sem leitos elegíveis no recorte SIEGES"
+        + (f" · {q.get('unidades_n')} unidades" if q.get("unidades_n") else ""),
+        f"- Pressão SISREG: **{q.get('sisreg_n') or '—'}** municípios · "
+        f"solicitações média {q.get('sisreg_solicitacoes_media_txt') or '—'} · "
+        f"máx {q.get('sisreg_solicitacoes_max_txt') or '—'}",
+        f"- Filtros: _{q.get('filtros_sieges_txt') or 'SIEGES'}_",
+        "",
+        f"_{q.get('nota_separacao')}_",
+    ]
+
+    top_oc = q.get("top_ocupacao") or []
+    if top_oc:
+        rows = []
+        for r in top_oc:
+            oc = r.get("ocupacao_leitos_pct")
+            sis = r.get("kpi_sisreg_solicitacoes")
+            rows.append(
+                [
+                    str(r.get("municipio") or "—"),
+                    f"{oc:.1f}%".replace(".", ",") if oc is not None else "—",
+                    f"{sis:.0f}" if sis is not None else "—",
+                ]
+            )
+        linhas.extend(
+            [
+                "",
+                "**Municípios com maior ocupação IndicaSUS**",
+                "",
+                md_table(["Município", "Ocup. IndicaSUS", "SISREG sol."], rows),
+            ]
+        )
+
+    # Anexo Sala: sem IndicaSUS × alta pressão SISREG (omitir em versão pública)
+    top_sem = q.get("top_sem_leitos_sisreg") or []
+    if top_sem and not publico:
+        rows = []
+        for r in top_sem:
+            sis = r.get("kpi_sisreg_solicitacoes")
+            rows.append(
+                [
+                    str(r.get("municipio") or "—"),
+                    str(r.get("regional") or "—"),
+                    f"{sis:.0f}" if sis is not None else "—",
+                ]
+            )
+        linhas.extend(
+            [
+                "",
+                "**Sem leitos elegíveis IndicaSUS — maior pressão SISREG (Sala)**",
+                "",
+                md_table(["Município", "Regional", "SISREG sol."], rows),
+            ]
+        )
+
+    return "\n".join(linhas)
+
+
+def _bloco_atos_oficiais() -> str:
+    try:
+        from sisclima.reporting.decretos_alerta import bloco_decretos_markdown_boletim
+
+        return bloco_decretos_markdown_boletim()
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def format_markdown(
     cenario: dict[str, Any],
     semana: dict[str, Any],
@@ -636,6 +729,7 @@ def format_markdown(
         ),
     )
     fonte_rodada = _fonte_araras(semana)
+    bloco_ocup_sisreg = _bloco_ocupacao_sisreg_md(publico=publico)
     tab_ind = bloco_tabela(
         "Indicadores da rodada e municípios em atenção",
         md_table(
@@ -757,6 +851,8 @@ Referência climática: Painel El Niño 2026–2027, Boletim Mensal n.º 02, jul
 Referência operacional: ARARAS MT, rodada de {semana.get('gerado_em_pt', '24/08/2026')}.  
 Base normativa: Portaria n.º 0590/2026/GBSES.
 
+{_bloco_atos_oficiais()}
+
 > A projeção operacional de aproximadamente 7 dias **não substitui** a previsão climática sazonal. Os produtos possuem objetivos e horizontes temporais distintos.
 
 {_cards_executivos(snap)}
@@ -799,6 +895,12 @@ Fonte: Painel El Niño 2026–2027, boletim n.º {cenario.get('edicao', '02')}, 
 
 - **Chuva em MT:** {mt.get('chuva', INDISPONIVEL)}
 - **Temperatura em MT:** {mt.get('temperatura', INDISPONIVEL)}
+
+### Comparação operacional — situação atual × série ambiental
+
+{snap.get('serie_ambiente_md') or 'Série ambiental operacional ainda insuficiente nesta rodada para comparação formal com o histórico.'}
+
+_Fonte: painel ARARAS MT (abas Série ambiental e Sazonalidade / OR). A série operacional não substitui a climatologia oficial de longo prazo._
 
 ---
 
@@ -905,6 +1007,8 @@ Associação temporal/espacial — **não implica causalidade**.
 
 {_secao_agravos_dw(agr)}
 
+{snap.get('obitos_clima_md') or '### Óbitos sensíveis ao calor/clima (SIM)\\n\\nDados SIM consolidados indisponíveis nesta rodada.'}
+
 {analisar_cenario_bloco('Leitura epidemiológica', [
     'Associação temporal e espacial não implica causalidade. Sinais assistenciais e de notificação devem ser lidos com a defasagem das fontes e com a cobertura de cada indicador.',
 ])}
@@ -926,6 +1030,12 @@ Municípios no extremo de atenção. Municípios prioritários para acompanhamen
 {pront_tab}
 
 _{prontidao.get('nota', '')}_
+
+---
+
+### 11.2b Ocupação hospitalar (IndicaSUS) × pressão hospitalar (SISREG)
+
+{bloco_ocup_sisreg}
 
 ---
 
@@ -1017,7 +1127,11 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 
 {metodologia_indice_md()}
 - **Medidor de trajetória:** não calculado nesta rodada por insuficiência de série temporal.
+- **Série ambiental operacional:** média estadual diária (Open-Meteo / consolidação ARARAS) e qualidade do ar estadual; a comparação “janela atual × restante da série” é descritiva e não substitui climatologia oficial.
+- **Óbitos SIM sensíveis ao calor/clima:** ver metodologia abaixo e a aba homônima do painel.
 - **Figuras e tabelas:** identificação acima e fonte abaixo (NBR 14724 / NBR 10719); referências bibliográficas em NBR 6023.
+
+{snap.get('obitos_metodologia_md') or ''}
 
 {documentacao_regra_projecao_md()}
 

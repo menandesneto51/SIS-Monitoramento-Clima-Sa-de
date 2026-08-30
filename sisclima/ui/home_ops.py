@@ -88,8 +88,8 @@ def build_fonte_frescor_home(resumo: pd.DataFrame | None = None) -> pd.DataFrame
 
     for nome, tabela, cols, esperado, nota in [
         ("Open-Meteo / biometeo", "met_biometeo", ["data", "data_referencia", "time"], 36, "Clima horário/diário"),
-        ("IndicaSUS / ocupação", "hospital_ocupacao_municipio", ["data_processamento", "ultima_movimentacao"], 24, "Cobertura local tipicamente parcial"),
-        ("SISREG", "ops_sisreg_municipio", ["data_processamento", "atualizado_em"], 48, "Fila/regulação"),
+        ("IndicaSUS / ocupação hospitalar", "hospital_ocupacao_municipio", ["data_processamento", "ultima_movimentacao"], 24, "Só mun. com hospital notificante"),
+        ("SISREG / pressão hospitalar", "ops_sisreg_municipio", ["data_processamento", "atualizado_em"], 48, "Fila/regulação — demanda territorial"),
         ("Predição calor ~7d", "predicao_calor_7d_municipal_v6", ["data_processamento", "gerado_em", "data_referencia", "data"], 36, "Nowcast climático (não sazonal)"),
         ("SIVEP / SRAG", "epi_sivep_srag", ["data", "data_sintomas", "data_notificacao"], 72, "Respiratório"),
         ("Arboviroses", "epi_arboviroses_municipal", ["data", "data_referencia", "semana_epidemiologica"], 96, "Dengue/Zika/Chik"),
@@ -256,6 +256,137 @@ def tendencia_card_caption(n_subindo: int, n_total: int) -> str:
     rot = tendencia_estado_rotulo(n_subindo, n_total)
     return f"{pct:.0f}% em piora · {rot} (agrava ≥15%)"
 
+
+def _norm_nivel_series(s: pd.Series) -> pd.Series:
+    return s.astype(str).str.lower().str.strip()
+
+
+def build_trajetoria_7d(
+    resumo: pd.DataFrame | None,
+    predicao: pd.DataFrame | None = None,
+) -> dict[str, Any]:
+    """Síntese atual × projeção ~7d (mesma lógica operacional do boletim El Niño)."""
+    empty: dict[str, Any] = {
+        "ok": False,
+        "n_total": 0,
+        "n_subindo": 0,
+        "n_estavel": 0,
+        "n_descendo": 0,
+        "n_sobe_1": 0,
+        "n_sobe_2mais": 0,
+        "crit_atual": 0,
+        "crit_proj": 0,
+        "pct_subindo": 0.0,
+        "pct_crit_atual": 0.0,
+        "pct_crit_proj": 0.0,
+        "rotulo": "sem dado",
+        "callout_kind": "info",
+        "proj_counts": {},
+        "narrativa": "Trajetória ~7 dias indisponível nesta rodada (falta tendência ou predição).",
+    }
+    if resumo is None or resumo.empty:
+        return empty
+
+    df = resumo.copy()
+    n = int(len(df))
+    out = dict(empty)
+    out["n_total"] = n
+
+    # Tendência persistida no resumo (fonte do card da home).
+    if "tendencia_7d" in df.columns:
+        tend = _norm_nivel_series(df["tendencia_7d"])
+        # Aceita variantes de acentuação.
+        out["n_subindo"] = int(tend.isin(["subindo", "aumento", "↑", "subida"]).sum())
+        out["n_estavel"] = int(tend.isin(["estável", "estavel", "manutenção", "manutencao", "→"]).sum())
+        out["n_descendo"] = int(tend.isin(["descendo", "queda", "↓", "reducao", "redução"]).sum())
+
+    # Nível projetado: tabela de predição (preferencial) ou coluna no resumo.
+    proj = None
+    if predicao is not None and not predicao.empty and "nivel_predicao_7d" in predicao.columns:
+        pv = predicao.copy()
+        if "cod_ibge" in df.columns and "cod_ibge" in pv.columns:
+            df["_cod"] = df["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+            pv["_cod"] = pv["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+            m = df[["_cod", "nivel"]].merge(
+                pv[["_cod", "nivel_predicao_7d"]].drop_duplicates("_cod"),
+                on="_cod",
+                how="left",
+            )
+            proj = _norm_nivel_series(m["nivel_predicao_7d"])
+            atual = _norm_nivel_series(m["nivel"])
+        else:
+            proj = _norm_nivel_series(pv["nivel_predicao_7d"])
+            atual = _norm_nivel_series(df["nivel"]) if "nivel" in df.columns else None
+    elif "pred_nivel_clima_7d" in df.columns:
+        proj = _norm_nivel_series(df["pred_nivel_clima_7d"])
+        atual = _norm_nivel_series(df["nivel"]) if "nivel" in df.columns else None
+    elif "nivel_predicao_7d" in df.columns:
+        proj = _norm_nivel_series(df["nivel_predicao_7d"])
+        atual = _norm_nivel_series(df["nivel"]) if "nivel" in df.columns else None
+    else:
+        atual = _norm_nivel_series(df["nivel"]) if "nivel" in df.columns else None
+
+    if atual is not None:
+        out["crit_atual"] = int(atual.isin(["vermelha", "roxa"]).sum())
+        out["pct_crit_atual"] = 100.0 * out["crit_atual"] / max(n, 1)
+
+    if proj is not None and proj.notna().any() and (proj != "nan").any():
+        vc = proj.value_counts().to_dict()
+        out["proj_counts"] = {str(k): int(v) for k, v in vc.items()}
+        out["crit_proj"] = int(proj.isin(["vermelha", "roxa"]).sum())
+        out["pct_crit_proj"] = 100.0 * out["crit_proj"] / max(n, 1)
+        if atual is not None and len(atual) == len(proj):
+            o_a = atual.map(STAGE_ORDER)
+            o_p = proj.map(STAGE_ORDER)
+            delta = o_p - o_a
+            # Se tendencia_7d ausente, deriva do delta de classe.
+            if out["n_subindo"] + out["n_estavel"] + out["n_descendo"] == 0:
+                out["n_subindo"] = int((delta > 0).sum())
+                out["n_estavel"] = int((delta == 0).sum())
+                out["n_descendo"] = int((delta < 0).sum())
+            out["n_sobe_1"] = int((delta == 1).sum())
+            out["n_sobe_2mais"] = int((delta >= 2).sum())
+
+    out["pct_subindo"] = 100.0 * out["n_subindo"] / max(n, 1)
+    out["rotulo"] = tendencia_estado_rotulo(out["n_subindo"], n)
+    if out["pct_subindo"] >= 40:
+        out["callout_kind"] = "warn"
+    elif out["pct_subindo"] >= 15:
+        out["callout_kind"] = "tip"
+    else:
+        out["callout_kind"] = "info"
+
+    out["ok"] = bool(out["n_subindo"] + out["n_estavel"] + out["n_descendo"] > 0 or out["crit_proj"] > 0)
+
+    partes = [
+        f"Trajetória ~7 dias ({out['rotulo']}): "
+        f"{out['n_subindo']} de {n} ({out['pct_subindo']:.0f}%) municípios com elevação de classificação"
+    ]
+    if out["n_sobe_1"] or out["n_sobe_2mais"]:
+        partes.append(
+            f" ({out['n_sobe_1']} sobem 1 nível; {out['n_sobe_2mais']} sobem 2 ou mais)"
+        )
+    partes.append(
+        f"; {out['n_estavel']} estáveis; {out['n_descendo']} com redução. "
+        f"Vermelha+roxa: {out['crit_atual']}/{n} ({out['pct_crit_atual']:.0f}%) hoje → "
+        f"{out['crit_proj']}/{n} ({out['pct_crit_proj']:.0f}%) na projeção."
+    )
+    pc = out["proj_counts"]
+    if pc:
+        partes.append(
+            " Distribuição projetada: "
+            f"verde {pc.get('verde', 0)}; amarela {pc.get('amarela', 0)}; "
+            f"laranja {pc.get('laranja', 0)}; vermelha {pc.get('vermelha', 0)}; "
+            f"roxa {pc.get('roxa', 0)}."
+        )
+    partes.append(
+        " Leitura: cenário atual ≠ teto da semana — preparar assistência nos territórios "
+        "já em vermelho/roxo e nos que sobem na projeção."
+    )
+    out["narrativa"] = "".join(partes)
+    return out
+
+
 def acao_recomendada_nivel(nivel: str) -> str:
     """Ação operacional sugerida — sem afirmar ativação formal de COE/emergência."""
     n = str(nivel or "cinza").lower()
@@ -346,11 +477,19 @@ def tabela_prioridades_hoje(resumo: pd.DataFrame, n: int = 10) -> pd.DataFrame:
         occ = row.get("ocupacao_leitos_pct")
         fonte = str(row.get("fonte_ocupacao") or "").strip().lower()
         if occ is None or (isinstance(occ, float) and pd.isna(occ)) or pd.isna(occ):
-            flags.append("sem ocupação")
+            if "sem_leitos" in fonte:
+                flags.append("sem hospital IndicaSUS")
+            else:
+                flags.append("sem ocupação IndicaSUS")
         elif any(x in fonte for x in ("proxy", "estim", "fallback", "estado")):
-            flags.append("ocupação estimada")
-        elif fonte in ("", "nan", "none", "indisponivel"):
-            flags.append("fonte ocupação unclear")
+            flags.append("ocupação estimada (legado)")
+        sis = row.get("kpi_sisreg_solicitacoes")
+        sis_ok = row.get("kpi_sisreg_disponivel")
+        if sis_ok is False or (
+            (sis is None or (isinstance(sis, float) and pd.isna(sis)) or pd.isna(sis))
+            and not bool(sis_ok)
+        ):
+            flags.append("sem pressão SISREG")
         cap = row.get("indice_capacidade_cnes")
         leitos = row.get("cnes_leitos_total")
         if (cap is None or pd.isna(cap)) and (leitos is None or pd.isna(leitos)):
@@ -374,6 +513,19 @@ def tabela_prioridades_hoje(resumo: pd.DataFrame, n: int = 10) -> pd.DataFrame:
     )
     cap_col = top.get("indice_capacidade_cnes", pd.Series([None] * len(top)))
     occ_col = top.get("ocupacao_leitos_pct", pd.Series([None] * len(top)))
+    sis_col = top.get("kpi_sisreg_solicitacoes", pd.Series([None] * len(top)))
+
+    def _fmt_ocup(row_i: int, v: Any) -> str:
+        txt = _fmt_num(v, "%")
+        if txt == "—":
+            return "—"
+        try:
+            fonte = str(top.iloc[row_i].get("fonte_ocupacao") or "")
+            if "TEMPO_REAL" in fonte.upper():
+                return txt
+        except Exception:
+            pass
+        return txt
 
     out = pd.DataFrame(
         {
@@ -384,7 +536,8 @@ def tabela_prioridades_hoje(resumo: pd.DataFrame, n: int = 10) -> pd.DataFrame:
             "Tendência": top.get("tendencia_7d", top.get("tendencia_prioridade_7d", pd.Series(["—"] * len(top))))
             .astype(str)
             .values,
-            "Ocupação": [_fmt_num(v, "%") for v in occ_col],
+            "Ocupação IndicaSUS": [_fmt_ocup(i, v) for i, v in enumerate(occ_col)],
+            "Pressão SISREG": [_fmt_num(v) for v in sis_col],
             "Capacidade CNES": [_fmt_num(v) for v in cap_col],
             "Resiliência": [_fmt_num(v) for v in resil_col],
             "Lacunas": [_lacunas(r) for _, r in top.iterrows()],
@@ -417,23 +570,33 @@ def explicar_nivel_municipio(row: pd.Series | dict[str, Any]) -> str:
         ("Arbovírus 7d", "casos_arbovirus_7d", "{:.0f}"),
         ("P(aumento) arbovírus aux.", "arbo_p_aumento", "{:.0%}"),
         ("Nowcast epi", "nowcast_alerta", "{}"),
-        ("Ocupação leitos", "ocupacao_leitos_pct", "{:.1f}%"),
+        ("Ocupação hospitalar (IndicaSUS)", "ocupacao_leitos_pct", "{:.1f}%"),
         ("Fonte ocupação", "fonte_ocupacao", "{}"),
+        ("Pressão hospitalar SISREG (solicitações)", "kpi_sisreg_solicitacoes", "{:.0f}"),
+        ("Semáforo SISREG", "kpi_sisreg_semaforo", "{}"),
+        ("Índice pressão 0–100", "indice_pressao_saude", "{:.1f}"),
         ("Capacidade CNES", "indice_capacidade_cnes", "{:.0f}"),
         ("Resiliência", "indice_resiliencia", "{:.0f}"),
         ("Persistência roxa", "flag_persistencia_roxa", "{}"),
-        ("Pressão calor", "pressao_calor_pct", "{:.1f}"),
+        ("Pressão calor (proxy)", "pressao_calor_pct", "{:.1f}"),
         ("Completude dados", "completude_dados_pct", "{:.0f}%"),
     ]:
         v = r.get(key)
         if key == "indice_resiliencia" and (v is None or (isinstance(v, float) and pd.isna(v))):
             v = r.get("indice_resiliencia_proxy")
         if v is None or (isinstance(v, float) and pd.isna(v)):
+            if key == "ocupacao_leitos_pct":
+                fonte = str(r.get("fonte_ocupacao") or "")
+                if "SEM_LEITOS" in fonte.upper():
+                    lines.append("- Ocupação hospitalar (IndicaSUS): sem hospital notificante (esperado)")
             continue
         try:
             if key == "flag_persistencia_roxa":
                 if int(v or 0) == 1:
                     lines.append("- Persistência roxa: sim (EHF/onda ≥ limiar de dias)")
+                continue
+            if key == "fonte_ocupacao":
+                lines.append(f"- Fonte ocupação: {v}")
                 continue
             if "{:" in fmt:
                 lines.append(f"- {label}: {fmt.format(float(v))}")
@@ -442,6 +605,6 @@ def explicar_nivel_municipio(row: pd.Series | dict[str, Any]) -> str:
         except Exception:
             lines.append(f"- {label}: {v}")
     lines.append(
-        "_Ausência de variável ≠ risco zero. Valores estimados/proxy devem ser validados no território._"
+        "_Ocupação IndicaSUS ≠ pressão SISREG. Ausência de leitos notificados ≠ risco zero — use a fila/regulação._"
     )
     return "\n".join(lines)

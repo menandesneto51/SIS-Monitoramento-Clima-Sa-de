@@ -146,7 +146,7 @@ def deterministic_report(ctx: dict) -> str:
     - SESAI/DSEI nas aldeias; APS rural em quilombos e assentamentos; Defesa Civil se DPA alto + cheia.
 
     7. ENCAMINHAMENTO
-    Validar no painel ARARAS MT (Prontidão climática e Mapas). Não enviar alerta automático sem decisão humana.
+    Revisar no painel ARARAS MT (Prontidão climática e Mapas) antes de comunicação externa.
     """
     ).strip()
 

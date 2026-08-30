@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Alertas multinível do SIS Clima-Saúde MT.
+Alertas multinível do ARARAS MT.
 
 Quatro escopos de disparo (com o mesmo núcleo de indicadores):
   1. estadual  → SES-MT / CIEVS estadual
@@ -130,10 +130,13 @@ INDICADOR_COLS = [
     ("tmax", "Temperatura máxima (°C)"),
     ("utci_proxy", "Sensação térmica estimada (°C)"),
     ("risco_cumulativo_3d", "Risco de calor acumulado em 3 dias"),
-    ("ocupacao_leitos_pct", "Ocupação de leitos hospitalares (%)"),
-    ("pressao_calor_pct", "Pressão assistencial estimada (%)"),
-    ("indice_pressao_saude", "Índice de pressão assistencial (0 a 100)"),
-    ("semaforo_pressao", "Semáforo de pressão assistencial"),
+    ("ocupacao_leitos_pct", "Ocupação hospitalar IndicaSUS / SIEGES (%)"),
+    ("kpi_sisreg_solicitacoes", "Pressão hospitalar SISREG (solicitações)"),
+    ("kpi_sisreg_fila_h", "Fila média SISREG (horas)"),
+    ("kpi_sisreg_semaforo", "Semáforo SISREG"),
+    ("pressao_calor_pct", "Pressão por calor (painel 0–15)"),
+    ("indice_pressao_saude", "Índice composto pressão saúde (0 a 100)"),
+    ("semaforo_pressao", "Semáforo do índice composto"),
     ("pm25_ugm3", "Partículas finas no ar — PM2,5 (µg/m³)"),
     ("indice_saturacao_solo", "Índice de saturação do solo (0 a 100)"),
     ("classe_saturacao_solo", "Situação do solo"),
@@ -464,7 +467,6 @@ def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> lis
         if escopo == "estadual"
         else "pior classificação define o alerta da regional"
     )
-    ocup_rotulo = "Ocupação estadual de leitos" if escopo == "estadual" else "Ocupação de leitos na regional"
     inds: list[dict[str, str]] = []
     inds.append(
         {
@@ -579,21 +581,49 @@ def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> lis
         inds.append(
             {
                 "campo": "ocupacao_leitos_pct",
-                "rotulo": ocup_rotulo,
+                "rotulo": "Ocupação hospitalar IndicaSUS (média onde há leitos)",
                 "valor": _fmt(ocup),
                 "escala": "0 a 100 %",
-                "limiar": f"atenção ≥75 · alerta ≥85 · intensificado ≥95 · pleno ≥100 · fonte: {ocup_fonte}",
+                "limiar": f"atenção ≥75 · alerta ≥85 · fonte: {ocup_fonte} · ≠ pressão SISREG",
             }
         )
     if "fonte_ocupacao" in df.columns:
         n_rt = int(df["fonte_ocupacao"].astype(str).str.contains("TEMPO_REAL", case=False, na=False).sum())
+        n_sem = int(df["fonte_ocupacao"].astype(str).str.contains("SEM_LEITOS", case=False, na=False).sum())
         inds.append(
             {
                 "campo": "cobertura_ocupacao",
-                "rotulo": "Cobertura de ocupação em tempo real",
-                "valor": f"{n_rt} de {len(df)} municípios",
-                "escala": "municípios com dado local",
-                "limiar": "baixa cobertura exige cautela na interpretação hospitalar",
+                "rotulo": "Cobertura ocupação IndicaSUS (hospital notificante)",
+                "valor": f"{n_rt} de {len(df)} com leitos · {n_sem} sem hospital notificante",
+                "escala": "municípios",
+                "limiar": "ausência = sem unidade notificante (esperado); não inventar %",
+            }
+        )
+    # Pressão hospitalar SISREG (demanda/regulação) — distinto da ocupação
+    if "kpi_sisreg_solicitacoes" in df.columns:
+        sols = pd.to_numeric(df["kpi_sisreg_solicitacoes"], errors="coerce")
+        if sols.notna().any():
+            inds.append(
+                {
+                    "campo": "kpi_sisreg_solicitacoes",
+                    "rotulo": "Pressão hospitalar SISREG (solicitações — pico)",
+                    "valor": _fmt(float(sols.max())),
+                    "escala": "solicitações / fila",
+                    "limiar": "demanda territorial · ≠ % ocupação de leitos",
+                }
+            )
+    if "kpi_sisreg_disponivel" in df.columns or "kpi_sisreg_solicitacoes" in df.columns:
+        if "kpi_sisreg_disponivel" in df.columns:
+            n_sis = int(df["kpi_sisreg_disponivel"].fillna(False).astype(bool).sum())
+        else:
+            n_sis = int(pd.to_numeric(df["kpi_sisreg_solicitacoes"], errors="coerce").notna().sum())
+        inds.append(
+            {
+                "campo": "cobertura_sisreg",
+                "rotulo": "Cobertura pressão SISREG (regulação)",
+                "valor": f"{n_sis} de {len(df)} municípios",
+                "escala": "municípios com sinal de fila/solicitação",
+                "limiar": "aplica-se com ou sem hospital próprio",
             }
         )
     if "semaforo_pressao" in df.columns:
@@ -606,7 +636,7 @@ def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> lis
                     "rotulo": "Municípios por semáforo de pressão assistencial",
                     "valor": dist,
                     "escala": "verde / amarela / vermelha",
-                    "limiar": "distinto da classificação operacional verde→roxa",
+                    "limiar": "composto (ocupação se houver + SISREG + SINAN + SIM) ≠ nível Verde→Roxa",
                 }
             )
     return inds
@@ -641,6 +671,8 @@ def _top_prioritarios(base: pd.DataFrame, n: int = 8) -> list[dict[str, Any]]:
                 "indice_pressao_saude": row.get("indice_pressao_saude"),
                 "semaforo_pressao": row.get("semaforo_pressao"),
                 "fonte_ocupacao": row.get("fonte_ocupacao"),
+                "kpi_sisreg_solicitacoes": row.get("kpi_sisreg_solicitacoes"),
+                "kpi_sisreg_semaforo": row.get("kpi_sisreg_semaforo"),
                 "n_aldeias": row.get("n_aldeias"),
                 "n_quilombos": row.get("n_quilombos"),
                 "n_assentamentos": row.get("n_assentamentos"),
@@ -699,7 +731,7 @@ def build_alertas_multinivel(
         "SINAN/SIVEP/SIM/IndicaSUS (DW)",
         "SISREG (regulação/fila)",
         "Vigibarragens (FUNAI/Palmares/INCRA/SNISB)",
-        "SIS Clima-Saúde MT / ARARAS MT",
+        "ARARAS MT",
     ]
 
     payloads: list[dict[str, Any]] = []
@@ -790,6 +822,12 @@ def build_alertas_multinivel(
         mp["risco_cumulativo_3d"] = row.get("risco_cumulativo_3d")
         mp["ocupacao_leitos_pct"] = row.get("ocupacao_leitos_pct")
         mp["fonte_ocupacao"] = row.get("fonte_ocupacao")
+        mp["leitos_total"] = row.get("leitos_total")
+        mp["leitos_ocupados"] = row.get("leitos_ocupados")
+        mp["kpi_sisreg_solicitacoes"] = row.get("kpi_sisreg_solicitacoes")
+        mp["kpi_sisreg_fila_h"] = row.get("kpi_sisreg_fila_h")
+        mp["kpi_sisreg_semaforo"] = row.get("kpi_sisreg_semaforo")
+        mp["kpi_sisreg_score"] = row.get("kpi_sisreg_score")
         mp["pressao_calor_pct"] = row.get("pressao_calor_pct")
         mp["indice_pressao_saude"] = row.get("indice_pressao_saude")
         mp["semaforo_pressao"] = row.get("semaforo_pressao")
@@ -846,7 +884,15 @@ def build_alertas_multinivel(
         cp["risco_cumulativo_3d"] = row.get("risco_cumulativo_3d")
         cp["ocupacao_leitos_pct"] = row.get("ocupacao_leitos_pct")
         cp["fonte_ocupacao"] = row.get("fonte_ocupacao")
+        cp["leitos_total"] = row.get("leitos_total")
+        cp["leitos_ocupados"] = row.get("leitos_ocupados")
+        cp["kpi_sisreg_solicitacoes"] = row.get("kpi_sisreg_solicitacoes")
+        cp["kpi_sisreg_fila_h"] = row.get("kpi_sisreg_fila_h")
+        cp["kpi_sisreg_semaforo"] = row.get("kpi_sisreg_semaforo")
+        cp["kpi_sisreg_score"] = row.get("kpi_sisreg_score")
         cp["pressao_calor_pct"] = row.get("pressao_calor_pct")
+        cp["indice_pressao_saude"] = row.get("indice_pressao_saude")
+        cp["semaforo_pressao"] = row.get("semaforo_pressao")
         cp["pm25_ugm3"] = row.get("pm25_ugm3")
         cp["iq_ar_score"] = row.get("iq_ar_score")
         cp["qualidade_ar_nivel"] = row.get("qualidade_ar_nivel")
@@ -922,7 +968,7 @@ def render_payload_markdown(p: dict[str, Any]) -> str:
         "## Fontes",
         ", ".join(p.get("fontes") or []),
         "",
-        "_SIS Clima-Saúde MT · CIEVS/SES-MT · validar no painel antes do envio externo._",
+        "_ARARAS MT · CIEVS-MT / SES-MT._",
     ]
     return "\n".join(lines)
 

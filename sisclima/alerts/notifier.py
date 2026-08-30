@@ -23,9 +23,49 @@ from sisclima.branding import (
     wrap_plain_message,
 )
 from sisclima.core.config import env, as_bool, env_name_used
+from sisclima.core.http_client import http_post
 from sisclima.core.logging_utils import get_logger
 
 log = get_logger(__name__)
+
+
+def _telegram_ssl_error(exc: BaseException) -> bool:
+    msg = str(exc).upper()
+    return "CERTIFICATE" in msg or "SSL" in msg or "CERT_VERIFY" in msg
+
+
+def _telegram_post(
+    path: str,
+    *,
+    data: dict | None = None,
+    files: dict | None = None,
+    timeout: int | float = 30,
+) -> requests.Response:
+    """POST à API Telegram com SSL institucional e fallback em proxy SES."""
+    token = env("TELEGRAM_BOT_TOKEN")
+    url = f"https://api.telegram.org/bot{token}/{path.lstrip('/')}"
+    try:
+        return http_post(
+            url,
+            data=data,
+            files=files,
+            timeout=timeout,
+            ssl_env_key="TELEGRAM_SSL_VERIFY",
+        )
+    except Exception as exc:
+        if not _telegram_ssl_error(exc):
+            raise
+        log.warning(
+            "Telegram SSL verify falhou (%s) — retry com TELEGRAM_SSL_VERIFY=false (proxy SES).",
+            type(exc).__name__,
+        )
+        return http_post(
+            url,
+            data=data,
+            files=files,
+            timeout=timeout,
+            verify=False,
+        )
 
 
 def _email_enabled(to: str | list[str] | tuple[str, ...] | None = None) -> bool:
@@ -98,21 +138,35 @@ def _smtp_connect(host: str, port: int, *, use_ssl: bool, timeout: int = 30):
     return server
 
 
-def _smtp_targets() -> list[tuple[str, int, bool]]:
-    """Host SMTP principal e fallback opcional (SMTP_FALLBACK_HOST), como no Sentinela."""
+def _smtp_targets() -> list[tuple[str, int, bool, str | None, str | None]]:
+    """Host SMTP principal e fallback opcional (SMTP_FALLBACK_*), como no Sentinela.
+
+    Retorna (host, port, use_ssl, user_override, password_override).
+    Overrides None = usar SMTP_USER / SMTP_PASSWORD.
+    """
     host = (env("SMTP_HOST", "smtp.gmail.com") or "smtp.gmail.com").strip()
     try:
         port = int(env("SMTP_PORT", "587") or 587)
     except (TypeError, ValueError):
         port = 587
-    targets = [(host, port, _smtp_use_ssl(host, port))]
+    targets: list[tuple[str, int, bool, str | None, str | None]] = [
+        (host, port, _smtp_use_ssl(host, port), None, None)
+    ]
     fallback_host = (env("SMTP_FALLBACK_HOST") or "").strip()
     if fallback_host and fallback_host.lower() != host.lower():
         try:
             fallback_port = int(env("SMTP_FALLBACK_PORT", "465") or 465)
         except (TypeError, ValueError):
             fallback_port = 465
-        targets.append((fallback_host, fallback_port, _smtp_use_ssl(fallback_host, fallback_port)))
+        targets.append(
+            (
+                fallback_host,
+                fallback_port,
+                _smtp_use_ssl(fallback_host, fallback_port),
+                env("SMTP_FALLBACK_USER") or None,
+                env("SMTP_FALLBACK_PASSWORD") or None,
+            )
+        )
     return targets
 
 
@@ -143,6 +197,7 @@ def send_email(
     html_body: str | None = None,
     to: str | list[str] | tuple[str, ...] | None = None,
     inline_images: dict[str, Path] | None = None,
+    attachments: list[Path] | tuple[Path, ...] | None = None,
 ) -> bool:
     if not _email_enabled(to):
         return False
@@ -184,6 +239,19 @@ def send_email(
                     cid=f"<{cid}>",
                     filename=asset.name,
                 )
+    for raw in attachments or []:
+        asset = Path(raw)
+        if not asset.is_file():
+            log.warning("Anexo inexistente — ignorado: %s", asset)
+            continue
+        mime, _ = mimetypes.guess_type(asset.name)
+        maintype, subtype = (mime or "application/octet-stream").split("/", 1)
+        msg.add_attachment(
+            asset.read_bytes(),
+            maintype=maintype,
+            subtype=subtype,
+            filename=asset.name,
+        )
     user = env('SMTP_USER')
     password = env('SMTP_PASSWORD')
     passwords: list[str] = []
@@ -191,13 +259,25 @@ def send_email(
         if cand and cand not in passwords:
             passwords.append(cand)
     last_error: Exception | None = None
-    for host, port, use_ssl in _smtp_targets():
-        for secret in passwords or [None]:
+    for host, port, use_ssl, user_ov, pass_ov in _smtp_targets():
+        login_user = (user_ov or user or "").strip() or None
+        secrets = list(passwords)
+        if pass_ov:
+            secrets = [pass_ov] + [p for p in secrets if p != pass_ov]
+        for secret in secrets or [None]:
             try:
                 with _smtp_connect(host, port, use_ssl=use_ssl, timeout=30) as s:
-                    if user and secret:
-                        s.login(user, secret)
+                    if login_user and secret:
+                        s.login(login_user, secret)
                     s.send_message(msg)
+                log.info(
+                    "E-mail enviado via %s:%s ssl=%s · user=%s · %d destinatário(s)",
+                    host,
+                    port,
+                    use_ssl,
+                    login_user or "(anon)",
+                    len(recipients),
+                )
                 return True
             except Exception as e:
                 last_error = e
@@ -211,28 +291,33 @@ def send_telegram_brand_card(*, chat_id: str | None = None) -> bool:
     """Envia a marca como cartão visual antes do texto do boletim."""
     if not _telegram_enabled(chat_id):
         return False
-    token = env('TELEGRAM_BOT_TOKEN')
     destination = chat_id or env('TELEGRAM_CHAT_ID')
-    if not token or not destination or not ALERT_BRAND_CARD_PATH.exists():
+    if not destination or not ALERT_BRAND_CARD_PATH.exists():
         return False
     try:
-        with ALERT_BRAND_CARD_PATH.open('rb') as logo:
-            r = requests.post(
-                f'https://api.telegram.org/bot{token}/sendPhoto',
-                data={
-                    'chat_id': destination,
-                    'caption': (
-                        f'{SYSTEM_NAME} — {SYSTEM_EXPANSION}\n'
-                        f'{SYSTEM_TAGLINE}\n{PROJECT_DESCRIPTION}\n'
-                        'SES-MT · CIEVS-MT · Rede CIEVS · Vigidesastres'
-                    ),
-                },
-                files={'photo': (ALERT_BRAND_CARD_PATH.name, logo, 'image/png')},
-                timeout=30,
-            )
+        # Ler bytes de uma vez — retry SSL não pode reusar file pointer no EOF.
+        photo_bytes = ALERT_BRAND_CARD_PATH.read_bytes()
+        if not photo_bytes:
+            log.warning("Cartão de marca Telegram vazio: %s", ALERT_BRAND_CARD_PATH)
+            return False
+        r = _telegram_post(
+            "sendPhoto",
+            data={
+                'chat_id': destination,
+                'caption': (
+                    f'{SYSTEM_NAME} — {SYSTEM_EXPANSION}\n'
+                    f'{SYSTEM_TAGLINE}\n{PROJECT_DESCRIPTION}\n'
+                    'SES-MT · CIEVS-MT · Rede CIEVS · Vigidesastres'
+                ),
+            },
+            files={'photo': (ALERT_BRAND_CARD_PATH.name, photo_bytes, 'image/png')},
+            timeout=45,
+        )
+        if not r.ok:
+            log.warning('Telegram sendPhoto (marca) HTTP %s: %s', r.status_code, (r.text or '')[:240])
         return r.ok
     except Exception as e:
-        log.warning('Falha ao enviar cartão de marca no Telegram: %s', e)
+        log.warning('Falha ao enviar cartão de marca no Telegram: %s', type(e).__name__)
         return False
 
 
@@ -240,46 +325,54 @@ def send_telegram_photo(path: Path, caption: str = "", *, chat_id: str | None = 
     """Envia uma imagem (mapa de risco) ao chat do Telegram."""
     if not _telegram_enabled(chat_id):
         return False
-    token = env('TELEGRAM_BOT_TOKEN')
     destination = chat_id or env('TELEGRAM_CHAT_ID')
     asset = Path(path)
-    if not token or not destination or not asset.is_file():
+    if not destination or not asset.is_file():
         return False
     try:
-        with asset.open('rb') as photo:
-            r = requests.post(
-                f'https://api.telegram.org/bot{token}/sendPhoto',
-                data={'chat_id': destination, 'caption': (caption or '')[:1024]},
-                files={'photo': (asset.name, photo, 'image/png')},
-                timeout=30,
-            )
+        photo_bytes = asset.read_bytes()
+        if not photo_bytes:
+            log.warning("Foto Telegram vazia: %s", asset)
+            return False
+        r = _telegram_post(
+            "sendPhoto",
+            data={'chat_id': destination, 'caption': (caption or '')[:1024]},
+            files={'photo': (asset.name, photo_bytes, 'image/png')},
+            timeout=45,
+        )
+        if not r.ok:
+            log.warning('Telegram sendPhoto HTTP %s: %s', r.status_code, (r.text or '')[:240])
         return r.ok
     except Exception as e:
-        log.warning('Falha ao enviar foto no Telegram: %s', e)
+        log.warning('Falha ao enviar foto no Telegram: %s', type(e).__name__)
         return False
 
 
 def send_telegram(text: str, *, chat_id: str | None = None, with_brand: bool = True) -> bool:
     if not _telegram_enabled(chat_id):
         return False
-    token = env('TELEGRAM_BOT_TOKEN')
     destination = chat_id or env('TELEGRAM_CHAT_ID')
-    if not token or not destination:
+    if not destination:
         return False
     if with_brand:
         send_telegram_brand_card(chat_id=destination)
     message = str(text or '').strip()
     if PROJECT_DESCRIPTION not in message:
         message = f'{plain_header()}\n\n{message}'
+    # Limite da API Telegram
+    if len(message) > 4096:
+        message = message[:4080] + "\n…"
     try:
-        r = requests.post(
-            f'https://api.telegram.org/bot{token}/sendMessage',
+        r = _telegram_post(
+            "sendMessage",
             data={'chat_id': destination, 'text': message},
             timeout=30,
         )
+        if not r.ok:
+            log.warning('Telegram sendMessage HTTP %s: %s', r.status_code, (r.text or '')[:240])
         return r.ok
     except Exception as e:
-        log.warning('Falha Telegram: %s', e)
+        log.warning('Falha Telegram: %s', type(e).__name__)
         return False
 
 

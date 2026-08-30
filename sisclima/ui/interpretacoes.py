@@ -115,10 +115,11 @@ GUIDE_PRONTIDAO = guide_card(
 GUIDE_ASSISTENCIA = guide_card(
     "Como ler Assistência / pressão",
     [
-        "<b>Semáforo G/A/V</b>: pressão IndicaSUS + SISREG + SINAN + SIM (≠ nível Verde→Roxa).",
+        "<b>Dois conceitos distintos</b>: <i>ocupação hospitalar</i> (IndicaSUS) ≠ <i>pressão hospitalar/regulação</i> (SISREG).",
+        "<b>IndicaSUS</b>: % de leitos ocupados — só municípios com unidade que notifica leitos. Ausência = sem hospital notificante, não é falha da consulta.",
+        "<b>SISREG</b>: fila/solicitações de regulação — território de demanda; municípios sem hospital também solicitam.",
+        "<b>Semáforo G/A/V</b>: índice composto (ocupação se houver + SISREG + SINAN + SIM) ≠ nível operacional Verde→Roxa.",
         "<b>Tendência 7d</b>: ↑ piora · → estável · ↓ melhora na previsão de pressão.",
-        "<b>Pilares</b>: ocupação, fila/regulação, arbovírus/SRAG, óbitos sensíveis ao calor.",
-        "<b>GAL/SIM/série</b>: positividade e óbitos apoiam leitura, não substituem boletim oficial.",
     ],
 )
 
@@ -391,13 +392,18 @@ def _narr(
 def narrativa_assistencia(resumo: pd.DataFrame, pressao_state: dict | None = None) -> str:
     ps = pressao_state or {}
     olhar = [
-        "- Semáforo G/A/V e tendência 7d antes de olhar ocupação isolada.",
-        "- Cruzar vermelhos de pressão com prioridade global e alerta integrado.",
+        "- Separar ocupação IndicaSUS (leitos) de pressão SISREG (demanda/fila).",
+        "- Semáforo G/A/V composto; sem hospital notificante, priorize SISREG no território.",
     ]
     achados = []
     if resumo is not None and not resumo.empty and "indice_pressao_saude" in resumo.columns:
         p = pd.to_numeric(resumo["indice_pressao_saude"], errors="coerce")
         achados.append(f"- Índice de pressão médio: **{_fmt(p.mean())}** (máx {_fmt(p.max())}).")
+    if resumo is not None and not resumo.empty and "fonte_ocupacao" in resumo.columns:
+        fonte = resumo["fonte_ocupacao"].astype(str)
+        n_real = int(fonte.str.contains("TEMPO_REAL", case=False, na=False).sum())
+        n_sem = int(fonte.str.contains("SEM_LEITOS", case=False, na=False).sum())
+        achados.append(f"- Ocupação IndicaSUS: **{n_real}** mun. com leitos · **{n_sem}** sem hospital notificante.")
     if ps:
         achados.append(
             f"- Semáforo estadual: verde **{ps.get('n_verde', 0)}** · amarela **{ps.get('n_amarela', 0)}** · "
@@ -406,7 +412,7 @@ def narrativa_assistencia(resumo: pd.DataFrame, pressao_state: dict | None = Non
         achados.append(
             f"- Tendência pressão 7d: ↑{ps.get('n_subindo', 0)} · →{ps.get('n_estavel', 0)} · ↓{ps.get('n_descendo', 0)}."
         )
-        achados.append(f"- Cobertura SISREG no recorte: **{ps.get('sisreg_cobertura', 0)}** municípios.")
+        achados.append(f"- Pressão SISREG no recorte: **{ps.get('sisreg_cobertura', 0)}** municípios.")
     if "semaforo_pressao" in (resumo.columns if resumo is not None else []):
         top = resumo.sort_values("indice_pressao_saude", ascending=False).head(3)
         if not top.empty and "municipio" in top.columns:
@@ -421,9 +427,9 @@ def narrativa_assistencia(resumo: pd.DataFrame, pressao_state: dict | None = Non
         achados,
         [
             "- Semáforo G/A/V ≠ nível operacional Verde→Roxa.",
-            "- Proxy IndicaSUS/SISREG não substitui censo/fila oficial do dia.",
+            "- Fila SISREG ≠ % ocupação de leitos; SEM_LEITOS no IndicaSUS é esperado em muitos mun.",
         ],
-        ["- Abrir IndicaSUS/SISREG nos vermelhos e cruzar com Alertas."],
+        ["- Vermelhos: cruzar ocupação (se houver) + fila SISREG + Alertas."],
     )
 
 
@@ -717,40 +723,14 @@ def render_interpretacao(
     session_key: str,
     guide_html: str,
     build_narr: Callable[[], str],
-    titulo: str = "Ajudante CIEVS — justificativa e insights (padrão Meningites)",
+    titulo: str = "Guia operacional da aba",
 ) -> None:
-    """Padrão Meningites: guia sempre visível + narrativa automática + IA opcional + download."""
-    st.markdown(guide_html, unsafe_allow_html=True)
-    st.markdown(f"#### {titulo}")
-    st.caption(
-        "Texto determinístico com o que olhar · achados · o que não concluir · próximo passo. "
-        "Marque IA só se USE_LLM_REPORT estiver ativo — números não são inventados."
-    )
-    c1, c2 = st.columns([2, 1])
-    with c1:
-        gerar = st.button("Gerar / atualizar texto justificativo", key=f"btn_interp_{session_key}")
-    with c2:
-        st.checkbox(
-            "Incluir narrativa IA (opcional)",
-            key=f"llm_interp_{session_key}",
-            help="Requer USE_LLM_REPORT=true e LLM_API_URL/KEY no ambiente. Nunca inventa indicadores.",
-        )
-    if gerar or f"narr_{session_key}" not in st.session_state:
-        base = build_narr()
-        st.session_state[f"narr_{session_key}"] = _maybe_enrich_llm(base, session_key)
-    elif st.session_state.get(f"llm_interp_{session_key}") and st.button(
-        "Aplicar IA ao texto atual", key=f"btn_llm_{session_key}"
-    ):
-        base = build_narr()
-        st.session_state[f"narr_{session_key}"] = _maybe_enrich_llm(base, session_key)
+    """Exibe apenas o guia operacional da aba.
 
-    txt = st.session_state.get(f"narr_{session_key}") or build_narr()
-    with st.container():
-        st.markdown(txt)
-    st.download_button(
-        "Baixar justificativa (.md)",
-        data=txt,
-        file_name=f"sis_justificativa_{session_key}.md",
-        mime="text/markdown",
-        key=f"dl_interp_{session_key}",
-    )
+    O bloco Meningites (justificativa automática + checkbox IA + download) foi retirado
+    do painel a pedido operacional — evitava ruído e mensagens de LLM desligado.
+    """
+    del build_narr, titulo  # API estável para as abas existentes
+    if guide_html:
+        st.markdown(guide_html, unsafe_allow_html=True)
+

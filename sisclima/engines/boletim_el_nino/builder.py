@@ -183,6 +183,23 @@ def build_boletim_semanal(
         resumo_enriched, predicao, snap=snap
     )
 
+    try:
+        from sisclima.engines.serie_historica_ambiente import resumo_serie_ambiente_boletim
+        from sisclima.engines.obitos_clima_contexto import resumo_obitos_clima
+
+        amb = resumo_serie_ambiente_boletim()
+        snap["serie_ambiente_md"] = str(amb.get("markdown") or "")
+        snap["serie_ambiente_ok"] = bool(amb.get("ok"))
+        ob = resumo_obitos_clima()
+        snap["obitos_clima_md"] = str(ob.get("markdown_boletim") or "")
+        snap["obitos_metodologia_md"] = str(ob.get("metodologia_md") or "")
+        snap["obitos_clima_ok"] = bool(ob.get("ok"))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Série ambiental / óbitos clima indisponíveis no boletim: %s", exc)
+        snap.setdefault("serie_ambiente_md", "")
+        snap.setdefault("obitos_clima_md", "")
+        snap.setdefault("obitos_metodologia_md", "")
+
     refs_abnt = format_referencias_bibliograficas(ref_ids=refs_usadas_boletim(), acesso_em=ref)
     md = format_markdown(
         cenario,

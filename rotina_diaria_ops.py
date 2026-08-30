@@ -170,6 +170,25 @@ def step_pressao() -> dict:
     return step_pressao_alertas()
 
 
+def step_validacao_ocupacao() -> dict:
+    """CSVs de homologação IndicaSUS (SIEGES) × SISREG — pasta data/output/validacao_ocupacao_sieges."""
+    _step("Validação ocupação SIEGES (artefatos CSV)")
+    try:
+        from sisclima.reporting.validacao_ocupacao_sieges import gerar_pacote_validacao_ocupacao
+
+        meta = gerar_pacote_validacao_ocupacao()
+        tot = meta.get("totais") or {}
+        print(
+            f"[INFO] validação ocupação: com={tot.get('com_ocupacao')} "
+            f"sem={tot.get('sem_leitos_elegiveis')} "
+            f"ocup%={tot.get('ocupacao_pct_estadual')} → {meta.get('outdir')}"
+        )
+        return {"ok": True, **{k: tot.get(k) for k in ("com_ocupacao", "sem_leitos_elegiveis", "ocupacao_pct_estadual")}}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[AVISO] Pacote validação ocupação: {exc}")
+        return {"ok": False, "error": str(exc)}
+
+
 def step_plano_indicadores() -> dict:
     """Lê tabelas que o pipeline já gravou e reanexa medições do Plano El Niño."""
     _step("Coleta indicadores automáticos do Plano El Niño")
@@ -275,7 +294,7 @@ def step_smoke() -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="Rotina diária SIS Clima-Saúde (ANA + ops)")
+    p = argparse.ArgumentParser(description="Rotina diária ARARAS MT (ANA + ops)")
     p.add_argument("--offline", action="store_true", help="Sem DW/IndicaSUS/SISREG live")
     p.add_argument("--skip-pipeline", action="store_true", help="Não roda o pipeline clima/DW")
     p.add_argument("--skip-cloud-export", action="store_true")
@@ -309,6 +328,7 @@ def main(argv: list[str] | None = None) -> int:
         report["steps"]["enrichment"] = step_enrichment(try_indicasus=not offline)
         report["steps"]["sisreg"] = step_sisreg(prefer_live=not offline)
         report["steps"]["pressao"] = step_pressao()
+        report["steps"]["validacao_ocupacao"] = step_validacao_ocupacao()
         report["steps"]["plano_indicadores"] = step_plano_indicadores()
         report["steps"]["alerta_cuiaba"] = step_alerta_cuiaba()
         if not args.skip_cloud_export:

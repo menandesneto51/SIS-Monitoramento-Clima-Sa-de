@@ -23,6 +23,34 @@ LEVEL_COLOR_MAP = {
     "vermelha": "#dc2626",
     "roxa": "#5b21b6",
 }
+# Só estas colunas entram no semáforo ARARAS; outros categóricos (ex.: risco dominante) não viram cinza.
+LEVEL_CAT_COLUMNS = {
+    "nivel",
+    "nivel_predicao_7d",
+    "nivel_alerta_estatistico",
+    "nivel_alerta_integrado",
+    "nivel_queimadas",
+    "qualidade_ar_nivel",
+    "nivel_sis",
+    "nivel_chuva",
+    "nivel_alerta_hidro",
+}
+CATEGORICAL_KEEP_AS_TEXT = {
+    "municipio",
+    "cod_ibge",
+    "fonte_ocupacao",
+    "regional_saude",
+    "poluente_dominante",
+    "classe_saturacao_solo",
+    "componente_dominante",
+    "situacao_hidro",
+    "risco_adaptasus_dominante",
+    "risco_adaptasus_dominante_nome",
+    "risco_predominante",
+    "faixa_prioridade_global",
+    "tendencia_7d",
+    "orientacao_leiga",
+}
 
 _COD_CANDIDATES = [
     "cod_ibge",
@@ -350,31 +378,24 @@ def make_choropleth_or_points(
         plot_base["cod_ibge"] = normalize_cod_ibge(plot_base["cod_ibge"]).astype(str)
 
     for c in [color_col] + hover_cols:
-        if c in plot_base.columns and c not in [
-            "nivel",
-            "nivel_predicao_7d",
-            "nivel_queimadas",
-            "municipio",
-            "cod_ibge",
-            "fonte_ocupacao",
-            "regional_saude",
-            "qualidade_ar_nivel",
-            "poluente_dominante",
-            "classe_saturacao_solo",
-            "componente_dominante",
-            "nivel_alerta_integrado",
-            "nivel_sis",
-            "situacao_hidro",
-        ]:
+        if c in plot_base.columns and c not in LEVEL_CAT_COLUMNS and c not in CATEGORICAL_KEEP_AS_TEXT:
             plot_base[c] = pd.to_numeric(plot_base[c], errors="coerce")
 
-    if categorical and color_col in plot_base.columns:
+    use_level_palette = categorical and color_col in LEVEL_CAT_COLUMNS
+    if use_level_palette and color_col in plot_base.columns:
         plot_base[color_col] = (
             plot_base[color_col]
             .astype(str)
             .str.strip()
             .str.lower()
             .where(lambda s: s.isin(LEVEL_ORDER), "cinza")
+        )
+    elif categorical and color_col in plot_base.columns:
+        plot_base[color_col] = (
+            plot_base[color_col]
+            .astype(str)
+            .str.strip()
+            .replace({"nan": "sem dado", "None": "sem dado", "": "sem dado"})
         )
 
     if geojson is not None and "cod_ibge" in plot_base.columns:
@@ -400,8 +421,12 @@ def make_choropleth_or_points(
         )
         extra_cat = (
             dict(category_orders={color_col: LEVEL_ORDER}, color_discrete_map=LEVEL_COLOR_MAP)
-            if categorical
-            else dict(color_continuous_scale="Reds")
+            if use_level_palette
+            else (
+                dict(color_discrete_sequence=px.colors.qualitative.Set2)
+                if categorical
+                else dict(color_continuous_scale="Reds")
+            )
         )
         fig = None
         for fn_name, style_key in (("choropleth_map", "map_style"), ("choropleth_mapbox", "mapbox_style")):
@@ -427,8 +452,6 @@ def make_choropleth_or_points(
             lat="lat",
             lon="lon",
             color=color_col if color_col in plot_df.columns else None,
-            color_discrete_map=LEVEL_COLOR_MAP if categorical else None,
-            color_continuous_scale=None if categorical else "Reds",
             hover_name="municipio" if "municipio" in plot_df.columns else None,
             hover_data=[c for c in hover_cols if c in plot_df.columns],
             center=CENTER_MT,
@@ -436,6 +459,12 @@ def make_choropleth_or_points(
             height=height,
             title=title,
         )
+        if use_level_palette:
+            kw["color_discrete_map"] = LEVEL_COLOR_MAP
+        elif categorical:
+            kw["color_discrete_sequence"] = px.colors.qualitative.Set2
+        else:
+            kw["color_continuous_scale"] = "Reds"
         point = None
         for fn_name, style_key in (("scatter_map", "map_style"), ("scatter_mapbox", "mapbox_style")):
             fn = getattr(px, fn_name, None)

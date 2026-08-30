@@ -234,7 +234,7 @@ def draw_institutional_page(
     canvas.drawString(
         MARGIN_L + 2.05 * cm,
         FOOTER_H - 1.12 * cm,
-        "Ferramenta de apoio à gestão. Validar no painel e no território antes da comunicação oficial.",
+        "Ferramenta de apoio à gestão · ARARAS MT · CIEVS-MT / SES-MT.",
     )
     canvas.setFillColor(colors.white)
     canvas.setFont(font, 8.5)

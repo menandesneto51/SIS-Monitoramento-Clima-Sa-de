@@ -112,8 +112,47 @@ def participantes_com_email(cat: dict[str, Any] | None = None) -> list[dict[str,
         if row["perfil_sugerido"] not in PERFIS_PLANO_IDS:
             row["perfil_sugerido"] = "consulta"
         row["perfil_rotulo"] = rotulo_perfil_plano(row["perfil_sugerido"])
+        row["canal_distribuicao"] = "sala"
         out.append(row)
     return out
+
+
+def destinatarios_boletim_sala(cat: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """E-mails únicos para o boletim El Niño da Sala (SES + rede ERS + COSEMS).
+
+    Deduplica por e-mail. Não inclui SMS municipais nem pendências sem endereço.
+    """
+    data = cat if cat is not None else carregar_participantes()
+    out: list[dict[str, Any]] = []
+    vistos: set[str] = set()
+
+    def _add(raw: dict[str, Any], canal: str) -> None:
+        email = _norm_email(str(raw.get("email") or ""))
+        if "@" not in email or email in vistos:
+            return
+        vistos.add(email)
+        row = dict(raw)
+        row["email"] = email
+        row["canal_distribuicao"] = canal
+        out.append(row)
+
+    for row in participantes_com_email(data):
+        _add(row, "sala")
+    for raw in data.get("escritorios_regionais") or []:
+        _add(dict(raw), "escritorio_regional")
+    for raw in data.get("cosems") or []:
+        _add(dict(raw), "cosems")
+    return out
+
+
+def nome_arquivo_boletim_sala(*, se: int | str, ano: int | str = 2026) -> str:
+    """Nomenclatura oficial do PDF enviável à Sala.
+
+    Ex.: Boletim Informativo Sala de Situação MT El Niño SE 34-2026.pdf
+    """
+    se_n = int(str(se).strip())
+    ano_n = int(str(ano).strip())
+    return f"Boletim Informativo Sala de Situação MT El Niño SE {se_n}-{ano_n}.pdf"
 
 
 def aplicar_vinculos_catalogo(

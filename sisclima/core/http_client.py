@@ -101,16 +101,26 @@ def http_post(
     *,
     json: Any = None,
     data: Any = None,
+    files: Any = None,
     headers: dict[str, str] | None = None,
     timeout: int | float = 30,
     verify: bool | None = None,
+    ssl_env_key: str | None = None,
 ) -> requests.Response:
     """POST com User-Agent institucional (alertas/LLM oficiais)."""
     if verify is None:
-        verify = ssl_verify(None, True)
+        verify = ssl_verify(ssl_env_key, True)
     if not verify:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     merged = dict(DEFAULT_HEADERS)
     if headers:
         merged.update(headers)
-    return requests.post(url, json=json, data=data, headers=merged, timeout=timeout, verify=verify)
+    return requests.post(
+        url,
+        json=json,
+        data=data,
+        files=files,
+        headers=merged,
+        timeout=timeout,
+        verify=verify,
+    )

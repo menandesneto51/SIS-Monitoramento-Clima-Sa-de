@@ -75,6 +75,9 @@ def normalize_sivep_columns(df: pd.DataFrame) -> pd.DataFrame:
         ("idade", "idade"),
         ("cs_sexo", "sexo"),
         ("sexo", "sexo"),
+        ("obitos_srag", "obitos_srag"),
+        ("internacoes_uti", "internacoes_uti"),
+        ("casos_srag", "casos_srag"),
     ]:
         if a in df.columns and b not in df.columns and b not in rename.values():
             rename[a] = b
@@ -87,6 +90,37 @@ def normalize_sivep_columns(df: pd.DataFrame) -> pd.DataFrame:
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], errors='coerce')
     return df
+
+
+def materialize_aggregated_sivep(df: pd.DataFrame) -> pd.DataFrame:
+    """Expande agregados diários (casos_srag/obitos/uti) em linhas caso para os indicadores MS."""
+    if df is None or df.empty:
+        return df if df is not None else pd.DataFrame()
+    out = normalize_sivep_columns(df)
+    if 'casos_srag' not in out.columns:
+        return out
+    casos = pd.to_numeric(out['casos_srag'], errors='coerce').fillna(0).clip(lower=0).astype(int)
+    if int(casos.sum()) <= len(out) and int(casos.max()) <= 1:
+        return out
+    rows: list[dict] = []
+    for idx, row in out.iterrows():
+        n = int(casos.loc[idx])
+        if n <= 0:
+            continue
+        obitos = int(pd.to_numeric(row.get('obitos_srag', 0), errors='coerce') or 0)
+        uti_n = int(pd.to_numeric(row.get('internacoes_uti', row.get('uti', 0)), errors='coerce') or 0)
+        base = {
+            'data_sintomas': row.get('data_sintomas'),
+            'cod_ibge': row.get('cod_ibge'),
+            'municipio': row.get('municipio'),
+            'arquivo_origem': row.get('arquivo_origem', 'dw:agregado'),
+        }
+        for i in range(n):
+            r = dict(base)
+            r['obito'] = 1 if i < obitos else 0
+            r['uti'] = 1 if i < uti_n else 0
+            rows.append(r)
+    return pd.DataFrame(rows) if rows else out
 
 
 def _keep_existing_sivep(table: str, db_path: Path) -> dict | None:
@@ -143,7 +177,22 @@ def rebuild_sivep_local_db() -> dict:
         kept = _keep_existing_sivep(table, db_path)
         if kept is not None:
             return kept
-        out = pd.DataFrame(columns=['data_sintomas','cod_ibge','municipio','casos_srag','obitos_srag','internacoes_uti'])
+        # Pasta vazia e base sem SRAG: tenta DW (USE_DW_SIVEP=true).
+        out = pd.DataFrame()
+        if as_bool(env('USE_DW_SIVEP', 'true')):
+            try:
+                from sisclima.ingestion.dw_sources import load_dw_sivep_srag
+
+                dw = load_dw_sivep_srag()
+                if dw is not None and not dw.empty:
+                    out = materialize_aggregated_sivep(dw)
+                    if 'arquivo_origem' not in out.columns:
+                        out['arquivo_origem'] = 'dw:sivep_srag_residencia'
+                    log.info('SIVEP: carregados %s registros do DW (fallback).', len(out))
+            except Exception as e:
+                log.warning('SIVEP DW fallback falhou: %s', e)
+        if out.empty:
+            out = pd.DataFrame(columns=['data_sintomas','cod_ibge','municipio','casos_srag','obitos_srag','internacoes_uti'])
 
     if _use_unified_db():
         write_df(out, table, if_exists='replace')

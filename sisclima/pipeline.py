@@ -351,19 +351,18 @@ def _inject_ocupacao_into_summary(summary: pd.DataFrame) -> pd.DataFrame:
             out["cod_ibge"] = out["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
             out = out.merge(occ, on="cod_ibge", how="left")
 
-    estado = _read_sqlite_table_safe("hospital_ocupacao_estado")
-    if not estado.empty and "ocupacao_pct" in estado.columns:
-        valor_estado = pd.to_numeric(estado["ocupacao_pct"], errors="coerce").dropna()
-        if not valor_estado.empty:
-            if "ocupacao_leitos_pct" not in out.columns:
-                out["ocupacao_leitos_pct"] = pd.NA
-            out["ocupacao_leitos_pct"] = pd.to_numeric(
-                out["ocupacao_leitos_pct"],
-                errors="coerce"
-            ).fillna(float(valor_estado.iloc[0])).clip(lower=0, upper=100)
-            if "fonte_ocupacao" not in out.columns:
-                out["fonte_ocupacao"] = pd.NA
-            out["fonte_ocupacao"] = out["fonte_ocupacao"].fillna("INDICASUS_TEMPO_REAL_ESTADUAL_FALLBACK")
+    # Não inventar ocupação estadual: só IndicaSUS municipal real.
+    if "ocupacao_leitos_pct" in out.columns:
+        out["ocupacao_leitos_pct"] = pd.to_numeric(out["ocupacao_leitos_pct"], errors="coerce")
+    else:
+        out["ocupacao_leitos_pct"] = pd.NA
+    if "fonte_ocupacao" not in out.columns:
+        out["fonte_ocupacao"] = pd.NA
+    inventado = out["fonte_ocupacao"].astype(str).str.contains("FALLBACK|ESTADUAL", case=False, na=False)
+    if inventado.any():
+        out.loc[inventado, "ocupacao_leitos_pct"] = pd.NA
+    sem_dado = out["ocupacao_leitos_pct"].isna()
+    out.loc[sem_dado, "fonte_ocupacao"] = "SEM_LEITOS_INDICASUS"
 
     return out
 
@@ -668,9 +667,22 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         press = pressure_assistencial(leitos_raw)
         write_df(press, 'epi_pressao_assistencial')
 
-        # V4: SIVEP/SRAG vem do banco local; SINAN, SIM e GAL/LACEN vêm preferencialmente do DW.
+        # V4: SIVEP/SRAG vem do banco local; se vazio, DW (USE_DW_SIVEP); senão CSV de inputs.
         sivep_raw = load_sivep_local()
         if sivep_raw.empty:
+            try:
+                from sisclima.ingestion.dw_sources import load_dw_sivep_srag
+
+                sivep_raw = load_dw_sivep_srag()
+                if sivep_raw is not None and not sivep_raw.empty:
+                    from sisclima.ingestion.sivep_local import materialize_aggregated_sivep
+
+                    sivep_raw = materialize_aggregated_sivep(sivep_raw)
+                    print(f"[INFO] SIVEP/SRAG via DW: {len(sivep_raw)} linhas.")
+            except Exception as exc:
+                print(f"[AVISO] SIVEP DW indisponível: {exc}")
+                sivep_raw = pd.DataFrame()
+        if sivep_raw is None or sivep_raw.empty:
             sivep_raw = inputs['sivep_srag']
         lacen_raw = load_dw_gal_lacen()
         if lacen_raw.empty:

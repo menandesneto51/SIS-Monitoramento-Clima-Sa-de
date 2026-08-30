@@ -7,12 +7,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-sis_clima_saude}
       POSTGRES_USER: ${POSTGRES_USER:-sisclima}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sisclima_trocar}
-    # Não publicar 5432 na rede do host (produção). Só a rede Docker interna.
-    # Para debug local: POSTGRES_PUBLISH=true e descomente ports abaixo.
+    # Workstation: só localhost (host scripts / validação). Em servidor SES
+    # sem necessidade de acesso externo ao PG, troque por `expose: ["5432"]`.
     expose:
       - "5432"
-    # ports:
-    #   - "${POSTGRES_PORT:-5432}:5432"
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - sis_pgdata:/var/lib/postgresql/data
       - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
@@ -32,7 +32,13 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
       SIVEP_USE_UNIFIED_DB: "true"
+      # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
+      COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
+      OSRM_URL: ${OSRM_URL:-}
     volumes:
+      - ./sisclima:/app/sisclima:ro
+      - ./atualizar_ocupacao_indicasus.py:/app/atualizar_ocupacao_indicasus.py:ro
+      - ./scripts:/app/scripts:ro
       - ./data:/app/data
       - ./config:/app/config
       - ./sql:/app/sql
@@ -54,6 +60,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
       SIVEP_USE_UNIFIED_DB: "true"
+      # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
+      COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
+      OSRM_URL: ${OSRM_URL:-}
       ETL_INTERVAL_HOURS: ${ETL_INTERVAL_HOURS:-6}
       ETL_RETRY_MINUTES: ${ETL_RETRY_MINUTES:-15}
       ETL_RUN_ON_START: ${ETL_RUN_ON_START:-true}
@@ -61,6 +70,7 @@ services:
       ETL_LOCK_FILE: ${ETL_LOCK_FILE:-logs/etl_scheduler.lock}
     volumes:
       - ./sisclima:/app/sisclima:ro
+      - ./atualizar_ocupacao_indicasus.py:/app/atualizar_ocupacao_indicasus.py:ro
       - ./data:/app/data
       - ./config:/app/config
       - ./sql:/app/sql
@@ -82,6 +92,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
       SIVEP_USE_UNIFIED_DB: "true"
+      # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
+      COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
+      OSRM_URL: ${OSRM_URL:-}
     ports:
       - "${STREAMLIT_PORT:-8501}:8501"
     volumes:
@@ -110,6 +123,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
       SIVEP_USE_UNIFIED_DB: "true"
+      # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
+      COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
+      OSRM_URL: ${OSRM_URL:-}
       SEND_ALERT_ON_LEVEL_CHANGE: ${SEND_ALERT_ON_LEVEL_CHANGE:-true}
       # Ciclo diário — independente do notebook (serviço sempre ligado no host/servidor).
       ALERT_INTERVAL_HOURS: ${ALERT_INTERVAL_HOURS:-24}

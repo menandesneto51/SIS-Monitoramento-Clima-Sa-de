@@ -70,8 +70,7 @@ def image_data_uri(path: Path, *, max_bytes: int = 800_000) -> str | None:
 def plain_footer() -> str:
     return (
         f"{DEVELOPER_CREDIT}\n"
-        f"{SYSTEM_NAME} · CIEVS-MT / SES-MT · Rede CIEVS · Vigidesastres\n"
-        "Ferramenta de apoio à gestão. Validar no painel e no território antes da comunicação oficial."
+        f"{SYSTEM_NAME} · CIEVS-MT / SES-MT · Rede CIEVS · Vigidesastres"
     )
 
 
@@ -100,8 +99,7 @@ def html_email_shell(body_html: str) -> str:
         <tr>
           <td style="padding:13px 20px;background:#073f67;color:#ffffff;font-size:12px;line-height:1.45">
             <strong>{html.escape(DEVELOPER_CREDIT)}</strong><br />
-            <strong>{html.escape(SYSTEM_NAME)}</strong> · CIEVS-MT / SES-MT · Rede CIEVS · Vigidesastres<br />
-            Ferramenta de apoio à gestão. Validar no painel e no território antes da comunicação oficial.
+            <strong>{html.escape(SYSTEM_NAME)}</strong> · CIEVS-MT / SES-MT · Rede CIEVS · Vigidesastres
           </td>
         </tr>
       </table>
