@@ -5,9 +5,15 @@ Executa o pipeline em intervalo configurável, sem enviar alertas, registra um
 arquivo de saúde para a operação e impede duas execuções simultâneas no mesmo
 host/volume Docker.
 
+Por padrão a **extração completa** (``run_pipeline`` com replace das tabelas)
+corre **no máximo 1× por dia civil** local (``ETL_FULL_ONCE_PER_DAY=true``),
+com intervalo de 24 h. Reinícios do container não disparam nova carga se a
+rodada do dia já tiver sido ``success``.
+
 Uso:
   python -m sisclima.etl_scheduler --once
   python -m sisclima.etl_scheduler --loop
+  ETL_FORCE=true python -m sisclima.etl_scheduler --once   # ignora gate diário
 """
 from __future__ import annotations
 
@@ -16,7 +22,7 @@ import json
 import os
 import time
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable, Iterator
 
@@ -42,6 +48,49 @@ def _health_path() -> Path:
 
 def _lock_path() -> Path:
     return _path_from_env("ETL_LOCK_FILE", "logs/etl_scheduler.lock")
+
+
+def _parse_health_dt(raw: Any) -> datetime | None:
+    if raw is None:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        if dt.tzinfo is not None:
+            dt = dt.astimezone().replace(tzinfo=None)
+        return dt
+    except (TypeError, ValueError):
+        return None
+
+
+def _already_succeeded_today(health_path: Path | None = None) -> bool:
+    """True se já houve ETL completa com sucesso no dia civil local."""
+    if not as_bool(env("ETL_FULL_ONCE_PER_DAY", "true"), True):
+        return False
+    target = health_path or _health_path()
+    if not target.is_file():
+        return False
+    try:
+        data = json.loads(target.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    if str(data.get("status") or "").lower() != "success":
+        return False
+    finished = _parse_health_dt(data.get("finished_at") or data.get("started_at"))
+    if finished is None:
+        return False
+    return finished.date() == datetime.now().date()
+
+
+def _seconds_until_next_daily_window() -> int:
+    """Espera até o próximo dia no horário ETL_DAILY_HOUR."""
+    now = datetime.now()
+    try:
+        hour = int(env("ETL_DAILY_HOUR", "6") or 6)
+    except (TypeError, ValueError):
+        hour = 6
+    hour = min(23, max(0, hour))
+    nxt = (now + timedelta(days=1)).replace(hour=hour, minute=0, second=0, microsecond=0)
+    return max(300, int((nxt - now).total_seconds()))
 
 
 def _write_health(payload: dict[str, Any], path: Path | None = None) -> None:
@@ -106,10 +155,26 @@ def run_once(
     runner: PipelineRunner | None = None,
     health_path: Path | None = None,
     lock_path: Path | None = None,
+    force: bool | None = None,
 ) -> dict[str, Any]:
     """Executa uma rodada auditável da ETL e atualiza o arquivo de saúde."""
 
     started_at = _now_iso()
+    force_run = as_bool(env("ETL_FORCE", "false"), False) if force is None else bool(force)
+    if not force_run and _already_succeeded_today(health_path):
+        result = {
+            "status": "skipped_already_today",
+            "started_at": started_at,
+            "finished_at": _now_iso(),
+            "message": (
+                "Extração completa já concluída com sucesso hoje "
+                "(ETL_FULL_ONCE_PER_DAY). Use ETL_FORCE=true para forçar."
+            ),
+        }
+        # Não sobrescrever o health de success do dia — o gate lê status=success.
+        log.info(result["message"])
+        return result
+
     with _exclusive_lock(lock_path) as acquired:
         if not acquired:
             result = {
@@ -120,6 +185,17 @@ def run_once(
             }
             _write_health(result, health_path)
             log.warning(result["message"])
+            return result
+
+        # Revalida sob lock (evita corrida entre dois starts no mesmo dia).
+        if not force_run and _already_succeeded_today(health_path):
+            result = {
+                "status": "skipped_already_today",
+                "started_at": started_at,
+                "finished_at": _now_iso(),
+                "message": "Extração completa já concluída com sucesso hoje (sob trava).",
+            }
+            log.info(result["message"])
             return result
 
         _write_health({"status": "running", "started_at": started_at}, health_path)
@@ -136,6 +212,7 @@ def run_once(
                 "started_at": started_at,
                 "finished_at": finished_at,
                 "message": output.get("message") or f"Pipeline finalizado com status {pipeline_status}.",
+                "mode": "full_extract",
             }
             _write_health(result, health_path)
             if health_status != "success":
@@ -155,17 +232,20 @@ def run_once(
 
 
 def run_loop() -> None:
-    interval_h = float(env("ETL_INTERVAL_HOURS", "6") or 6)
+    interval_h = float(env("ETL_INTERVAL_HOURS", "24") or 24)
     retry_min = float(env("ETL_RETRY_MINUTES", "15") or 15)
     interval_s = max(300, int(interval_h * 3600))
     retry_s = max(60, int(retry_min * 60))
     run_on_start = as_bool(env("ETL_RUN_ON_START", "true"), True)
+    once_per_day = as_bool(env("ETL_FULL_ONCE_PER_DAY", "true"), True)
 
     log.info(
-        "Agendador ETL ARARAS iniciado · intervalo=%.1fh · retry=%.1fmin · run_on_start=%s",
+        "Agendador ETL ARARAS iniciado · intervalo=%.1fh · retry=%.1fmin · "
+        "run_on_start=%s · full_once_per_day=%s",
         interval_h,
         retry_min,
         run_on_start,
+        once_per_day,
     )
 
     if not run_on_start:
@@ -176,11 +256,17 @@ def run_loop() -> None:
         delay = interval_s
         try:
             result = run_once()
-            if result.get("status") == "skipped_locked":
+            status = str(result.get("status") or "")
+            if status == "skipped_locked":
                 delay = retry_s
+            elif status == "skipped_already_today":
+                delay = _seconds_until_next_daily_window()
             else:
                 elapsed = int(time.monotonic() - cycle_started)
-                delay = max(60, interval_s - elapsed)
+                if once_per_day:
+                    delay = max(300, _seconds_until_next_daily_window())
+                else:
+                    delay = max(60, interval_s - elapsed)
         except Exception:
             delay = retry_s
         log.info("Próxima tentativa da ETL em %.1f minuto(s)", delay / 60)
@@ -192,18 +278,22 @@ def main(argv: list[str] | None = None) -> int:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--once", action="store_true", help="Executa uma rodada e encerra")
     mode.add_argument("--loop", action="store_true", help="Executa continuamente")
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignora o gate de 1× por dia (equivalente a ETL_FORCE=true)",
+    )
     args = parser.parse_args(argv)
+
+    if args.force:
+        os.environ["ETL_FORCE"] = "true"
 
     if args.loop:
         run_loop()
         return 0
 
-    try:
-        result = run_once()
-    except Exception:
-        return 1
-    print(json.dumps(result, ensure_ascii=False, default=str))
-    return 0 if result.get("status") in {"success", "skipped_locked"} else 1
+    run_once()
+    return 0
 
 
 if __name__ == "__main__":

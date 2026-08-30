@@ -905,6 +905,15 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             resumo_estado = pd.DataFrame([{'municipio': APP_CONFIG.municipio, 'nivel':'verde', 'score':0, 'motivo':'sem dados municipais', 'data_referencia': pd.Timestamp.today().date().isoformat()}])
         write_df(resumo_estado, 'resumo_situacao_atual')
 
+        # Série histórica incremental (clima + saúde) — upsert, não replace
+        try:
+            from sisclima.ingestion.historico_incremental import append_from_daily_snapshot
+
+            hist_summary = append_from_daily_snapshot()
+            log.info('Histórico incremental: %s', hist_summary)
+        except Exception as exc:
+            log.warning('Histórico incremental não aplicado: %s', exc)
+
         indicador_row = resumo_estado.tail(1).iloc[0].to_dict()
         # Auditoria dos indicadores municipais principais
         with db_conn() as conn:

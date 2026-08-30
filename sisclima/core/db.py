@@ -194,6 +194,63 @@ def write_df(df: pd.DataFrame, table: str, if_exists: str = "replace") -> None:
     df.to_sql(table, engine, if_exists=if_exists, index=False, method="multi", chunksize=row_chunk)
 
 
+def upsert_df(df: pd.DataFrame, table: str, conflict_cols: list[str]) -> int:
+    """Insere ou atualiza linhas pela chave ``conflict_cols`` (histórico incremental).
+
+    Postgres: ``ON CONFLICT DO UPDATE``. SQLite: ``INSERT OR REPLACE`` (exige PK).
+    Retorna número de linhas processadas no lote.
+    """
+    if df is None or df.empty:
+        return 0
+    if not conflict_cols:
+        raise ValueError("conflict_cols obrigatório para upsert_df")
+    work = df.copy()
+    missing = [c for c in conflict_cols if c not in work.columns]
+    if missing:
+        raise ValueError(f"Colunas de conflito ausentes em {table}: {missing}")
+    work = work.drop_duplicates(conflict_cols, keep="last")
+    cols = list(work.columns)
+    engine = get_engine()
+    tmp = f"_tmp_upsert_{table}"
+    with engine.begin() as conn:
+        conn.execute(text(f'DROP TABLE IF EXISTS "{tmp}"'))
+    work.to_sql(tmp, engine, if_exists="replace", index=False)
+    col_list = ", ".join(f'"{c}"' for c in cols)
+    select_list = ", ".join(f't."{c}"' for c in cols)
+    n = int(len(work))
+    try:
+        if is_postgres():
+            conflict = ", ".join(f'"{c}"' for c in conflict_cols)
+            updates = [c for c in cols if c not in conflict_cols]
+            if updates:
+                set_clause = ", ".join(f'"{c}" = EXCLUDED."{c}"' for c in updates)
+                sql = (
+                    f'INSERT INTO "{table}" ({col_list}) SELECT {select_list} FROM "{tmp}" t '
+                    f"ON CONFLICT ({conflict}) DO UPDATE SET {set_clause}"
+                )
+            else:
+                sql = (
+                    f'INSERT INTO "{table}" ({col_list}) SELECT {select_list} FROM "{tmp}" t '
+                    f"ON CONFLICT ({conflict}) DO NOTHING"
+                )
+            with engine.begin() as conn:
+                conn.execute(text(sql))
+                conn.execute(text(f'DROP TABLE IF EXISTS "{tmp}"'))
+        else:
+            sql = (
+                f'INSERT OR REPLACE INTO "{table}" ({col_list}) '
+                f'SELECT {select_list} FROM "{tmp}" t'
+            )
+            with engine.begin() as conn:
+                conn.execute(text(sql))
+                conn.execute(text(f'DROP TABLE IF EXISTS "{tmp}"'))
+    except Exception:
+        with engine.begin() as conn:
+            conn.execute(text(f'DROP TABLE IF EXISTS "{tmp}"'))
+        raise
+    return n
+
+
 def read_table(table: str) -> pd.DataFrame:
     try:
         if not table_exists(table):
@@ -344,6 +401,45 @@ CREATE TABLE IF NOT EXISTS eventos_saude_notificacao (
     triagem_nota TEXT
 )
 """,
+    """
+CREATE TABLE IF NOT EXISTS hist_clima_municipal_diario (
+    cod_ibge TEXT NOT NULL,
+    data TEXT NOT NULL,
+    tmax REAL,
+    tmin REAL,
+    utci_proxy REAL,
+    umidade_media REAL,
+    precipitacao_mm REAL,
+    risco_cumulativo_3d REAL,
+    pm25_ugm3 REAL,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS hist_saude_municipal_diario (
+    cod_ibge TEXT NOT NULL,
+    data TEXT NOT NULL,
+    casos_srag REAL,
+    casos_arbovirus REAL,
+    casos_dengue REAL,
+    casos_chikungunya REAL,
+    casos_zika REAL,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS etl_watermarks (
+    fonte TEXT PRIMARY KEY,
+    watermark_ts TEXT,
+    last_run_at TEXT,
+    last_status TEXT,
+    n_rows INTEGER
+)
+""",
 ]
 
 DDL_POSTGRES = [
@@ -465,6 +561,45 @@ CREATE TABLE IF NOT EXISTS eventos_saude_notificacao (
     triado_em TEXT,
     triado_por_email TEXT,
     triagem_nota TEXT
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS hist_clima_municipal_diario (
+    cod_ibge TEXT NOT NULL,
+    data TEXT NOT NULL,
+    tmax DOUBLE PRECISION,
+    tmin DOUBLE PRECISION,
+    utci_proxy DOUBLE PRECISION,
+    umidade_media DOUBLE PRECISION,
+    precipitacao_mm DOUBLE PRECISION,
+    risco_cumulativo_3d DOUBLE PRECISION,
+    pm25_ugm3 DOUBLE PRECISION,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS hist_saude_municipal_diario (
+    cod_ibge TEXT NOT NULL,
+    data TEXT NOT NULL,
+    casos_srag DOUBLE PRECISION,
+    casos_arbovirus DOUBLE PRECISION,
+    casos_dengue DOUBLE PRECISION,
+    casos_chikungunya DOUBLE PRECISION,
+    casos_zika DOUBLE PRECISION,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS etl_watermarks (
+    fonte TEXT PRIMARY KEY,
+    watermark_ts TEXT,
+    last_run_at TEXT,
+    last_status TEXT,
+    n_rows INTEGER
 )
 """,
 ]

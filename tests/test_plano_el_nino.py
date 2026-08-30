@@ -452,7 +452,7 @@ class PlanoElNinoTests(unittest.TestCase):
         rows = {r["email"]: r for r in participantes_com_email()}
         self.assertEqual(rows["robertaorrigo@ses.mt.gov.br"]["area_id"], "vigiagua")
         self.assertEqual(rows["menandesneto@ses.mt.gov.br"]["perfil_sugerido"], "secretaria_executiva_cievs")
-        self.assertEqual(rows["suzicruz@ses.mt.gov.br"]["perfil_sugerido"], "coordenador_area")
+        self.assertEqual(rows["suzicruz@ses.mt.gov.br"]["perfil_sugerido"], "tecnico_area")
 
     def test_aplicar_catalogo_grava_vinculo_sem_criar_usuario(self) -> None:
         from sisclima.auth.access import get_user_by_email

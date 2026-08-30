@@ -63,9 +63,12 @@ services:
       # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
       COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
       OSRM_URL: ${OSRM_URL:-}
-      ETL_INTERVAL_HOURS: ${ETL_INTERVAL_HOURS:-6}
+      ETL_INTERVAL_HOURS: ${ETL_INTERVAL_HOURS:-24}
       ETL_RETRY_MINUTES: ${ETL_RETRY_MINUTES:-15}
       ETL_RUN_ON_START: ${ETL_RUN_ON_START:-true}
+      # Extração completa (replace) no máximo 1× por dia civil; ETL_FORCE=true ignora.
+      ETL_FULL_ONCE_PER_DAY: ${ETL_FULL_ONCE_PER_DAY:-true}
+      ETL_DAILY_HOUR: ${ETL_DAILY_HOUR:-6}
       ETL_HEALTH_FILE: ${ETL_HEALTH_FILE:-logs/etl_scheduler_health.json}
       ETL_LOCK_FILE: ${ETL_LOCK_FILE:-logs/etl_scheduler.lock}
     volumes:
@@ -139,7 +142,8 @@ services:
       ALERT_LAYERS: ${ALERT_LAYERS:-ses,regionais,municipais,cuiaba}
       # Não comunicar usando uma ETL ausente, com erro ou fora da janela.
       ALERT_REQUIRE_FRESH_ETL: ${ALERT_REQUIRE_FRESH_ETL:-true}
-      ALERT_MAX_ETL_AGE_HOURS: ${ALERT_MAX_ETL_AGE_HOURS:-12}
+      # Com ETL 1×/dia, janela de frescor precisa cobrir ~24–30 h.
+      ALERT_MAX_ETL_AGE_HOURS: ${ALERT_MAX_ETL_AGE_HOURS:-30}
       ETL_HEALTH_FILE: ${ETL_HEALTH_FILE:-logs/etl_scheduler_health.json}
       # No loop Docker, o 1º ciclo respeita cooldown/fingerprint (já enviamos no start manual).
       ALERT_SEND_ON_START: ${ALERT_SEND_ON_START:-false}

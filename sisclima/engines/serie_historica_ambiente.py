@@ -10,9 +10,17 @@ from sisclima.core.db import read_table, table_exists
 
 
 def serie_clima_estado(met: pd.DataFrame | None = None) -> pd.DataFrame:
-    """Agrega `met_biometeo` em média/máxima estadual diária."""
+    """Agrega clima em média/máxima estadual diária.
+
+    Prefere ``hist_clima_municipal_diario``; cai em ``met_biometeo`` se hist vazio.
+    """
     if met is None:
-        met = read_table("met_biometeo") if table_exists("met_biometeo") else pd.DataFrame()
+        if table_exists("hist_clima_municipal_diario"):
+            hist = read_table("hist_clima_municipal_diario")
+            if hist is not None and not hist.empty:
+                met = hist
+        if met is None or (isinstance(met, pd.DataFrame) and met.empty):
+            met = read_table("met_biometeo") if table_exists("met_biometeo") else pd.DataFrame()
     if met is None or met.empty or "data" not in met.columns:
         return pd.DataFrame()
     m = met.copy()
@@ -26,6 +34,7 @@ def serie_clima_estado(met: pd.DataFrame | None = None) -> pd.DataFrame:
         ("umidade_media", "mean"),
         ("precipitacao_mm", "sum"),
         ("risco_cumulativo_3d", "mean"),
+        ("pm25_ugm3", "mean"),
     ):
         if col in m.columns:
             agg[f"{col}_{'media' if how == 'mean' else 'soma'}"] = (col, how)
