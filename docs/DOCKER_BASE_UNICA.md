@@ -54,7 +54,7 @@ $env:DATABASE_URL="postgresql+psycopg2://sisclima:SENHA@localhost:5432/sis_clima
 5. Suba o painel e a ETL automática:
 
 ```powershell
-docker compose up -d --build db etl-scheduler app
+docker compose up -d --build db etl-scheduler app landing
 ```
 
 6. Depois da homologação funcional, suba o agendador de alertas:
@@ -72,6 +72,7 @@ O `alerts-scheduler` verifica esse arquivo antes de comunicar. Com
 `ALERT_REQUIRE_FRESH_ETL=true`, nenhuma mensagem é enviada se a ETL estiver
 ausente, com erro ou mais antiga que `ALERT_MAX_ETL_AGE_HOURS`.
 
+Entrada (landing): http://localhost/  (`sites/araras-mt/`, porta `LANDING_PORT` padrão 80)  
 Painel: http://localhost:8501
 
 

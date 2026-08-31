@@ -62,6 +62,7 @@ Atualizar snapshot local: `.\\.venv\\Scripts\\python.exe exportar_snapshot_cloud
 ## Docker (servidor SES — painel + agendador diário)
 
 ```bash
-docker compose up -d db app alerts-scheduler
+docker compose up -d db app landing alerts-scheduler
+# entrada (landing): http://localhost/  (LANDING_PORT=80)
 # painel: http://localhost:8501
 ```

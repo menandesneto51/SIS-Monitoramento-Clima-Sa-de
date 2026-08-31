@@ -62,11 +62,13 @@ Arquitetura lógica: Bronze (fontes) → Silver (padronização) → Gold (indic
 
 | Porta | Serviço | Exposição sugerida |
 |-------|---------|-------------------|
+| **80/TCP** | Landing institucional (`sites/araras-mt/`) | Rede interna SES (entrada oficial do host) |
 | **8501/TCP** | Streamlit (painel) | Rede interna SES / reverse proxy STI |
 | **5432/TCP** | Postgres | **Somente localhost** ou rede Docker interna |
 | 1433/TCP (saída) | SQL Server DW / IndicaSUS / SISREG | Rede interna SES (mesmo datacenter) |
 
-> Não publicar 5432 na internet. Preferir autenticação SSO/proxy da STI na frente do 8501.
+> Não publicar 5432 na internet. Preferir autenticação SSO/proxy da STI na frente do 8501.  
+> Entrada sugerida no servidor piloto: `http://10.15.0.131/` (landing) → CTAs abrem `http://10.15.0.131:8501/` (painel). Se a porta 80 estiver ocupada, use `LANDING_PORT=8080`.
 
 ### 3.3 Persistência (volumes / pastas)
 
@@ -142,6 +144,7 @@ ALERT_REQUIRE_FRESH_ETL=true
 ALERT_MAX_ETL_AGE_HOURS=12
 SEND_ALERT_ON_LEVEL_CHANGE=false
 STREAMLIT_PORT=8501
+LANDING_PORT=80
 ```
 
 ---
@@ -217,7 +220,8 @@ Serviços Compose:
 | `etl-scheduler` | `sis_clima_etl` | unless-stopped |
 | `alerts-scheduler` | `sis_clima_alerts` | unless-stopped (opcional; exige ETL fresca) |
 
-Painel: `http://<servidor>:8501` (ou URL do proxy STI).
+Painel: `http://<servidor>:8501` (ou URL do proxy STI).  
+Landing (entrada): `http://<servidor>/` — document root `sites/araras-mt/` (serviço Compose `landing`, porta `LANDING_PORT` padrão 80).
 
 ### 6.2 Healthcheck
 

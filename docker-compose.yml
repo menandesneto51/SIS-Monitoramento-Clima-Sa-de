@@ -85,6 +85,17 @@ services:
     entrypoint: ["python", "-m", "sisclima.etl_scheduler"]
     command: ["--loop"]
 
+  # Site institucional (entrada). Painel Streamlit permanece em :8501.
+  landing:
+    image: nginx:alpine
+    container_name: sis_clima_landing
+    restart: unless-stopped
+    ports:
+      - "${LANDING_PORT:-80}:80"
+    volumes:
+      - ./sites/araras-mt:/usr/share/nginx/html:ro
+      - ./docker/nginx-landing.conf:/etc/nginx/conf.d/default.conf:ro
+
   app:
     build: .
     image: araras-mt:local

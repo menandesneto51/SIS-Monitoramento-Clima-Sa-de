@@ -39,6 +39,7 @@ docker compose up -d db etl-scheduler app alerts-scheduler
 |---|---|
 | `db` | Postgres operacional |
 | `etl-scheduler` | Pipeline a cada 6 h (`ETL_INTERVAL_HOURS`) — clima + DW + indicadores |
+| `landing` | Site institucional estático (`:80`, `sites/araras-mt/`) |
 | `app` | Painel Streamlit (`:8501`) |
 | `alerts-scheduler` | Digest de alertas (só depois de ETL fresca) |
 
