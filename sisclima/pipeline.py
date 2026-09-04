@@ -897,6 +897,24 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         except Exception as exc:
             log.warning('Enriquecimento operacional não aplicado: %s', exc)
 
+        # e-SUS APS (Centralizador) + análise × clima
+        try:
+            from sisclima.ingestion.etl_esus_star import etl_esus_aps
+
+            esus_meta = etl_esus_aps()
+            log.info('ETL e-SUS APS: %s', esus_meta)
+        except Exception as exc:
+            log.warning('ETL e-SUS APS não aplicada: %s', exc)
+
+        # STAR / GeoCalor — incremental ou cache (carga histórica: script dedicado)
+        try:
+            from sisclima.ingestion.etl_esus_star import etl_star_geocalor
+
+            star_meta = etl_star_geocalor()
+            log.info('ETL STAR/GeoCalor: %s', star_meta)
+        except Exception as exc:
+            log.warning('ETL STAR/GeoCalor não aplicada: %s', exc)
+
         if not resumo_mun.empty:
             resumo_estado = resumo_mun.sort_values(['score','indice_vulnerabilidade_calor'] if 'indice_vulnerabilidade_calor' in resumo_mun.columns else ['score'], ascending=False).head(1).copy()
             resumo_estado['municipios_monitorados'] = resumo_mun['municipio'].nunique() if 'municipio' in resumo_mun.columns else len(resumo_mun)

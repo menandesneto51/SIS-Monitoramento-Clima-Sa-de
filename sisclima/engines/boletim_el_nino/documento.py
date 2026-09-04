@@ -2,8 +2,11 @@
 """Montagem do documento Markdown do boletim semanal El Niño."""
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
+from sisclima.core.config import ROOT
 from sisclima.engines.boletim_el_nino.constants import (
     FOGO_SATELITE_REFERENCIA_CURTO,
     INDISPONIVEL,
@@ -127,22 +130,131 @@ def _secao_agravos_dw(agr: dict[str, Any]) -> str:
         total = intern.get("internacoes_total_7d")
         if total is not None:
             return (
-                f"- **Internações (janela operacional):** total **{_v(total)}** · "
+                f"- **Internações IndicaSUS (janela {janela} dias):** total **{_v(total)}** · "
                 f"respiratório/alérgico **{_v(grupos.get('resp_alergico'))}** · "
                 f"desidratação/calor **{_v(grupos.get('desidratacao_calor'))}**."
             )
         mes_total = intern.get("internacoes_ultimo_mes_dw")
         if mes_total is not None:
+            mes = intern.get("mes_competencia_dw") or "—"
             return (
-                f"- **Internações (janela {janela} dias):** dado não disponível na janela curta. "
-                f"Competência mensal mais recente (**{intern.get('mes_competencia_dw', '—')}**): "
-                f"**{fmt_int(mes_total)}** internações · "
+                f"- **Internações IndicaSUS (competência {mes}):** total **{fmt_int(mes_total)}** · "
                 f"respiratório/alérgico **{_v(grupos_mes.get('resp_alergico'))}** · "
-                f"desidratação/calor **{_v(grupos_mes.get('desidratacao_calor'))}**."
+                f"desidratação/calor **{_v(grupos_mes.get('desidratacao_calor'))}**. "
+                f"_Janela de {janela} dias sem registros na base; exibido o mês competência disponível._"
+            )
+        data_max = intern.get("data_maxima_disponivel")
+        status = str(intern.get("status") or "")
+        if status in {"sem_dados_na_janela", "indisponivel"} and data_max:
+            return (
+                f"- **Internações IndicaSUS:** sem registros na janela de {janela} dias "
+                f"(dado mais recente na base: **{data_max}**)."
             )
         return (
-            "- **Internações hospitalares:** dados não estavam disponíveis para esta rodada."
+            "- **Internações IndicaSUS:** dados não estavam disponíveis para esta rodada "
+            "(DW/tabela operacional vazia ou inacessível)."
         )
+
+    esus = dw.get("esus_aps") or agr.get("esus_aps") or {}
+    esus_lines: list[str] = []
+    fonte_esus = (
+        "Fonte: Centralizador PEC/eSUS (esus2), cadastro vigente e atendimentos agregados "
+        "nas janelas de 7 e 28 dias; classe ARARAS da rodada. Contagem operacional, não incidência."
+    )
+    if esus.get("status") == "ativo" and int(esus.get("municipios") or 0) > 0:
+        class_rows = []
+        for r in esus.get("por_classe") or []:
+            if not isinstance(r, dict):
+                continue
+            class_rows.append(
+                [
+                    str(r.get("classe") or "—"),
+                    fmt_int(r.get("municipios")),
+                    fmt_int(r.get("asma")),
+                    fmt_int(r.get("idoso_60mais")),
+                    fmt_int(r.get("atendimentos_28d")),
+                    fmt_int(r.get("nebulizacao_28d")),
+                ]
+            )
+        mun_rows = []
+        for r in esus.get("municipais") or esus.get("ranking_criticos") or []:
+            if not isinstance(r, dict):
+                continue
+            mun_rows.append(
+                [
+                    str(r.get("municipio") or "—"),
+                    str(r.get("classe_araras") or "—"),
+                    fmt_int(r.get("asma")),
+                    fmt_int(r.get("idoso_60mais")),
+                    fmt_int(r.get("atendimentos_28d")),
+                    fmt_int(r.get("resp_cid_28d")),
+                    fmt_int(r.get("nebulizacao_28d") if r.get("nebulizacao_28d") is not None else r.get("nebulizacao_7d")),
+                ]
+            )
+        esus_lines = [
+            f"- **Atenção primária (Centralizador PEC/eSUS, {fmt_int(esus.get('municipios'))} municípios):** "
+            f"cadastro **{fmt_int(esus.get('cadastros'))}** · asma **{fmt_int(esus.get('asma'))}** · "
+            f"DPOC **{fmt_int(esus.get('dpoc'))}** · idosos 60+ **{fmt_int(esus.get('idoso_60mais'))}** · "
+            f"gestantes **{fmt_int(esus.get('gestante'))}** · acamados **{fmt_int(esus.get('acamado'))}**.",
+            f"- **Atendimentos na atenção primária:** **{fmt_int(esus.get('atendimentos_7d'))}** em 7 dias e "
+            f"**{fmt_int(esus.get('atendimentos_28d'))}** em 28 dias "
+            f"({fmt_int(esus.get('municipios_com_atendimento_28d'))} municípios com registro no período) · "
+            f"CID respiratório 28d **{fmt_int(esus.get('resp_cid_28d'))}** · "
+            f"nebulização 28d **{fmt_int(esus.get('nebulizacao_28d'))}** "
+            f"(7d **{fmt_int(esus.get('nebulizacao_7d'))}**).",
+            f"- **classes vermelha e roxa ARARAS:** {fmt_int(esus.get('municipios_vermelho_roxo'))} municípios "
+            "com cadastro na atenção primária. Contagem operacional; não é incidência nem diagnóstico.",
+        ]
+        atraso = int(esus.get("atraso_dias") or 0)
+        if atraso > 0 or esus.get("janela_ancorada"):
+            esus_lines.append(
+                f"- **Atualidade da carga de atendimentos:** última data válida no Centralizador "
+                f"**{esus.get('data_max_atendimento') or '—'}** "
+                f"(atraso de **{fmt_int(atraso)}** dia(s)"
+                + (
+                    f"; janela 7d/28d ancorada em **{esus.get('data_janela_fim') or esus.get('data_max_atendimento') or '—'}**"
+                    if esus.get("janela_ancorada")
+                    else ""
+                )
+                + "). Ausência de município no período **não** significa zero clínico — "
+                "pode ser atraso de envio ao `esus2`."
+            )
+        if class_rows:
+            esus_lines.extend(
+                [
+                    "",
+                    "**Tabela – PEC/eSUS por classe ARARAS (universo estadual)**",
+                    "",
+                    md_table(
+                        ["Classe", "Municípios", "Asma (cad.)", "Idoso 60+", "Atend. 28d", "Nebulização 28d"],
+                        class_rows,
+                    ),
+                    "",
+                    fonte_esus,
+                ]
+            )
+        if mun_rows:
+            esus_lines.extend(
+                [
+                    "",
+                    "**Tabela – PEC/eSUS por município (universo estadual)**",
+                    "",
+                    md_table(
+                        [
+                            "Município",
+                            "Classe",
+                            "Asma (cad.)",
+                            "Idoso 60+",
+                            "Atend. 28d",
+                            "CID resp. 28d",
+                            "Nebulização 28d",
+                        ],
+                        mun_rows,
+                    ),
+                    "",
+                    fonte_esus,
+                ]
+            )
 
     return "\n".join(
         [
@@ -152,8 +264,62 @@ def _secao_agravos_dw(agr: dict[str, Any]) -> str:
             f"- **Intoxicação exógena (sinal de fumaça):** {_v(intox.get('notificacoes_intox_total_7d'))} notificações; "
             f"**{_v(intox.get('notificacoes_fumaca_7d'))}** com sinal de fumaça.",
             _internacao_linha(),
+            *esus_lines,
         ]
     )
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    try:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+    return {}
+
+
+def _secao_ondas_calor(snap: dict[str, Any], maps: dict[str, Any] | None = None) -> str:
+    """Ondas de calor — sem nomenclatura STAR; foco operacional ARARAS."""
+    maps = maps or {}
+    n = snap.get("n_municipios")
+    n_onda = snap.get("n_onda_calor")
+    n_tmax = snap.get("n_tmax_37")
+    ext = (snap.get("extremos") or {}).get("tmax") or {}
+    tmax_max = ext.get("tmax")
+    linhas = [
+        "",
+        "### Ondas de calor",
+        "",
+        "Monitoramento operacional ARARAS: persistência térmica (P95 ≥ 2 dias) e UTCI, "
+        "complementados pelo Excess Heat Factor (EHF) quando a série climática estiver disponível. "
+        "**Não substitui** avisos oficiais do INMET.",
+        "",
+        f"- **Calor extremo nesta rodada:** Tmáx máxima **{fmt_num(tmax_max, 1, ' °C')}** · "
+        f"**{fmt_frac(n_tmax, n)}** com Tmáx ≥ 37 °C · "
+        f"sinal de onda (P95≥2d) em **{fmt_frac(n_onda, n)}**.",
+        f"- **Classes vermelha e roxa:** **{fmt_frac(snap.get('n_vermelha_roxa'), n)}** agora; "
+        f"projeção ~7 dias em **{fmt_frac(int((snap.get('niveis_projecao_7d') or {}).get('vermelha') or 0) + int((snap.get('niveis_projecao_7d') or {}).get('roxa') or 0), n)}**.",
+    ]
+    if maps.get("serie_climatica"):
+        ini = maps.get("serie_climatica_inicio") or "—"
+        fim = maps.get("serie_climatica_fim") or "—"
+        linhas.extend(
+            [
+                "",
+                f"**Figura – Série climática operacional (Tmáx estadual mensal, {ini} a {fim})**",
+                "",
+                f"![Série climática Tmáx]({maps.get('serie_climatica')})",
+                "",
+                f"Fonte: grade operacional ARARAS MT (história climática municipal). Série disponível a partir de {ini}.",
+            ]
+        )
+    linhas.extend(
+        [
+            "",
+            "Fonte: ARARAS MT/CIEVS-MT. Contagem operacional — não é incidência nem causalidade individual.",
+        ]
+    )
+    return "\n".join(linhas)
 
 
 def _cards_executivos(snap: dict[str, Any]) -> str:
@@ -587,6 +753,50 @@ def _bloco_ocupacao_sisreg_md(*, publico: bool = False) -> str:
         f"_{q.get('nota_separacao')}_",
     ]
 
+    por_reg = q.get("ocupacao_por_regional") or []
+    if por_reg:
+        rows_reg = []
+        for r in por_reg:
+            oc = r.get("ocupacao_ponderada")
+            lt = r.get("leitos_total")
+            lo = r.get("leitos_ocupados")
+            rows_reg.append(
+                [
+                    str(r.get("regional") or "—"),
+                    f"{oc:.1f}%".replace(".", ",") if oc is not None else "—",
+                    (
+                        f"{int(lo)}/{int(lt)}"
+                        if lo is not None and lt is not None
+                        else "—"
+                    ),
+                    str(int(r.get("n_com_taxa") or 0)),
+                    str(int(r.get("n_sem_leitos") or 0)),
+                    str(int(r.get("n_municipios") or 0)),
+                ]
+            )
+        linhas.extend(
+            [
+                "",
+                "**Ocupação IndicaSUS por regional de saúde**",
+                "",
+                md_table(
+                    [
+                        "Regional",
+                        "Ocup. ponderada",
+                        "Leitos ocup./elegíveis",
+                        "Mun. c/ taxa",
+                        "Sem leitos",
+                        "Total mun.",
+                    ],
+                    rows_reg,
+                ),
+                "",
+                "_Termômetro assistencial: % ponderado por leitos elegíveis (SIEGES). "
+                "Municípios sem leitos no recorte não entram no denominador do %. "
+                "UTI por regional permanece pendente de mapeamento TipoLeito no IndicaSUS._",
+            ]
+        )
+
     top_oc = q.get("top_ocupacao") or []
     if top_oc:
         rows = []
@@ -836,6 +1046,56 @@ Municípios com dados comparáveis: {fmt_frac(n_delta, snap.get('n_municipios'))
     else:
         mapa_md = f"_{maps.get('motivo', INDISPONIVEL)}_"
 
+    fig_classes = ""
+    if maps.get("grafico_classes"):
+        fig_classes = (
+            f"![Classes ARARAS]({maps.get('grafico_classes')})\n\n"
+            "Fonte: ARARAS MT/CIEVS-MT — contagem municipal por classe na rodada."
+        )
+    fig_esus = ""
+    if maps.get("grafico_esus_vulneraveis"):
+        fig_esus = (
+            "**Figura – Vulneráveis na APS por classe ARARAS**\n\n"
+            f"![Vulneráveis APS]({maps.get('grafico_esus_vulneraveis')})\n\n"
+            "Fonte: e-SUS APS (cadastro) × classe ARARAS da rodada."
+        )
+    if maps.get("mapa_vulneraveis"):
+        fig_mapa_vuln = (
+            "**Mapa 4 – Classificação ARARAS e populações vulneráveis "
+            "(indígenas, quilombolas, idosos e gestantes)**\n\n"
+            f"![Mapa 4]({maps.get('mapa_vulneraveis')})\n\n"
+            f"Fonte: ARARAS MT/CIEVS-MT; FUNAI (aldeias); Fundação Cultural Palmares (quilombos); "
+            f"e-SUS APS (idosos/gestantes em municípios vermelhos/roxos). Rodada de {semana.get('gerado_em_pt', '—')}.\n"
+            "Nota: aldeias por coordenada disponível; quilombos sem coordenada validada aparecem como presença municipal. "
+            "Bolhas de idosos/gestantes são escala visual do cadastro APS — não são incidência."
+        )
+    else:
+        fig_mapa_vuln = ""
+    fig_mapa3_extra = ""
+    if maps.get("mapa_territorios"):
+        fig_mapa3_extra = (
+            "**Mapa 3 – Classificação de risco climático, aldeias indígenas e municípios com "
+            "comunidades quilombolas certificadas em Mato Grosso**\n\n"
+            f"![Mapa 3]({maps.get('mapa_territorios')})\n\n"
+            f"Fonte: ARARAS MT/CIEVS-MT, com dados da Fundação Nacional dos Povos Indígenas (FUNAI) e "
+            f"Fundação Cultural Palmares. Rodada de {semana.get('gerado_em_pt', '—')}.\n"
+            "Nota: Aldeias são representadas por coordenadas georreferenciadas disponíveis. "
+            "Para comunidades quilombolas sem coordenadas oficiais validadas, a representação indica "
+            "presença municipal e não localização exata."
+        )
+    else:
+        fig_mapa3_extra = (
+            "**Mapa 3 – Classificação de risco climático, aldeias indígenas e municípios com "
+            "comunidades quilombolas certificadas em Mato Grosso**\n\n"
+            "![Mapa 3](_assets_SE_34-2026/mapa_territorios_tradicionais.png)\n\n"
+            "Fonte: FUNAI e Fundação Cultural Palmares sobre classes ARARAS."
+        )
+
+    obitos_fallback = (
+        "### Óbitos sensíveis ao calor/clima (SIM)\n\n"
+        "Dados SIM consolidados indisponíveis nesta rodada."
+    )
+
     pauta = encaminhamentos(snap, publico=publico)
 
     rec_md = "\n".join(f"- {x}" for x in recs) if recs else f"- {INDISPONIVEL}"
@@ -907,6 +1167,8 @@ _Fonte: painel ARARAS MT (abas Série ambiental e Sazonalidade / OR). A série o
 ## 4. Mato Grosso — Situação atual `{SELOBS}`
 
 Distribuição atual: {fmt_distribuicao_niveis(snap.get('niveis'))}.
+
+{fig_classes}
 
 {tab_ind}
 
@@ -1007,7 +1269,13 @@ Associação temporal/espacial — **não implica causalidade**.
 
 {_secao_agravos_dw(agr)}
 
-{snap.get('obitos_clima_md') or '### Óbitos sensíveis ao calor/clima (SIM)\\n\\nDados SIM consolidados indisponíveis nesta rodada.'}
+{snap.get('esus_clima_md') or ''}
+
+{fig_esus}
+
+{_secao_ondas_calor(snap, maps)}
+
+{snap.get('obitos_clima_md') or obitos_fallback}
 
 {analisar_cenario_bloco('Leitura epidemiológica', [
     'Associação temporal e espacial não implica causalidade. Sinais assistenciais e de notificação devem ser lidos com a defasagem das fontes e com a cobertura de cada indicador.',
@@ -1045,14 +1313,11 @@ _{prontidao.get('nota', '')}_
 
 ---
 
-### 11.4 Povos indígenas, comunidades quilombolas e acesso assistencial
+### 11.4 Povos indígenas, comunidades quilombolas, idosos, gestantes e acesso assistencial
 
-**Mapa 3 – Classificação de risco climático, aldeias indígenas e municípios com comunidades quilombolas certificadas em Mato Grosso**
+{fig_mapa_vuln}
 
-![Mapa 3]({maps.get("mapa_territorios") or "_assets_SE_34-2026/mapa_territorios_tradicionais.png"})
-
-Fonte: ARARAS MT/CIEVS-MT, com dados da Fundação Nacional dos Povos Indígenas (FUNAI) e Fundação Cultural Palmares. Rodada de {semana.get('gerado_em_pt', '—')}.
-Nota: Aldeias são representadas por coordenadas georreferenciadas disponíveis. Para comunidades quilombolas sem coordenadas oficiais validadas, a representação indica presença municipal e não localização exata. Certificação pela Fundação Cultural Palmares não equivale a território delimitado ou titulado.
+{fig_mapa3_extra}
 
 **Municípios com aldeias indígenas em classes vermelha ou roxa**
 
@@ -1093,13 +1358,15 @@ O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo cert
 
 ---
 
-## 13. Preparação assistencial e farmacêutica — estoques estratégicos
+## 13. Orientações de estoques e insumos (provisório)
 
-Avaliar capacidade e autonomia de insumos da Assistência Farmacêutica conforme protocolos oficiais (Relação Nacional de Medicamentos Essenciais — RENAME; Protocolos Clínicos e Diretrizes Terapêuticas — PCDT; notas técnicas do Ministério da Saúde e da Secretaria de Estado de Saúde de Mato Grosso), orientando redução de exposição conforme protocolos vigentes. **Não prescreve medicamentos.**
+Até validação dos dados de estoques estratégicos estaduais, este boletim **não** publica quadro de estoques nem autonomia por item.
 
-{estoque_saf.get('resumo_md', INDISPONIVEL)}
-
-{estoque_saf.get('tabela_md', '')}
+Orientações gerais para regionais e municípios sob pressão térmica/fumaça:
+- Conferir autonomia de reidratação oral (SRO), soro endovenoso, broncodilatadores e hipoclorito conforme protocolos oficiais (RENAME, PCDT e notas técnicas do Ministério da Saúde / SES-MT).
+- Reportar rupturas e risco de desabastecimento à Regional de Saúde com antecedência.
+- Priorizar redistribuição e logística de última milha nos municípios em classes vermelha e roxa.
+- **Não substitui** a programação farmacêutica municipal nem a prescrição clínica.
 
 ---
 

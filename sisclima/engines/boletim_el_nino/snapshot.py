@@ -428,7 +428,17 @@ def snapshot_operacional(resumo: pd.DataFrame) -> dict[str, Any]:
     tem_recorte = n > 0
 
     nivel_counts = _counts(df, "nivel") if tem_recorte else None
+    # Municípios sem predição 7d: usa a classe atual para o total projetado fechar em n.
+    if tem_recorte and _has_col(df, "nivel_predicao_7d") and _has_col(df, "nivel"):
+        pred = df["nivel_predicao_7d"]
+        miss = pred.isna() | pred.astype(str).str.strip().str.lower().isin({"", "nan", "none", "—"})
+        if miss.any():
+            df = df.copy()
+            df.loc[miss, "nivel_predicao_7d"] = df.loc[miss, "nivel"]
     nivel_proj_counts = _counts_norm(df, "nivel_predicao_7d") if tem_recorte else None
+    if nivel_proj_counts is not None:
+        _ord = ("verde", "amarela", "laranja", "vermelha", "roxa")
+        nivel_proj_counts = {k: int(nivel_proj_counts.get(k) or 0) for k in _ord}
 
     top: list[dict[str, Any]] = []
     regionais: list[dict[str, Any]] = []

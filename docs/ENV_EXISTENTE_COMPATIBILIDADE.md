@@ -9,6 +9,7 @@ Esta versão não exige recriar o `.env`. O carregador de configuração reconhe
 - O sistema aceita arquivos territoriais organizados em `data/geo/municipios_mt/` ou soltos na raiz da pasta do projeto.
 - O DW é a fonte institucional para IndicaSUS, CNES, SINAN, SIM e GAL/LACEN.
 - O SIVEP/SRAG fica em banco local atualizado na pasta do projeto.
+- O e-SUS APS **não** está no DW: Centralizador Postgres `esus2` em `10.15.0.25` (`ESUS_APS_*`). Ver `docs/ESUS_APS.md`.
 
 ## Fontes obrigatórias
 
@@ -18,6 +19,7 @@ Esta versão não exige recriar o `.env`. O carregador de configuração reconhe
 - População municipal 2020-2025.
 - Credenciais DW, se `USE_SQLSERVER=true` ou equivalente.
 - Credenciais Copernicus ou `.cdsapirc`, se `USE_COPERNICUS=true` ou equivalente.
+- Credenciais `ESUS_APS_*` (VPN SES), se `USE_ESUS_APS=true`.
 
 ## Comandos recomendados
 

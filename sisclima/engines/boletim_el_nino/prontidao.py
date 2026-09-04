@@ -149,7 +149,7 @@ def compute_prontidao(resumo: pd.DataFrame) -> dict[str, Any]:
         rows.append(
             [
                 str(row.get("municipio") or "—"),
-                str(row.get("regional_saude") or "—"),
+                str(row.get("regional_saude") or "—").replace("nan", "—"),
                 f"{atual} → {proj}",
                 fmt_num(pr_f, 1),
                 _faixa(pr_f),

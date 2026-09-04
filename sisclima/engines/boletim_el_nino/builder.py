@@ -200,6 +200,58 @@ def build_boletim_semanal(
         snap.setdefault("obitos_clima_md", "")
         snap.setdefault("obitos_metodologia_md", "")
 
+    try:
+        from sisclima.engines.esus_clima_analise import analisar_esus_clima, markdown_esus_clima
+
+        snap["esus_clima_md"] = markdown_esus_clima(analisar_esus_clima(), compact=True)
+        snap["esus_clima_ok"] = True
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Análise e-SUS×clima indisponível no boletim: %s", exc)
+        snap.setdefault("esus_clima_md", "")
+        snap["esus_clima_ok"] = False
+
+    try:
+        from sisclima.engines.boletim_el_nino.figuras import (
+            export_grafico_classes,
+            export_grafico_esus_por_classe,
+            export_mapa_vulneraveis,
+            export_serie_climatica,
+            relpath_fig,
+        )
+
+        try:
+            serie = export_serie_climatica(assets_dir, ano_inicio=2020)
+            if serie.get("disponivel"):
+                maps["serie_climatica"] = relpath_fig(serie.get("path"), dest)
+                maps["serie_climatica_inicio"] = serie.get("inicio")
+                maps["serie_climatica_fim"] = serie.get("fim")
+                maps["serie_climatica_ok"] = True
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Série climática indisponível: %s", exc)
+        try:
+            g_cls = export_grafico_classes(snap.get("niveis"), assets_dir)
+            if g_cls.get("disponivel"):
+                maps["grafico_classes"] = relpath_fig(g_cls.get("path"), dest)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Gráfico de classes indisponível: %s", exc)
+        try:
+            g_esus = export_grafico_esus_por_classe(None, assets_dir)
+            if g_esus.get("disponivel"):
+                maps["grafico_esus_vulneraveis"] = relpath_fig(g_esus.get("path"), dest)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Gráfico e-SUS por classe indisponível: %s", exc)
+        try:
+            mv = export_mapa_vulneraveis(resumo_enriched, assets_dir, data_ref=data_ref, cmc=cmc)
+            if mv.get("disponivel"):
+                maps["mapa_vulneraveis"] = relpath_fig(mv.get("path"), dest)
+                maps["mapa_vulneraveis_ok"] = True
+            else:
+                log.warning("Mapa vulneráveis: %s", mv.get("motivo") or "indisponível")
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Mapa vulneráveis indisponível: %s", exc)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Figuras do boletim indisponíveis: %s", exc)
+
     refs_abnt = format_referencias_bibliograficas(ref_ids=refs_usadas_boletim(), acesso_em=ref)
     md = format_markdown(
         cenario,

@@ -268,6 +268,7 @@ def _count_internacao_hospitalar(intern: pd.DataFrame, ref: date, dias: int) -> 
     if w.empty:
         # Fallback: último mês com dados no DW (competência), rotulado explicitamente
         mes_ref = None
+        w = pd.DataFrame()
         if "data" in intern.columns and intern["data"].notna().any():
             ultimo = pd.to_datetime(intern["data"], errors="coerce").max()
             if pd.notna(ultimo):
@@ -276,6 +277,17 @@ def _count_internacao_hospitalar(intern: pd.DataFrame, ref: date, dias: int) -> 
                 fim = ini + pd.offsets.MonthEnd(0)
                 dt = pd.to_datetime(intern["data"], errors="coerce")
                 w = intern.loc[dt.notna() & (dt >= ini) & (dt <= fim)].copy()
+
+        if w.empty and {"ano_internacao", "mes_internacao"}.issubset(intern.columns):
+            y = pd.to_numeric(intern["ano_internacao"], errors="coerce")
+            m = pd.to_numeric(intern["mes_internacao"], errors="coerce")
+            month_start = pd.to_datetime({"year": y, "month": m, "day": 1}, errors="coerce")
+            ultimo_m = month_start.max()
+            if pd.notna(ultimo_m):
+                mes_ref = ultimo_m.date().replace(day=1)
+                w = intern.loc[month_start == ultimo_m].copy()
+                if data_max is None:
+                    data_max = str(mes_ref)
 
         if w.empty:
             return {
@@ -480,6 +492,13 @@ def _fontes_pendentes(catalog: dict[str, Any]) -> list[dict[str, str]]:
     return out
 
 
+def _count_esus_aps(catalog: dict[str, Any]) -> dict[str, Any]:
+    from sisclima.ingestion.esus_aps_clima import resumo_esus_estadual
+
+    _ = catalog
+    return resumo_esus_estadual()
+
+
 def aggregate_agravos_el_nino(
     *,
     ref: date | None = None,
@@ -530,6 +549,7 @@ def aggregate_agravos_el_nino(
         "arboviroses_dw": _count_arboviroses(cat, hoje, dias),
         "onda_calor_desidratacao": _count_desidratacao_calor(cat, hoje, dias, intern_raw, try_dw=try_dw),
         "mortalidade_cardiovascular": _count_obitos_cardiovascular(cat, hoje, dias, try_dw=try_dw),
+        "esus_aps": _count_esus_aps(cat),
         "fontes_pendentes": _fontes_pendentes(cat),
         "views_dw_catalogo": (cat.get("blocos") or {}).get("sinan_extras_clima", {}).get("views_dw"),
     }
@@ -554,4 +574,7 @@ def merge_agravos_monitorados(
         blk["chikungunya_7d_dw"] = arbo_dw.get("chikungunya_7d")
         blk["fonte_dw"] = arbo_dw.get("fonte")
         out["arboviroses_contexto_estiagem"] = blk
+    esus = dw.get("esus_aps") or {}
+    if esus:
+        out["esus_aps"] = esus
     return out

@@ -65,6 +65,8 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
         (r"Cobertura da fonte:.*municípios possuem registro válido", "cobertura_foco_como_deteccao"),
         (r"Maiores P90:", "p90_extremos_publicados"),
         (r"\bSAF\b", "saf_no_documento_publico"),
+        (r"\bSTAR\b", "star_no_documento_publico"),
+        (r"Preparação assistencial e farmacêutica", "titulo_13_farmacia_antiga"),
         (r"9 municípios no recorte hidrológico", "hidro_nove_epidemiologia"),
         (r"ver tabela abaixo", "hidro_ver_tabela_abaixo"),
         (r"Situação hidro no recorte", "situacao_hidro_abreviado"),

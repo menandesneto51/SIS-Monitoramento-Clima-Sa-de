@@ -57,6 +57,7 @@ Para detalhes, leia `docs/IMPLEMENTACAO_REAL_MT.md`.
 
 - IndicaSUS, CNES, SINAN, SIM e GAL/LACEN via Data Warehouse (`DW_` no `.env`).
 - SIVEP/SRAG via banco local em `data/local/sivep/sivep_srag_local.db`, atualizado a partir de `data/input/sivep_atualizacao/`.
+- e-SUS APS via Centralizador Postgres (`ESUS_APS_*`, host `10.15.0.25` / `esus2`) — sonda: `docs/ESUS_APS.md`.
 - Base territorial municipal MT 2025 já incorporada.
 - Documentação: `docs/FONTES_REAIS_DW_SIVEP_LOCAL.md`.
 

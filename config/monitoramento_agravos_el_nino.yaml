@@ -78,12 +78,18 @@ blocos:
   esus_atendimento_nebulizacao:
     titulo: "e-SUS APS — atendimentos e nebulizações"
     fonte: e-SUS
-    status: pendente_sql_dw
-    view_dw_sugerida: VW_ESUS_ATENDIMENTO_PROCEDIMENTO
+    status: ativo
+    fonte_real: postgres_centralizador
+    host: 10.15.0.25
+    database: esus2
+    tabela_operacional: ops_esus_aps_municipio
+    tabela_cadastro: ops_esus_aps_cadastro_municipio
     procedimentos_nebulizacao:
       - "0301100039"
       - "0301100047"
-    nota: "Não há views ESUS no DW atual (ago/2026). Procedimentos SIGTAP não aparecem em VW_INTERNACAO."
+    nota: >-
+      Centralizador Postgres esus2 (ESUS_APS_*). Agregado município × 7d/28d
+      via scripts/atualizar_esus_aps.py. Contagem operacional da APS, não incidência.
 
   arboviroses:
     titulo: "Arboviroses (dengue e chikungunya)"

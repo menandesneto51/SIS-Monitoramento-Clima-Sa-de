@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-panel-base="http://10.15.0.131:8501/">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painéis ARARAS MT — módulos operacionais</title>
+  <meta name="description" content="Hub dos módulos do Painel ARARAS MT: clima, qualidade do ar, agravos, assistência, resposta territorial e Sala de Situação.">
+  <link rel="icon" href="../assets/araras-marca.png">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<main class="site-shell">
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+  <div class="government-bar">
+    <div class="container government-inner">
+      <div class="government-identity">
+        <span class="mt-mark" aria-hidden="true">MT</span>
+        <span>Governo de Mato Grosso</span>
+        <span class="government-divider" aria-hidden="true"></span>
+        <strong>Secretaria de Estado de Saúde</strong>
+      </div>
+      <div class="accessibility-tools" aria-label="Recursos de acessibilidade">
+        <span>Acessibilidade</span>
+        <button type="button" id="font-decrease" aria-label="Diminuir tamanho do texto">A−</button>
+        <button type="button" id="font-increase" aria-label="Aumentar tamanho do texto">A+</button>
+        <button type="button" id="contrast-toggle" class="contrast-button" aria-pressed="false" aria-label="Alternar alto contraste">Alto contraste</button>
+        <a href="https://www.saude.mt.gov.br/ouvidoria" target="_blank" rel="noreferrer">Ouvidoria</a>
+      </div>
+    </div>
+  </div>
+  <header class="site-header">
+    <div class="container institutional-brand-row">
+      <a class="government-logo-link" href="https://www.saude.mt.gov.br/" target="_blank" rel="noreferrer" aria-label="Portal da SES-MT">
+        <img src="../assets/governo-ses-mt.png" alt="SES — Secretaria de Estado de Saúde. Governo de Mato Grosso" width="787" height="225">
+      </a>
+      <a class="brand" href="../index.html#inicio" aria-label="ARARAS MT — início">
+        <img src="../assets/araras-marca.png" alt="" width="58" height="60">
+        <span class="brand-copy"><strong>ARARAS MT</strong><small>Inteligência em clima, ambiente e saúde</small></span>
+      </a>
+      <div class="header-network-logos" aria-label="Redes e programas integrados">
+        <a href="https://www.saude.mt.gov.br/unidade/centro-de-informacao-estrategicas-de-vigilancia-em-saude" target="_blank" rel="noreferrer" aria-label="CIEVS Mato Grosso"><img class="cievs-mt-logo" src="../assets/cievs-mt.png" alt="CIEVS-MT"></a>
+        <a href="https://www.gov.br/saude/pt-br/composicao/svsa/cievs" target="_blank" rel="noreferrer" aria-label="Rede CIEVS"><img src="../assets/rede-cievs.png" alt="Rede CIEVS"></a>
+        <span class="header-vigidesastres-mark"><img src="../assets/vigidesastres.png" alt="Vigidesastres"></span>
+      </div>
+    </div>
+    <div class="primary-navigation">
+      <div class="container header-inner">
+        <nav class="desktop-nav" aria-label="Navegação principal">
+          <a href="../index.html#sobre">Sobre</a><a href="../index.html#acessos">Acessos</a><a href="../index.html#paineis">Painéis</a><a href="../index.html#metodologia">Metodologia</a><a href="../index.html#transparencia">Transparência</a>
+        </nav>
+        <a class="header-cta" data-panel-modulo="visao" href="http://10.15.0.131:8501/?aba=visao">Acessar a plataforma</a>
+        <details class="mobile-menu"><summary aria-label="Abrir menu">Menu</summary>
+          <nav aria-label="Navegação móvel">
+            <a href="../index.html#sobre">Sobre</a><a href="../index.html#acessos">Acessos</a><a href="../index.html#paineis">Painéis</a><a href="../index.html#metodologia">Metodologia</a>
+          </nav>
+        </details>
+      </div>
+    </div>
+  </header>
+  <div class="breadcrumb-bar" aria-label="Trilha de navegação">
+    <div class="container breadcrumb">
+      <a href="../index.html">ARARAS MT</a><span aria-hidden="true">/</span><strong>Painéis</strong>
+    </div>
+  </div>
+  <div id="conteudo">
+    <section class="section panels-section" style="padding-top:2.4rem">
+      <div class="container">
+        <div class="panels-heading">
+          <div class="section-heading light">
+            <span class="section-kicker">Painel ARARAS MT</span>
+            <h2>Hub operacional dos módulos temáticos.</h2>
+          </div>
+          <p>Cada card abre o Streamlit na aba correspondente. Módulos públicos abrem direto; Assistência e Sala exigem login institucional.</p>
+        </div>
+        <div class="panel-grid panel-grid-6">
+          <a class="panel-card panel-climate" data-panel-modulo="ce" href="http://10.15.0.131:8501/?aba=ce"><div class="panel-card-top"><span>CE</span><span class="panel-status panel-status-live">Disponível</span></div><h3>Clima e eventos extremos</h3><p>El Niño, extremos e monitoramento climático operacional.</p><span class="panel-open">Abrir módulo →</span></a>
+          <a class="panel-card panel-air" data-panel-modulo="ar" href="http://10.15.0.131:8501/?aba=ar"><div class="panel-card-top"><span>AR</span><span class="panel-status panel-status-live">Disponível</span></div><h3>Ambiente e qualidade do ar</h3><p>PM2,5, queimadas e série ambiental.</p><span class="panel-open">Abrir módulo →</span></a>
+          <a class="panel-card panel-health" data-panel-modulo="as" href="http://10.15.0.131:8501/?aba=as"><div class="panel-card-top"><span>AS</span><span class="panel-status panel-status-live">Disponível</span></div><h3>Agravos e saúde</h3><p>Arboviroses e leitura epidemiológica territorial.</p><span class="panel-open">Abrir módulo →</span></a>
+          <a class="panel-card panel-assist" data-panel-modulo="assistencia" href="http://10.15.0.131:8501/?aba=assistencia"><div class="panel-card-top"><span>AF</span><span class="panel-status panel-status-restricted">Restrito</span></div><h3>Assistência e regulação</h3><p>Ocupação IndicaSUS/SIEGES e pressão SISREG.</p><span class="panel-open">Abrir módulo →</span></a>
+          <a class="panel-card panel-response" data-panel-modulo="rt" href="http://10.15.0.131:8501/?aba=rt"><div class="panel-card-top"><span>RT</span><span class="panel-status panel-status-live">Disponível</span></div><h3>Resposta territorial</h3><p>Mapas e prioridades para apoio à decisão.</p><span class="panel-open">Abrir módulo →</span></a>
+          <a class="panel-card panel-sala" data-panel-modulo="sala" href="http://10.15.0.131:8501/?aba=sala"><div class="panel-card-top"><span>SS</span><span class="panel-status panel-status-restricted">Restrito</span></div><h3>Sala / Plano El Niño</h3><p>Indicadores da Sala e validação CIEVS.</p><span class="panel-open">Abrir módulo →</span></a>
+        </div>
+        <p class="panels-footnote"><a href="../index.html">Voltar ao site institucional</a> · Painel em <code>http://10.15.0.131:8501/</code></p>
+      </div>
+    </section>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-bottom"><div class="container"><span>© <span id="year">2026</span> Secretaria de Estado de Saúde de Mato Grosso</span><span>ARARAS MT · hub de painéis</span></div></div>
+  </footer>
+</main>
+<script src="../app.js" defer></script>
+</body>
+</html>

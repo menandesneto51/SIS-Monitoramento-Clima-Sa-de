@@ -219,7 +219,8 @@ def upsert_df(df: pd.DataFrame, table: str, conflict_cols: list[str]) -> int:
     select_list = ", ".join(f't."{c}"' for c in cols)
     n = int(len(work))
     try:
-        if is_postgres():
+        # Usa o dialeto do engine ativo (APP_CONFIG pode apontar Postgres com engine SQLite local).
+        if str(engine.dialect.name).lower() in {"postgresql", "postgres"}:
             conflict = ", ".join(f'"{c}"' for c in conflict_cols)
             updates = [c for c in cols if c not in conflict_cols]
             if updates:
@@ -440,6 +441,66 @@ CREATE TABLE IF NOT EXISTS etl_watermarks (
     n_rows INTEGER
 )
 """,
+    """
+CREATE TABLE IF NOT EXISTS hist_boletim_rodada_semanal (
+    semana_epidemiologica TEXT NOT NULL,
+    data_referencia TEXT NOT NULL,
+    cod_ibge TEXT NOT NULL,
+    municipio TEXT,
+    regional_saude TEXT,
+    classe_atual TEXT,
+    classe_projetada_7d TEXT,
+    tmax REAL,
+    ur_pct REAL,
+    pm25_ugm3 REAL,
+    utci_c REAL,
+    focos_calor_7d REAL,
+    iqa_classe TEXT,
+    indice_prioridade REAL,
+    faixa_prioridade TEXT,
+    determinante_principal TEXT,
+    PRIMARY KEY (semana_epidemiologica, cod_ibge)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS star_clima_geocalor_diario (
+    cod_ibge TEXT NOT NULL,
+    data TEXT NOT NULL,
+    municipio TEXT,
+    tmax REAL,
+    tmin REAL,
+    tmedia REAL,
+    umidade_media REAL,
+    precipitacao_mm REAL,
+    ehi_sig REAL,
+    ehi_accl REAL,
+    ehf REAL,
+    is_hw_day INTEGER,
+    intensidade TEXT,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS star_ondas_calor_evento (
+    cod_ibge TEXT NOT NULL,
+    data_inicio TEXT NOT NULL,
+    municipio TEXT,
+    data_fim TEXT,
+    duracao_dias INTEGER,
+    ehf_max REAL,
+    ehf_medio REAL,
+    intensidade TEXT,
+    n_dias_baixa INTEGER,
+    n_dias_severa INTEGER,
+    n_dias_extrema INTEGER,
+    metodologia TEXT,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data_inicio)
+)
+""",
 ]
 
 DDL_POSTGRES = [
@@ -600,6 +661,66 @@ CREATE TABLE IF NOT EXISTS etl_watermarks (
     last_run_at TEXT,
     last_status TEXT,
     n_rows INTEGER
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS hist_boletim_rodada_semanal (
+    semana_epidemiologica TEXT NOT NULL,
+    data_referencia TEXT NOT NULL,
+    cod_ibge TEXT NOT NULL,
+    municipio TEXT,
+    regional_saude TEXT,
+    classe_atual TEXT,
+    classe_projetada_7d TEXT,
+    tmax DOUBLE PRECISION,
+    ur_pct DOUBLE PRECISION,
+    pm25_ugm3 DOUBLE PRECISION,
+    utci_c DOUBLE PRECISION,
+    focos_calor_7d DOUBLE PRECISION,
+    iqa_classe TEXT,
+    indice_prioridade DOUBLE PRECISION,
+    faixa_prioridade TEXT,
+    determinante_principal TEXT,
+    PRIMARY KEY (semana_epidemiologica, cod_ibge)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS star_clima_geocalor_diario (
+    cod_ibge TEXT NOT NULL,
+    data TEXT NOT NULL,
+    municipio TEXT,
+    tmax DOUBLE PRECISION,
+    tmin DOUBLE PRECISION,
+    tmedia DOUBLE PRECISION,
+    umidade_media DOUBLE PRECISION,
+    precipitacao_mm DOUBLE PRECISION,
+    ehi_sig DOUBLE PRECISION,
+    ehi_accl DOUBLE PRECISION,
+    ehf DOUBLE PRECISION,
+    is_hw_day INTEGER,
+    intensidade TEXT,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data)
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS star_ondas_calor_evento (
+    cod_ibge TEXT NOT NULL,
+    data_inicio TEXT NOT NULL,
+    municipio TEXT,
+    data_fim TEXT,
+    duracao_dias INTEGER,
+    ehf_max DOUBLE PRECISION,
+    ehf_medio DOUBLE PRECISION,
+    intensidade TEXT,
+    n_dias_baixa INTEGER,
+    n_dias_severa INTEGER,
+    n_dias_extrema INTEGER,
+    metodologia TEXT,
+    fonte TEXT,
+    atualizado_em TEXT,
+    PRIMARY KEY (cod_ibge, data_inicio)
 )
 """,
 ]

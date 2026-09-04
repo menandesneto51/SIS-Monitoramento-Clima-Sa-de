@@ -34,6 +34,117 @@ def _tem_indice_pressao(df: pd.DataFrame) -> bool:
     return pd.to_numeric(df["indice_pressao_saude"], errors="coerce").notna().any()
 
 
+def _leitos_por_ibge() -> dict[str, tuple[float, float]]:
+    """cod_ibge → (leitos_existentes, leitos_ocupados) a partir do IndicaSUS municipal."""
+    out: dict[str, tuple[float, float]] = {}
+    try:
+        from sisclima.core.db import read_table, table_exists
+
+        if not table_exists("hospital_ocupacao_municipio"):
+            return out
+        mun = read_table("hospital_ocupacao_municipio")
+        if mun is None or mun.empty or "cod_ibge" not in mun.columns:
+            return out
+        for _, row in mun.iterrows():
+            ibge = str(row.get("cod_ibge") or "").strip()
+            if not ibge or ibge in ("nan", "None"):
+                continue
+            lt = _num(row.get("leitos_existentes"))
+            lo = _num(row.get("leitos_ocupados"))
+            if lt is None or lt <= 0:
+                continue
+            out[ibge] = (float(lt), float(lo or 0.0))
+    except Exception:
+        return out
+    return out
+
+
+def agregar_ocupacao_por_regional(df: pd.DataFrame) -> list[dict[str, Any]]:
+    """Termômetro assistencial IndicaSUS por regional de saúde (ponderado por leitos).
+
+    Municípios SEM_LEITOS contam na cobertura, mas não entram no % ponderado.
+    Sem tabela de leitos, usa média simples dos % municipais disponíveis.
+    """
+    if df is None or df.empty or "regional_saude" not in df.columns:
+        return []
+
+    beds = _leitos_por_ibge()
+    fonte = (
+        df["fonte_ocupacao"].astype(str)
+        if "fonte_ocupacao" in df.columns
+        else pd.Series([""] * len(df), index=df.index)
+    )
+    ocup = (
+        pd.to_numeric(df["ocupacao_leitos_pct"], errors="coerce")
+        if "ocupacao_leitos_pct" in df.columns
+        else pd.Series(dtype=float, index=df.index)
+    )
+    work = df.assign(
+        _reg=df["regional_saude"].fillna("—").astype(str).str.strip().replace("", "—"),
+        _fonte=fonte,
+        _ocup=ocup,
+    )
+
+    rows: list[dict[str, Any]] = []
+    for reg, g in work.groupby("_reg", sort=True):
+        n = int(len(g))
+        n_sem = int(g["_fonte"].str.contains("SEM_LEITOS", case=False, na=False).sum())
+        if n_sem == 0 and g["_ocup"].isna().any() and g["_fonte"].eq("").all():
+            n_sem = int(g["_ocup"].isna().sum())
+        n_com = int(g["_ocup"].notna().sum())
+
+        leitos_tot = 0.0
+        leitos_oc = 0.0
+        n_com_leitos = 0
+        for _, row in g.iterrows():
+            ibge = str(row.get("cod_ibge") or "").strip()
+            pair = beds.get(ibge)
+            if not pair:
+                continue
+            lt, lo = pair
+            leitos_tot += lt
+            leitos_oc += lo
+            n_com_leitos += 1
+
+        if leitos_tot > 0:
+            ocup_pond = 100.0 * leitos_oc / leitos_tot
+            modo = "ponderada_leitos"
+        elif g["_ocup"].notna().any():
+            ocup_pond = float(g["_ocup"].mean())
+            leitos_tot = None
+            leitos_oc = None
+            modo = "media_municipal"
+        else:
+            ocup_pond = None
+            leitos_tot = None
+            leitos_oc = None
+            modo = "sem_dado"
+
+        rows.append(
+            {
+                "regional": str(reg),
+                "n_municipios": n,
+                "n_com_taxa": n_com,
+                "n_sem_leitos": n_sem,
+                "n_com_leitos_indicasus": n_com_leitos,
+                "leitos_total": leitos_tot,
+                "leitos_ocupados": leitos_oc,
+                "ocupacao_ponderada": ocup_pond,
+                "ocupacao_ponderada_txt": _br(ocup_pond),
+                "modo": modo,
+            }
+        )
+
+    rows.sort(
+        key=lambda r: (
+            r.get("ocupacao_ponderada") is None,
+            -(r.get("ocupacao_ponderada") or -1.0),
+            str(r.get("regional") or ""),
+        )
+    )
+    return rows
+
+
 def quadro_risco_pressao(resumo: pd.DataFrame | None = None) -> dict[str, Any]:
     """Registro estadual: distribuição de risco + pressão assistencial + ranking."""
     from_db = resumo is None
@@ -219,6 +330,7 @@ def quadro_risco_pressao(resumo: pd.DataFrame | None = None) -> dict[str, Any]:
         "unidades_n": int(unidades_n) if unidades_n is not None else None,
         "top_ocupacao": top_ocup,
         "top_sem_leitos_sisreg": top_sem_sisreg,
+        "ocupacao_por_regional": agregar_ocupacao_por_regional(df),
         # Pressão hospitalar = SISREG (demanda/regulação)
         "sisreg_n": n_sisreg,
         "sisreg_solicitacoes_media": float(sis_sol.mean()) if sis_sol.notna().any() else None,

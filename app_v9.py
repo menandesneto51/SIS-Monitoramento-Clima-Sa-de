@@ -1270,6 +1270,105 @@ if _PAINEL_PUBLICO:
     NAV_SECTIONS = [s for s in NAV_SECTIONS if s != "Eventos em saúde"]
 _NAV_VALID = {key for _g, itens in NAV_BUTTON_GROUPS for _lbl, key in itens}
 _NAV_STATE = "nav_aba_painel"
+
+# Deep-links do site institucional: ?aba=qualidade-ar | ?aba=Visão executiva | ?modulo=ce
+_ABA_ALIASES: dict[str, str] = {
+    "ce": "El Niño / Contingência",
+    "clima": "El Niño / Contingência",
+    "extremos": "El Niño / Contingência",
+    "el-nino": "El Niño / Contingência",
+    "elnino": "El Niño / Contingência",
+    "ar": "Qualidade do ar",
+    "qualidade-ar": "Qualidade do ar",
+    "ambiente": "Qualidade do ar",
+    "as": "Arboviroses",
+    "agravos": "Arboviroses",
+    "saude": "Arboviroses",
+    "arboviroses": "Arboviroses",
+    "rt": "Mapas",
+    "resposta": "Mapas",
+    "territorial": "Mapas",
+    "mapas": "Mapas",
+    "assistencia": "Assistência",
+    "ocupacao": "Assistência",
+    "sala": SALA_PLANO_NAV,
+    "plano": SALA_PLANO_NAV,
+    "el-nino-sala": SALA_PLANO_NAV,
+    "visao": "Visão executiva",
+    "home": "Visão executiva",
+    "guia": "Guia do leitor",
+}
+
+
+def _resolve_aba_query(raw: str, valid: set[str]) -> str | None:
+    """Resolve ?aba= / ?modulo= para chave de navegação válida nesta sessão."""
+    text = str(raw or "").strip()
+    if not text:
+        return None
+    if text in valid:
+        return text
+    slug = (
+        text.lower()
+        .replace("ã", "a")
+        .replace("á", "a")
+        .replace("â", "a")
+        .replace("é", "e")
+        .replace("ê", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ô", "o")
+        .replace("ú", "u")
+        .replace("ç", "c")
+        .replace("ñ", "n")
+        .replace("_", "-")
+        .replace(" / ", "-")
+        .replace("/", "-")
+        .replace(" ", "-")
+    )
+    while "--" in slug:
+        slug = slug.replace("--", "-")
+    alias = _ABA_ALIASES.get(slug)
+    if alias and alias in valid:
+        return alias
+    for key in valid:
+        key_slug = (
+            key.lower()
+            .replace("ã", "a")
+            .replace("á", "a")
+            .replace("â", "a")
+            .replace("é", "e")
+            .replace("ê", "e")
+            .replace("í", "i")
+            .replace("ó", "o")
+            .replace("ô", "o")
+            .replace("ú", "u")
+            .replace("ç", "c")
+            .replace("ñ", "n")
+            .replace(" / ", "-")
+            .replace("/", "-")
+            .replace(" ", "-")
+        )
+        if key_slug == slug:
+            return key
+    return None
+
+
+_qp_aba = ""
+try:
+    _qp_aba = str(
+        st.query_params.get("aba")
+        or st.query_params.get("modulo")
+        or st.query_params.get("painel")
+        or ""
+    )
+except Exception:
+    _qp_aba = ""
+_resolved_aba = _resolve_aba_query(_qp_aba, _NAV_VALID)
+# Só reaplica deep-link quando o parâmetro da URL muda (não trava o menu lateral).
+if _resolved_aba and _qp_aba != st.session_state.get("_aba_deeplink_raw"):
+    st.session_state[_NAV_STATE] = _resolved_aba
+    st.session_state["_aba_deeplink_raw"] = _qp_aba
+
 if st.session_state.get(_NAV_STATE) not in _NAV_VALID:
     _legado = str(
         st.session_state.get("nav_aba_publica")

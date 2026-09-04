@@ -4,6 +4,27 @@
   const year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
 
+  /** Base do painel Streamlit (piloto SES). Override: data-panel-base no <html> ou ?painel= */
+  const PANEL_BASE =
+    root.dataset.panelBase ||
+    new URLSearchParams(location.search).get("painel") ||
+    "http://10.15.0.131:8501/";
+
+  const panelUrl = (modulo) => {
+    const base = PANEL_BASE.endsWith("/") ? PANEL_BASE : `${PANEL_BASE}/`;
+    if (!modulo) return base;
+    const url = new URL(base);
+    url.searchParams.set("aba", modulo);
+    return url.toString();
+  };
+
+  document.querySelectorAll("[data-panel-modulo]").forEach((el) => {
+    const modulo = el.getAttribute("data-panel-modulo") || "";
+    if (el instanceof HTMLAnchorElement) {
+      el.href = panelUrl(modulo);
+    }
+  });
+
   const SCALE_KEY = "araras-font-scale";
   const CONTRAST_KEY = "araras-high-contrast";
   let scale = Number(localStorage.getItem(SCALE_KEY) || "100");

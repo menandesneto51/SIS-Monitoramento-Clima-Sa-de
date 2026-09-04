@@ -36,12 +36,51 @@ class QuadroRiscoPressaoTests(unittest.TestCase):
                 },
             ]
         )
-        quadro = quadro_risco_pressao(df)
+        with patch(
+            "sisclima.reporting.quadro_risco_pressao._leitos_por_ibge",
+            return_value={},
+        ):
+            quadro = quadro_risco_pressao(df)
         self.assertTrue(quadro["disponivel"])
         self.assertEqual(quadro["dist_nivel"]["laranja"], 1)
         self.assertEqual(quadro["registros"][0]["municipio"], "Sorriso")
         self.assertEqual(quadro["pressao_max"], 72.4)
         self.assertEqual(quadro["calor_max"], 6.2)
+        regs = {r["regional"]: r for r in quadro.get("ocupacao_por_regional") or []}
+        self.assertIn("Sinop", regs)
+        self.assertEqual(regs["Sinop"]["n_municipios"], 1)
+        self.assertAlmostEqual(regs["Sinop"]["ocupacao_ponderada"], 81.0, places=1)
+
+    def test_ocupacao_por_regional_sem_leitos_nao_inventa_pct(self) -> None:
+        from sisclima.reporting.quadro_risco_pressao import agregar_ocupacao_por_regional
+
+        df = pd.DataFrame(
+            [
+                {
+                    "cod_ibge": "5100102",
+                    "municipio": "Acorizal",
+                    "regional_saude": "Baixada Cuiabana",
+                    "ocupacao_leitos_pct": pd.NA,
+                    "fonte_ocupacao": "SEM_LEITOS_INDICASUS",
+                },
+                {
+                    "cod_ibge": "5103403",
+                    "municipio": "Cuiabá",
+                    "regional_saude": "Baixada Cuiabana",
+                    "ocupacao_leitos_pct": 60.0,
+                    "fonte_ocupacao": "INDICASUS_TEMPO_REAL",
+                },
+            ]
+        )
+        with patch(
+            "sisclima.reporting.quadro_risco_pressao._leitos_por_ibge",
+            return_value={},
+        ):
+            rows = agregar_ocupacao_por_regional(df)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["n_sem_leitos"], 1)
+        self.assertEqual(rows[0]["n_com_taxa"], 1)
+        self.assertAlmostEqual(rows[0]["ocupacao_ponderada"], 60.0, places=1)
 
     def test_quadro_vazio_nao_inventa_zero(self) -> None:
         from sisclima.reporting.quadro_risco_pressao import quadro_risco_pressao

@@ -235,27 +235,40 @@ def _md_inline_to_rl(text: str) -> str:
     # Negrito primeiro
     parts: list[str] = []
     i = 0
-    while i < len(raw):
+    n = len(raw)
+    while i < n:
         if raw.startswith("**", i):
             j = raw.find("**", i + 2)
             if j != -1:
                 parts.append("<b>" + escape(raw[i + 2 : j]) + "</b>")
                 i = j + 2
                 continue
-        if raw[i] == "*" and (i + 1 >= len(raw) or raw[i + 1] != "*"):
+            # ** sem fechamento — emite literal e avança (evita loop infinito)
+            parts.append(escape("**"))
+            i += 2
+            continue
+        if raw[i] == "*":
             j = raw.find("*", i + 1)
-            if j != -1 and (j + 1 >= len(raw) or raw[j + 1] != "*"):
+            if j != -1 and (j + 1 >= n or raw[j + 1] != "*"):
                 parts.append("<i>" + escape(raw[i + 1 : j]) + "</i>")
                 i = j + 1
                 continue
+            parts.append(escape("*"))
+            i += 1
+            continue
         # texto comum até próximo marcador
-        nxt = len(raw)
-        for marker in ("**", "*"):
-            k = raw.find(marker, i)
-            if k != -1:
-                nxt = min(nxt, k)
-        chunk = raw[i:nxt]
-        chunk = escape(chunk)
+        nxt = n
+        k_bold = raw.find("**", i)
+        k_ital = raw.find("*", i)
+        if k_bold != -1:
+            nxt = min(nxt, k_bold)
+        if k_ital != -1:
+            nxt = min(nxt, k_ital)
+        if nxt <= i:
+            parts.append(escape(raw[i]))
+            i += 1
+            continue
+        chunk = escape(raw[i:nxt])
         chunk = _soft_break_urls(chunk)
         parts.append(chunk)
         i = nxt

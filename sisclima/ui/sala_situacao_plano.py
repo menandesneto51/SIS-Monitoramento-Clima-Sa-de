@@ -70,6 +70,47 @@ def render_sala_situacao_plano() -> None:
         _render_acessos(user)
 
 
+def _render_esus_aps_prioridade() -> None:
+    from sisclima.core.db import read_table, table_exists
+    from sisclima.ingestion.esus_aps_clima import resumo_esus_estadual
+
+    table = "ops_esus_aps_municipal" if table_exists("ops_esus_aps_municipal") else "ops_esus_aps_prioridade"
+    if not table_exists(table):
+        return
+    df = read_table(table)
+    if df is None or df.empty:
+        return
+    tot = resumo_esus_estadual(df)
+    st.markdown("#### e-SUS APS — levantamento estadual")
+    st.caption(
+        "Cadastro e atendimentos agregados do Centralizador (142 municípios). "
+        "Não substitui busca ativa. Contagem operacional, não incidência."
+    )
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Municípios", str(tot.get("municipios") or 0))
+    m2.metric("Asma (cadastro)", f"{int(tot.get('asma') or 0):,}".replace(",", "."))
+    m3.metric("Idosos 60+", f"{int(tot.get('idoso_60mais') or 0):,}".replace(",", "."))
+    m4.metric("Atend. APS 28d", f"{int(tot.get('atendimentos_28d') or 0):,}".replace(",", "."))
+    cols = [
+        c
+        for c in (
+            "municipio",
+            "classe_araras",
+            "asma",
+            "dpoc",
+            "idoso_60mais",
+            "gestante",
+            "acamado",
+            "hipertensao",
+            "atendimentos_28d",
+            "nebulizacao_7d",
+            "resp_cid_28d",
+        )
+        if c in df.columns
+    ]
+    st.dataframe(df[cols], use_container_width=True, hide_index=True)
+
+
 def _render_briefing(ctx: dict, user: dict | None) -> None:
     resumo = resumo_sala()
     insight_cards(
@@ -128,6 +169,8 @@ def _render_briefing(ctx: dict, user: dict | None) -> None:
         st.dataframe(df_st.drop(columns=["Cor"]), use_container_width=True, hide_index=True)
         cores = " · ".join(f"{dict(STATUS_ACAO).get(k, k)} `{STATUS_COR.get(k, '')}`" for k, _ in STATUS_ACAO)
         st.caption(cores)
+
+    _render_esus_aps_prioridade()
 
     por_eixo = resumo.get("por_eixo") or {}
     if por_eixo:

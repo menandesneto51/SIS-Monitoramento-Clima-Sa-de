@@ -23,6 +23,12 @@ secrets.toml
 # Cursor / IDE
 .cursor/
 
+# Inventário local do Centralizador e-SUS (metadados da sonda; não versionar)
+docs/esus_aps_exploracao.json
+docs/esus_aps_exploracao.md
+data/esus_aps/
+
+
 # Operational/local data (CSVs reais ficam só na máquina)
 data/input/*
 !data/input/LEIA-ME.txt

@@ -63,6 +63,16 @@ python validar_dw_conexao.py
 As consultas ficam na pasta `sql/` e devem ser ajustadas aos nomes reais das views/tabelas do DW.
 Views já usadas pelos projetos irmãos: `VW_SINAN_*`, `VW_GAL`, `CNES_ESTABELECIMENTOS`, `SIM`.
 
+## e-SUS APS (Centralizador Postgres)
+
+Não passa pelo DW. Configure `ESUS_APS_*` no `.env` e, com VPN SES:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\explorar_esus_aps.py
+```
+
+Detalhes: `docs/ESUS_APS.md`.
+
 ## SIVEP local
 
 Coloque arquivos exportados do SIVEP em:
