@@ -192,7 +192,8 @@ class PlanoElNinoTests(unittest.TestCase):
             self.skipTest("catálogo ainda não gerado")
         cat = carregar_catalogo()
         self.assertEqual(len(cat.get("indicadores") or []), 88)
-        self.assertGreaterEqual(len(cat.get("acoes") or []), 40)
+        # Planilha revisada (set/2026) consolidou ações; mínimo operacional é 36.
+        self.assertGreaterEqual(len(cat.get("acoes") or []), 36)
 
     def test_indicador_em_andamento_permite_segunda_coleta(self) -> None:
         from sisclima.core.db import db_conn, fetchall

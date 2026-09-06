@@ -56,6 +56,7 @@ _limpeza_segura/
 *.temp
 *.crdownload
 Texto colado*.txt
+config/_catalogo_anterior_backup.yaml
 
 # Local packages and Windows automation
 *.zip

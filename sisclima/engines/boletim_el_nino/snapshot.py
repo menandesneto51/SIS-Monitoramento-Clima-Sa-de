@@ -6,7 +6,10 @@ from typing import Any
 
 import pandas as pd
 
+from sisclima.core.logging_utils import get_logger
 from sisclima.engines.stages import STAGE_ORDER
+
+log = get_logger(__name__)
 
 _SNAP_MUN_COLS = [
     "municipio",
@@ -641,7 +644,7 @@ def snapshot_operacional(resumo: pd.DataFrame) -> dict[str, Any]:
         },
     }
 
-    return {
+    snap: dict[str, Any] = {
         "disponivel": tem_recorte,
         "n_municipios": n if tem_recorte else None,
         "data_referencia": data_ref,
@@ -723,3 +726,17 @@ def snapshot_operacional(resumo: pd.DataFrame) -> dict[str, Any]:
             "focos": _extremo(df, "focos_queimadas_7d"),
         },
     }
+    try:
+        from sisclima.engines.boletim_el_nino.picos_termicos import resumo_picos_termicos
+
+        picos = resumo_picos_termicos(janela_dias=14)
+        snap["picos_termicos"] = picos
+        if picos.get("ok"):
+            snap["tmax_max_semana"] = picos.get("tmax_max_semana")
+            snap["n_tmax_41_semana"] = picos.get("n_tmax_41")
+            snap["n_tmax_40_semana"] = picos.get("n_tmax_40")
+            snap["n_tmax_37_semana"] = picos.get("n_tmax_37")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Picos térmicos da janela indisponíveis: %s", exc)
+        snap["picos_termicos"] = {"ok": False}
+    return snap

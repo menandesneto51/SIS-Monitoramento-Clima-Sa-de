@@ -19,8 +19,8 @@ from sisclima.core.logging_utils import get_logger
 log = get_logger(__name__)
 
 DISCLAIMER = (
-    "Sinal normativo (atos oficiais) ≠ ativação automática do Plano El Niño "
-    "nem substituição do alerta operacional climática–saúde."
+    "A existência de ato oficial não implica ativação automática do Plano El Niño "
+    "nem substitui a classificação operacional clima–saúde."
 )
 
 # Lista curada (docs/apresentacoes/Decretos_Emergencia_ARARAS_VALIDADOS_2026-08-21.md)
@@ -154,28 +154,24 @@ def bloco_decretos_texto_alerta(*, max_linhas: int = 8) -> str:
 
 
 def bloco_decretos_markdown_boletim() -> str:
-    """Subseção Markdown para o boletim El Niño / Sala."""
-    pack = listar_atos_para_alerta(max_validados=6, max_iomat=3)
+    """Subseção Markdown institucional para o boletim (sem paths, logs ou URLs brutas)."""
+    pack = listar_atos_para_alerta(max_validados=6, max_iomat=0)
     lines = [
         "### Atos oficiais correlatos (decretos e portarias)",
         "",
         f"*{pack['disclaimer']}*",
         "",
-        "**Validados para inserção no boletim**",
-        "",
     ]
     for a in pack["validados"]:
-        link = f" — {a['link']}" if a.get("link") else ""
+        titulo = str(a.get("titulo") or "Ato oficial").strip()
+        ementa = str(a.get("ementa") or "").strip()
         mun = f" ({a['municipio']})" if a.get("municipio") else ""
-        lines.append(f"- **{a['titulo']}**{mun}: {a['ementa']}{link}")
-    if pack["iomat_recente"]:
-        lines += ["", "**Amostra IOMAT recente (requer triagem)**", ""]
-        for a in pack["iomat_recente"]:
-            link = f" — {a['link']}" if a.get("link") else ""
-            lines.append(f"- {a['titulo']}: {a['ementa']}{link}")
-    lines += [
-        "",
-        f"Fonte curada: `{pack['fonte_curada']}` · tabela IOMAT: {pack.get('n_iomat_tabela') or 0} itens.",
-        "",
-    ]
+        link = str(a.get("link") or "").strip()
+        # Hyperlink no título; URL não aparece no corpo impresso/PDF
+        if link.startswith("http"):
+            titulo_md = f"[{titulo}]({link})"
+        else:
+            titulo_md = titulo
+        lines.append(f"- **{titulo_md}**{mun}: {ementa}" if ementa else f"- **{titulo_md}**{mun}")
+    lines.append("")
     return "\n".join(lines)

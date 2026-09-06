@@ -3,10 +3,10 @@
 **Sala de Situação do Centro de Informações Estratégicas em Vigilância em Saúde de Mato Grosso (CIEVS-MT) · Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde (ARARAS MT)**
 
 Semana Epidemiológica 35/2026 · 30 de agosto a 05 de setembro de 2026  
-Atualizado em 03/09/2026 às 19h25
+Atualizado em 03/09/2026 às 22h02
 
 Referência climática: Painel El Niño 2026–2027, Boletim Mensal n.º 02, julho de 2026, e produtos oficiais de monitoramento climático, meteorológico, ambiental e hidrológico.  
-Referência operacional: ARARAS MT, rodada de 03/09/2026 às 19h25.  
+Referência operacional: ARARAS MT, rodada de 03/09/2026 às 22h02.  
 Base normativa: Portaria n.º 0590/2026/GBSES.
 
 ### Atos oficiais correlatos (decretos e portarias)
@@ -28,8 +28,8 @@ Fonte curada: `Decretos_Emergencia_ARARAS_VALIDADOS_2026-08-21.md` · tabela IOM
 
 | RISCO ATUAL | PROJEÇÃO ~7 DIAS | CALOR |
 | --- | --- | --- |
-| **109/142** vermelho ou roxo | **130/142** vermelho ou roxo | máxima **39,2 °C** |
-| 76,8% do estado | agravamento disseminado | **9 de 142 (6,3%)** ≥ 37 °C |
+| **109/142** vermelho ou roxo | **130/142** vermelho ou roxo | pico semana **41,4 °C** |
+| 76,8% do estado | agravamento disseminado | **2** ≥ 41 °C · **11** ≥ 40 °C · **75 de 142 (52,8%)** ≥ 37 °C (janela) |
 
 | UMIDADE | FOGO | QUALIDADE DO AR |
 | --- | --- | --- |
@@ -41,24 +41,22 @@ Fonte curada: `Decretos_Emergencia_ARARAS_VALIDADOS_2026-08-21.md` · tabela IOM
 
 ## 1. Leitura executiva da semana
 
-Distribuição atual: verde 0; amarela 2; laranja 31; vermelha 49; roxa 60. A mediana estadual não descreve o recorte mais exposto: há municípios com calor extremo e material particulado elevado. A projeção de sete dias indica agravamento disseminado e recomenda preparação assistencial nos territórios já em vermelho ou roxo, incluindo populações indígenas, quilombolas e trabalhadores expostos.
+**Situação:** 109 de 142 (76,8%) nas classes vermelha e roxa (verde 0; amarela 2; laranja 31; vermelha 49; roxa 60). **Projeção ~7 dias:** 130 de 142 (91,5%) nas classes vermelha e roxa — agravamento disseminado. **Exposição na rodada:** temperatura máxima (Tmáx) ≥ 37 °C em 9 de 142 (6,3%) · material particulado fino com diâmetro aerodinâmico de até 2,5 micrômetros (PM2,5) ≥ 25 µg/m³ em 18 de 142 (12,7%). **Chuva de 01/09:** alívio térmico temporário — municípios com Tmáx ≥ 37 °C caíram de 63 de 142 (44,4%) (31/08) para 18 de 142 (12,7%) (01/09); a projeção ~7d volta a pressionar. Priorizar preparação assistencial nos vermelhos/roxos, com atenção a povos indígenas, quilombolas, idosos, gestantes e trabalhadores expostos.
 
-**Implicação operacional.** A combinação de calor intenso e exposição à fumaça justifica reforçar a vigilância, revisar a capacidade assistencial e verificar a disponibilidade de insumos nos territórios prioritários.
+**Implicação.** Manter vigilância e capacidade assistencial nos prioritários (calor + fumaça/PM2,5). A chuva de 01/09 não encerra a exposição térmica projetada.
 
 **Prioridades imediatas**
 
-- Reforçar vigilância de agravos relacionados a calor e fumaça nos municípios em vermelho ou roxo.
-- Revisar capacidade assistencial e insumos nos territórios com temperatura máxima (Tmáx) ≥ 37 °C ou material particulado fino com diâmetro aerodinâmico de até 2,5 micrômetros (PM2,5) ≥ 25 µg/m³.
-- Articular regionais, Distrito Sanitário Especial Indígena (DSEI)/Secretaria Especial de Saúde Indígena (SESAI) e Vigilância em Saúde do Trabalhador nos recortes prioritários.
+- Vigilância de agravos por calor/fumaça nos vermelhos/roxos.
+- Capacidade assistencial e insumos onde Tmáx ≥ 37 °C ou PM2,5 ≥ 25 µg/m³.
+- Articular regionais, Distrito Sanitário Especial Indígena (DSEI)/Secretaria Especial de Saúde Indígena (SESAI) e Saúde do Trabalhador nos prioritários.
+- Tratar a chuva de 01/09 como alívio temporário — manter prontidão na projeção ~7d.
 
 ---
 
 ## 2. Cenário El Niño
 
-**El Niño confirmado desde 11/06/2026.**  
-**Niño 3.4:** anomalia de 1,4 °C nas semanas anteriores ao boletim.
-
-As médias mensais de Niño 3.4 vêm positivas desde março de 2026. A APEC Climate Center (APCC) indica 100% de probabilidade de manutenção de El Niño forte até o final de 2026. A National Oceanic and Atmospheric Administration (NOAA) indica 81% de probabilidade de atingir a categoria muito forte no trimestre outubro–novembro–dezembro.
+**El Niño confirmado desde 11/06/2026.** Niño 3.4: 1,4 °C (semanas anteriores). Persistência forte até o fim de 2026 (APEC Climate Center (APCC)/National Oceanic and Atmospheric Administration (NOAA) — Painel El Niño n.º 02).
 
 Fonte: Painel El Niño 2026–2027, boletim n.º 02, jul. 2026.
 
@@ -66,29 +64,28 @@ Fonte: Painel El Niño 2026–2027, boletim n.º 02, jul. 2026.
 
 ## 3. Cenário sazonal — Brasil → Amazônia Legal → Mato Grosso
 
-A previsão do Centro de Previsão de Tempo e Estudos Climáticos (CPTEC)/Instituto Nacional de Pesquisas Espaciais (INPE), Instituto Nacional de Meteorologia (INMET) e Fundação Cearense de Meteorologia e Recursos Hídricos (FUNCEME) para agosto–setembro–outubro (ASO)/2026 indica precipitação abaixo da faixa normal no centro-norte (Norte, Nordeste e grande parte do Centro-Oeste) e acima da normal no Sul, podendo estender-se ao sul de São Paulo e de Mato Grosso do Sul. A temperatura fica acima da normal em praticamente todo o País, favorecendo ondas de calor, baixa umidade e maior potencial de queimadas.
+Trimestre agosto–setembro–outubro (ASO)/2026 (Centro de Previsão de Tempo e Estudos Climáticos (CPTEC)/Instituto Nacional de Pesquisas Espaciais (INPE)–Instituto Nacional de Meteorologia (INMET)–Fundação Cearense de Meteorologia e Recursos Hídricos (FUNCEME)): chuva abaixo da normal no centro-norte do País; temperatura acima da normal, com risco de ondas de calor, ar seco e queimadas.
 
 - **Chuva (Brasil):** Abaixo da média no centro-norte (Norte, Nordeste e grande parte do Centro-Oeste); acima da média no Sul. `PREVISÃO OFICIAL`
 - **Temperatura (Brasil):** Acima da média em praticamente todo o país — ondas de calor, baixa umidade e maior potencial de queimadas. `PREVISÃO OFICIAL`
-
-### Amazônia Legal e Mato Grosso
-
-ASO marca o fim da estação seca e o início irregular da transição chuvosa na Amazônia Legal. Os menores acumulados concentram-se no centro-sul, especialmente em Mato Grosso, Tocantins, Maranhão, centro-sul de Rondônia e sul do Pará (agosto frequentemente < 20 mm). O Centro Gestor e Operacional do Sistema de Proteção da Amazônia (CENSIPAM) indica chuvas abaixo da média no centro-norte da Amazônia Legal; no extremo sul de Mato Grosso há sinal de precipitação acima da média histórica, ainda na estiagem — pancadas irregulares intercaladas por períodos secos. O El Niño tende a atrasar a estação chuvosa no sul da Amazônia e a manter temperatura acima da média.
-
 - **Chuva em MT:** Centro-norte do Brasil abaixo da média. Extremo sul de MT com sinal de chuva acima da climatologia, ainda na estiagem (pancadas irregulares; agosto/setembro com climatologia baixa).
 - **Temperatura em MT:** Acima da média na Amazônia Legal — atraso da estação chuvosa no sul da Amazônia.
 
 ### Comparação operacional — situação atual × série ambiental
 
-Janela atual (2026-08-28 a 2026-09-03, 7 dias) frente à média do restante da série (2021-07-24 a 2026-08-27, 1861 dias): Tmáx média (°C) 35.4 vs histórico 31.4 (Δ +4.0); Tmáx máxima (°C) 40.2 vs histórico 35.3 (Δ +4.9); *Universal Thermal Climate Index* (UTCI) médio 34.3 vs histórico 34.2 (Δ +0.1); Umidade média (%) 56.7 vs histórico 70.7 (Δ -14.0); Risco cumulativo 3d 17.7 vs histórico 5.0 (Δ +12.7). Interpretação: desvio positivo em temperatura/UTCI/risco indica condição mais crítica que a média da série disponível — não substitui climatologia oficial de longo prazo. Comparação sazonal de setembro/2026 com o mesmo mês na série (2021, 2022, 2023, 2024, 2025): Tmáx média (°C): 34.3 vs média 34.9 do mesmo mês em anos anteriores (z=-0.30). |z|≥1 sugere desvio relevante frente ao padrão do mês. Qualidade do ar (série estadual): PM2,5 média 15.9 µg/m³ (máx. 19.1; 8 dias).
+Janela atual (2026-08-28 a 2026-09-03, 7 dias) frente à média do restante da série (2021-07-24 a 2026-08-27, 1861 dias): Tmáx média (°C) 35.4 vs histórico 31.4 (Δ +4.0); Tmáx máxima (°C) 41.4 vs histórico 35.3 (Δ +6.1); *Universal Thermal Climate Index* (UTCI) médio 34.3 vs histórico 34.2 (Δ +0.1); Umidade média (%) 56.7 vs histórico 70.7 (Δ -14.0); Risco cumulativo 3d 17.7 vs histórico 5.0 (Δ +12.7). Interpretação: desvio positivo em temperatura/UTCI/risco indica condição mais crítica que a média da série disponível — não substitui climatologia oficial de longo prazo. Comparação sazonal de setembro/2026 com o mesmo mês na série (2021, 2022, 2023, 2024, 2025): Tmáx média (°C): 34.3 vs média 34.9 do mesmo mês em anos anteriores (z=-0.30). |z|≥1 sugere desvio relevante frente ao padrão do mês. Qualidade do ar (série estadual): PM2,5 média 15.9 µg/m³ (máx. 19.1; 8 dias).
 
-_Fonte: painel ARARAS MT (abas Série ambiental e Sazonalidade / OR). A série operacional não substitui a climatologia oficial de longo prazo._
+_Fonte: painel ARARAS MT. A série operacional não substitui climatologia oficial de longo prazo._
 
 ---
 
 ## 4. Mato Grosso — Situação atual `OBSERVADO`
 
 Distribuição atual: verde 0; amarela 2; laranja 31; vermelha 49; roxa 60.
+
+![Classes ARARAS](_assets_SE_35-2026/grafico_classes_araras.png)
+
+Fonte: ARARAS MT/CIEVS-MT — contagem municipal por classe na rodada.
 
 **Tabela 1 – Indicadores da rodada e municípios em atenção**
 
@@ -99,19 +96,15 @@ Distribuição atual: verde 0; amarela 2; laranja 31; vermelha 49; roxa 60.
 | PM2,5 | mediana 14,2 µg/m³ · máximo 62,0 µg/m³ | 18 de 142 (12,7%) ≥ 25 µg/m³ |
 | *Universal Thermal Climate Index* (UTCI) | mediana 34,4 °C | 137 de 142 (96,5%) ≥ 32 °C |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 19h25.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 22h02.
 
-Cobertura dos quatro indicadores: 142 de 142 (100,0%) municípios.
-
-**O que isso significa para esta semana?** A mediana não descreve o recorte mais exposto. Há calor extremo e fumaça em frações relevantes do estado; a preparação deve concentrar-se nesses municípios, e não na média.
+Cobertura dos indicadores: 142 de 142 (100,0%) municípios. Preparação deve seguir o recorte mais exposto, não a mediana.
 
 ---
 
 ## 5. Mato Grosso — Projeção operacional (~7 dias)
 
-A projeção operacional do ARARAS MT estima a classificação municipal para aproximadamente sete dias, permitindo comparação com a situação atual.
-
-Distribuição projetada: verde 0; amarela 4; laranja 8; vermelha 36; roxa 94
+Distribuição projetada: verde 0; amarela 4; laranja 8; vermelha 36; roxa 94.
 
 ---
 
@@ -122,7 +115,7 @@ Distribuição projetada: verde 0; amarela 4; laranja 8; vermelha 36; roxa 94
 
 ![Mapa 1](_assets_SE_35-2026/mapa_atual_projecao_7d.png)
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 19h25.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 22h02.
 Nota: as duas faces usam a mesma escala de classes (verde a roxo) para comparação visual direta.
 
 **Atual.** 109 de 142 (76,8%) vermelho ou roxo.  
@@ -133,7 +126,7 @@ Nota: as duas faces usam a mesma escala de classes (verde a roxo) para comparaç
 
 ![Mapa 2](_assets_SE_35-2026/mapa_delta_7d.png)
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 19h25.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 22h02.
 Municípios com dados comparáveis: 142 de 142 (100,0%).
 - Melhora: 7 de 142 (4,9%)
 - Estabilidade: 75 de 142 (52,8%)
@@ -156,7 +149,7 @@ A projeção operacional (~7 dias) eleva o território de **109 de 142 (76,8%)**
 | Risco térmico cumulativo (máx. 7d ≥ 7 pontos) | 60 (100,0% dos que agravam) | ↑ aumento |
 | Onda de calor prevista no horizonte (mediana 0,0 dias) | 5 (8,3% dos que agravam) | ↑ aumento |
 
-Fonte: previsão meteorológica integrada ao ARARAS MT, rodada de 03/09/2026 às 19h25.
+Fonte: previsão meteorológica integrada ao ARARAS MT, rodada de 03/09/2026 às 22h02.
 
 ### B. Contexto concomitante
 
@@ -170,7 +163,7 @@ Descreve a situação atual dos municípios que sobem de classe; **não** consti
 | PM2,5 ≥ 25 µg/m³ | 3 (5,0% dos que agravam) | Exposição atual; sem projeção específica de 7 dias |
 | Focos de calor (7 dias) | 22 (36,7% dos que agravam) | Detecção atual; sem projeção específica de 7 dias |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 19h25.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 22h02.
 
 Nota: Ausência de previsão específica não equivale a estabilidade.
 
@@ -193,11 +186,9 @@ A classe projetada utiliza o maior nível entre intensidade térmica, estresse t
 
 ## 7. Alertas meteorológicos e ambientais — Mato Grosso
 
-Parâmetro climático oficial para a semana **SE 35/2026** (30 de agosto a 05 de setembro de 2026).
+Semana **SE 35/2026** (30 de agosto a 05 de setembro de 2026). Recorte: **Mato Grosso** (avisos INMET exclusivos de MS excluídos).
 
-_Recorte territorial: **Estado de Mato Grosso**. O Instituto Nacional de Meteorologia (INMET) lista apenas avisos que abrangem Mato Grosso; trechos exclusivos de Mato Grosso do Sul são excluídos._
-
-**Situação climática de referência (avisos vigentes):** 3 avisos INMET com validade contendo o horário de emissão deste relatório (INMET, 2026).
+**Situação climática de referência (avisos vigentes):** 2 avisos INMET com validade contendo o horário de emissão deste relatório (INMET, 2026).
 
 **Projeção operacional (avisos futuros na semana):** 3 avisos com início posterior à data de referência — leitura de tendência imediata PREVISÃO OFICIAL (INMET, 2026).
 
@@ -209,7 +200,7 @@ _Recorte territorial: **Estado de Mato Grosso**. O Instituto Nacional de Meteoro
 
 **AVISOS VIGENTES NA EMISSÃO**
 
-- **Baixa Umidade** — 2 avisos; severidade Perigo potencial; abrangência em Mato Grosso.
+- **Baixa Umidade** — 1 aviso; severidade Perigo potencial; abrangência em Mato Grosso.
 - **Chuvas Intensas** — 1 aviso; severidade Perigo potencial; abrangência em Mato Grosso.
 
 **AVISOS COM INÍCIO POSTERIOR NA SEMANA**
@@ -217,46 +208,57 @@ _Recorte territorial: **Estado de Mato Grosso**. O Instituto Nacional de Meteoro
 - **Baixa Umidade** — 1 aviso; severidade Perigo potencial; abrangência em Mato Grosso.
 - **Tempestade** — 2 avisos; severidade Perigo potencial; abrangência em Mato Grosso.
 
-Consulta: 03/09/2026 às 19h25. Fonte: feed Alert-AS / portal INMET (INMET, 2026).
-A lista completa dos avisos permanece no painel operacional.
+Consulta: 03/09/2026 às 22h02. Fonte: Alert-AS / INMET (INMET, 2026). Detalhe no painel.
 
-### Centro Nacional de Monitoramento e Alertas de Desastres Naturais (CEMADEN)
+### CEMADEN
 
 _Nenhum alerta aberto do CEMADEN para Mato Grosso nesta consulta._
 
-Fonte: Painel CEMADEN (CEMADEN, 2026). Consulta: 03/09/2026 às 19h25.
+Fonte: CEMADEN (CEMADEN, 2026). Consulta: 03/09/2026 às 22h02.
 
-### Síntese integrada de alertas meteorológicos e ambientais
+### Síntese integrada
 
 - Municípios no recorte: **142**
 - Distribuição da classificação ARARAS desta rodada: verde: 0; amarela: 2; laranja: 31; vermelha: 49; roxa: 60
 
-_Fontes integradas: INMET, CEMADEN, saturação do solo, risco hidrológico e classificação ARARAS (SES-MT; CIEVS-MT, 2026)._
+_Fontes: INMET, CEMADEN, solo, hidro e classificação ARARAS (SES-MT; CIEVS-MT, 2026)._
 
 ---
 
 ## 8. Recursos hídricos / seca / estiagem
 
-Em junho de 2026 a área com seca no Centro-Oeste era quase três vezes menor que em junho de 2023 (22%; predominância de seca fraca). Mato Grosso ficou livre de seca na atualização de junho/2026 do Monitor de Secas. Isso não anula o risco de fogo no ASO nem a seca na bacia do Paraguai.
-
 - **Limitação dos dados.** A cobertura hidrológica desta rodada corresponde a 10 de 142 (7,0%); os resultados não devem ser extrapolados para todo o estado. No recorte hidrológico disponível, 5 municípios apresentam sinal de baixa disponibilidade hídrica, 3 apresentam risco elevado de inundação e 2 estão em situação hidrológica habitual. Os sinais de baixa disponibilidade hídrica local **não equivalem** automaticamente à classificação do Monitor de Secas (produto distinto, com outra escala e competência temporal). Índice de saturação do solo: mediana **41/100** (escala normalizada 0–100 a partir de umidade volumétrica Open-Meteo; parâmetro entre ponto de murcha 0,05 e saturação de referência 0,42 m³/m³). **41 pontos** em escala de 0 a 100; sem faixa de interpretação institucional validada nesta rodada.
-- Precipitação mediana no **dia de referência operacional**: **0,1 mm** · municípios sem chuva nesse dia: 58 de 142 (40,8%)
+- Precipitação mediana no dia de referência: **0,1 mm** · sem chuva: 58 de 142 (40,8%).
+- Monitor de Secas (jun/2026): MT sem áreas classificadas com seca — produto defasado; cruzar com sinais locais.
 
-**O que isso significa para esta semana?**
 
-No Monitor de Secas de junho de 2026, Mato Grosso não apresentava áreas classificadas com seca. A defasagem temporal desse produto e os sinais locais desta rodada recomendam interpretação conjunta, sem extrapolação estadual.
+### Impacto da chuva de 01/09/2026 (alívio térmico temporário)
+
+Pancadas de segunda (01/09) reduziram o calor extremo no estado; a projeção ~7 dias volta a pressionar. Foi **oscilação**, não encerramento da exposição térmica.
+
+- **Antes (31/08):** 63 de 142 (44,4%) com Tmáx ≥ 37 °C · Tmáx média **36,6 °C** · chuva ≥1 mm em 7 de 142 (4,9%).
+- **Com chuva (01/09):** 18 de 142 (12,7%) com Tmáx ≥ 37 °C · Tmáx média **34,7 °C** · chuva ≥1 mm em 97 de 142 (68,3%) (mediana **2,4 mm**, máx. **20,2 mm**).
+- **Cuiabá:** Tmáx **40,4 °C** (31/08) → **34,6 °C** (01/09, precip. **5,0 mm**).
+
+| Data | Mun. chuva ≥1 mm | Mun. Tmáx ≥37 °C | Tmáx média (°C) | Precip. mediana (mm) |
+| --- | --- | --- | --- | --- |
+| 2026-08-31 | 7 de 142 (4,9%) | 63 de 142 (44,4%) | 36,6 | 0,1 |
+| 2026-09-01 | 97 de 142 (68,3%) | 18 de 142 (12,7%) | 34,7 | 2,4 |
+| 2026-09-02 | 49 de 142 (34,5%) | 1 de 142 (0,7%) | 33,1 | 0,4 |
+
+Fonte: grade operacional ARARAS MT / Open-Meteo (um município por dia).
 
 ---
 
 ## 9. Fogo e qualidade do ar
 
-A previsão de risco de fogo para ASO intensifica o alerta alto no Centro-Oeste, especialmente em Mato Grosso, e na maior parte da Região Norte. Para a Amazônia Legal, o análogo CENSIPAM 2023/2024 aponta queimadas intensas em Tocantins, Pará, Maranhão, Mato Grosso e na região AMACRO (Acre, Amazonas e Rondônia).
+A previsão de risco de fogo para ASO intensifica o alerta alto no Centro-Oeste, especialmente em Mato Grosso, e na maior parte da Região Norte. Para a Amazônia Legal, o análogo Centro Gestor e Operacional do Sistema de Proteção da Amazônia (CENSIPAM) 2023/2024 aponta queimadas intensas em Tocantins, Pará, Maranhão, Mato Grosso e na região AMACRO (Acre, Amazonas e Rondônia).
 
 - Foram registrados 707 focos de calor pelo satélite de referência do Programa Queimadas/INPE (sensor MODIS), utilizado para comparação temporal da série histórica, em 60 de 142 municípios (42,3%) no acumulado de sete dias. O conjunto multi-satélite registrou 36.940 detecções no período; essas detecções não equivalem a 36.940 incêndios ou focos distintos. Colniza concentrou o maior número, com 97 focos no satélite de referência.
-- Índice de Qualidade do Ar (IQA) (classes, ordem operacional): verde: 77; amarela: 47; laranja: 17; vermelha: 1; roxa: 0; cinza: 0
+- Índice de Qualidade do Ar (IQA): verde: 77; amarela: 47; laranja: 17; vermelha: 1; roxa: 0; cinza: 0
 - PM2,5 mediano: **14,2 µg/m³** (mín. 6,2; máx. 62,0 µg/m³). P90 da rodada: 28,7 µg/m³. 18 de 142 (12,7%) apresentaram PM2,5 igual ou superior a 25 µg/m³ (parâmetro operacional de atenção sanitária do painel, alinhado a faixas de qualidade do ar). Cobertura espacial: 142 de 142 (100,0%). Interpretação sanitária: exposição à fumaça/partículas finas, com atenção a agravos respiratórios — associação temporal, sem inferência causal.
 
-A combinação de focos de calor e material particulado fino reforça a vigilância de agravos respiratórios nos municípios prioritários.
+Focos + PM2,5 reforçam vigilância respiratória nos prioritários.
 
 
 ---
@@ -275,7 +277,7 @@ Associação temporal/espacial — **não implica causalidade**.
 | Chuva intensa / Inundações | Doença Diarreica Aguda (DDA), leptospirose e traumas | Chuva, alertas e notificações |
 | Tempestades / Ventos fortes e descargas atmosféricas | Traumas | Avisos do INMET |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 19h25.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 22h02.
 
 > **Cenário hidrológico de inundação:** sinal localizado em 3 municípios no recorte hidrológico disponível (cobertura 10 de 142 (7,0%)). Não caracteriza cenário estadual. Se o evento for confirmado, monitorar DDA, leptospirose e traumas.
 
@@ -290,253 +292,120 @@ Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 19h25.
 
 ### Epidemiologia operacional (janela 7 dias)
 
-- **Intoxicação exógena (sinal de fumaça):** 0 notificações; **0** com sinal de fumaça.
+- **Intoxicação exógena (sinal de fumaça):** 48 notificações; **0** com sinal de fumaça.
 - **Internações IndicaSUS (competência 2026-06):** total **10.267** · respiratório/alérgico **24** · desidratação/calor **5**. _Janela de 7 dias sem registros na base; exibido o mês competência disponível._
 - **Atenção primária (Centralizador PEC/eSUS, 142 municípios):** cadastro **5.402.079** · asma **26.847** · Doença Pulmonar Obstrutiva Crônica (DPOC) **7.375** · idosos 60+ **727.991** · gestantes **192.553** · acamados **17.616**.
-- **Atendimentos na atenção primária:** **104.845** em 7 dias e **505.037** em 28 dias (107 municípios com registro no período) · CID respiratório 28d **3.771** · nebulização 28d **0** (7d **0**).
+- **Atendimentos na atenção primária:** **104.845** em 7 dias e **505.037** em 28 dias (107 municípios com registro no período) · CID respiratório 28d **3.771**.
 - **classes vermelha e roxa ARARAS:** 109 municípios com cadastro na atenção primária. Contagem operacional; não é incidência nem diagnóstico.
 - **Atualidade da carga de atendimentos:** última data válida no Centralizador **2026-08-07** (atraso de **27** dia(s); janela 7d/28d ancorada em **2026-08-07**). Ausência de município no período **não** significa zero clínico — pode ser atraso de envio ao `esus2`.
 
 **Tabela 5 – PEC/eSUS por classe ARARAS (universo estadual)**
 
-| Classe | Municípios | Asma (cad.) | Idoso 60+ | Atend. 28d | Nebulização 28d |
+| Classe | Municípios | Asma (cad.) | Idoso 60+ | Atend. 28d |
+| --- | --- | --- | --- | --- |
+| roxa | 60 | 18.821 | 487.399 | 345.792 |
+| vermelha | 49 | 4.974 | 136.782 | 106.111 |
+| laranja | 31 | 2.904 | 100.940 | 46.739 |
+| amarela | 2 | 148 | 2.870 | 6.395 |
+
+Fonte: Centralizador PEC/eSUS (esus2), cadastro vigente e atendimentos agregados nas janelas de 7 e 28 dias; classe ARARAS da rodada. Contagem operacional, não incidência.
+
+**Tabela 6 – PEC/eSUS top municípios (sinal Atenção Primária à Saúde (APS), máx. 15)**
+
+| Município | Classe | Asma (cad.) | Idoso 60+ | Atend. 28d | CID resp. 28d |
 | --- | --- | --- | --- | --- | --- |
-| roxa | 60 | 18.821 | 487.399 | 345.792 | 0 |
-| vermelha | 49 | 4.974 | 136.782 | 106.111 | 0 |
-| laranja | 31 | 2.904 | 100.940 | 46.739 | 0 |
-| amarela | 2 | 148 | 2.870 | 6.395 | 0 |
-
-Fonte: Centralizador PEC/eSUS (esus2), cadastro vigente e atendimentos agregados nas janelas de 7 e 28 dias; classe ARARAS da rodada. Contagem operacional, não incidência.
-
-**Tabela 6 – PEC/eSUS por município (universo estadual)**
-
-| Município | Classe | Asma (cad.) | Idoso 60+ | Atend. 28d | CID resp. 28d | Nebulização 28d |
-| --- | --- | --- | --- | --- | --- | --- |
-| CUIABÁ | roxa | 4.263 | 94.206 | 68.748 | 551 | 0 |
-| RONDONÓPOLIS | roxa | 1.607 | 57.202 | 24.989 | 177 | 0 |
-| SORRISO | roxa | 895 | 25.679 | 21.722 | 135 | 0 |
-| PRIMAVERA DO LESTE | roxa | 843 | 14.056 | 9.528 | 94 | 0 |
-| LUCAS DO RIO VERDE | roxa | 833 | 17.173 | 16.525 | 191 | 0 |
-| VÁRZEA GRANDE | roxa | 778 | 33.763 | 0 | 0 | 0 |
-| BARRA DO GARÇAS | roxa | 696 | 15.761 | 12.257 | 97 | 0 |
-| CAMPO VERDE | roxa | 649 | 9.432 | 10.928 | 87 | 0 |
-| SINOP | roxa | 566 | 19.551 | 29.899 | 286 | 0 |
-| QUERÊNCIA | roxa | 525 | 4.204 | 8.738 | 82 | 0 |
-| NOVA MUTUM | roxa | 451 | 12.987 | 16.104 | 102 | 0 |
-| ÁGUA BOA | roxa | 422 | 7.955 | 15.540 | 74 | 0 |
-| CONFRESA | roxa | 411 | 7.370 | 0 | 0 | 0 |
-| SÃO FÉLIX DO ARAGUAIA | roxa | 354 | 2.799 | 0 | 0 | 0 |
-| CAMPO NOVO DO PARECIS | roxa | 326 | 5.269 | 2.209 | 21 | 0 |
-| TANGARÁ DA SERRA | roxa | 318 | 13.686 | 15.657 | 92 | 0 |
-| VILA RICA | roxa | 291 | 4.027 | 0 | 0 | 0 |
-| ARIPUANÃ | roxa | 249 | 3.629 | 4.150 | 53 | 0 |
-| ALTA FLORESTA | roxa | 228 | 10.714 | 0 | 0 | 0 |
-| PORTO ALEGRE DO NORTE | roxa | 220 | 2.725 | 0 | 0 | 0 |
-| SANTA TEREZINHA | roxa | 218 | 1.716 | 1.241 | 8 | 0 |
-| NOVA XAVANTINA | roxa | 207 | 6.921 | 5.616 | 37 | 0 |
-| CÁCERES | roxa | 197 | 10.528 | 14.908 | 255 | 0 |
-| DIAMANTINO | roxa | 183 | 7.507 | 4.916 | 42 | 0 |
-| TABAPORÃ | roxa | 162 | 2.195 | 636 | 3 | 0 |
-| COLÍDER | roxa | 158 | 11.236 | 5.533 | 31 | 0 |
-| IPIRANGA DO NORTE | roxa | 157 | 2.613 | 1.999 | 15 | 0 |
-| ALTO GARÇAS | roxa | 154 | 5.423 | 3.492 | 13 | 0 |
-| JUÍNA | roxa | 145 | 10.560 | 6.184 | 23 | 0 |
-| VERA | roxa | 144 | 2.774 | 1.865 | 9 | 0 |
-| BRASNORTE | roxa | 142 | 2.979 | 2.367 | 29 | 0 |
-| SAPEZAL | roxa | 141 | 3.116 | 6.223 | 107 | 0 |
-| CANARANA | roxa | 139 | 5.012 | 0 | 0 | 0 |
-| BARRA DO BUGRES | roxa | 136 | 5.043 | 4.595 | 28 | 0 |
-| ALTO BOA VISTA | roxa | 129 | 1.003 | 0 | 0 | 0 |
-| NOVO MUNDO | roxa | 127 | 1.948 | 3.593 | 28 | 0 |
-| NOVA UBIRATÃ | roxa | 111 | 3.366 | 3.229 | 22 | 0 |
-| SÃO JOSÉ DO XINGU | roxa | 109 | 904 | 0 | 0 | 0 |
-| NOVA NAZARÉ | roxa | 90 | 827 | 0 | 0 | 0 |
-| MATUPÁ | roxa | 87 | 4.641 | 3.736 | 12 | 0 |
-| ARAGUAIANA | roxa | 75 | 1.432 | 639 | 3 | 0 |
-| NOVO SANTO ANTÔNIO | roxa | 75 | 624 | 0 | 0 | 0 |
-| MARCELÂNDIA | roxa | 70 | 2.869 | 2.329 | 5 | 0 |
-| LUCIARA | roxa | 70 | 620 | 0 | 0 | 0 |
-| GAÚCHA DO NORTE | roxa | 67 | 1.362 | 0 | 0 | 0 |
-| SERRA NOVA DOURADA | roxa | 64 | 644 | 0 | 0 | 0 |
-| RIBEIRÃO CASCALHEIRA | roxa | 63 | 2.027 | 2.262 | 2 | 0 |
-| CANABRAVA DO NORTE | roxa | 63 | 1.500 | 508 | 6 | 0 |
-| CLÁUDIA | roxa | 53 | 4.534 | 1.407 | 8 | 0 |
-| COLNIZA | roxa | 50 | 3.777 | 0 | 0 | 0 |
-| COCALINHO | roxa | 50 | 1.968 | 1.618 | 5 | 0 |
-| BOA ESPERANÇA DO NORTE | roxa | 41 | 827 | 1.190 | 2 | 0 |
-| NOVA BRASILÂNDIA | roxa | 38 | 1.404 | 990 | 3 | 0 |
-| NOVA GUARITA | roxa | 34 | 1.630 | 2.224 | 18 | 0 |
-| NORTELÂNDIA | roxa | 30 | 2.195 | 631 | 3 | 0 |
-| PLANALTO DA SERRA | roxa | 27 | 1.066 | 1.071 | 2 | 0 |
-| CAMPINÁPOLIS | roxa | 26 | 2.195 | 2.015 | 12 | 0 |
-| RONDOLÂNDIA | roxa | 25 | 733 | 386 | 1 | 0 |
-| CASTANHEIRA | roxa | 23 | 1.492 | 0 | 0 | 0 |
-| JURUENA | roxa | 16 | 2.000 | 1.395 | 7 | 0 |
-| PEIXOTO DE AZEVEDO | vermelha | 457 | 6.224 | 4.425 | 25 | 0 |
-| JUARA | vermelha | 299 | 6.397 | 10.474 | 68 | 0 |
-| CHAPADA DOS GUIMARÃES | vermelha | 284 | 6.056 | 3.656 | 30 | 0 |
-| SÃO JOSÉ DO RIO CLARO | vermelha | 273 | 4.819 | 3.524 | 8 | 0 |
-| CAMPOS DE JÚLIO | vermelha | 231 | 2.665 | 2.167 | 18 | 0 |
-| SANTO ANTÔNIO DO LEVERGER | vermelha | 196 | 6.235 | 1.757 | 7 | 0 |
-| TAPURAH | vermelha | 163 | 4.447 | 0 | 0 | 0 |
-| BOM JESUS DO ARAGUAIA | vermelha | 158 | 1.602 | 1.516 | 12 | 0 |
-| PARANAÍTA | vermelha | 155 | 5.482 | 2.901 | 18 | 0 |
-| GUARANTÃ DO NORTE | vermelha | 149 | 8.781 | 0 | 0 | 0 |
-| NOVA CANAÃ DO NORTE | vermelha | 129 | 3.664 | 2.520 | 7 | 0 |
-| UNIÃO DO SUL | vermelha | 123 | 1.250 | 2.104 | 16 | 0 |
-| LAMBARI D'OESTE | vermelha | 118 | 1.541 | 2.252 | 102 | 0 |
-| ARENÁPOLIS | vermelha | 112 | 3.362 | 5.005 | 34 | 0 |
-| NOVA BANDEIRANTES | vermelha | 107 | 2.810 | 4.034 | 43 | 0 |
-| APIACÁS | vermelha | 107 | 2.312 | 1.791 | 1 | 0 |
-| NOVA OLÍMPIA | vermelha | 99 | 3.101 | 687 | 2 | 0 |
-| TERRA NOVA DO NORTE | vermelha | 93 | 4.155 | 1.632 | 8 | 0 |
-| ITANHANGÁ | vermelha | 91 | 1.557 | 2.772 | 3 | 0 |
-| NOVA MARINGÁ | vermelha | 89 | 1.461 | 0 | 0 | 0 |
-| PEDRA PRETA | vermelha | 86 | 5.105 | 1.726 | 14 | 0 |
-| NOVA LACERDA | vermelha | 86 | 1.739 | 3.570 | 34 | 0 |
-| RIO BRANCO | vermelha | 86 | 1.687 | 3.315 | 13 | 0 |
-| NOVA SANTA HELENA | vermelha | 83 | 1.700 | 3.807 | 25 | 0 |
-| CURVELÂNDIA | vermelha | 81 | 1.622 | 2.725 | 11 | 0 |
-| ROSÁRIO OESTE | vermelha | 80 | 7.890 | 0 | 0 | 0 |
-| NOVO HORIZONTE DO NORTE | vermelha | 80 | 1.709 | 723 | 4 | 0 |
-| NOVO SÃO JOAQUIM | vermelha | 78 | 1.572 | 0 | 0 | 0 |
-| SÃO JOSÉ DOS QUATRO MARCOS | vermelha | 72 | 4.171 | 2.849 | 17 | 0 |
-| COTRIGUAÇU | vermelha | 71 | 2.089 | 1.626 | 21 | 0 |
-| ACORIZAL | vermelha | 69 | 1.586 | 2.241 | 12 | 0 |
-| MIRASSOL D'OESTE | vermelha | 67 | 4.066 | 6.805 | 58 | 0 |
-| SANTA CARMEM | vermelha | 65 | 2.058 | 1.051 | 4 | 0 |
-| CARLINDA | vermelha | 52 | 2.687 | 626 | 1 | 0 |
-| DENISE | vermelha | 52 | 1.266 | 0 | 0 | 0 |
-| RIBEIRÃOZINHO | vermelha | 52 | 655 | 0 | 0 | 0 |
-| PORTO ESTRELA | vermelha | 49 | 1.859 | 456 | 4 | 0 |
-| JANGADA | vermelha | 48 | 1.845 | 2.460 | 8 | 0 |
-| SANTA CRUZ DO XINGU | vermelha | 41 | 570 | 1.745 | 6 | 0 |
-| BARÃO DE MELGAÇO | vermelha | 36 | 2.068 | 601 | 0 | 0 |
-| ITAÚBA | vermelha | 29 | 1.772 | 1.213 | 4 | 0 |
-| PONTAL DO ARAGUAIA | vermelha | 29 | 1.501 | 2.260 | 15 | 0 |
-| SANTA RITA DO TRIVELATO | vermelha | 29 | 1.242 | 762 | 2 | 0 |
-| SÃO JOSÉ DO POVO | vermelha | 28 | 1.501 | 0 | 0 | 0 |
-| SANTO ANTÔNIO DO LESTE | vermelha | 22 | 789 | 732 | 12 | 0 |
-| NOVA MARILÂNDIA | vermelha | 21 | 821 | 2.395 | 7 | 0 |
-| SÃO PEDRO DA CIPA | vermelha | 19 | 904 | 1.927 | 19 | 0 |
-| NOVA MONTE VERDE | vermelha | 17 | 1.578 | 4.746 | 11 | 0 |
-| SANTO AFONSO | vermelha | 13 | 809 | 2.533 | 6 | 0 |
-| ARAPUTANGA | laranja | 264 | 3.781 | 3.010 | 17 | 0 |
-| PONTES E LACERDA | laranja | 262 | 12.855 | 0 | 0 | 0 |
-| PORTO ESPERIDIÃO | laranja | 200 | 2.968 | 6.432 | 31 | 0 |
-| FELIZ NATAL | laranja | 183 | 2.904 | 0 | 0 | 0 |
-| JUSCIMEIRA | laranja | 140 | 3.192 | 1.663 | 10 | 0 |
-| JACIARA | laranja | 131 | 7.547 | 0 | 0 | 0 |
-| NOSSA SENHORA DO LIVRAMENTO | laranja | 128 | 4.806 | 0 | 0 | 0 |
-| NOBRES | laranja | 127 | 6.955 | 2.542 | 4 | 0 |
-| ALTO ARAGUAIA | laranja | 125 | 4.992 | 3.227 | 30 | 0 |
-| GENERAL CARNEIRO | laranja | 124 | 1.137 | 1.148 | 8 | 0 |
-| COMODORO | laranja | 121 | 3.488 | 0 | 0 | 0 |
-| POCONÉ | laranja | 119 | 7.670 | 4.543 | 24 | 0 |
-| ITIQUIRA | laranja | 116 | 3.099 | 0 | 0 | 0 |
-| PORTO DOS GAÚCHOS | laranja | 115 | 2.195 | 2.683 | 26 | 0 |
-| POXORÉU | laranja | 104 | 5.006 | 1.364 | 4 | 0 |
-| PARANATINGA | laranja | 88 | 3.698 | 5.202 | 24 | 0 |
-| GUIRATINGA | laranja | 87 | 3.577 | 1.029 | 3 | 0 |
-| VILA BELA DA SANTÍSSIMA TRINDADE | laranja | 86 | 2.690 | 969 | 1 | 0 |
-| DOM AQUINO | laranja | 53 | 2.807 | 2.213 | 14 | 0 |
-| GLÓRIA D'OESTE | laranja | 53 | 1.322 | 1.714 | 5 | 0 |
-| TORIXORÉU | laranja | 42 | 1.259 | 1.833 | 8 | 0 |
-| JAURU | laranja | 37 | 3.148 | 0 | 0 | 0 |
-| ALTO PARAGUAI | laranja | 32 | 2.186 | 0 | 0 | 0 |
-| SALTO DO CÉU | laranja | 28 | 1.375 | 2.193 | 5 | 0 |
-| TESOURO | laranja | 28 | 1.127 | 829 | 6 | 0 |
-| PONTE BRANCA | laranja | 21 | 871 | 0 | 0 | 0 |
-| ARAGUAINHA | laranja | 21 | 359 | 0 | 0 | 0 |
-| RESERVA DO CABAÇAL | laranja | 20 | 895 | 868 | 1 | 0 |
-| VALE DE SÃO DOMINGOS | laranja | 18 | 1.113 | 0 | 0 | 0 |
-| INDIAVAÍ | laranja | 18 | 814 | 1.720 | 5 | 0 |
-| FIGUEIRÓPOLIS D'OESTE | laranja | 13 | 1.104 | 1.557 | 6 | 0 |
-| ALTO TAQUARI | amarela | 145 | 1.872 | 4.489 | 21 | 0 |
-| CONQUISTA D'OESTE | amarela | 3 | 998 | 1.906 | 27 | 0 |
+| CUIABÁ | roxa | 4.263 | 94.206 | 68.748 | 551 |
+| RONDONÓPOLIS | roxa | 1.607 | 57.202 | 24.989 | 177 |
+| SORRISO | roxa | 895 | 25.679 | 21.722 | 135 |
+| PRIMAVERA DO LESTE | roxa | 843 | 14.056 | 9.528 | 94 |
+| LUCAS DO RIO VERDE | roxa | 833 | 17.173 | 16.525 | 191 |
+| VÁRZEA GRANDE | roxa | 778 | 33.763 | 0 | 0 |
+| BARRA DO GARÇAS | roxa | 696 | 15.761 | 12.257 | 97 |
+| CAMPO VERDE | roxa | 649 | 9.432 | 10.928 | 87 |
+| SINOP | roxa | 566 | 19.551 | 29.899 | 286 |
+| QUERÊNCIA | roxa | 525 | 4.204 | 8.738 | 82 |
+| PEIXOTO DE AZEVEDO | vermelha | 457 | 6.224 | 4.425 | 25 |
+| NOVA MUTUM | roxa | 451 | 12.987 | 16.104 | 102 |
 
 Fonte: Centralizador PEC/eSUS (esus2), cadastro vigente e atendimentos agregados nas janelas de 7 e 28 dias; classe ARARAS da rodada. Contagem operacional, não incidência.
 
 
-### Análise e-Sistema Único de Saúde (SUS) Atenção Primária à Saúde (APS) × clima e classes ARARAS
+### Análise e-Sistema Único de Saúde (SUS) APS × clima e classes ARARAS
 
-Cruzamento ecológico municipal (cadastro/atendimentos da atenção primária com Tmáx, PM2,5 e classe). **Não implica causalidade individual.**
+Cruzamento ecológico municipal (cadastro/atendimentos da APS com Tmáx, PM2,5 e classe). **Não implica causalidade individual.**
 
 - **Universo:** 142 municípios · **109** nas classes vermelha e roxa.
-- **Cadastro (somatório):** asma **26.847** · DPOC **7.375** · idosos 60+ **727.991** · gestantes **192.553** · acamados **17.616**.
-- **Atendimentos:** 7d **104.845** · 28d **505.037** · CID respiratório 28d **3.771** · nebulização 28d **0**.
-- **Médias — críticos vs demais:** asma 218 vs 92 · idosos 5.726 vs 3.146 · atend. 28d 4.146 vs 1.610.
-- **Ambiente nos críticos:** Tmáx média **35,5 °C** · PM2,5 média **18,4 µg/m³**.
+- **Cadastro:** asma **26.847** · DPOC **7.375** · idosos 60+ **727.991** · gestantes **192.553** · acamados **17.616**.
+- **Atendimentos:** 7d **104.845** · 28d **505.037** · CID respiratório 28d **3.771**.
+- **Críticos vs demais (médias):** idosos 5.726 vs 3.146 · atend. 28d 4.146 vs 1.610 · Tmáx **35,5 °C** · PM2,5 **18,4 µg/m³**.
 
-**Correlações ecológicas (Spearman)**
+**Correlações (Spearman):**
+- **Atend. 28d × Tmáx:** ρ de Spearman = **-0,07** · n=142 (p=0,402).
+- **CID respiratório 28d × PM2,5:** ρ de Spearman = **-0,11** · n=142 (p=0,205).
+- **Idosos 60+ × Tmáx:** ρ de Spearman = **-0,09** · n=142 (p=0,284).
 
-- **Atendimentos 28d × Tmáx:** insuficiente (n=142).
-- **Atendimentos 28d × PM2,5:** insuficiente (n=142).
-- **CID respiratório 28d × PM2,5:** insuficiente (n=142).
-- **Cadastro asma × PM2,5:** insuficiente (n=142).
-- **Cadastro idosos 60+ × Tmáx:** insuficiente (n=142).
+Fonte: Centralizador PEC/eSUS (agregado municipal) × ARARAS. Ausência de atendimento não é zero clínico. Detalhamento no painel operacional.
 
-**Tabela 7 – Municípios com mais CID respiratório (28d) na APS**
+**Figura – Vulneráveis na APS por classe ARARAS**
 
-| Município | Classe | CID resp. 28d | PM2,5 | Tmáx (°C) | Atend. 28d |
-| --- | --- | --- | --- | --- | --- |
-| CUIABÁ | roxa | 551 | 10,2 | 36,3 | 68.748 |
-| SINOP | roxa | 286 | 13,5 | 34,7 | 29.899 |
-| CÁCERES | roxa | 255 | 7,4 | 36,4 | 14.908 |
-| LUCAS DO RIO VERDE | roxa | 191 | 15,8 | 35,7 | 16.525 |
-| RONDONÓPOLIS | roxa | 177 | 14,8 | 36,2 | 24.989 |
-| SORRISO | roxa | 135 | 15,6 | 36,3 | 21.722 |
-| SAPEZAL | roxa | 107 | 11,8 | 34,9 | 6.223 |
-| LAMBARI D'OESTE | vermelha | 102 | 9,2 | 36,0 | 2.252 |
-| NOVA MUTUM | roxa | 102 | 18,6 | 35,8 | 16.104 |
+![Vulneráveis APS](_assets_SE_35-2026/grafico_esus_vulneraveis_classe.png)
 
-Fonte: Centralizador PEC/eSUS (agregado municipal) cruzado com resumo ARARAS da rodada. Correlação ecológica; ausência de atendimento não é zero clínico.
+Fonte: e-SUS APS (cadastro) × classe ARARAS da rodada.
 
 
-### Ondas de calor — levantamento STAR (Anexo 1) e método GeoCalor
+### Ondas de calor
 
-Complementa o monitoramento operacional ARARAS (P95 ≥ 2 dias / UTCI) com o recorte STAR e a metodologia científica EHF (Nairn & Fawcett, ≥ 3 dias consecutivos), alinhada ao GeoCalor/Fiocruz. O GeoCalor público **não** cobre Cuiabá/MT; o ARARAS aplica o mesmo EHF aos 142 municípios.
+Monitoramento operacional ARARAS: persistência térmica (P95 ≥ 2 dias) e UTCI; EHF quando disponível. **Não substitui** avisos do INMET.
 
-- **Situação na rodada (ARARAS/STAR):** **109 de 142 (76,8%)** nas classes vermelha e roxa agora; **130 de 142 (91,5%)** na projeção ~7 dias.
-- **Calor extremo:** Tmáx máxima **39,2 °C** · **9 de 142 (6,3%)** com Tmáx ≥ 37 °C · flag operacional de onda (P95≥2d) em **1 de 142 (0,7%)**.
-- **Qualidade do ar no mesmo recorte:** **18 de 142 (12,7%)** com PM2,5 ≥ 25 µg/m³.
-- **Pressão hospitalar (IndicaSUS tempo real, STAR):** ocupação **57,0%** (3.346/5.872 leitos) em 85 municípios com leitos elegíveis.
-- **Óbitos sensíveis ao calor (SIM, contexto STAR) (2024-01-01 a 2026-08-14):** **15.329** (associação ecológica; não afirma causalidade individual).
+- **Picos da janela (2026-08-21 a 2026-09-03):** Tmáx máxima estadual **41,4 °C** · **2 de 142 (1,4%)** ≥ 41 °C · **11 de 142 (7,7%)** ≥ 40 °C · **75 de 142 (52,8%)** ≥ 37 °C.
+- **Contexto da grade do dia (rodada):** Tmáx máx. **39,2 °C** em Cocalinho · **9 de 142 (6,3%)** ≥ 37 °C hoje · onda (P95≥2d) em **1 de 142 (0,7%)** — distinto do pico da janela.
 
-**Tabela 8 – Municípios com maior Tmáx (recorte STAR / rodada SE)**
+**Picos de Tmáx municipal na janela (≥ 40 °C quando houver; senão ≥ 37 °C)**
 
-| Município | Regional | Tmáx (°C) | Classe | PM2,5 |
-| --- | --- | --- | --- | --- |
-| Cocalinho | Água Boa | 39,3 | roxa | 14,6 |
-| Nova Nazaré | Água Boa | 38,7 | roxa | 23,4 |
-| Araguaiana | Barra do Garças | 38,6 | roxa | 18,1 |
-| Novo Santo Antônio | São Félix do Araguaia | 38,6 | roxa | 19,5 |
-| Canabrava do Norte | Porto Alegre do Norte | 38,0 | roxa | 21,6 |
-| Água Boa | Água Boa | 37,9 | roxa | 30,4 |
-| Nova Xavantina | Barra do Garças | 37,7 | roxa | 38,7 |
-| Luciara | São Félix do Araguaia | 37,6 | roxa | 49,1 |
+| Município | Tmáx pico | Data |
+| --- | --- | --- |
+| Araguaiana | 41,4 °C | 2026-08-30 |
+| Cocalinho | 41,2 °C | 2026-09-01 |
+| São José do Povo | 40,7 °C | 2026-08-31 |
+| Novo Santo Antônio | 40,4 °C | 2026-08-25 |
+| Cuiabá | 40,4 °C | 2026-08-31 |
+| São Pedro da Cipa | 40,3 °C | 2026-08-31 |
+| Nova Nazaré | 40,2 °C | 2026-08-26 |
+| Campinápolis | 40,1 °C | 2026-08-31 |
+| Nossa Senhora do Livramento | 40,0 °C | 2026-08-30 |
+| Porto Alegre do Norte | 40,0 °C | 2026-08-25 |
+| Canabrava do Norte | 40,0 °C | 2026-08-25 |
 
-Fonte: rodada ARARAS MT / exporto STAR municipal da SE; Tmáx e PM2,5 da grade operacional.
+Fonte: histórico municipal diário ARARAS (grade Open-Meteo). Pico = máxima diária por município na janela.
 
-**Tabela 9 – Prioridade STAR (índice composto) — top municípios**
+**Figura – Ranking de picos de Tmáx na janela**
 
-| Município | Regional | Índice prioridade | Classe | Tmáx (°C) |
-| --- | --- | --- | --- | --- |
-| Planalto da Serra | Baixada Cuiabana | 70,2 | roxa | 36,3 |
-| Sinop | Sinop | 70,0 | roxa | 35,0 |
-| Nova Ubiratã | Sinop | 68,8 | roxa | 35,6 |
-| Araguaiana | Barra do Garças | 68,6 | roxa | 38,6 |
-| Nova Nazaré | Água Boa | 68,4 | roxa | 38,7 |
-| Novo Santo Antônio | São Félix do Araguaia | 68,3 | roxa | 38,6 |
-| Canabrava do Norte | Porto Alegre do Norte | 68,2 | roxa | 38,0 |
-| Rondolândia | Pontes e Lacerda | 67,6 | roxa | 35,7 |
+![Picos de Tmáx](_assets_SE_35-2026/grafico_picos_tmax_semana.png)
 
-Fonte: índice de prioridade STAR (Anexo 1 / exporto municipal) cruzado com a classe ARARAS da rodada.
+Fonte: ARARAS MT — histórico municipal diário da janela.
+- **Cuiabá:** INMET **41,2 °C** (30/08) e **41,3 °C** (31/08); Open-Meteo na semana ~**40,4 °C** (modelo < estação).
+- **classes vermelha e roxa:** **109 de 142 (76,8%)** agora · projeção ~7d **130 de 142 (91,5%)**.
+- **Chuva 01/09:** alívio térmico temporário (seção de recursos hídricos); não encerra a pressão projetada.
 
-- **Catálogo científico EHF (CDS ERA5-Land / GeoCalor):** metodologia **GeoCalor_EHF_NairnFawcett_3d** · janela carregada **2021-07-24 a 2026-09-03** · **139** municípios · **1.386** evento(s) · **9.236** dias de onda.
-- Fonte climática EHF: cache_local. A série completa (≥5 anos) segue em carga para o Anexo STAR; o alerta diário da Sala permanece no limiar operacional ARARAS (P95 ≥ 2 dias).
+**Figura – Temperaturas diárias em Cuiabá (1981–2026)**
 
-Fonte: exportos STAR em data/output/star (resumo SE, Anexo 1 e carga GeoCalor/CDS ERA5-Land); classe e ocupação alinhadas à rodada ARARAS. Contagem operacional / associação ecológica — não é incidência nem causalidade individual.
+![Temperaturas diárias Cuiabá](_assets_SE_35-2026/serie_cuiaba_temperaturas_diarias.png)
+
+Fonte: Open-Meteo Archive (ponto Cuiabá). Pontos pretos: máximas oficiais INMET em 30–31/08/2026 (41,2 e 41,3 °C). Série 1981-01-01 a 2026-09-09.
+
+**Figura – Amplitude térmica diária em Cuiabá**
+
+![Amplitude térmica Cuiabá](_assets_SE_35-2026/serie_cuiaba_amplitude_termica.png)
+
+Fonte: Open-Meteo Archive (máxima − mínima diária) com média móvel de 30 dias.
+
+**Figura – Série climática operacional estadual (Tmáx mensal, 2021-07-24 a 2026-09-09)**
+
+![Série climática Tmáx](_assets_SE_35-2026/serie_climatica_tmax.png)
+
+Fonte: grade operacional ARARAS MT (história climática municipal). Série disponível a partir de 2021-07-24.
+
+Fonte: ARARAS MT/CIEVS-MT; Open-Meteo Archive; INMET (máximas oficiais de estação). Contagem operacional — não é incidência nem causalidade individual.
 
 ### Óbitos sensíveis ao calor/clima (SIM)
 
@@ -548,7 +417,7 @@ Fonte: exportos STAR em data/output/star (resumo SE, Anexo 1 e carga GeoCalor/CD
 
 **Leitura epidemiológica**
 
-Associação temporal e espacial não implica causalidade. Sinais assistenciais e de notificação devem ser lidos com a defasagem das fontes e com a cobertura de cada indicador.
+Associação temporal/espacial ≠ causalidade. Ler sinais com defasagem e cobertura de cada fonte.
 
 ---
 
@@ -556,7 +425,7 @@ Associação temporal e espacial não implica causalidade. Sinais assistenciais 
 
 ### 11.1 Regionais de Saúde
 
-**Tabela 10 – Regionais de saúde com maior concentração de municípios nas classes vermelha e roxa**
+**Tabela 7 – Regionais de saúde com maior concentração de municípios nas classes vermelha e roxa**
 
 | Regional | Municípios nas classes vermelha e roxa (atual) | Mudança ~7 dias | Tmáx mediana |
 | --- | --- | --- | --- |
@@ -579,7 +448,7 @@ Nota: ↑ indica aumento da classificação; → estabilidade; ↓ redução, co
 
 Municípios no extremo de atenção. Municípios prioritários para acompanhamento.
 
-**Tabela 11 – Índice de prioridade de preparação clima–saúde (dez municípios)**
+**Tabela 8 – Índice de prioridade de preparação clima–saúde (dez municípios)**
 
 | Município | Regional | Atual → ~7 dias | Índice | Faixa | Determinante principal |
 | --- | --- | --- | --- | --- | --- |
@@ -594,7 +463,7 @@ Municípios no extremo de atenção. Municípios prioritários para acompanhamen
 | Castanheira | Juína | Roxa → Roxa | 83,5 | Crítica | prioridade operacional |
 | Porto Estrela | Tangará da Serra | Vermelha → Roxa | 82,8 | Crítica | vulnerabilidade |
 
-Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 19h25.
+Fonte: ARARAS MT/CIEVS-MT, rodada de 03/09/2026 às 22h02.
 
 _O índice combina pressão assistencial, exposição ambiental, vulnerabilidade e prioridade operacional em escala normalizada de 0 a 100. A classe climática atual é contexto territorial e não entra no cálculo. Faixas qualitativas: Acompanhamento (<35); Moderada (35 a <55); Alta (55 a <75); Crítica (≥75). Para os municípios do Top 10, recomenda-se preparação assistencial e intensificação da vigilância, moduladas pelo principal determinante identificado._
 
@@ -686,14 +555,21 @@ _Termômetro assistencial: % ponderado por leitos elegíveis (SIEGES). Municípi
 
 ---
 
-### 11.4 Povos indígenas, comunidades quilombolas e acesso assistencial
+### 11.4 Povos indígenas, comunidades quilombolas, idosos, gestantes e acesso assistencial
+
+**Mapa 4 – Classificação ARARAS e populações vulneráveis (indígenas, quilombolas, idosos e gestantes)**
+
+![Mapa 4](_assets_SE_35-2026/mapa_vulneraveis_araras.png)
+
+Fonte: ARARAS MT/CIEVS-MT; Fundação Nacional dos Povos Indígenas (FUNAI) (aldeias); Fundação Cultural Palmares (quilombos); e-SUS APS (idosos/gestantes em municípios vermelhos/roxos). Rodada de 03/09/2026 às 22h02.
+Nota: aldeias por coordenada disponível; quilombos sem coordenada validada aparecem como presença municipal. Bolhas de idosos/gestantes são escala visual do cadastro APS — não são incidência.
 
 **Mapa 3 – Classificação de risco climático, aldeias indígenas e municípios com comunidades quilombolas certificadas em Mato Grosso**
 
 ![Mapa 3](_assets_SE_35-2026/mapa_territorios_tradicionais.png)
 
-Fonte: ARARAS MT/CIEVS-MT, com dados da Fundação Nacional dos Povos Indígenas (FUNAI) e Fundação Cultural Palmares. Rodada de 03/09/2026 às 19h25.
-Nota: Aldeias são representadas por coordenadas georreferenciadas disponíveis. Para comunidades quilombolas sem coordenadas oficiais validadas, a representação indica presença municipal e não localização exata. Certificação pela Fundação Cultural Palmares não equivale a território delimitado ou titulado.
+Fonte: ARARAS MT/CIEVS-MT, com dados da Fundação Nacional dos Povos Indígenas (FUNAI) e Fundação Cultural Palmares. Rodada de 03/09/2026 às 22h02.
+Nota: Aldeias são representadas por coordenadas georreferenciadas disponíveis. Para comunidades quilombolas sem coordenadas oficiais validadas, a representação indica presença municipal e não localização exata.
 
 **Municípios com aldeias indígenas em classes vermelha ou roxa**
 
@@ -722,7 +598,7 @@ _Comunidade certificada pela Fundação Cultural Palmares não equivale necessar
 
 O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo certificado sobre a classe ARARAS. A Tabela 7 restringe o recorte a municípios **vermelhos ou roxos** com território longe da Atenção Primária à Saúde (APS) (> 30 km) ou do hospital (> 50 km).
 
-**Tabela 12 – Municípios com maior prioridade combinada de risco e dificuldade de acesso assistencial**
+**Tabela 9 – Municípios com maior prioridade combinada de risco e dificuldade de acesso assistencial**
 
 | Município | Classe | Territórios distantes | P90 APS (km) | Máx. APS (km) | Máx. hospital (km) |
 | --- | --- | --- | --- | --- | --- |
@@ -813,17 +689,15 @@ O Ministério da Saúde reconhece trabalhadores externos urbanos e rurais como p
 
 ---
 
-## 13. Preparação assistencial e farmacêutica — estoques estratégicos
+## 13. Orientações de estoques e insumos (provisório)
 
-Avaliar capacidade e autonomia de insumos da Assistência Farmacêutica conforme protocolos oficiais (Relação Nacional de Medicamentos Essenciais — RENAME; Protocolos Clínicos e Diretrizes Terapêuticas — PCDT; notas técnicas do Ministério da Saúde e da Secretaria de Estado de Saúde de Mato Grosso), orientando redução de exposição conforme protocolos vigentes. **Não prescreve medicamentos.**
+Até validação dos dados de estoques estratégicos estaduais, este boletim **não** publica quadro de estoques nem autonomia por item.
 
-> **Atenção — última atualização da base de estoque: 18/06/2026 às 00h00.**
-> Os valores devem ser confirmados no sistema oficial antes de qualquer decisão operacional.
-> **Status atual: NÃO AVALIÁVEL POR DEFASAGEM** (carga com 77 dias; limite operacional adotado para este boletim: 14 dias).
-
-Última informação disponível: **18/06/2026 às 00h00** — dado desatualizado para avaliação da situação corrente (SES-MT, 2026). Cobertura cadastral na carga: **12** municípios · **4** itens. **48** registros que apresentavam autonomia crítica na última carga disponível e requerem validação no sistema oficial. Não se classifica ruptura atual nem ranking operacional com esta carga. O detalhamento municipal por item permanece disponível no **painel operacional** e deve ser consultado após validação no sistema oficial de estoques.
-
-Dado indisponível nesta rodada.
+Orientações gerais para regionais e municípios sob pressão térmica/fumaça:
+- Conferir autonomia de reidratação oral (SRO), soro endovenoso, broncodilatadores e hipoclorito conforme protocolos oficiais (Relação Nacional de Medicamentos Essenciais (RENAME), Protocolos Clínicos e Diretrizes Terapêuticas (PCDT) e notas técnicas do Ministério da Saúde / SES-MT).
+- Reportar rupturas e risco de desabastecimento à Regional de Saúde com antecedência.
+- Priorizar redistribuição e logística de última milha nos municípios em classes vermelha e roxa.
+- **Não substitui** a programação farmacêutica municipal nem a prescrição clínica.
 
 ---
 
@@ -966,7 +840,7 @@ coincidente com onda de calor ou episódio de fumaça.
 
 A projeção operacional de aproximadamente sete dias nesta versão é uma dimensão única de **risco térmico projetado** (0–100), composta por quatro sinais do mesmo fenômeno térmico:
 
-**Tabela 13 – Componentes do risco térmico projetado**
+**Tabela 10 – Componentes do risco térmico projetado**
 
 | Componente | Variável | Limiar e pontuação atribuída |
 | --- | --- | --- |
@@ -986,7 +860,7 @@ Fonte: Elaboração CIEVS-MT/ARARAS MT.
 
 **Glossário**
 
-**Tabela 14 – Termos utilizados neste boletim**
+**Tabela 11 – Termos utilizados neste boletim**
 
 | Termo | Definição |
 | --- | --- |
@@ -1012,7 +886,7 @@ Para a saúde, a prioridade é a vigilância de agravos respiratórios e relacio
 Para os próximos sete dias, a projeção indica **agravamento disseminado**: **60 de 142 (42,3%)** municípios comparáveis apresentam elevação da classificação, sendo 54 com aumento de um nível e 6 com aumento de dois ou mais níveis. 7 municípios apresentam melhora projetada e 75 permanecem estáveis. Ao final do horizonte projetado, **130 de 142 (91,5%)** estarão nas classes vermelha ou roxa, caso o cenário estimado se confirme. A projeção apresenta elevada concentração nas classes superiores e deve ser reavaliada nas rodadas subsequentes, especialmente diante da ampla influência dos componentes de persistência térmica e onda de calor.
 
 
-A magnitude da mudança projetada exige acompanhamento das próximas rodadas e interpretação dos determinantes do modelo, especialmente porque a situação observada no momento da emissão apresenta **109 de 142 (76,8%)** nas classes vermelha ou roxa. Alertas oficiais vigentes do Instituto Nacional de Meteorologia (INMET) nesta emissão: 3.
+A magnitude da mudança projetada exige acompanhamento das próximas rodadas e interpretação dos determinantes do modelo, especialmente porque a situação observada no momento da emissão apresenta **109 de 142 (76,8%)** nas classes vermelha ou roxa. Alertas oficiais vigentes do Instituto Nacional de Meteorologia (INMET) nesta emissão: 2.
 
 **Tendência: agravamento disseminado.**
 

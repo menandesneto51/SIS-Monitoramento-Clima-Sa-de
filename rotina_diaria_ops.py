@@ -10,6 +10,9 @@ Uso (PowerShell, raiz do repo):
 Produção: servidor SES na rede interna (DW/IndicaSUS/SISREG locais; sem VPN).
 --offline: só notebook/dev fora da SES (pula DW live; clima público continua).
 O pipeline nunca dispara alerta (send_alerts=False).
+
+Ordem crítica no fim do ciclo:
+  sync clima (met → resumo) → boletim El Niño → alerta Cuiabá (bloqueado se frescor falhar).
 """
 from __future__ import annotations
 
@@ -227,9 +230,71 @@ def step_plano_indicadores() -> dict:
         return {"status": "erro", "error": str(exc)}
 
 
-def step_alerta_cuiaba(*, force: bool = False) -> dict:
-    """Gera/envia boletim municipal de Cuiabá (Vigidesastre) na rotina diária."""
-    _step("7/8 Alerta municipal Cuiabá (Vigidesastre)")
+def step_sync_resumo_clima() -> dict:
+    """Reinjeta clima observado (met_biometeo) no resumo antes de boletim/alerta."""
+    _step("Sync clima → resumo_municipal_atual")
+    from sisclima.core.db import read_table, write_df
+    from sisclima.engines.operational_enrichment import inject_climate_from_met
+
+    resumo = read_table("resumo_municipal_atual")
+    if resumo is None or resumo.empty:
+        return {"status": "erro", "error": "resumo_municipal_atual vazio"}
+    before = None
+    try:
+        m = resumo[resumo["cod_ibge"].astype(str).str.replace(r"\.0$", "", regex=True).eq("5103403")]
+        if not m.empty:
+            before = {
+                "data": str(m.iloc[0].get("data")),
+                "fonte": str(m.iloc[0].get("fonte")),
+                "tmax": m.iloc[0].get("tmax"),
+            }
+    except Exception:
+        pass
+    out = inject_climate_from_met(resumo)
+    write_df(out, "resumo_municipal_atual")
+    after = None
+    try:
+        m = out[out["cod_ibge"].astype(str).str.replace(r"\.0$", "", regex=True).eq("5103403")]
+        if not m.empty:
+            after = {
+                "data": str(m.iloc[0].get("data")),
+                "fonte": str(m.iloc[0].get("fonte")),
+                "tmax": m.iloc[0].get("tmax"),
+            }
+    except Exception:
+        pass
+    print(f"[INFO] Cuiabá clima sync: {before} → {after}")
+    return {"status": "ok", "cuiaba_antes": before, "cuiaba_depois": after}
+
+
+def step_boletim_el_nino() -> dict:
+    """Gera boletim semanal El Niño com a base já atualizada."""
+    _step("Boletim El Niño (pós-atualização)")
+    from sisclima.core.config import as_bool, env
+
+    if not as_bool(env("BOLETIM_EL_NINO_NA_ROTINA", "true"), True):
+        print("[INFO] Boletim El Niño desligado (BOLETIM_EL_NINO_NA_ROTINA=false)")
+        return {"status": "desligado"}
+
+    from sisclima.engines.boletim_el_nino_semanal import main as boletim_main
+
+    argv: list[str] = []
+    if as_bool(env("BOLETIM_EL_NINO_NO_DW", "false"), False):
+        argv.append("--no-dw")
+    try:
+        code = int(boletim_main(argv) or 0)
+        return {"status": "ok" if code == 0 else "erro", "exit": code}
+    except SystemExit as exc:
+        code = int(getattr(exc, "code", 1) or 0)
+        return {"status": "ok" if code == 0 else "erro", "exit": code}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[AVISO] Boletim El Niño: {exc}")
+        return {"status": "erro", "error": str(exc)}
+
+
+def step_alerta_cuiaba(*, force: bool = False, require_fresh: bool = True) -> dict:
+    """Gera/envia alerta municipal de Cuiabá só após dados atualizados."""
+    _step("Alerta municipal Cuiabá (Vigidesastre)")
     from sisclima.core.config import as_bool, env
 
     enabled = as_bool(env("ALERT_CUIABA_ENABLED", "true"), True)
@@ -240,6 +305,16 @@ def step_alerta_cuiaba(*, force: bool = False) -> dict:
 
     import alerta_municipal_cuiaba_v11_10 as cui
 
+    frescor = cui.avaliar_frescor_cuiaba()
+    print(
+        f"[INFO] Frescor Cuiabá: ok={frescor.get('ok')} efetivo={frescor.get('data_referencia_efetiva')} "
+        f"resumo={frescor.get('data_resumo')} fonte={frescor.get('fonte_resumo')}"
+    )
+    if require_fresh and not frescor.get("ok"):
+        msg = frescor.get("motivo") or "dados defasados"
+        print(f"[BLOQUEIO] Alerta Cuiabá não enviado: {msg}")
+        return {"status": "bloqueado_frescor", "enviado": False, "frescor": frescor}
+
     argv = ["--force"] if force or as_bool(env("ALERT_CUIABA_FORCE", "false"), False) else []
     if send_ok:
         argv = ["--send", *argv]
@@ -248,7 +323,6 @@ def step_alerta_cuiaba(*, force: bool = False) -> dict:
         print("[INFO] Prévia Cuiabá (sem envio). Defina ALERT_CUIABA_SEND=true ou SEND_ALERT_ON_LEVEL_CHANGE=true para disparar.")
 
     try:
-        # reusa argparse do script
         old_argv = sys.argv
         sys.argv = ["alerta_municipal_cuiaba_v11_10.py", *argv]
         try:
@@ -256,13 +330,18 @@ def step_alerta_cuiaba(*, force: bool = False) -> dict:
             status = "enviado" if send_ok else "preview"
         finally:
             sys.argv = old_argv
-        return {"status": status, "enviado": bool(send_ok), "argv": argv}
+        return {"status": status, "enviado": bool(send_ok), "argv": argv, "frescor": frescor}
     except SystemExit as exc:
         code = int(getattr(exc, "code", 1) or 0)
-        return {"status": "ok" if code == 0 else "erro", "exit": code, "enviado": bool(send_ok and code == 0)}
+        return {
+            "status": "ok" if code == 0 else "erro",
+            "exit": code,
+            "enviado": bool(send_ok and code == 0),
+            "frescor": frescor,
+        }
     except Exception as exc:  # noqa: BLE001
         print(f"[AVISO] Alerta Cuiabá: {exc}")
-        return {"status": "erro", "error": str(exc), "enviado": False}
+        return {"status": "erro", "error": str(exc), "enviado": False, "frescor": frescor}
 
 
 def step_cloud() -> dict:
@@ -299,6 +378,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--skip-pipeline", action="store_true", help="Não roda o pipeline clima/DW")
     p.add_argument("--skip-cloud-export", action="store_true")
     p.add_argument("--skip-ana", action="store_true")
+    p.add_argument("--skip-boletim", action="store_true", help="Não gera boletim El Niño na rotina")
     p.add_argument("--skip-smoke", action="store_true", help="Não roda scripts/smoke_ops.py ao final")
     args = p.parse_args(argv)
 
@@ -330,7 +410,11 @@ def main(argv: list[str] | None = None) -> int:
         report["steps"]["pressao"] = step_pressao()
         report["steps"]["validacao_ocupacao"] = step_validacao_ocupacao()
         report["steps"]["plano_indicadores"] = step_plano_indicadores()
-        report["steps"]["alerta_cuiaba"] = step_alerta_cuiaba()
+        # Ordem obrigatória: sync clima → boletim → alerta (só com frescor OK)
+        report["steps"]["sync_resumo_clima"] = step_sync_resumo_clima()
+        if not args.skip_boletim:
+            report["steps"]["boletim_el_nino"] = step_boletim_el_nino()
+        report["steps"]["alerta_cuiaba"] = step_alerta_cuiaba(require_fresh=True)
         if not args.skip_cloud_export:
             report["steps"]["cloud"] = step_cloud()
         if not args.skip_smoke:

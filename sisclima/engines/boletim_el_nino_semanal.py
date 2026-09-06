@@ -91,6 +91,7 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Relatório semanal El Niño — sala de situação")
     p.add_argument("--out-dir", default=None, help="Pasta de saída (padrão docs/apresentacoes)")
     p.add_argument("--publico", action="store_true", help="Omite pauta interna da sala")
+    p.add_argument("--executivo", action="store_true", help="Versão executiva da Sala (10 blocos)")
     p.add_argument("--no-dw", action="store_true", help="Não consultar DW epidemiológico")
     args = p.parse_args(argv)
     from sisclima.core.db import read_table
@@ -98,7 +99,13 @@ def main(argv: list[str] | None = None) -> int:
     resumo = read_table("resumo_municipal_atual")
     resumo = _refresh_fire_metrics_if_stale(resumo)
     out = Path(args.out_dir) if args.out_dir else None
-    payload = build_boletim_semanal(resumo, publico=bool(args.publico), try_dw=not args.no_dw, out_dir=out)
+    payload = build_boletim_semanal(
+        resumo,
+        publico=bool(args.publico),
+        executivo=bool(args.executivo),
+        try_dw=not args.no_dw,
+        out_dir=out,
+    )
     path = save_boletim(payload, out)
     qa = payload.get("qa") or {}
     print(path)

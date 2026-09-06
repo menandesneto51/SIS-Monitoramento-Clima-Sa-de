@@ -171,8 +171,12 @@ def populacoes_prioritarias(snap: dict[str, Any]) -> str:
 def sintese_territorial(snap: dict[str, Any]) -> str:
     if not snap.get("disponivel"):
         return INDISPONIVEL
-    regs = snap.get("regionais") or []
-    top_reg = ", ".join(str(r.get("regional")) for r in regs[:5]) or INDISPONIVEL
+    regs = [
+        r
+        for r in (snap.get("regionais") or [])
+        if str(r.get("regional") or "").strip() not in {"", "—", "nan", "None", INDISPONIVEL}
+    ]
+    top_reg = ", ".join(str(r.get("regional")) for r in regs[:5])
     ext = snap.get("extremos") or {}
     delta = snap.get("delta_projecao") or {}
     n_d = snap.get("delta_n_comparavel") or snap.get("n_municipios")
@@ -182,29 +186,43 @@ def sintese_territorial(snap: dict[str, Any]) -> str:
     elif delta:
         melhora_txt = f"Melhora projetada: {fmt_frac(delta.get('melhora'), n_d)}."
     else:
-        melhora_txt = INDISPONIVEL
+        melhora_txt = ""
     ext_pm = (ext.get("pm25") or {})
     ext_focos = (ext.get("focos") or {})
     pm_val = ext_pm.get("pm25_ugm3") or ext_pm.get("pm25")
     focos_val = ext_focos.get("focos_queimadas_7d")
     pm_txt = (
-        f" — {fmt_num(pm_val, 1, ' µg/m³')}."
+        f" — {fmt_num(pm_val, 1, ' µg/m³')}"
         if pm_val is not None
-        else "."
+        else ""
     )
     focos_txt = (
-        f" — {fmt_int(focos_val)} focos."
+        f" — {fmt_int(focos_val)} focos"
         if focos_val is not None
-        else "."
+        else ""
     )
-    return f"""- Regionais com maior concentração nas classes vermelha e roxa: **{top_reg}**.
-- Maior Tmáx municipal: **{(ext.get('tmax') or {}).get('municipio') or '—'}** ({fmt_num((ext.get('tmax') or {}).get('tmax'), 1, ' °C')}).
-- Maior PM2,5 municipal: **{ext_pm.get('municipio') or '—'}**{pm_txt}
-- Maior acumulado no satélite de referência: **{ext_focos.get('municipio') or '—'}**{focos_txt}
-- Persistência: estabilidade de classe em {fmt_frac(delta.get('estabilidade'), n_d) if delta else INDISPONIVEL}.
-- {melhora_txt}
-- Limitação dos dados. Cobertura hidrológica: {fmt_frac(snap.get('cobertura_hidro'), snap.get('n_municipios'))}.
-"""
+    linhas: list[str] = []
+    if top_reg:
+        linhas.append(
+            f"- Regionais com maior concentração nas classes vermelha e roxa: **{top_reg}**."
+        )
+    linhas.extend(
+        [
+            f"- Maior Tmáx municipal: **{(ext.get('tmax') or {}).get('municipio') or '—'}** "
+            f"({fmt_num((ext.get('tmax') or {}).get('tmax'), 1, ' °C')}).",
+            f"- Maior PM2,5 municipal: **{ext_pm.get('municipio') or '—'}**{pm_txt}.",
+            f"- Maior acumulado no satélite de referência: **{ext_focos.get('municipio') or '—'}**{focos_txt}.",
+            f"- Persistência: estabilidade de classe em "
+            f"{fmt_frac(delta.get('estabilidade'), n_d) if delta else 'não calculável'}.",
+        ]
+    )
+    if melhora_txt:
+        linhas.append(f"- {melhora_txt}")
+    linhas.append(
+        f"- Limitação dos dados. Cobertura hidrológica: "
+        f"{fmt_frac(snap.get('cobertura_hidro'), snap.get('n_municipios'))}."
+    )
+    return "\n".join(linhas) + "\n"
 
 
 def _quadro_encaminhamento(titulo: str, itens: list[tuple[str, str, str, str, str]]) -> str:
@@ -352,8 +370,8 @@ def conclusao_tendencia(snap: dict[str, Any], cenario: dict[str, Any], alertas: 
         tend = "persistência"
 
     n_vig = alertas.get("n_inmet_vigentes")
-    regs = snap.get("regionais") or []
-    top_reg = ", ".join(str(r.get("regional")) for r in regs[:3]) or "regionais prioritárias"
+    # Regionalização: só citar se houver nomes reais (cobertura completa)
+    regs = [r for r in (snap.get("regionais") or []) if str(r.get("regional") or "").strip() not in {"", "—", "nan", "None"}]
 
     if n_up > 0 and n_d:
         if n_melhora == 0:
@@ -414,18 +432,16 @@ def conclusao_tendencia(snap: dict[str, Any], cenario: dict[str, Any], alertas: 
 
     return f"""A Semana Epidemiológica mantém cenário de **elevada atenção** em Mato Grosso, com **{fmt_frac(crit, n)}** municípios nas classes vermelha ou roxa no momento da emissão. {padrao_obs}
 
-As maiores concentrações de risco encontram-se em **{top_reg}**, entre outras regionais. A sobreposição com aldeias indígenas e municípios com comunidades quilombolas certificadas reforça a necessidade de abordagem territorial e articulação específica.
-
-Para a saúde, a prioridade é a vigilância de agravos respiratórios e relacionados ao calor, a organização da atenção nos municípios prioritários e a conferência de insumos estratégicos pela Assistência Farmacêutica no sistema oficial de estoques.
-
 {pred_bloco}
 {f" Sem pareamento válido: {fmt_pareamento(sem, n)}" if sem else ""}
 
-A magnitude da mudança projetada exige acompanhamento das próximas rodadas e interpretação dos determinantes do modelo, especialmente porque a situação observada no momento da emissão apresenta **{fmt_frac(crit, n)}** nas classes vermelha ou roxa. Alertas oficiais vigentes do Instituto Nacional de Meteorologia (INMET) nesta emissão: {fmt_int(n_vig) if n_vig is not None else INDISPONIVEL}.
+Fator modificador da semana: pancadas de 01/09 produziram **alívio térmico temporário**, sem encerrar a exposição projetada nos próximos dias. Priorizar povos indígenas, quilombolas, idosos, gestantes e trabalhadores expostos nos municípios vermelhos/roxos.
+
+Alertas oficiais vigentes do Instituto Nacional de Meteorologia (INMET) nesta emissão: {fmt_int(n_vig) if n_vig is not None else INDISPONIVEL}.
 
 **Tendência: {tend}.**
 
-Entre as principais limitações desta rodada estão a cobertura parcial dos indicadores hidrológicos, a diferença de competência temporal entre bases epidemiológicas e a indisponibilidade de alguns indicadores municipais.
+Limitação: cobertura parcial de hidrologia e defasagem de bases epidemiológicas/assistenciais — não misturar competências sem rotulagem.
 
-Encaminhamento prioritário: validar a lista territorial e os determinantes da projeção na Sala de Situação e articular Regionais, Assistência Farmacêutica e Vigilância Ambiental nas próximas 24–48 horas.
+Encaminhamento prioritário: validar a lista territorial e os determinantes da projeção na Sala de Situação e articular Assistência Farmacêutica e Vigilância Ambiental nas próximas 24–48 horas.
 """

@@ -1,13 +1,16 @@
 fonte:
-  arquivo: Controle_Indicacoes_El_Nino_SES_MT_2026.xlsx
+  arquivo: Matriz Plano de Ação_Revisada.xlsx
   abas:
-  - Acoes_Originais
-  - Matriz_ARARA
-  - Painel_ARARA
-  n_acoes: 40
+  - Ações e indicadores
+  - Matriz_ARARA (legado para completar 88)
+  n_acoes: 36
   n_indicadores: 88
   n_indicadores_indice: 72
-  nota: 'Códigos ARARA-### são da planilha-fonte. Produto: ARARAS MT.'
+  nota: IDs oficiais IND-001..088 preservados. Conteúdo atualizado pela Matriz Revisada quando houver correspondência textual;
+    total mantido em 88.
+  atualizado_em: '2026-09-03T21:04:29'
+  n_alterados: 46
+  n_orfaos_revisada: 23
 areas:
 - id: assistencia_farmaceutica
   nome: Assistência Farmacêutica
@@ -31,815 +34,718 @@ areas:
   nome: Vigilância ambiental e epidemiológica
 - id: vigilancia_sanitaria
   nome: Vigilância Sanitária
+- id: multi_area
+  nome: SES-MT, ERS e Secretarias Municipais de Saúde, em articulação com Assistência Social e Proteção e Defesa Civil
 eixos:
-- id: eixo_governanca_e_articulacao
-  nome: Governança e articulação
+- id: eixo_coordenacao_e_preparacao_integrada
+  nome: Coordenação e preparação integrada
   ordem: 1
-- id: eixo_inteligencia_e_avaliacao_de_risco
-  nome: Inteligência e avaliação de risco
+- id: eixo_vigilancia_epidemiologica
+  nome: Vigilância Epidemiológica
   ordem: 2
-- id: eixo_vigilancia_ambiental_e_epidemiologica
-  nome: Vigilância ambiental e epidemiológica
+- id: eixo_vigilancia_em_saude_ambiental
+  nome: Vigilância em Saúde Ambiental
   ordem: 3
-- id: eixo_atencao_e_capacidade_assistencial
-  nome: Atenção e capacidade assistencial
-  ordem: 4
-- id: eixo_assistencia_farmaceutica_e_logistica
-  nome: Assistência farmacêutica e logística
-  ordem: 5
-- id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  nome: Comunicação de risco e vulnerabilidade
-  ordem: 6
-- id: eixo_prontidao_simulado_e_melhoria
-  nome: Prontidão, simulado e melhoria
-  ordem: 7
 - id: eixo_vigilancia_sanitaria
   nome: Vigilância Sanitária
-  ordem: 8
+  ordem: 4
 - id: eixo_imunizacao_e_rede_de_frio
   nome: Imunização e Rede de Frio
+  ordem: 5
+- id: eixo_laboratorio_central_de_saude_publica_lacen
+  nome: Laboratório Central de Saúde Pública — LACEN
+  ordem: 6
+- id: eixo_vigilancia_em_saude_do_trabalhador
+  nome: Vigilância em Saúde do Trabalhador
+  ordem: 7
+- id: eixo_atencao_a_saude
+  nome: Atenção à Saúde
+  ordem: 8
+- id: eixo_regulacao
+  nome: Regulação
   ordem: 9
+- id: eixo_gestao_hospitalar
+  nome: Gestão Hospitalar
+  ordem: 10
+- id: eixo_urgencia_e_emergencia
+  nome: Urgência e Emergência
+  ordem: 11
+- id: eixo_assistencia_farmaceutica
+  nome: Assistência Farmaceutica
+  ordem: 12
+- id: eixo_governanca_e_articulacao
+  nome: Governança e articulação
+  ordem: 13
+- id: eixo_inteligencia_e_avaliacao_de_risco
+  nome: Inteligência e avaliação de risco
+  ordem: 14
+- id: eixo_vigilancia_ambiental_e_epidemiologica
+  nome: Vigilância ambiental e epidemiológica
+  ordem: 15
+- id: eixo_atencao_e_capacidade_assistencial
+  nome: Atenção e capacidade assistencial
+  ordem: 16
+- id: eixo_assistencia_farmaceutica_e_logistica
+  nome: Assistência farmacêutica e logística
+  ordem: 17
+- id: eixo_comunicacao_de_risco_e_vulnerabilidade
+  nome: Comunicação de risco e vulnerabilidade
+  ordem: 18
+- id: eixo_prontidao_simulado_e_melhoria
+  nome: Prontidão, simulado e melhoria
+  ordem: 19
 - id: eixo_saude_do_trabalhador
   nome: Saúde do Trabalhador
-  ordem: 10
+  ordem: 20
 metas:
 - id: M01
-  eixo_id: eixo_governanca_e_articulacao
-  descricao: 100% de governança e fluxo de coordenação estabelecidos para preparação e resposta aos efeitos do El Niño.
-  prazo: Até 30 dias após validação do Plano
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  descricao: Designar pontos focais em 100% das áreas técnicas envolvidas e formalizar e divulgar o fluxo estadual de comunicação,
+    avaliação de risco e resposta
+  prazo: Até 10 dias após a validação do Plano
 - id: M02
-  eixo_id: eixo_governanca_e_articulacao
-  descricao: Garantir que os 16 ERS disponham de fluxo atualizado para comunicação e resposta aos eventos associados ao El
-    Niño.
-  prazo: Até 30 dias
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  descricao: Implantar a rotina integrada de monitoramento e manter 100% dos municípios prioritários classificados por nível
+    de risco, com atualização na periodicidade estabelecida e sempre que houver mudança relevante no cenário.
+  prazo: Ação contínua — atualização mensal e sempre que houver alteração relevante do risco
 - id: M03
-  eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  descricao: Manter avaliação integrada e periódica dos riscos associados ao El Niño.
-  prazo: Contínuo; intensificar conforme risco
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  descricao: Divulgar, dentro do prazo estabelecido, 100% dos alertas indicados pelas análises de risco durante o período
+    crítico.
+  prazo: Antes e durante o período crítico
 - id: M04
-  eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  descricao: Garantir monitoramento dos municípios e populações prioritárias.
-  prazo: Mensal e conforme agravamento
+  eixo_id: eixo_vigilancia_epidemiologica
+  descricao: Definir o conjunto estadual de agravos e indicadores sentinela e monitorar 100% dos agravos selecionados na periodicidade
+    estabelecida durante o período crítico.
+  prazo: Definição antes do período crítico e monitoramento contínuo
 - id: M05
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: Garantir capacidade de vigilância da qualidade da água nos territórios prioritários.
-  prazo: Contínuo, conforme risco
+  eixo_id: eixo_vigilancia_epidemiologica
+  descricao: Realizar e divulgar a análise epidemiológica em 100% dos períodos programados
+  prazo: Durante o período crítico, conforme a periodicidade definida
 - id: M06
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: Estabelecer vigilância integrada dos impactos da fumaça e da poluição atmosférica sobre a saúde.
-  prazo: Semanal nos períodos críticos ou conforme risco
+  eixo_id: eixo_vigilancia_epidemiologica
+  descricao: "Monitorar 100% dos municípios com registro de DDA \nno SIVEP-DDA, diagrama de controle e tableau"
+  prazo: Ação contínua — intensificar conforme o risco
 - id: M07
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: Garantir a capacidade de detecção precoce de alterações no perfil de morbimortalidade relacionadas aos eventos
-    climáticos.
-  prazo: Até 60 dias e monitoramento contínuo
+  eixo_id: eixo_vigilancia_epidemiologica
+  descricao: Investigar 100% dos surtos identificados
+  prazo: Enquanto o surto estiver em andamento
 - id: M08
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  descricao: Preparar a Rede de Atenção à Saúde para aumento da demanda decorrente dos efeitos do El Niño.
-  prazo: Até 120 dias
+  eixo_id: eixo_vigilancia_epidemiologica
+  descricao: Detectar oportunamente aumento das internações por DDA
+  prazo: Semanal/Mensal e intensificar conforme o risco
 - id: M09
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  descricao: Monitorar precocemente situações de sobrecarga ou comprometimento da capacidade assistencial.
-  prazo: Contínuo durante alerta/emergência
+  eixo_id: eixo_vigilancia_epidemiologica
+  descricao: Detectar oportunamente óbitos relacionados às DDA e investigar 100% dos óbitos
+  prazo: Semanal/Mensal e intensificar conforme o risco
 - id: M10
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  descricao: Garantir continuidade dos serviços essenciais de saúde durante eventos críticos.
-  prazo: Até 120 dias
+  eixo_id: eixo_vigilancia_epidemiologica
+  descricao: Garantir 100% dos municípios prioritários abastecidos com hipoclorito, conforme necessidade identificada
+  prazo: Trimestral, ou imediato conforme necessidade
 - id: M11
-  eixo_id: eixo_assistencia_farmaceutica_e_logistica
-  descricao: Assegurar capacidade logística para garantir a disponibilidade e a distribuição oportuna de medicamentos e insumos
-    prioritários às regiões e municípios afetados por eventos climáticos adversos, inclusive em territórios de difícil acesso.
-  prazo: Antes do período crítico e monitoramento contínuo
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  descricao: Monitorar, conforme a programação definida, 100% dos municípios prioritários afetados pelo comprometimento do
+    abastecimento de água e registrar medida de controle das não conformidades identificadas.
+  prazo: Ação contínua — intensificar conforme o risco
 - id: M12
-  eixo_id: eixo_assistencia_farmaceutica_e_logistica
-  descricao: Fortalecer a capacidade logística para resposta em áreas remotas e de difícil acesso.
-  prazo: Até 60 dias
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  descricao: Realizar análises integradas em 100% dos períodos programados durante a situação de risco e emitir orientação
+    para os territórios que atingirem os critérios de alerta.
+  prazo: Semanal durante o período crítico ou conforme o nível de risco
 - id: M13
-  eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  descricao: Garantir comunicação de risco oportuna e coordenada.
-  prazo: Antes e durante períodos críticos
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  descricao: Monitorar 100% dos municípios prioritários na periodicidade definida e emitir orientação técnica para aqueles
+    que apresentarem indicadores de risco.
+  prazo: Conforme a periodicidade de cada programa; intensificar segundo o risco
 - id: M14
-  eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  descricao: Incorporar populações vulneráveis à priorização da preparação e resposta.
-  prazo: Até 60 dias; atualização contínua
+  eixo_id: eixo_vigilancia_sanitaria
+  descricao: Orientar 100% dos municípios prioritários sobre segurança da água nos estabelecimentos assistenciais e monitorar
+    os estabelecimentos selecionados conforme critérios de risco durante o período crítico.
+  prazo: Antes e durante o período crítico
 - id: M15
-  eixo_id: eixo_prontidao_simulado_e_melhoria
-  descricao: Avaliar a prontidão estadual para resposta aos efeitos do El Niño.
-  prazo: Até 180 dias
+  eixo_id: eixo_vigilancia_sanitaria
+  descricao: Executar 100% da programação de coleta ou inspeção dos estabelecimentos selecionados e registrar medida sanitária
+    para os resultados insatisfatórios.
+  prazo: Durante os eventos climáticos, conforme a programação de coleta
 - id: M16
   eixo_id: eixo_vigilancia_sanitaria
-  descricao: Orientar os municípios a intensificar o monitoramento da qualidade da água utilizada nos estabelecimentos sujeitos
-    à vigilância sanitária, contemplando a integridade das tubulações, a higienização periódica e a vedação de reservatórios
-    e caixas d'água.
-  prazo: 60 dias
+  descricao: Orientar 100% das Vigilâncias Sanitárias dos municípios prioritários e monitorar, durante o calor extremo,os
+    estabelecimentos incluídos na programação sanitária.
+  prazo: Durante os períodos de calor extremo
 - id: M17
   eixo_id: eixo_vigilancia_sanitaria
-  descricao: Monitorar  os estabelecimentos  produtores de águas envasadas e de gelo destinado ao consumo humano durante eventos
-    climáticos extremos de calor, bem como o monitoramento de águas envasadas em períodos de chuvas intensas, em razão do
-    aumento do risco de contaminação das fontes de captação.
-  prazo: Período das chuvas intensas
+  descricao: Orientar 100% dos municípios prioritários e verificar as condições de armazenamento e temperatura dos estabelecimentos
+    selecionados conforme o risco.
+  prazo: Antes e durante o período crítico
 - id: M18
   eixo_id: eixo_vigilancia_sanitaria
-  descricao: Garantir apoio às vigilâncias sanitárias municipais no monitoramento de estabelecimentos que manipulem, acondicionem,
-    distribuam ou transportem alimentos para consumo humano, com prioridade nas escolas, instituições de longa permanência
-    para idosos, unidades prisionais e outros ambientes de convivência coletiva com população vulnerável, no período de calor
-    extremo.
-  prazo: 30 dias
+  descricao: Orientar 100% dos estabelecimentos prioritários quanto à climatização e à continuidade do fornecimento de energia
+    e verificar se possuem PMOC e plano de contingência ou fonte alternativa aplicável.
+  prazo: Antes do período crítico e durante interrupções do fornecimento elétrico
 - id: M19
   eixo_id: eixo_vigilancia_sanitaria
-  descricao: Orientar os estabelecimentos que armazenam medicamentos e imunobiológicos quanto às condições adequadas de conservação,
-    incluindo o controle e o registro de temperatura, em conformidade com as especificações do fabricante e a legislação sanitária
-    vigente.
-  prazo: 30 dias
+  descricao: Verificar as condições de operação, segurança e manutenção dos equipamentos em 100% dos estabelecimentos assistenciais
+    incluídos na programação antes ou durante o período crítico.
+  prazo: Antes e durante o período crítico
 - id: M20
   eixo_id: eixo_vigilancia_sanitaria
-  descricao: Orientar  os estabelecimentos assistenciais de saúde  quanto a   existência, da manutenção e da capacidade operacional
-    de geradores e demais fontes alternativas de energia em ambientes prioritários, com vistas à continuidade da cadeia de
-    frio de medicamentos, imunobiológicos e alimentos e ao funcionamento dos serviços críticos em situações de interrupção
-    do fornecimento de energia elétrica.
-  prazo: 30 dias
+  descricao: Orientar 100% das Vigilâncias Sanitárias dos municípios prioritários e monitorar os estabelecimentos selecionados,
+    registrando providências das situações de risco identificadas.
+  prazo: Antes e durante o período crítico
 - id: M21
   eixo_id: eixo_vigilancia_sanitaria
-  descricao: Orientar os estabelecimentos para que estes garantam  condições mínimas de climatização e conforto térmico, visando
-    à proteção da saúde de trabalhadores, usuários e à preservação de insumos durante períodos de ondas de calor extremo.
-  prazo: 30 dias
-- id: M22
-  eixo_id: eixo_vigilancia_sanitaria
-  descricao: Orientar as Vigilâncias Sanitárias Municipais (VISAs) a intensificarem a fiscalização do monitoramento e controle
-    de animais sinantrópicos em Estabelecimentos de Assistência à Saúde (EAS) e de Interesse à Saúde (EIS), priorizando aqueles
-    voltados ao atendimento de populações vulneráveis.
-  prazo: 30 dias
-- id: M23
-  eixo_id: eixo_vigilancia_sanitaria
-  descricao: Orientar os estabelecimentos assistenciais de saúde a garantirem as condições adequadas de operacionalidade,
-    segurança e manutenção dos equipamentos médico-hospitalares.
-  prazo: 30 dias
-- id: M24
-  eixo_id: eixo_vigilancia_sanitaria
-  descricao: Priorizar e realizar o atendimento de denúncias sobre irregularidades sanitárias decorrentes ou agravadas por
-    eventos climáticos extremos, visando à mitigação de riscos à saúde pública.
+  descricao: Averiguar e responder 100% das denúncias sanitárias relacionadas aos eventos climáticos dentro do prazo definido
+    pela Vigilância Sanitária.
   prazo: Durante os eventos climáticos extremos
+- id: M22
+  eixo_id: eixo_imunizacao_e_rede_de_frio
+  descricao: Monitorar continuamente a manutenção das ações de imunização, as condições de funcionamento da Rede de Frio e
+    a disponibilidade de estoques em 100% das Regionais de Saúde, adotando, sempre que identificadas situações de risco, medidas
+    de contingência e/ou remanejamento oportuno de imunobiológicos e insumos.
+  prazo: Monitoramento contínuo durante a ocorrência do evento
+- id: M23
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  descricao: Definir, antes do período crítico, os exames prioritários e formalizar os fluxos de recebimento, processamento
+    e comunicação de resultados para 100% das demandas laboratoriais priorizadas.
+  prazo: Antes do período crítico e durante a resposta
+- id: M24
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  descricao: Mapear, antes do período crítico, as rotas, os pontos críticos, os meios de transporte e as alternativas logísticas
+    em 100% das regiões com territórios prioritários ou de difícil acesso.
+  prazo: Antes do período crítico, com atualização conforme mudanças de acesso
 - id: M25
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  descricao: Monitorar os municípios afetados ou sob risco de impactos do El Niño nas ações de imunização
-  prazo: Durante o período de ocorrência do evento
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  descricao: Manter o monitoramento dos itens laboratoriais estratégicos na periodicidade estabelecida e adotar medida de
+    contingência para 100% das situações com risco de interrupção da capacidade laboratorial.
+  prazo: Monitoramento contínuo — intensificar conforme a demanda
 - id: M26
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  descricao: Assegurar a adoção de medidas de contingência da Rede de Frio dos municípios sob risco de eventos.
-  prazo: Durante o período de ocorrência do evento
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
+  descricao: 100% dos trabalhadores expostos dos trabalhadores expostos aos riscos associados ao El Niño o perfil epidemiológico
+    definido.
+  prazo: Antes do período crítico, com atualização conforme a periodicidade definida
 - id: M27
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  descricao: Garantir o abastecimento de imunobiológicos.
-  prazo: Monitoramento mensal
-- id: M28
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: Fortalecer o VIGIAR em Mato Grosso, para mitigar os efeitos das emissões das queimadas e secas severas nas populações
-    e territórios mais expostos.
-  prazo: Contínuo
-- id: M29
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: Manter avaliação integrada e periódica dos riscos associados ao El Niño relativos a fatores de vigilância em
-    saúde ambiental (escassez de água, temperaturas elevadas e queimadas)
-  prazo: Contínuo com periodicidade semanal; intensificar conforme risco
-- id: M30
-  eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  descricao: Realizar o monitoramento dos municípios e populações prioritárias
-  prazo: Mensal e conforme agravamento
-- id: M31
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: Fortalecer a Vigilâcia da Qualidade da Água para Consumo Humano - VIGIÁGUA em Mato Grosso, para garantir respostas
-    rápidas aos riscos de contaminação decorrentes de secas extremas e inundações.
-  prazo: Contínuo;  intensificar conforme risco
-- id: M32
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: Detectar precocemente alterações no perfil de morbimortalidade relacionadas aos eventos climáticos.
-  prazo: Até 60 dias e monitoramento contínuo
-- id: M33
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  descricao: 'Responder em tempo oportuno aos municípios que apresentarem aumento dos indicadores de infestação
-
-    vetorial ou risco de transmissão de arboviroses.'
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-- id: M34
-  eixo_id: eixo_saude_do_trabalhador
-  descricao: Fortalecer a Vigilância em Saúde do Trabalhador
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-- id: M35
-  eixo_id: eixo_saude_do_trabalhador
-  descricao: Comunicação e educação em saúde do trabalhador
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-- id: M36
-  eixo_id: eixo_saude_do_trabalhador
-  descricao: Orientar os trabalhadores quanto os processos e ambientes de trabalho adequado frente aos efeitos do El Niño,
-    a partir do monitoramento da sala de situação
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-- id: M37
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  descricao: Fortalecer a capacidade de resposta da Rede Hospitalar.
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
+  descricao: Elaborar materiais orientadores para 100% dos riscos ocupacionais priorizados e disponibilizá-los aos Escritórios
+    Regionais de Saúde, municípios e serviços envolvidos antes e durante o período crítico.
   prazo: Antes e durante o período crítico
-- id: M38
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  descricao: Fortalecer o apoio técnico à Atenção Secundária nos municípios e regiões prioritárias.
-  prazo: Antes e durante o período crítico.
-- id: M39
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  descricao: Fortalecer a capacidade de resposta da Rede de Urgência e Emergência.
-  prazo: Antes do período crítico e monitoramento contínuo
+- id: M28
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
+  descricao: Executar ações de Vigilância em Ambientes e Processos de Trabalho em 100% dos municípios incluídos na programação
+    e acompanhar as recomendações emitidas.
+  prazo: Conforme a programação e o nível de risco
+- id: M29
+  eixo_id: eixo_atencao_a_saude
+  descricao: Orientar 100% dos municípios prioritários e assegurar que realizem o mapeamento das populações vulneráveis, a
+    avaliação da capacidade das UBS e a definição de medidas de preparação antes do período crítico.
+  prazo: Antes e durante o período crítico
+- id: M30
+  eixo_id: eixo_atencao_a_saude
+  descricao: 100% dos municípios prioritários com pessoas idosas vulneráveis identificadas e fluxo intersetorial definido.
+  prazo: Antes, durante e após o período crítico
+- id: M31
+  eixo_id: eixo_atencao_a_saude
+  descricao: 100% dos ERS orientados e serviços prioritários de Atenção Secundária preparados.
+  prazo: Antes e durante o período crítico
+- id: M32
+  eixo_id: eixo_regulacao
+  descricao: Manter, durante o período crítico, 100% dos territórios prioritários com a situação assistencial monitorada na
+    periodicidade estabelecida.
+  prazo: Durante o período crítico, na periodicidade estabelecida
+- id: M33
+  eixo_id: eixo_gestao_hospitalar
+  descricao: Garantir que 100% das unidades hospitalares estratégicas tenham plano de contingência atualizado, capacidade
+    instalada avaliada e protocolos assistenciais prioritários revisados antes do período crítico.
+  prazo: Antes do período crítico, com monitoramento durante os eventos
+- id: M34
+  eixo_id: eixo_urgencia_e_emergencia
+  descricao: Orientar 100% dos serviços prioritários de Urgência e Emergência e verificar, antes do período crítico, a revisão
+    dos protocolos e fluxos, a comunicação com o CIEVS e a disponibilidade dos insumos essenciais.
+  prazo: Antes do período crítico, com acompanhamento durante os eventos
+- id: M35
+  eixo_id: eixo_assistencia_farmaceutica
+  descricao: Atender 100% das demandas prioritárias de reposição, remanejamento e distribuição emergencial.
+  prazo: Antes do período crítico e durante a resposta
+- id: M36
+  eixo_id: eixo_urgencia_e_emergencia
+  descricao: Fortalecer a comunicação entre Central de Regulação, NIR, unidades solicitantes e unidades executantes;
+  prazo: Antes do período crítico e durante a resposta
 acoes:
 - id: A01
-  linha_fonte: 6
   meta_id: M01
-  eixo_id: eixo_governanca_e_articulacao
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
   area_id: cievs
-  descricao: Designar pontos focais das áreas técnicas e estabelecer fluxo de comunicação, avaliação de risco e resposta.
-  responsavel: CIEVS/VIGIDESASTRES + áreas técnicas
-  prazo: Até 30 dias após validação do Plano
-  prazo_iso: null
+  nome: Designar pontos focais nas áreas técnicas e formalizar o fluxo estadual de comunicação, avaliação de risco, tomada
+    de decisão e resposta aos eventos associados ao El Niño.
+  responsavel: CIEVS/VIGIDESASTRES, em articulação com as áreas técnicas
+  prazo: Até 10 dias após a validação do Plano
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de áreas técnicas com ponto focal designado; fluxo estadual formalizado.'
+  status_inicial: A validar
+  indicador_original: Percentual de áreas técnicas com ponto focal designado; fluxo estadual formalizado e divulgado (Sim/Não).
+  linha_fonte: 1
 - id: A02
-  linha_fonte: 7
   meta_id: M02
-  eixo_id: eixo_governanca_e_articulacao
-  area_id: cievs
-  descricao: Atualizar contatos, pontos focais e fluxos de comunicação entre SES-MT, ERS e municípios.
-  responsavel: CIEVS/VIGIDESASTRES + ERS
-  prazo: Até 30 dias
-  prazo_iso: null
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  area_id: atencao_saude
+  nome: Implantar rotina integrada de monitoramento dos indicadores climáticos, ambientais, epidemiológicos e assistenciais,
+    com atualização da classificação territorial de risco e definição dos municípios e das populações prioritárias.
+  responsavel: CIEVS/VIGIDESASTRES, Vigilância Epidemiológica, Vigilância Ambiental, Atenção à Saúde e ERS
+  prazo: Ação contínua — atualização mensal e sempre que houver alteração relevante do risco
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: 'Nº e % de ERS com contatos e fluxo atualizados. Meta: 16/16 (100%).'
+  status_inicial: A validar
+  indicador_original: Percentual de municípios prioritários classificados por nível de risco; percentual de atualizações realizadas
+    na periodicidade estabelecida.
+  linha_fonte: 2
 - id: A03
-  linha_fonte: 8
   meta_id: M03
-  eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  area_id: atencao_saude
-  descricao: Implantar rotina integrada de análise de indicadores climáticos, ambientais, epidemiológicos, assistenciais,
-    de água e de queimadas.
-  responsavel: CIEVS/VIGIDESASTRES + Vigilâncias + Atenção
-  prazo: Contínuo; intensificar conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nº de análises/avaliações de risco produzidas no período previsto; % de análises/avaliação de risco
-    emitidas dentro da periodicidade estabelecida. Tempo médio entre a coleta de dados e a divulgação do relatório de análise/avaliação
-    de risco.
-- id: A04
-  linha_fonte: 9
-  meta_id: M04
-  eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  area_id: vigilancia_ambiental
-  descricao: Atualizar periodicamente a classificação territorial de risco considerando seca, calor, focos de calor, fumaça,
-    qualidade do ar, abastecimento de água, situação epidemiológica, capacidade assistencial e vulnerabilidade populacional.
-  responsavel: Vigilância Ambiental + CIEVS/VIGIDESASTRES
-  prazo: Mensal e conforme agravamento
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Mapa/lista de municípios prioritários atualizado na periodicidade estabelecida (Sim/Não); nº de municípios
-    classificados por nível de risco.
-- id: A05
-  linha_fonte: 10
-  meta_id: M05
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiagua
-  descricao: Intensificar o monitoramento da qualidade da água para consumo humano nos municípios afetados por seca, estiagem
-    ou comprometimento do abastecimento e orientar medidas diante de não conformidades.
-  responsavel: VIGIAGUA + ERS + SMS
-  prazo: Contínuo, conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de municípios prioritários com monitoramento realizado; nº/% de não conformidades com medida de resposta
-    registrada.'
-- id: A06
-  linha_fonte: 11
-  meta_id: M06
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiar
-  descricao: Integrar dados de focos de calor, queimadas, fumaça/qualidade do ar e agravos à saúde e emitir recomendações
-    aos territórios sob risco.
-  responsavel: VIGIAR + Vigilância Epidemiológica + CIEVS
-  prazo: Semanal nos períodos críticos ou conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nº de análises integradas realizadas; nº de alertas/orientações emitidos; % de territórios prioritários
-    alcançados pelas orientações.
-- id: A07
-  linha_fonte: 12
-  meta_id: M07
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigilancia_ambiental
-  descricao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex. nº de internações)
-    manter o monitoramento epidemiológico para eventos associados a calor, fumaça, seca, água e outros efeitos do El Niño.
-  responsavel: Vigilância Epidemiológica + CIEVS
-  prazo: Até 60 dias e monitoramento contínuo
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Conjunto de indicadores sentinela definido (Sim/Não); % de períodos com análise realizada conforme periodicidade
-    estabelecida.
-- id: A08
-  linha_fonte: 13
-  meta_id: M08
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  descricao: Definir e divulgar orientações e fluxos assistenciais para manejo dos principais agravos relacionados a calor
-    extremo, fumaça, baixa umidade, desidratação e comprometimento da qualidade da água.
-  responsavel: Atenção à Saúde + Regulação + Urgência/Emergência
-  prazo: Até 120 dias
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nº/% de protocolos prioritários definidos e divulgados; % de ERS que receberam as orientações.
-- id: A09
-  linha_fonte: 14
-  meta_id: M09
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  descricao: Estabelecer rotina de acompanhamento de demanda, regulação, disponibilidade de serviços estratégicos, profissionais,
-    medicamentos e insumos nos territórios prioritários.
-  responsavel: Atenção/Regulação + CIEVS + ERS
-  prazo: Contínuo durante alerta/emergência
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de territórios prioritários com situação assistencial monitorada; nº de situações críticas identificadas
-    e encaminhadas.'
-- id: A10
-  linha_fonte: 15
-  meta_id: M10
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  descricao: Identificar unidades estratégicas vulneráveis à interrupção de água, energia, comunicação ou acesso e apoiar
-    elaboração/atualização de planos de continuidade.
-  responsavel: Atenção + Gestão/Infraestrutura + ERS/SMS
-  prazo: Até 120 dias
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de unidades estratégicas identificadas com plano de continuidade atualizado.'
-- id: A11
-  linha_fonte: 16
-  meta_id: M11
-  eixo_id: eixo_assistencia_farmaceutica_e_logistica
-  area_id: assistencia_farmaceutica
-  descricao: Definir itens estratégicos, avaliar e dimensionar estoques central e regionais, estabelecer fluxos de reposição,
-    remanejamento e distribuição emergencial, mapear rotas e pontos críticos e definir meios alternativos de transporte para
-    atendimento dos territórios prioritários ou de difícil acesso.
-  responsavel: Assistência Farmacêutica e Escritórios Regionais
-  prazo: Antes do período crítico e monitoramento contínuo
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de itens estratégicos com estoque acima do nível mínimo definido; nº de episódios de desabastecimento
-    de itens estratégicos; % de demandas prioritárias atendidas dentro do prazo estabelecido.'
-- id: A12
-  linha_fonte: 17
-  meta_id: M12
-  eixo_id: eixo_assistencia_farmaceutica_e_logistica
-  area_id: logistica
-  descricao: Mapear rotas, meios de transporte e alternativas para deslocamento de equipes, amostras, medicamentos, insumos
-    e outros recursos essenciais.
-  responsavel: Logística + ERS
-  prazo: Até 60 dias
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nº e % de ERS com necessidades/rotas logísticas mapeadas; plano de contingência logística disponível
-    (Sim/Não).
-- id: A13
-  linha_fonte: 18
-  meta_id: M13
-  eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
   area_id: comunicacao
-  descricao: Elaborar e divulgar mensagens padronizadas para calor extremo, baixa umidade, fumaça, queimadas, escassez/qualidade
-    da água e medidas de proteção à saúde.
-  responsavel: Comunicação + CIEVS/VIGIDESASTRES + áreas técnicas
-  prazo: Antes e durante períodos críticos
-  prazo_iso: null
+  nome: Elaborar e executar plano de comunicação de risco, com mensagens previamente validadas e divulgação de alertas e orientações
+    sobre calor extremo, baixa umidade, fumaça, queimadas, qualidade do ar, escassez de água e medidas de proteção à saúde.
+  responsavel: Assessoria de Comunicação, CIEVS/VIGIDESASTRES e áreas técnicas
+  prazo: Antes e durante o período crítico
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nº de materiais/mensagens validados; % de alertas divulgados no prazo definido.
+  status_inicial: A validar
+  indicador_original: Número de mensagens validadas; percentual de alertas indicados pelas análises de risco divulgados no
+    prazo estabelecido.
+  linha_fonte: 3
+- id: A04
+  meta_id: M04
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Definir e monitorar os agravos e indicadores relacionados aos efeitos do El Niño, incluindo doenças respiratórias
+    e cardiovasculares, arboviroses, doenças diarreicas agudas, desidratação, agravos relacionados ao calor, intoxicações
+    e outros eventos de relevância para a saúde pública.
+  responsavel: Vigilância Epidemiológica, em articulação com o CIEVS
+  prazo: Definição antes do período crítico e monitoramento contínuo
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de agravos selecionados monitorados na periodicidade estabelecida.
+  linha_fonte: 4
+- id: A05
+  meta_id: M05
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Analisar periodicamente os dados epidemiológicos dos municípios prioritários, investigar alterações no padrão de ocorrência
+    dos agravos e emitir alertas e recomendações às áreas técnicas, aos Escritórios Regionais de Saúde e aos municípios.
+  responsavel: Vigilância Epidemiológica, CIEVS e ERS
+  prazo: Durante o período crítico, conforme a periodicidade definida
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de análises epidemiológicas programadas realizadas e divulgadas; percentual de alterações
+    relevantes investigadas; número de alertas e recomendações emitidos.
+  linha_fonte: 5
+- id: A06
+  meta_id: M06
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: "Fortalecer o monitoramento dos casos \nde doença diarreica aguda, (DDA) nos municípios \nafetados pela seca, estiagem\
+    \ e enchentes, para identificar alteração do comportamento de aumento de casos de diarreia"
+  responsavel: Vigilância Epidemiológica, ERS e Secretarias Municipais de Saúde
+  prazo: Ação contínua — intensificar conforme o risco
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: "Percentual de municípios com \nregistro de DDA monitorados"
+  linha_fonte: 6
+- id: A07
+  meta_id: M07
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Intensificar a investigação epidemiológica dos surtos de DDA identificados
+  responsavel: Vigilância Epidemiológica, ERS e Secretarias Municipais de Saúde
+  prazo: Enquanto o surto estiver em andamento
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Proporção de surtos investigados oportunamente
+  linha_fonte: 7
+- id: A08
+  meta_id: M08
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Monitorar semanalmente as internações por DDA, visando detectar oportunamente alterações relacionados aos efeitos
+    do El Niño
+  responsavel: Vigilância Epidemiológica, ERS e Secretarias Municipais de Saúde
+  prazo: Semanal/Mensal e intensificar conforme o risco
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Taxa de internação por DDA por 100.000 habitantes
+  linha_fonte: 8
+- id: A09
+  meta_id: M09
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Monitorar semanalmente os óbitos por DDA, visando identificar oportunamente aumento da mortalidade acima do padrão
+    esperado.
+  responsavel: Vigilância Epidemiológica, ERS e Secretarias Municipais de Saúde
+  prazo: Semanal/Mensal e intensificar conforme o risco
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Taxa de mortalidade por DDA por 100.000 habitantes
+  linha_fonte: 9
+- id: A10
+  meta_id: M10
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Planejar e distribuir hipoclorito de sódio para municípios prioritários, conforme avaliação de risco
+  responsavel: Vigilância Epidemiológica, SAF e Secretarias Municipais de Saúde
+  prazo: Trimestral, ou imediato conforme necessidade
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de municípios prioritários abastecidos com hipoclorito
+  linha_fonte: 10
+- id: A11
+  meta_id: M11
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigiagua
+  nome: Intensificar o monitoramento da qualidade da água para consumo humano nos territórios afetados por seca, estiagem
+    ou comprometimento do abastecimento, incluindo o cadastramento das formas de abastecimento, a realização de coletas, a
+    análise dos resultados e a orientação das medidas corretivas.
+  responsavel: VIGIAGUA, ERS, Secretarias Municipais de Saúde e LACEN-MT
+  prazo: Ação contínua — intensificar conforme o risco
+  prioridade: Alta
+  status_inicial: Validado
+  indicador_original: Percentual de municípios prioritários afetados com monitoramento realizado; percentual de não conformidades
+    com medida de controle registrada.
+  linha_fonte: 11
+- id: A12
+  meta_id: M12
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigiar
+  nome: Integrar dados sobre focos de calor, queimadas, incêndios florestais, fumaça, qualidade do ar e agravos à saúde para
+    identificar territórios sob risco e subsidiar a emissão de alertas e recomendações de proteção à saúde.
+  responsavel: VIGIAR, Vigilância Epidemiológica e CIEVS
+  prazo: Semanal durante o período crítico ou conforme o nível de risco
+  prioridade: Alta
+  status_inicial: Em planejamento
+  indicador_original: Percentual de períodos programados com análise integrada realizada; percentual de territórios que atingiram
+    critérios de alerta e receberam orientação.
+  linha_fonte: 12
+- id: A13
+  meta_id: M13
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigilancia_ambiental
+  nome: Intensificar o monitoramento de vetores, zoonoses e animais peçonhentos nos municípios prioritários, utilizando os
+    sistemas oficiais e os métodos de vigilância adequados a cada evento, com orientação técnica diante da identificação de
+    situações de risco.
+  responsavel: COVSAM, ERS e Secretarias Municipais de Saúde
+  prazo: Conforme a periodicidade de cada programa; intensificar segundo o risco
+  prioridade: Alta
+  status_inicial: Validado
+  indicador_original: Percentual de municípios prioritários monitorados na periodicidade definida; percentual de municípios
+    com indicadores de risco que receberam orientação técnica.
+  linha_fonte: 13
 - id: A14
-  linha_fonte: 19
   meta_id: M14
-  eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  area_id: atencao_saude
-  descricao: Identificar e mapear populações e territórios de maior vulnerabilidade e definir estratégias específicas de comunicação,
-    vigilância, assistência e acesso.
-  responsavel: Vigilâncias + Atenção + ERS
-  prazo: Até 60 dias; atualização contínua
-  prazo_iso: null
+  eixo_id: eixo_vigilancia_sanitaria
+  area_id: vigilancia_sanitaria
+  nome: Orientar e monitorar os estabelecimentos assistenciais e de interesse à saúde quanto à segurança do abastecimento
+    de água, incluindo limpeza, manutenção e vedação de reservatórios e instalações hidráulicas.
+  responsavel: COVSAN, ERS e Vigilâncias Sanitárias municipais
+  prazo: Antes e durante o período crítico
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Mapa/lista de populações vulneráveis atualizado (Sim/Não); % dos territórios prioritários com estratégia
-    específica definida.
+  status_inicial: Em planejamento
+  indicador_original: Percentual de municípios prioritários orientados; percentual de estabelecimentos selecionados conforme
+    o risco com monitoramento realizado.
+  linha_fonte: 14
 - id: A15
-  linha_fonte: 20
   meta_id: M15
-  eixo_id: eixo_prontidao_simulado_e_melhoria
-  area_id: cievs
-  descricao: Realizar exercício simulado envolvendo áreas estratégicas, ERS e parceiros, seguido de avaliação das lacunas
-    e plano de melhoria.
-  responsavel: CIEVS/VIGIDESASTRES + Vigilâncias e áreas participantes
-  prazo: Até 180 dias
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Pelo menos 1 exercício realizado; relatório de avaliação produzido; % de recomendações com encaminhamento
-    definido.
+  eixo_id: eixo_vigilancia_sanitaria
+  area_id: vigilancia_sanitaria
+  nome: Programar e realizar, em articulação com as Vigilâncias Sanitárias municipais, a coleta de amostras de água envasada
+    e gelo conforme a situação de risco, adotando as medidas sanitárias cabíveis diante de resultados insatisfatórios.
+  responsavel: COVSAN, ERS, Vigilâncias Sanitárias municipais e LACEN-MT
+  prazo: Durante os eventos climáticos, conforme a programação de coleta
+  prioridade: Média
+  status_inicial: Em planejamento
+  indicador_original: Percentual da programação de coleta ou inspeção executada; percentual de resultados insatisfatórios
+    com medida sanitária registrada.
+  linha_fonte: 15
 - id: A16
-  linha_fonte: 21
   meta_id: M16
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  descricao: Elaborar  e publicar Nota Técnica orientando a intensificação da manutenção, limpeza e vedação de caixas d'água
-    e encanamentos nos estabelecimentos assistenciais de saúde e de interesse à saúde.
-  responsavel: COVSAN/ERS
-  prazo: 60 dias
-  prazo_iso: null
+  nome: Intensificar o monitoramento sanitário dos estabelecimentos que manipulam, armazenam, distribuem ou transportam alimentos,
+    priorizando aqueles que atendem populações vulneráveis durante períodos de calor extremo.
+  responsavel: COVSAN, ERS e Vigilâncias Sanitárias municipais
+  prazo: Durante os períodos de calor extremo
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: (Municípios orientados/ Municípios estratégicos)x100
+  status_inicial: Em planejamento
+  indicador_original: Percentual de Vigilâncias Sanitárias dos municípios prioritários orientadas; percentual de estabelecimentos
+    programados com monitoramento realizado.
+  linha_fonte: 16
 - id: A17
-  linha_fonte: 22
   meta_id: M17
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  descricao: "1. Orientar as VISAs municipais quanto aos procedimentos adequados de coleta de amostras de águas envasadas\
-    \ e de gelo destinado ao consumo humano durante eventos climáticos extremos, especialmente em períodos de chuvas intensas.\n\
-    \n2. Prever coletas de amostras de águas envasadas e de gelo destinado ao consumo humano para o período de eventos climáticos\
-    \ extremos, com ênfase nos episódios de chuvas intensas.\n\n3. Demandar aos municípios sede dos estabelecimentos a realização\
-    \ das coletas em conformidade com os alertas de chuvas intensas. \n\n4. Consolidar as informações obtidas a partir dos\
-    \ laudos de análise laboratorial.\n\n5. Adotar as providências cabíveis, em parceria com as VISAs municipais, nos casos\
-    \ de resultados insatisfatórios."
-  responsavel: COVSAN/ERS
-  prazo: Período das chuvas intensas
-  prazo_iso: null
-  prioridade: Média
-  status_inicial: nao_iniciada
-  indicador_original: '% de estabelecimentos inspecionados'
+  nome: Orientar e monitorar as condições de armazenamento, conservação e controle de temperatura de medicamentos, imunobiológicos
+    e insumos nos estabelecimentos sujeitos à Vigilância Sanitária.
+  responsavel: COVSAN, ERS e Vigilâncias Sanitárias municipais
+  prazo: Antes e durante o período crítico
+  prioridade: Alta
+  status_inicial: Em planejamento
+  indicador_original: Percentual de municípios prioritários orientados; percentual de estabelecimentos selecionados com condições
+    de armazenamento e temperatura verificadas.
+  linha_fonte: 17
 - id: A18
-  linha_fonte: 23
   meta_id: M18
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  descricao: Orientar as VISAs municipais a intensificar o monitoramento dos estabelecimentos que manipulem, distribuam, acondicionem
-    ou transportem alimentos destinados ao consumo humano, incluindo escolas, instituições de longa permanência para idosos,
-    unidades prisionais e demais ambientes de convivência coletiva, especialmente aqueles que atendem população vulnerável,
-    no período de calor extremo.
-  responsavel: COVSAN/ERS
-  prazo: 30 dias
-  prazo_iso: null
+  nome: Orientar os estabelecimentos assistenciais e de interesse à saúde quanto à climatização, ao conforto térmico, à manutenção
+    dos sistemas de climatização e à adoção de fontes alternativas de energia ou planos de contingência para interrupções
+    do fornecimento elétrico.
+  responsavel: COVSAN, ERS, Vigilâncias Sanitárias municipais e áreas de infraestrutura
+  prazo: Antes do período crítico e durante interrupções do fornecimento elétrico
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: (Municípios orientados/ Municípios estratégicos)x100
+  status_inicial: Em planejamento
+  indicador_original: Percentual de estabelecimentos prioritários orientados; percentual com PMOC e plano de contingência
+    ou fonte alternativa de energia verificados.
+  linha_fonte: 18
 - id: A19
-  linha_fonte: 24
   meta_id: M19
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  descricao: Elaborar e publicar Nota Técnica dispondo sobre as condições de armazenamento, conservação e controle de temperatura
-    de medicamentos e insumos em estabelecimentos sujeitos à vigilância sanitária.
-  responsavel: COVSAN/ERS
-  prazo: 30 dias
-  prazo_iso: null
+  nome: Orientar e monitorar as condições de operação, segurança, manutenção e funcionalidade dos equipamentos médico-hospitalares
+    utilizados nos serviços de saúde.
+  responsavel: COVSAN, ERS e Vigilâncias Sanitárias municipais
+  prazo: Antes e durante o período crítico
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nota Técnica (indicador qualitativo)
+  status_inicial: Em planejamento
+  indicador_original: Percentual de estabelecimentos assistenciais programados com condições de operação, segurança e manutenção
+    dos equipamentos verificadas.
+  linha_fonte: 19
 - id: A20
-  linha_fonte: 25
   meta_id: M20
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  descricao: 'Elaborar e publicar Nota Técnica orientativa para os estabelecimentos dotados de fonte alternativa de energia
-    (geradores), visando à garantia do funcionamento em situações de interrupção do fornecimento elétrico. Para os estabelecimentos
-    desprovidos de geradores, orientar a elaboração e implementação de Plano de Contingência específico.
-
-    Realizar webinar junto aos municípios estratégicos para apresentação e alinhamento das diretrizes estabelecidas nas Notas
-    Técnicas publicadas.'
-  responsavel: COVSAN/ERS
-  prazo: 30 dias
-  prazo_iso: null
+  nome: Intensificar o monitoramento e o controle de animais sinantrópicos nos estabelecimentos assistenciais e de interesse
+    à saúde, priorizando os serviços que atendem populações vulneráveis.
+  responsavel: COVSAN, ERS e Vigilâncias Sanitárias municipais
+  prazo: Antes e durante o período crítico
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nota Técnica (indicador qualitativo)
+  status_inicial: Em planejamento
+  indicador_original: Percentual de Vigilâncias Sanitárias dos municípios prioritários orientadas; percentual de estabelecimentos
+    selecionados monitorados; percentual de situações de risco com providência registrada.
+  linha_fonte: 20
 - id: A21
-  linha_fonte: 26
   meta_id: M21
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  descricao: Elaborar e publicar Nota Técnica aos estabelecimentos providenciem equipamentos apropriados, elaborem e implementem
-    o PMOC ou Plano de manutenção, com cronograma de execução.
-  responsavel: COVSAN/ERS
-  prazo: 30 dias
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nota Técnica (indicador qualitativo)
-- id: A22
-  linha_fonte: 27
-  meta_id: M22
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  descricao: Elaborar Nota Técnica direcionada às VISAs municipais para que  intensifiquem o monitoramento do controle de
-    animais sinantrópicos nos estabelecimento de assistência a saúde  e de interesse a saúde, principalmente os de atendimento
-    a população vulnerável.
-  responsavel: COVSAN/ERS
-  prazo: 30 dias
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: (Municípios orientados/ Municípios estratégicos)x100
-- id: A23
-  linha_fonte: 28
-  meta_id: M23
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  descricao: Elaborar e publicar Nota Técnica direcionada aos estabelecimentos assistenciais de saúde, orientando-os sobre
-    a obrigatoriedade de assegurar as condições adequadas de operação, segurança e funcionalidade dos equipamentos médico-hospitalares.
-  responsavel: COVSAN/ERS
-  prazo: 30 dias
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Nota Técnica (indicador qualitativo)
-- id: A24
-  linha_fonte: 29
-  meta_id: M24
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  descricao: Atender prioritariamente às denúncias recebidas relativas aos impactos de eventos climáticos extremos e, quando
-    couber, solicitar o apoio da Vigilância Sanitária (VISA) municipal para a realização da averiguação in loco.
-  responsavel: COVSAN/ERS
+  nome: Priorizar a triagem, a averiguação e a resposta às denúncias sanitárias relacionadas aos efeitos dos eventos climáticos,
+    articulando a realização de inspeções com as Vigilâncias Sanitárias municipais quando necessário.
+  responsavel: COVSAN, ERS e Vigilâncias Sanitárias municipais
   prazo: Durante os eventos climáticos extremos
-  prazo_iso: null
   prioridade: Média
-  status_inicial: nao_iniciada
-  indicador_original: (Denúncias respondidas no período dos eventos climáticos extremos/Denúncias recebidas no período dos
-    eventos climáticos extremos)x100
+  status_inicial: Não iniciada
+  indicador_original: Percentual de denúncias sanitárias averiguadas e respondidas no prazo definido; tempo médio entre o
+    recebimento e o primeiro encaminhamento.
+  linha_fonte: 21
+- id: A22
+  meta_id: M22
+  eixo_id: eixo_imunizacao_e_rede_de_frio
+  area_id: imunizacao
+  nome: Monitorar os efeitos dos eventos climáticos sobre as ações de imunização, a conservação e os estoques de imunobiológicos,
+    orientando medidas de contingência e realizando remanejamentos para assegurar a continuidade da vacinação.
+  responsavel: CPEI e ERS, em articulação com os municípios
+  prazo: Monitoramento contínuo durante a ocorrência do evento
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de regionais de saúde com ações de imunização, Rede de Frio e estoques monitorados; percentual
+    de situações de risco com medida de contingência ou remanejamento realizada.
+  linha_fonte: 22
+- id: A23
+  meta_id: M23
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  area_id: vigiagua
+  nome: Organizar a capacidade laboratorial para atender às demandas relacionadas aos efeitos do El Niño, definindo exames
+    prioritários, fluxos de recebimento e processamento de amostras, critérios de priorização e mecanismos de comunicação
+    dos resultados.
+  responsavel: LACEN-MT, em articulação com as áreas de vigilância e os ERS
+  prazo: Antes do período crítico e durante a resposta
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Exames prioritários definidos (Sim/Não); fluxos laboratoriais formalizados (Sim/Não); percentual de
+    demandas priorizadas processadas conforme o fluxo estabelecido.
+  linha_fonte: 23
+- id: A24
+  meta_id: M24
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  area_id: assistencia_farmaceutica
+  nome: Mapear rotas, pontos críticos, meios de transporte e alternativas logísticas para o deslocamento de equipes e o transporte
+    de amostras, medicamentos, imunobiológicos e outros recursos essenciais aos territórios de difícil acesso.
+  responsavel: LACEN-MT, Logística, Assistência Farmacêutica, CPEI e ERS
+  prazo: Antes do período crítico, com atualização conforme mudanças de acesso
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de regiões com rotas, pontos críticos, meios de transporte e alternativas logísticas mapeados;
+    plano de contingência logística disponível (Sim/Não).
+  linha_fonte: 24
 - id: A25
-  linha_fonte: 30
   meta_id: M25
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  area_id: imunizacao
-  descricao: Monitorar, por meio dos ERS, os impactos dos eventos climáticos nas ações de imunização, identificando alterações
-    na rotina da vacinação, dificuldade de acesso aos serviços e demais situações que possam comprometer a continuidade das
-    ações; Prestar suporte técnico conforme as necessidades identificadas.
-  responsavel: CPEI / ERS
-  prazo: Durante o período de ocorrência do evento
-  prazo_iso: null
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  area_id: vigiagua
+  nome: Monitorar a disponibilidade de insumos, reagentes, equipamentos e condições de transporte das amostras, adotando medidas
+    de contingência diante do aumento da demanda ou da interrupção dos fluxos logísticos.
+  responsavel: LACEN-MT, em articulação com Logística e ERS
+  prazo: Monitoramento contínuo — intensificar conforme a demanda
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de municípios afetados que tiveram a situação das ações de imunização monitoradas'
+  status_inicial: A validar
+  indicador_original: Percentual de períodos previstos com itens laboratoriais estratégicos monitorados; percentual de situações
+    com risco de interrupção que receberam medida de contingência.
+  linha_fonte: 25
 - id: A26
-  linha_fonte: 31
   meta_id: M26
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  area_id: imunizacao
-  descricao: "Monitorar, por meio dos ERS, as ocorrências relacionadas a eventos climáticos que possam comprometer a conservação\
-    \ dos imunobiológicos; \nOrientar tecnicamente os ERS quanto às medidas de contingência da Rede de Frio."
-  responsavel: CPEI / ERS
-  prazo: Durante o período de ocorrência do evento
-  prazo_iso: null
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
+  area_id: saude_trabalhador
+  nome: Elaborar e atualizar o perfil epidemiológico dos trabalhadores expostos ao calor, à fumaça, às queimadas e aos demais
+    riscos ocupacionais associados ao El Niño, disponibilizando as análises aos Escritórios Regionais de Saúde.
+  responsavel: COVSAT, CEREST e ERS
+  prazo: Antes do período crítico, com atualização conforme a periodicidade definida
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de ocorrências relacionadas à Rede de Frio monitoradas'
+  status_inicial: Em planejamento
+  indicador_original: Percentual de trabalhadores expostos dos trabalhadores expostos aos riscos associados ao El Niño o perfil
+    epidemiológico definido.
+  linha_fonte: 26
 - id: A27
-  linha_fonte: 32
   meta_id: M27
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  area_id: imunizacao
-  descricao: 'Monitorar os estoques de imunobiológicos nas regionais e municípios;
-
-    Remanejar, quando necessário, os imunobiológicos entre regionais, considerando a disponibilidade de estoque e as necessidades
-    identificadas.'
-  responsavel: CPEI / ERS
-  prazo: Monitoramento mensal
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '% de regiões com risco de desabastecimento identificadas e atendidas'
-- id: A28
-  linha_fonte: 33
-  meta_id: M28
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiar
-  descricao: 1) Avaliar os dados de focos de calor e taxas de internações por Doenças Respiratórias para mapear os municípios
-    com maior risco socioambiental.               2) Acompanhar os índices de material particulado e gases tóxicos, disponibilizados
-    por órgãos oficiais.                3) Emitir boletins, alertas, para informar as Unidades de Saúde e a população sobre
-    qualidade do ar e medidas de autoproteção.
-  responsavel: COVSAM/Área técnica do Programa Vigiar estadual.
-  prazo: Contínuo
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: 1) Mapas dos municípios de risco para queimadas, poluição atmosférica  e vulnerabilidade socioambiental
-    no estado de Mato Grosso.                     2) Número de boletins, alertas emitidos e divulgados no período crítico.
-- id: A29
-  linha_fonte: 34
-  meta_id: M29
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigilancia_ambiental
-  descricao: Implantar rotina integrada de análise de indicadores ambientais (vetores, zoonoses, água para consumo humano,
-    animais peçonhentos e queimadas), com acompanhamento dos sistemas e planilhas de informação oficiais, denúncias e rumores
-  responsavel: Vigilância Ambiental e Epidemiológica
-  prazo: Contínuo com periodicidade semanal; intensificar conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: '1) Aumento do n° de registros de domicílios positivos para animais peçonhentos e triatomíneos;
-
-    2) Aumento de notificações de acidentes com animais peçonhentos;
-
-    3)Aumento de casos de leishmaniose visceral canina;
-
-    4)Aumento de denúncias de deslocamento da população de morcegos para o ambiente urbano;
-
-    5)Aumento de criadouros de Anopheles;
-
-    Aumento de casos de malária.'
-- id: A30
-  linha_fonte: 35
-  meta_id: M30
-  eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  area_id: vigiagua
-  descricao: Atualizar periodicamente a classificação territorial de risco considerando seca, calor, focos de calor, fumaça,
-    qualidade do ar, abastecimento de água, situação epidemiológica e vulnerabilidade populacional.
-  responsavel: COVSAM (VIGIAGUA, VIGIAR e VIGIDESASTRES) + CIEVS
-  prazo: Mensal e conforme agravamento
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: 1) Mapa/lista de municípios prioritários atualizado na periodicidade estabelecida (Sim/Não);                                                                       2)
-    Nº de municípios classificados por nível de risco.
-- id: A31
-  linha_fonte: 36
-  meta_id: M31
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiagua
-  descricao: 1) Intensificar as coletas e análises laboratoriais de campo para os parâmetros básicos (cloro residual livre,
-    turbidez, pH e coliformes totais/Escherichia coli) em municípios em situação de emergência ou calamidade hídrica;                                                                          2)
-    Cadastrar e mapear todos os Sistemas (SAA), Soluções Alternativas Coletivas (SAC) e Soluções Alternativas Individuais
-    (SAI) de abastecimento de água operando em territórios vulneráveis a seca, estiagem e  inundações;                                                                            3)
-    Capacitação para os técnicos municipais sobre vigilância da qualidade da água em cenários de desastres e operação do sistema
-    SISAGUA.                                                                                                                                                                                      4)
-    Emitir boletins informativos e alertas técnicos para a população sobre os cuidados e métodos de desinfecção domiciliar
-    da água durante eventos climáticos extremos.
-  responsavel: 1) Secretaria Municipal de Saúde (cadastro e coleta de amostras de água) e Laboratório Central de Saúde Pública
-    de Mato Grosso - LACEN-MT (análise laboratorial),                      2) Equipe técnica da SES (Nível Central e Regional),
-    realizar inspeção dos SAA, SAC.                           3) Equipe técnica da SES;                           4) Área
-    técnica do VIGIAGUA Estadual em conjunto com a Assessoria de Comunicação da SES-MT.
-  prazo: Contínuo;  intensificar conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: 1) Percentual de amostras analisadas em áreas críticas em relação ao planejado no Sisagua;                                                 2)
-    Relatório de mapeamento de risco hídrico estadual atualizado.                                                      3)
-    Número de técnicos municipais capacitados no estado anualmente.
-- id: A32
-  linha_fonte: 37
-  meta_id: M32
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigilancia_ambiental
-  descricao: Definir agravos (ex. doenças cardiorespiratórias, arboviroses, DDA) e indicadores sentinela (ex. nº de internações)
-    manter o monitoramento epidemiológico para eventos associados a calor, fumaça, seca, água e outros efeitos do El Niño.
-  responsavel: Vigilância Epidemiológica e Vigilância Ambiental + CIEVS
-  prazo: Até 60 dias e monitoramento contínuo
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Conjunto de indicadores sentinela definido (Sim/Não); % de períodos com análise realizada conforme periodicidade
-    estabelecida.
-- id: A33
-  linha_fonte: 38
-  meta_id: M13
-  eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  area_id: comunicacao
-  descricao: Elaborar e divulgar mensagens padronizadas para calor extremo, baixa umidade, fumaça, queimadas, escassez/qualidade
-    da água para consumo humano e medidas de proteção à saúde.
-  responsavel: Comunicação + CIEVS/VIGIDESASTRES + áreas técnicas
-  prazo: Antes e durante períodos críticos
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: "Nº de materiais/mensagens validados; \nnº de alertas divulgados no prazo definido."
-- id: A34
-  linha_fonte: 39
-  meta_id: M33
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigilancia_ambiental
-  descricao: 'Intensificar o acompanhamento dos indicadores de infestação por Aedes aegypti e Aedes albopictus nos
-
-    municípios prioritários, utilizando LIRAa/LIA e/ou outras metodologias de vigilância entomológica aplicáveis
-
-    à realidade local (ovitrampas).'
-  responsavel: COVSAM
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: 'Índice de positividade de ovitrampas superior a 50% e densidade de ovos (IDO) superior a 50 ovos/armadilha;
-
-    Índice de infestação predial e de Breteau superior a 3,9% (LIRAa/LIA)'
-- id: A35
-  linha_fonte: 40
-  meta_id: M34
-  eixo_id: eixo_saude_do_trabalhador
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
   area_id: saude_trabalhador
-  descricao: Entregar aos ERS o perfil epidemiológico da sua área de abrângencia
-  responsavel: COVSAT
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Percentual de regiões de saúde com o perfil epidemiológico atendido
-- id: A36
-  linha_fonte: 41
-  meta_id: M35
-  eixo_id: eixo_saude_do_trabalhador
-  area_id: saude_trabalhador
-  descricao: Comunicar de forma efetiva trabalhadores e profissionais de saúde
-  responsavel: COVSAT
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Alertas emitidos
-- id: A37
-  linha_fonte: 42
-  meta_id: M36
-  eixo_id: eixo_saude_do_trabalhador
-  area_id: saude_trabalhador
-  descricao: Realizar vigilâncias em ambientes e processo de trabalho nos municípios prioritários
-  responsavel: COVSAT/CEREST REGIONAIS E MUNICIPAIS
-  prazo: Contínuo com periodicidade quinzenal ou trimestral; intensificar conforme risco
-  prazo_iso: null
-  prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Numeros de municípios supervisionados
-- id: A38
-  linha_fonte: 43
-  meta_id: M37
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  descricao: 1) Demandar ao gabinete de Gestão Hospitalar e a Superintendência de Gestão das Parcerias a elaboração e atualização
-    dos Planos de contingência das unidades de saúde;  2) Solicitar ao Gabinete de Gestão Hospitalar a Superintendência de
-    Gestão das Parcerias o levantamento da capacidade instalada (leitos, equipamentos e apoio diagnóstico) e do potencial
-    de expansão assistencial sob demanda;  3) Solicitar ao Gabinete de Gestão Hospitalar a Superintendência de Gestão das
-    Parcerias protocolos assistenciais focados em eventos cardiovasculares, renais e respiratórios.
-  responsavel: Coordenadoria de Atenção Terciária/SAS
+  nome: Elaborar e divulgar orientações aos trabalhadores, empregadores e profissionais de saúde sobre prevenção, identificação
+    e manejo dos agravos ocupacionais relacionados ao calor, à fumaça, à baixa umidade e às queimadas.
+  responsavel: COVSAT, CEREST, ERS e Assessoria de Comunicação
   prazo: Antes e durante o período crítico
-  prazo_iso: null
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: "1) Percentual de unidades hospitalares com Planos de Contingência assistencial elaborados ou atualizados;\
-    \ \n2) Percentual de unidades hospitalares com capacidade instalada e disponibilidade assistencial avaliada e atualizado;\n\
-    3) Percentual de unidades hospitalares com protocolos assistenciais prioritários atualizados."
-- id: A39
-  linha_fonte: 44
-  meta_id: M38
-  eixo_id: eixo_atencao_e_capacidade_assistencial
+  status_inicial: Em planejamento
+  indicador_original: Percentual de riscos ocupacionais priorizados contemplados nos materiais; número de materiais e alertas
+    divulgados.
+  linha_fonte: 27
+- id: A28
+  meta_id: M28
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
+  area_id: saude_trabalhador
+  nome: Realizar ações de Vigilância em Ambientes e Processos de Trabalho nos municípios prioritários, identificando riscos
+    ocupacionais, recomendando medidas de proteção e acompanhando sua implementação.
+  responsavel: COVSAT, CEREST regionais e municipais e Secretarias Municipais de Saúde
+  prazo: Conforme a programação e o nível de risco
+  prioridade: Alta
+  status_inicial: Em planejamento
+  indicador_original: Percentual de municípios programados com ação de vigilância realizada; percentual de recomendações com
+    acompanhamento registrado.
+  linha_fonte: 28
+- id: A29
+  meta_id: M29
+  eixo_id: eixo_atencao_a_saude
   area_id: atencao_saude
-  descricao: Orientar e prestar apoio técnico aos Escritórios Regionais de Saúde e municípios quanto à preparação dos serviços
-    de Atenção Secundária, por meio do compartilhamento de orientações e da realização de reuniões técnicas, preferencialmente
-    virtuais, conforme necessidade identificada ou demanda encaminhada.
-  responsavel: Coordenadoria de Atenção Secundária/SAS, em articulação com os Escritórios Regionais de Saúde.
-  prazo: Antes e durante o período crítico.
-  prazo_iso: null
+  nome: Orientar e apoiar os municípios na organização da Atenção Primária à Saúde para mapear as populações vulneráveis,
+    avaliar a capacidade das unidades, organizar o acolhimento e a classificação de risco, revisar os fluxos assistenciais
+    e intensificar as ações de acompanhamento e educação em saúde.
+  responsavel: Coordenadoria de Atenção Primária à Saúde e ERS
+  prazo: Antes e durante o período crítico
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Número de orientações técnicas e/ou reuniões realizadas.
-- id: A40
-  linha_fonte: 45
-  meta_id: M39
-  eixo_id: eixo_atencao_e_capacidade_assistencial
+  status_inicial: Em planejamento
+  indicador_original: Percentual de municípios prioritários orientados; percentual com populações vulneráveis mapeadas, capacidade
+    das UBS avaliada e medidas de preparação definidas.
+  linha_fonte: 29
+- id: A30
+  meta_id: M30
+  eixo_id: eixo_atencao_a_saude
+  area_id: multi_area
+  nome: Identificar e acompanhar pessoas idosas vulneráveis nos municípios prioritários, articulando os serviços de saúde,
+    assistência social e proteção civil para assegurar comunicação acessível, continuidade do cuidado, acesso a medicamentos,
+    alimentação e abrigo durante e após os eventos.
+  responsavel: SES-MT, ERS e Secretarias Municipais de Saúde, em articulação com Assistência Social e Proteção e Defesa Civil
+  prazo: Antes, durante e após o período crítico
+  prioridade: Alta
+  status_inicial: Em planejamento
+  indicador_original: Percentual de municípios prioritários com pessoas idosas vulneráveis identificadas e fluxo intersetorial
+    de acompanhamento e proteção formalizado.
+  linha_fonte: 30
+- id: A31
+  meta_id: M31
+  eixo_id: eixo_atencao_a_saude
   area_id: atencao_saude
-  descricao: 'Orientar os serviços de Urgência e Emergência para:
-
-    1) organizar protocolos de triagem, classificação de risco e priorização dos atendimentos;
-
-    2) definir fluxos para transporte e encaminhamento de pacientes;
-
-    3) estabelecer o fluxo de envio de informações dos Núcleos de Vigilância Epidemiológica Hospitalar ao CIEVS/SES-MT; e
-
-    4) verificar a disponibilidade de medicamentos, insumos e correlatos para o atendimento pré-hospitalar.'
-  responsavel: Coordenadoria de Organização de Redes de Urgência e Emergência e Escritórios Regionais
-  prazo: Antes do período crítico e monitoramento contínuo
-  prazo_iso: null
+  nome: Orientar e apoiar os Escritórios Regionais de Saúde e os municípios na preparação dos serviços de Atenção Secundária,
+    considerando a demanda prevista, a continuidade dos serviços e as necessidades identificadas nos territórios.
+  responsavel: Coordenadoria de Atenção Secundária/SAS e ERS
+  prazo: Antes e durante o período crítico
   prioridade: Alta
-  status_inicial: nao_iniciada
-  indicador_original: Número de orientações técnicas prestadas e/ou  reuniões realizadas.
+  status_inicial: A validar
+  indicador_original: Percentual de ERS orientados e percentual de serviços prioritários de Atenção Secundária com necessidades
+    avaliadas e medidas de preparação e continuidade assistencial definidas.
+  linha_fonte: 31
+- id: A32
+  meta_id: M32
+  eixo_id: eixo_regulacao
+  area_id: atencao_saude
+  nome: Monitorar a demanda assistencial, a regulação e a disponibilidade de serviços, profissionais, medicamentos, insumos
+    e equipamentos nos territórios prioritários, encaminhando as situações críticas às áreas responsáveis.
+  responsavel: Regulação, Atenção à Saúde, CIEVS e ERS
+  prazo: Durante o período crítico, na periodicidade estabelecida
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de territórios prioritários monitorados na periodicidade estabelecida e percentual de situações
+    críticas encaminhadas às áreas responsáveis.
+  linha_fonte: 32
+- id: A33
+  meta_id: M33
+  eixo_id: eixo_gestao_hospitalar
+  area_id: atencao_saude
+  nome: Orientar as unidades hospitalares a atualizar os planos de contingência, avaliar a capacidade instalada e o potencial
+    de expansão e revisar os protocolos assistenciais para os agravos cardiovasculares, renais, respiratórios e relacionados
+    ao calor.
+  responsavel: Coordenadoria de Atenção Terciária/SAS, Gestão Hospitalar e Superintendência de Gestão das Parcerias
+  prazo: Antes do período crítico, com monitoramento durante os eventos
+  prioridade: Alta
+  status_inicial: Em planejamento
+  indicador_original: Percentual de unidades hospitalares estratégicas com plano de contingência atualizado; percentual com
+    capacidade instalada avaliada; percentual com protocolos prioritários revisados.
+  linha_fonte: 33
+- id: A34
+  meta_id: M34
+  eixo_id: eixo_urgencia_e_emergencia
+  area_id: atencao_saude
+  nome: Orientar os serviços prioritários de Urgência e Emergência a revisar os protocolos de triagem e classificação de risco;
+    atualizar os fluxos de transporte, referência e contrarreferência; estabelecer o fluxo de comunicação com o CIEVS; e verificar
+    a disponibilidade de medicamentos, oxigênio, equipamentos e insumos essenciais para a resposta aos agravos associados
+    ao El Niño.
+  responsavel: Coordenadoria de Organização de Redes — Urgência e Emergência/SAS e ERS
+  prazo: Antes do período crítico, com acompanhamento durante os eventos
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de serviços prioritários com protocolos e fluxos revisados; percentual com comunicação com
+    o CIEVS estabelecida; percentual com disponibilidade de insumos essenciais verificada.
+  linha_fonte: 34
+- id: A35
+  meta_id: M35
+  eixo_id: eixo_assistencia_farmaceutica
+  area_id: assistencia_farmaceutica
+  nome: Dimensionar os estoques de medicamentos e insumos estratégicos e organizar os fluxos de reposição, remanejamento e
+    distribuição emergencial para atendimento dos territórios prioritários.
+  responsavel: Assistência Farmacêutica e ERS
+  prazo: Antes do período crítico e durante a resposta
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Percentual de serviços prioritários com protocolos e fluxos revisados; percentual com comunicação com
+    o CIEVS estabelecida; percentual com disponibilidade de insumos essenciais verificada.
+  linha_fonte: 35
+- id: A36
+  meta_id: M36
+  eixo_id: eixo_urgencia_e_emergencia
+  area_id: multi_area
+  nome: Ampliar a capacidade de resposta diante do aumento da demanda; otimizar a rotatividade dos leitos hospitalares; estabelecer
+    fluxo para situações de indisponibilidade temporária de unidades ou leitos; Reduzir o quantitavo de cirurgias eletivas,
+    para aumento de leitos, caso a demanda venha a aumentar.
+  responsavel: CARUELH/ SURUE
+  prazo: Antes do período crítico e durante a resposta
+  prioridade: Alta
+  status_inicial: A validar
+  indicador_original: Taxa de ocupação Hospitalar; UTI, Enfermarias;Taxa de ocupação e média de permanência hospitalar
+  linha_fonte: 36
 indicadores:
 - id: IND-001
   codigo_fonte: ARARA-001
   acao_id: A01
-  eixo_id: eixo_governanca_e_articulacao
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
   area_id: cievs
-  nome: Cobertura de áreas com ponto focal designado
+  nome: Percentual de áreas técnicas com ponto focal designado
   tipo: execucao
   modo_atualizacao: automatico
   formula: áreas com ponto focal formalizado ÷ áreas previstas × 100
@@ -854,12 +760,14 @@ indicadores:
   semaforo: Verde=100%; Amarelo=80–99%; Vermelho<80%
   evidencia_minima: Registro de designação e contato válido
   entra_no_indice: true
+  indicador_original: Percentual de áreas técnicas com ponto focal designado; fluxo estadual formalizado e divulgado (Sim/Não).
+  origem_carga: revisada
 - id: IND-002
   codigo_fonte: ARARA-002
   acao_id: A01
-  eixo_id: eixo_governanca_e_articulacao
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
   area_id: cievs
-  nome: Fluxo estadual de comunicação e resposta formalizado
+  nome: fluxo estadual formalizado e divulgado (Sim/Não).
   tipo: execucao
   modo_atualizacao: documental
   formula: 1 se fluxo vigente, aprovado e disponível; 0 caso contrário
@@ -874,9 +782,11 @@ indicadores:
   semaforo: Verde=Sim; Vermelho=Não
   evidencia_minima: Documento/fluxograma aprovado e versão vigente
   entra_no_indice: true
+  indicador_original: Percentual de áreas técnicas com ponto focal designado; fluxo estadual formalizado e divulgado (Sim/Não).
+  origem_carga: revisada
 - id: IND-003
   codigo_fonte: ARARA-003
-  acao_id: A02
+  acao_id: A01
   eixo_id: eixo_governanca_e_articulacao
   area_id: cievs
   nome: ERS com contatos e fluxo atualizados
@@ -894,11 +804,13 @@ indicadores:
   semaforo: Verde=100%; Amarelo=75–99%; Vermelho<75%
   evidencia_minima: Cadastro validado por ERS
   entra_no_indice: true
+  indicador_original: 'Nº e % de ERS com contatos e fluxo atualizados. Meta: 16/16 (100%).'
+  origem_carga: legado_complementar
 - id: IND-004
   codigo_fonte: ARARA-004
-  acao_id: A03
+  acao_id: A10
   eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  area_id: atencao_saude
+  area_id: vigilancia_ambiental
   nome: Pontualidade das avaliações integradas de risco
   tipo: execucao
   modo_atualizacao: automatico
@@ -914,11 +826,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de geração e publicação
   entra_no_indice: true
+  indicador_original: Nº de análises/avaliações de risco produzidas no período previsto; % de análises/avaliação de risco
+    emitidas dentro da periodicidade estabelecida. Tempo médio entre a coleta de dados e a divulgação do relatório de análise/avaliação
+    de risco.
+  origem_carga: legado_alinhado
 - id: IND-005
   codigo_fonte: ARARA-005
-  acao_id: A03
+  acao_id: A10
   eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  area_id: atencao_saude
+  area_id: vigilancia_ambiental
   nome: Latência da avaliação integrada de risco
   tipo: resultado
   modo_atualizacao: automatico
@@ -934,11 +850,15 @@ indicadores:
   semaforo: Verde≤24h; Amarelo>24–48h; Vermelho>48h
   evidencia_minima: Timestamp das fontes e do relatório
   entra_no_indice: true
+  indicador_original: Nº de análises/avaliações de risco produzidas no período previsto; % de análises/avaliação de risco
+    emitidas dentro da periodicidade estabelecida. Tempo médio entre a coleta de dados e a divulgação do relatório de análise/avaliação
+    de risco.
+  origem_carga: legado_alinhado
 - id: IND-006
   codigo_fonte: ARARA-006
-  acao_id: A04
+  acao_id: A02
   eixo_id: eixo_inteligencia_e_avaliacao_de_risco
-  area_id: vigilancia_ambiental
+  area_id: atencao_saude
   nome: Cobertura territorial com classificação de risco válida
   tipo: capacidade
   modo_atualizacao: automatico
@@ -954,9 +874,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Classificação com data, fonte e completude
   entra_no_indice: true
+  indicador_original: Mapa/lista de municípios prioritários atualizado na periodicidade estabelecida (Sim/Não); nº de municípios
+    classificados por nível de risco.
+  origem_carga: legado_alinhado
 - id: IND-007
   codigo_fonte: ARARA-007
-  acao_id: A04
+  acao_id: A10
   eixo_id: eixo_inteligencia_e_avaliacao_de_risco
   area_id: vigilancia_ambiental
   nome: Municípios em risco elevado persistente
@@ -974,11 +897,14 @@ indicadores:
   semaforo: Gatilho operacional conforme persistência e população exposta
   evidencia_minima: Histórico de classificação
   entra_no_indice: false
+  indicador_original: Mapa/lista de municípios prioritários atualizado na periodicidade estabelecida (Sim/Não); nº de municípios
+    classificados por nível de risco.
+  origem_carga: legado_alinhado
 - id: IND-008
   codigo_fonte: ARARA-008
-  acao_id: A05
+  acao_id: A02
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiagua
+  area_id: atencao_saude
   nome: Municípios prioritários com monitoramento da água válido
   tipo: capacidade
   modo_atualizacao: automatico
@@ -994,12 +920,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Amostras/monitoramento com competência válida
   entra_no_indice: true
+  indicador_original: '% de municípios prioritários com monitoramento realizado; nº/% de não conformidades com medida de resposta
+    registrada.'
+  origem_carga: legado_alinhado
 - id: IND-009
   codigo_fonte: ARARA-009
-  acao_id: A05
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiagua
-  nome: Não conformidades de água com resposta registrada
+  acao_id: A35
+  eixo_id: eixo_assistencia_farmaceutica
+  area_id: assistencia_farmaceutica
+  nome: percentual com disponibilidade de insumos essenciais verificada.
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: não conformidades com providência registrada ÷ total de não conformidades × 100
@@ -1014,12 +943,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro de providência e data
   entra_no_indice: true
+  indicador_original: Percentual de serviços prioritários com protocolos e fluxos revisados; percentual com comunicação com
+    o CIEVS estabelecida; percentual com disponibilidade de insumos essenciais verificada.
+  origem_carga: revisada
 - id: IND-010
   codigo_fonte: ARARA-010
-  acao_id: A05
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiagua
-  nome: Tempo de resposta à não conformidade da água
+  acao_id: A02
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  area_id: atencao_saude
+  nome: Percentual de municípios prioritários classificados por nível de risco
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: mediana(data/hora da providência − data/hora da detecção)
@@ -1034,9 +966,12 @@ indicadores:
   semaforo: Verde≤48h; Amarelo>48–72h; Vermelho>72h
   evidencia_minima: Timestamps de detecção e providência
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários classificados por nível de risco; percentual de atualizações realizadas
+    na periodicidade estabelecida.
+  origem_carga: revisada
 - id: IND-011
   codigo_fonte: ARARA-011
-  acao_id: A06
+  acao_id: A12
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigiar
   nome: Análises integradas fumaça–saúde realizadas no prazo
@@ -1054,11 +989,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log da análise integrada
   entra_no_indice: true
+  indicador_original: Nº de análises integradas realizadas; nº de alertas/orientações emitidos; % de territórios prioritários
+    alcançados pelas orientações.
+  origem_carga: legado_complementar
 - id: IND-012
   codigo_fonte: ARARA-012
-  acao_id: A06
+  acao_id: A07
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiar
+  area_id: vigilancia_ambiental
   nome: Cobertura territorial dos alertas de fumaça/qualidade do ar
   tipo: resultado
   modo_atualizacao: automatico
@@ -1074,9 +1012,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de destinatários e entrega
   entra_no_indice: true
+  indicador_original: Nº de análises integradas realizadas; nº de alertas/orientações emitidos; % de territórios prioritários
+    alcançados pelas orientações.
+  origem_carga: legado_alinhado
 - id: IND-013
   codigo_fonte: ARARA-013
-  acao_id: A06
+  acao_id: A12
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigiar
   nome: População sob exposição relevante à fumaça/PM2,5
@@ -1094,12 +1035,15 @@ indicadores:
   semaforo: Nível de risco conforme limiar técnico validado
   evidencia_minima: Dado ambiental + população
   entra_no_indice: false
+  indicador_original: Nº de análises integradas realizadas; nº de alertas/orientações emitidos; % de territórios prioritários
+    alcançados pelas orientações.
+  origem_carga: legado_complementar
 - id: IND-014
   codigo_fonte: ARARA-014
-  acao_id: A07
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigilancia_ambiental
-  nome: Conjunto de indicadores sentinela formalmente definido
+  acao_id: A02
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  area_id: atencao_saude
+  nome: percentual de atualizações realizadas na periodicidade estabelecida.
   tipo: execucao
   modo_atualizacao: documental
   formula: 1 se catálogo vigente de agravos, fontes, baseline e regras estiver aprovado
@@ -1114,12 +1058,15 @@ indicadores:
   semaforo: Verde=Sim; Vermelho=Não
   evidencia_minima: Documento técnico/versão do catálogo
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários classificados por nível de risco; percentual de atualizações realizadas
+    na periodicidade estabelecida.
+  origem_carga: revisada
 - id: IND-015
   codigo_fonte: ARARA-015
-  acao_id: A07
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigilancia_ambiental
-  nome: Períodos com análise de morbimortalidade realizada
+  acao_id: A12
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigiar
+  nome: Percentual de períodos programados com análise integrada realizada
   tipo: execucao
   modo_atualizacao: automatico
   formula: períodos analisados ÷ períodos previstos × 100
@@ -1134,9 +1081,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de processamento
   entra_no_indice: true
+  indicador_original: Percentual de períodos programados com análise integrada realizada; percentual de territórios que atingiram
+    critérios de alerta e receberam orientação.
+  origem_carga: revisada
 - id: IND-016
   codigo_fonte: ARARA-016
-  acao_id: A07
+  acao_id: A04
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Municípios com agravo sentinela acima do esperado
@@ -1154,12 +1104,15 @@ indicadores:
   semaforo: Gatilho conforme desvio/baseline validado
   evidencia_minima: Série temporal e regra de detecção
   entra_no_indice: false
+  indicador_original: Conjunto de indicadores sentinela definido (Sim/Não); % de períodos com análise realizada conforme periodicidade
+    estabelecida.
+  origem_carga: legado_complementar
 - id: IND-017
   codigo_fonte: ARARA-017
-  acao_id: A08
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  nome: Protocolos assistenciais prioritários definidos e vigentes
+  acao_id: A35
+  eixo_id: eixo_assistencia_farmaceutica
+  area_id: assistencia_farmaceutica
+  nome: Percentual de serviços prioritários com protocolos e fluxos revisados
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: protocolos concluídos e vigentes ÷ protocolos previstos × 100
@@ -1174,9 +1127,12 @@ indicadores:
   semaforo: Verde=100%; Amarelo=75–99%; Vermelho<75%
   evidencia_minima: Protocolo aprovado e versão vigente
   entra_no_indice: true
+  indicador_original: Percentual de serviços prioritários com protocolos e fluxos revisados; percentual com comunicação com
+    o CIEVS estabelecida; percentual com disponibilidade de insumos essenciais verificada.
+  origem_carga: revisada
 - id: IND-018
   codigo_fonte: ARARA-018
-  acao_id: A08
+  acao_id: A27
   eixo_id: eixo_atencao_e_capacidade_assistencial
   area_id: atencao_saude
   nome: ERS que receberam orientações assistenciais
@@ -1194,9 +1150,11 @@ indicadores:
   semaforo: Verde=100%; Amarelo=80–99%; Vermelho<80%
   evidencia_minima: Log de envio/ciência
   entra_no_indice: true
+  indicador_original: Nº/% de protocolos prioritários definidos e divulgados; % de ERS que receberam as orientações.
+  origem_carga: legado_complementar
 - id: IND-019
   codigo_fonte: ARARA-019
-  acao_id: A09
+  acao_id: A32
   eixo_id: eixo_atencao_e_capacidade_assistencial
   area_id: atencao_saude
   nome: Territórios prioritários com situação assistencial monitorada
@@ -1214,12 +1172,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Dados assistenciais com competência válida
   entra_no_indice: true
+  indicador_original: '% de territórios prioritários com situação assistencial monitorada; nº de situações críticas identificadas
+    e encaminhadas.'
+  origem_carga: legado_complementar
 - id: IND-020
   codigo_fonte: ARARA-020
-  acao_id: A09
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  nome: Situações críticas assistenciais com encaminhamento no prazo
+  acao_id: A20
+  eixo_id: eixo_vigilancia_sanitaria
+  area_id: vigilancia_sanitaria
+  nome: percentual de situações de risco com providência registrada.
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: situações críticas com encaminhamento dentro do SLA ÷ total de situações críticas × 100
@@ -1234,9 +1195,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro de ocorrência, decisão e encerramento
   entra_no_indice: true
+  indicador_original: Percentual de Vigilâncias Sanitárias dos municípios prioritários orientadas; percentual de estabelecimentos
+    selecionados monitorados; percentual de situações de risco com providência registrada.
+  origem_carga: revisada
 - id: IND-021
   codigo_fonte: ARARA-021
-  acao_id: A09
+  acao_id: A32
   eixo_id: eixo_atencao_e_capacidade_assistencial
   area_id: atencao_saude
   nome: Índice de pressão assistencial
@@ -1254,12 +1218,15 @@ indicadores:
   semaforo: Faixas Verde–Roxo conforme validação técnica
   evidencia_minima: Componentes e versão do algoritmo
   entra_no_indice: false
+  indicador_original: '% de territórios prioritários com situação assistencial monitorada; nº de situações críticas identificadas
+    e encaminhadas.'
+  origem_carga: legado_complementar
 - id: IND-022
   codigo_fonte: ARARA-022
-  acao_id: A10
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  nome: Unidades estratégicas com plano de continuidade vigente
+  acao_id: A28
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
+  area_id: saude_trabalhador
+  nome: percentual de recomendações com acompanhamento registrado.
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: unidades prioritárias com plano vigente ÷ unidades prioritárias × 100
@@ -1274,9 +1241,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Plano vigente + data de revisão
   entra_no_indice: true
+  indicador_original: Percentual de municípios programados com ação de vigilância realizada; percentual de recomendações com
+    acompanhamento registrado.
+  origem_carga: revisada
 - id: IND-023
   codigo_fonte: ARARA-023
-  acao_id: A10
+  acao_id: A30
   eixo_id: eixo_atencao_e_capacidade_assistencial
   area_id: atencao_saude
   nome: Unidades com interrupção de serviço essencial
@@ -1294,9 +1264,11 @@ indicadores:
   semaforo: Verde=0; Amarelo=1–2; Vermelho≥3 ou unidade crítica
   evidencia_minima: Ocorrência validada e status
   entra_no_indice: false
+  indicador_original: '% de unidades estratégicas identificadas com plano de continuidade atualizado.'
+  origem_carga: legado_complementar
 - id: IND-024
   codigo_fonte: ARARA-024
-  acao_id: A11
+  acao_id: A35
   eixo_id: eixo_assistencia_farmaceutica_e_logistica
   area_id: assistencia_farmaceutica
   nome: Itens estratégicos com autonomia acima do mínimo
@@ -1314,9 +1286,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Estoque, consumo médio e estoque mínimo
   entra_no_indice: true
+  indicador_original: '% de itens estratégicos com estoque acima do nível mínimo definido; nº de episódios de desabastecimento
+    de itens estratégicos; % de demandas prioritárias atendidas dentro do prazo estabelecido.'
+  origem_carga: legado_complementar
 - id: IND-025
   codigo_fonte: ARARA-025
-  acao_id: A11
+  acao_id: A35
   eixo_id: eixo_assistencia_farmaceutica_e_logistica
   area_id: assistencia_farmaceutica
   nome: Episódios de ruptura de estoque estratégico
@@ -1334,12 +1309,15 @@ indicadores:
   semaforo: Verde=0; Amarelo=1; Vermelho≥2 ou item crítico
   evidencia_minima: Saldo de estoque e histórico
   entra_no_indice: false
+  indicador_original: '% de itens estratégicos com estoque acima do nível mínimo definido; nº de episódios de desabastecimento
+    de itens estratégicos; % de demandas prioritárias atendidas dentro do prazo estabelecido.'
+  origem_carga: legado_complementar
 - id: IND-026
   codigo_fonte: ARARA-026
-  acao_id: A11
-  eixo_id: eixo_assistencia_farmaceutica_e_logistica
-  area_id: assistencia_farmaceutica
-  nome: Demandas prioritárias atendidas no prazo
+  acao_id: A21
+  eixo_id: eixo_vigilancia_sanitaria
+  area_id: vigilancia_sanitaria
+  nome: Percentual de denúncias sanitárias averiguadas e respondidas no prazo definido
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: demandas prioritárias atendidas dentro do SLA ÷ demandas prioritárias × 100
@@ -1354,12 +1332,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Solicitação, prazo e entrega
   entra_no_indice: true
+  indicador_original: Percentual de denúncias sanitárias averiguadas e respondidas no prazo definido; tempo médio entre o
+    recebimento e o primeiro encaminhamento.
+  origem_carga: revisada
 - id: IND-027
   codigo_fonte: ARARA-027
-  acao_id: A12
-  eixo_id: eixo_assistencia_farmaceutica_e_logistica
-  area_id: logistica
-  nome: ERS com rotas e alternativas logísticas mapeadas
+  acao_id: A24
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  area_id: assistencia_farmaceutica
+  nome: Percentual de regiões com rotas, pontos críticos, meios de transporte e alternativas logísticas mapeados
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: ERS com mapa/rota vigente ÷ 16 × 100
@@ -1374,12 +1355,15 @@ indicadores:
   semaforo: Verde=100%; Amarelo=75–99%; Vermelho<75%
   evidencia_minima: Mapa/rota com data de validação
   entra_no_indice: true
+  indicador_original: Percentual de regiões com rotas, pontos críticos, meios de transporte e alternativas logísticas mapeados;
+    plano de contingência logística disponível (Sim/Não).
+  origem_carga: revisada
 - id: IND-028
   codigo_fonte: ARARA-028
-  acao_id: A12
-  eixo_id: eixo_assistencia_farmaceutica_e_logistica
-  area_id: logistica
-  nome: Plano de contingência logística estadual vigente
+  acao_id: A24
+  eixo_id: eixo_laboratorio_central_de_saude_publica_lacen
+  area_id: assistencia_farmaceutica
+  nome: plano de contingência logística disponível (Sim/Não).
   tipo: capacidade
   modo_atualizacao: documental
   formula: 1 se plano aprovado e vigente
@@ -1394,11 +1378,14 @@ indicadores:
   semaforo: Verde=Sim; Vermelho=Não
   evidencia_minima: Plano vigente
   entra_no_indice: true
+  indicador_original: Percentual de regiões com rotas, pontos críticos, meios de transporte e alternativas logísticas mapeados;
+    plano de contingência logística disponível (Sim/Não).
+  origem_carga: revisada
 - id: IND-029
   codigo_fonte: ARARA-029
-  acao_id: A13
+  acao_id: A12
   eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  area_id: comunicacao
+  area_id: vigiar
   nome: Alertas de comunicação de risco emitidos dentro do prazo
   tipo: resultado
   modo_atualizacao: automatico
@@ -1414,11 +1401,13 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de disparo
   entra_no_indice: true
+  indicador_original: Nº de materiais/mensagens validados; % de alertas divulgados no prazo definido.
+  origem_carga: legado_alinhado
 - id: IND-030
   codigo_fonte: ARARA-030
-  acao_id: A13
+  acao_id: A10
   eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  area_id: comunicacao
+  area_id: vigilancia_ambiental
   nome: Cobertura de comunicação de risco
   tipo: resultado
   modo_atualizacao: automatico
@@ -1434,12 +1423,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de entrega/alcance
   entra_no_indice: true
+  indicador_original: Nº de materiais/mensagens validados; % de alertas divulgados no prazo definido.
+  origem_carga: legado_alinhado
 - id: IND-031
   codigo_fonte: ARARA-031
-  acao_id: A14
-  eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
+  acao_id: A29
+  eixo_id: eixo_atencao_a_saude
   area_id: atencao_saude
-  nome: Territórios prioritários com estratégia para populações vulneráveis
+  nome: percentual com populações vulneráveis mapeadas, capacidade das UBS avaliada e medidas de preparação definidas.
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: territórios prioritários com estratégia específica vigente ÷ territórios prioritários × 100
@@ -1454,11 +1445,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Mapa de vulnerabilidade + estratégia registrada
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários orientados; percentual com populações vulneráveis mapeadas, capacidade
+    das UBS avaliada e medidas de preparação definidas.
+  origem_carga: revisada
 - id: IND-032
   codigo_fonte: ARARA-032
-  acao_id: A14
+  acao_id: A16
   eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  area_id: atencao_saude
+  area_id: vigilancia_sanitaria
   nome: Cobertura de mapeamento de populações vulneráveis
   tipo: capacidade
   modo_atualizacao: automatico
@@ -1474,12 +1468,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Camada geográfica com data e fonte
   entra_no_indice: true
+  indicador_original: Mapa/lista de populações vulneráveis atualizado (Sim/Não); % dos territórios prioritários com estratégia
+    específica definida.
+  origem_carga: legado_alinhado
 - id: IND-033
   codigo_fonte: ARARA-033
-  acao_id: A15
-  eixo_id: eixo_prontidao_simulado_e_melhoria
-  area_id: cievs
-  nome: Exercício simulado estadual realizado
+  acao_id: A03
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  area_id: comunicacao
+  nome: Número de mensagens validadas
   tipo: execucao
   modo_atualizacao: documental
   formula: 1 se exercício realizado e documentado no período
@@ -1494,12 +1491,15 @@ indicadores:
   semaforo: Verde≥1; Vermelho=0 após prazo
   evidencia_minima: Relatório do exercício
   entra_no_indice: true
+  indicador_original: Número de mensagens validadas; percentual de alertas indicados pelas análises de risco divulgados no
+    prazo estabelecido.
+  origem_carga: revisada
 - id: IND-034
   codigo_fonte: ARARA-034
-  acao_id: A15
-  eixo_id: eixo_prontidao_simulado_e_melhoria
-  area_id: cievs
-  nome: Ações corretivas pós-simulado concluídas
+  acao_id: A03
+  eixo_id: eixo_coordenacao_e_preparacao_integrada
+  area_id: comunicacao
+  nome: percentual de alertas indicados pelas análises de risco divulgados no prazo estabelecido.
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: ações corretivas encerradas ÷ recomendações do plano de melhoria × 100
@@ -1514,12 +1514,15 @@ indicadores:
   semaforo: Verde≥90%; Amarelo=70–89%; Vermelho<70%
   evidencia_minima: Plano de melhoria e evidências
   entra_no_indice: true
+  indicador_original: Número de mensagens validadas; percentual de alertas indicados pelas análises de risco divulgados no
+    prazo estabelecido.
+  origem_carga: revisada
 - id: IND-035
   codigo_fonte: ARARA-035
-  acao_id: A16
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: Nota Técnica sobre água em estabelecimentos publicada
+  acao_id: A04
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Percentual de agravos selecionados monitorados na periodicidade estabelecida.
   tipo: execucao
   modo_atualizacao: documental
   formula: 1 se Nota Técnica publicada e vigente
@@ -1534,12 +1537,14 @@ indicadores:
   semaforo: Verde=Sim; Vermelho=Não após prazo
   evidencia_minima: Nota Técnica publicada
   entra_no_indice: true
+  indicador_original: Percentual de agravos selecionados monitorados na periodicidade estabelecida.
+  origem_carga: revisada
 - id: IND-036
   codigo_fonte: ARARA-036
-  acao_id: A16
+  acao_id: A17
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  nome: Municípios estratégicos orientados sobre água em estabelecimentos
+  nome: Percentual de municípios prioritários orientados
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: municípios orientados ÷ municípios estratégicos × 100
@@ -1554,12 +1559,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro de envio/ciência
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários orientados; percentual de estabelecimentos selecionados com condições
+    de armazenamento e temperatura verificadas.
+  origem_carga: revisada
 - id: IND-037
   codigo_fonte: ARARA-037
-  acao_id: A17
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: Estabelecimentos-alvo inspecionados — água envasada/gelo
+  acao_id: A05
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Percentual de análises epidemiológicas programadas realizadas e divulgadas
   tipo: execucao
   modo_atualizacao: semiautomatico
   formula: estabelecimentos inspecionados ÷ estabelecimentos-alvo × 100
@@ -1574,12 +1582,15 @@ indicadores:
   semaforo: Semáforo conforme meta pactuada
   evidencia_minima: Registro de inspeção
   entra_no_indice: true
+  indicador_original: Percentual de análises epidemiológicas programadas realizadas e divulgadas; percentual de alterações
+    relevantes investigadas; número de alertas e recomendações emitidos.
+  origem_carga: revisada
 - id: IND-038
   codigo_fonte: ARARA-038
-  acao_id: A17
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: Amostras planejadas de água envasada/gelo coletadas
+  acao_id: A05
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: percentual de alterações relevantes investigadas
   tipo: execucao
   modo_atualizacao: semiautomatico
   formula: amostras coletadas ÷ amostras planejadas × 100
@@ -1594,12 +1605,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Plano amostral + coleta
   entra_no_indice: true
+  indicador_original: Percentual de análises epidemiológicas programadas realizadas e divulgadas; percentual de alterações
+    relevantes investigadas; número de alertas e recomendações emitidos.
+  origem_carga: revisada
 - id: IND-039
   codigo_fonte: ARARA-039
-  acao_id: A17
+  acao_id: A15
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  nome: Resultados insatisfatórios com providência adotada
+  nome: percentual de resultados insatisfatórios com medida sanitária registrada.
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: laudos insatisfatórios com providência registrada ÷ laudos insatisfatórios × 100
@@ -1614,12 +1628,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Laudo + providência
   entra_no_indice: true
+  indicador_original: Percentual da programação de coleta ou inspeção executada; percentual de resultados insatisfatórios
+    com medida sanitária registrada.
+  origem_carga: revisada
 - id: IND-040
   codigo_fonte: ARARA-040
-  acao_id: A18
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: Municípios estratégicos orientados sobre segurança de alimentos no calor
+  acao_id: A29
+  eixo_id: eixo_atencao_a_saude
+  area_id: atencao_saude
+  nome: Percentual de municípios prioritários orientados
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: municípios orientados ÷ municípios estratégicos × 100
@@ -1634,12 +1651,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro de envio/ciência
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários orientados; percentual com populações vulneráveis mapeadas, capacidade
+    das UBS avaliada e medidas de preparação definidas.
+  origem_carga: revisada
 - id: IND-041
   codigo_fonte: ARARA-041
-  acao_id: A18
+  acao_id: A20
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  nome: Estabelecimentos prioritários monitorados no período crítico
+  nome: percentual de estabelecimentos selecionados monitorados
   tipo: execucao
   modo_atualizacao: semiautomatico
   formula: estabelecimentos monitorados ÷ estabelecimentos prioritários definidos × 100
@@ -1654,12 +1674,15 @@ indicadores:
   semaforo: Semáforo conforme meta pactuada
   evidencia_minima: Registro de fiscalização
   entra_no_indice: true
+  indicador_original: Percentual de Vigilâncias Sanitárias dos municípios prioritários orientadas; percentual de estabelecimentos
+    selecionados monitorados; percentual de situações de risco com providência registrada.
+  origem_carga: revisada
 - id: IND-042
   codigo_fonte: ARARA-042
-  acao_id: A19
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: Nota Técnica sobre conservação de medicamentos/imunobiológicos publicada
+  acao_id: A05
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: número de alertas e recomendações emitidos.
   tipo: execucao
   modo_atualizacao: documental
   formula: 1 se Nota Técnica publicada e vigente
@@ -1674,12 +1697,15 @@ indicadores:
   semaforo: Verde=Sim; Vermelho=Não após prazo
   evidencia_minima: Nota Técnica publicada
   entra_no_indice: true
+  indicador_original: Percentual de análises epidemiológicas programadas realizadas e divulgadas; percentual de alterações
+    relevantes investigadas; número de alertas e recomendações emitidos.
+  origem_carga: revisada
 - id: IND-043
   codigo_fonte: ARARA-043
-  acao_id: A19
+  acao_id: A17
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  nome: Estabelecimentos avaliados com controle de temperatura conforme
+  nome: percentual de estabelecimentos selecionados com condições de armazenamento e temperatura verificadas.
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: estabelecimentos conformes ÷ estabelecimentos avaliados × 100
@@ -1694,12 +1720,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Checklist/registro de temperatura
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários orientados; percentual de estabelecimentos selecionados com condições
+    de armazenamento e temperatura verificadas.
+  origem_carga: revisada
 - id: IND-044
   codigo_fonte: ARARA-044
-  acao_id: A20
+  acao_id: A18
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  nome: Orientação sobre fonte alternativa de energia publicada e difundida
+  nome: percentual com PMOC e plano de contingência ou fonte alternativa de energia verificados.
   tipo: execucao
   modo_atualizacao: documental
   formula: Nota Técnica publicada + webinar/ação de difusão realizado
@@ -1714,12 +1743,15 @@ indicadores:
   semaforo: Verde=ambos concluídos; Amarelo=1 concluído; Vermelho=0
   evidencia_minima: Nota Técnica + registro do webinar
   entra_no_indice: true
+  indicador_original: Percentual de estabelecimentos prioritários orientados; percentual com PMOC e plano de contingência
+    ou fonte alternativa de energia verificados.
+  origem_carga: revisada
 - id: IND-045
   codigo_fonte: ARARA-045
-  acao_id: A20
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: EAS prioritários com gerador funcional ou plano de contingência energético
+  acao_id: A22
+  eixo_id: eixo_imunizacao_e_rede_de_frio
+  area_id: imunizacao
+  nome: percentual de situações de risco com medida de contingência ou remanejamento realizada.
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: EAS prioritários com evidência válida ÷ EAS prioritários avaliados × 100
@@ -1734,12 +1766,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Teste do gerador ou plano vigente
   entra_no_indice: true
+  indicador_original: Percentual de regionais de saúde com ações de imunização, Rede de Frio e estoques monitorados; percentual
+    de situações de risco com medida de contingência ou remanejamento realizada.
+  origem_carga: revisada
 - id: IND-046
   codigo_fonte: ARARA-046
-  acao_id: A21
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: Nota Técnica sobre climatização e conforto térmico publicada
+  acao_id: A06
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: registro de DDA monitorados
   tipo: execucao
   modo_atualizacao: documental
   formula: 1 se Nota Técnica publicada e vigente
@@ -1754,12 +1789,14 @@ indicadores:
   semaforo: Verde=Sim; Vermelho=Não após prazo
   evidencia_minima: Nota Técnica publicada
   entra_no_indice: true
+  indicador_original: "Percentual de municípios com \nregistro de DDA monitorados"
+  origem_carga: revisada
 - id: IND-047
   codigo_fonte: ARARA-047
-  acao_id: A21
+  acao_id: A18
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
-  nome: Estabelecimentos prioritários com climatização/PMOC adequado
+  nome: Percentual de estabelecimentos prioritários orientados
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: estabelecimentos conformes ÷ estabelecimentos avaliados × 100
@@ -1774,12 +1811,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Checklist PMOC/climatização
   entra_no_indice: true
+  indicador_original: Percentual de estabelecimentos prioritários orientados; percentual com PMOC e plano de contingência
+    ou fonte alternativa de energia verificados.
+  origem_carga: revisada
 - id: IND-048
   codigo_fonte: ARARA-048
-  acao_id: A22
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: VISAs municipais orientadas sobre animais sinantrópicos
+  acao_id: A07
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Proporção de surtos investigados oportunamente
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: municípios orientados ÷ municípios estratégicos × 100
@@ -1794,12 +1834,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro de envio/ciência
   entra_no_indice: true
+  indicador_original: Proporção de surtos investigados oportunamente
+  origem_carga: revisada
 - id: IND-049
   codigo_fonte: ARARA-049
-  acao_id: A22
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: EAS/EIS prioritários monitorados para animais sinantrópicos
+  acao_id: A13
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigilancia_ambiental
+  nome: Percentual de municípios prioritários monitorados na periodicidade definida
   tipo: execucao
   modo_atualizacao: semiautomatico
   formula: estabelecimentos monitorados ÷ estabelecimentos prioritários definidos × 100
@@ -1814,12 +1856,15 @@ indicadores:
   semaforo: Semáforo conforme meta pactuada
   evidencia_minima: Registro de fiscalização
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários monitorados na periodicidade definida; percentual de municípios
+    com indicadores de risco que receberam orientação técnica.
+  origem_carga: revisada
 - id: IND-050
   codigo_fonte: ARARA-050
-  acao_id: A23
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: Nota Técnica sobre equipamentos médico-hospitalares publicada
+  acao_id: A08
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Taxa de internação por DDA por 100.000 habitantes
   tipo: execucao
   modo_atualizacao: documental
   formula: 1 se Nota Técnica publicada e vigente
@@ -1834,12 +1879,14 @@ indicadores:
   semaforo: Verde=Sim; Vermelho=Não após prazo
   evidencia_minima: Nota Técnica publicada
   entra_no_indice: true
+  indicador_original: Taxa de internação por DDA por 100.000 habitantes
+  origem_carga: revisada
 - id: IND-051
   codigo_fonte: ARARA-051
-  acao_id: A23
-  eixo_id: eixo_vigilancia_sanitaria
-  area_id: vigilancia_sanitaria
-  nome: EAS avaliados com manutenção/operacionalidade de equipamentos adequada
+  acao_id: A06
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Percentual de municípios com
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: EAS conformes ÷ EAS avaliados × 100
@@ -1854,9 +1901,11 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Checklist/manutenção documentada
   entra_no_indice: true
+  indicador_original: "Percentual de municípios com \nregistro de DDA monitorados"
+  origem_carga: revisada
 - id: IND-052
   codigo_fonte: ARARA-052
-  acao_id: A24
+  acao_id: A21
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
   nome: Denúncias climato-sanitárias respondidas
@@ -1874,9 +1923,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Protocolo e status
   entra_no_indice: true
+  indicador_original: (Denúncias respondidas no período dos eventos climáticos extremos/Denúncias recebidas no período dos
+    eventos climáticos extremos)x100
+  origem_carga: legado_complementar
 - id: IND-053
   codigo_fonte: ARARA-053
-  acao_id: A24
+  acao_id: A21
   eixo_id: eixo_vigilancia_sanitaria
   area_id: vigilancia_sanitaria
   nome: Tempo de resposta às denúncias prioritárias
@@ -1894,12 +1946,15 @@ indicadores:
   semaforo: Semáforo conforme SLA pactuado
   evidencia_minima: Timestamps do protocolo
   entra_no_indice: true
+  indicador_original: (Denúncias respondidas no período dos eventos climáticos extremos/Denúncias recebidas no período dos
+    eventos climáticos extremos)x100
+  origem_carga: legado_alinhado
 - id: IND-054
   codigo_fonte: ARARA-054
-  acao_id: A25
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  area_id: imunizacao
-  nome: Municípios afetados com situação da imunização monitorada
+  acao_id: A11
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigiagua
+  nome: Percentual de municípios prioritários afetados com monitoramento realizado
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: municípios afetados monitorados ÷ municípios afetados × 100
@@ -1914,12 +1969,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro de monitoramento
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários afetados com monitoramento realizado; percentual de não conformidades
+    com medida de controle registrada.
+  origem_carga: revisada
 - id: IND-055
   codigo_fonte: ARARA-055
-  acao_id: A25
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  area_id: imunizacao
-  nome: Ocorrências que comprometeram vacinação com suporte técnico registrado
+  acao_id: A09
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Taxa de mortalidade por DDA por 100.000 habitantes
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: ocorrências com suporte/encaminhamento ÷ ocorrências identificadas × 100
@@ -1934,12 +1992,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Ocorrência + suporte
   entra_no_indice: true
+  indicador_original: Taxa de mortalidade por DDA por 100.000 habitantes
+  origem_carga: revisada
 - id: IND-056
   codigo_fonte: ARARA-056
-  acao_id: A26
-  eixo_id: eixo_imunizacao_e_rede_de_frio
-  area_id: imunizacao
-  nome: Ocorrências de Rede de Frio monitoradas
+  acao_id: A10
+  eixo_id: eixo_vigilancia_epidemiologica
+  area_id: vigilancia_ambiental
+  nome: Percentual de municípios prioritários abastecidos com hipoclorito
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: ocorrências monitoradas ÷ ocorrências identificadas × 100
@@ -1954,12 +2014,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro da ocorrência
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários abastecidos com hipoclorito
+  origem_carga: revisada
 - id: IND-057
   codigo_fonte: ARARA-057
-  acao_id: A26
+  acao_id: A22
   eixo_id: eixo_imunizacao_e_rede_de_frio
   area_id: imunizacao
-  nome: Ocorrências de Rede de Frio com contingência iniciada no prazo
+  nome: Percentual de regionais de saúde com ações de imunização, Rede de Frio e estoques monitorados
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: ocorrências com contingência no SLA ÷ ocorrências que exigem contingência × 100
@@ -1974,11 +2036,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Timestamps e ação de contingência
   entra_no_indice: true
+  indicador_original: Percentual de regionais de saúde com ações de imunização, Rede de Frio e estoques monitorados; percentual
+    de situações de risco com medida de contingência ou remanejamento realizada.
+  origem_carga: revisada
 - id: IND-058
   codigo_fonte: ARARA-058
-  acao_id: A27
+  acao_id: A10
   eixo_id: eixo_imunizacao_e_rede_de_frio
-  area_id: imunizacao
+  area_id: vigilancia_ambiental
   nome: Regiões com risco de desabastecimento identificadas e atendidas
   tipo: capacidade
   modo_atualizacao: automatico
@@ -1994,9 +2059,11 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Estoque + remanejamento/atendimento
   entra_no_indice: true
+  indicador_original: '% de regiões com risco de desabastecimento identificadas e atendidas'
+  origem_carga: legado_alinhado
 - id: IND-059
   codigo_fonte: ARARA-059
-  acao_id: A27
+  acao_id: A31
   eixo_id: eixo_imunizacao_e_rede_de_frio
   area_id: imunizacao
   nome: Regiões com autonomia crítica de imunobiológicos
@@ -2014,11 +2081,13 @@ indicadores:
   semaforo: Verde=0; Amarelo=1; Vermelho≥2 ou item crítico
   evidencia_minima: Saldo, consumo e mínimo técnico
   entra_no_indice: false
+  indicador_original: '% de regiões com risco de desabastecimento identificadas e atendidas'
+  origem_carga: legado_complementar
 - id: IND-060
   codigo_fonte: ARARA-060
-  acao_id: A28
+  acao_id: A02
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiar
+  area_id: atencao_saude
   nome: Municípios com classificação VIGIAR integrada atualizada
   tipo: capacidade
   modo_atualizacao: automatico
@@ -2034,9 +2103,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Mapa e data de atualização
   entra_no_indice: true
+  indicador_original: 1) Mapas dos municípios de risco para queimadas, poluição atmosférica  e vulnerabilidade socioambiental
+    no estado de Mato Grosso.                     2) Número de boletins, alertas emitidos e divulgados no período crítico.
+  origem_carga: legado_alinhado
 - id: IND-061
   codigo_fonte: ARARA-061
-  acao_id: A28
+  acao_id: A12
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigiar
   nome: Boletins/alertas VIGIAR emitidos conforme periodicidade
@@ -2054,9 +2126,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de emissão
   entra_no_indice: true
+  indicador_original: 1) Mapas dos municípios de risco para queimadas, poluição atmosférica  e vulnerabilidade socioambiental
+    no estado de Mato Grosso.                     2) Número de boletins, alertas emitidos e divulgados no período crítico.
+  origem_carga: legado_complementar
 - id: IND-062
   codigo_fonte: ARARA-062
-  acao_id: A29
+  acao_id: A02
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Aumento de Domicílios positivos para animais peçonhentos/triatomíneos
@@ -2074,9 +2149,21 @@ indicadores:
   semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
   evidencia_minima: Série histórica + dado atual
   entra_no_indice: false
+  indicador_original: '1) Aumento do n° de registros de domicílios positivos para animais peçonhentos e triatomíneos;
+
+    2) Aumento de notificações de acidentes com animais peçonhentos;
+
+    3)Aumento de casos de leishmaniose visceral canina;
+
+    4)Aumento de denúncias de deslocamento da população de morcegos para o ambiente urbano;
+
+    5)Aumento de criadouros de Anopheles;
+
+    Aumento de casos de malária.'
+  origem_carga: legado_complementar
 - id: IND-063
   codigo_fonte: ARARA-063
-  acao_id: A29
+  acao_id: A13
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Aumento de Notificações de acidentes com animais peçonhentos
@@ -2094,9 +2181,21 @@ indicadores:
   semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
   evidencia_minima: Série histórica + dado atual
   entra_no_indice: false
+  indicador_original: '1) Aumento do n° de registros de domicílios positivos para animais peçonhentos e triatomíneos;
+
+    2) Aumento de notificações de acidentes com animais peçonhentos;
+
+    3)Aumento de casos de leishmaniose visceral canina;
+
+    4)Aumento de denúncias de deslocamento da população de morcegos para o ambiente urbano;
+
+    5)Aumento de criadouros de Anopheles;
+
+    Aumento de casos de malária.'
+  origem_carga: legado_alinhado
 - id: IND-064
   codigo_fonte: ARARA-064
-  acao_id: A29
+  acao_id: A02
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Aumento de Leishmaniose visceral canina
@@ -2114,12 +2213,24 @@ indicadores:
   semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
   evidencia_minima: Série histórica + dado atual
   entra_no_indice: false
+  indicador_original: '1) Aumento do n° de registros de domicílios positivos para animais peçonhentos e triatomíneos;
+
+    2) Aumento de notificações de acidentes com animais peçonhentos;
+
+    3)Aumento de casos de leishmaniose visceral canina;
+
+    4)Aumento de denúncias de deslocamento da população de morcegos para o ambiente urbano;
+
+    5)Aumento de criadouros de Anopheles;
+
+    Aumento de casos de malária.'
+  origem_carga: legado_complementar
 - id: IND-065
   codigo_fonte: ARARA-065
-  acao_id: A29
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigilancia_ambiental
-  nome: Aumento de Deslocamento de morcegos para ambiente urbano
+  acao_id: A12
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigiar
+  nome: percentual de territórios que atingiram critérios de alerta e receberam orientação.
   tipo: risco_gatilho
   modo_atualizacao: semiautomatico
   formula: comparar valor atual com baseline sazonal/limiar validado pela área técnica
@@ -2134,9 +2245,12 @@ indicadores:
   semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
   evidencia_minima: Série histórica + dado atual
   entra_no_indice: false
+  indicador_original: Percentual de períodos programados com análise integrada realizada; percentual de territórios que atingiram
+    critérios de alerta e receberam orientação.
+  origem_carga: revisada
 - id: IND-066
   codigo_fonte: ARARA-066
-  acao_id: A29
+  acao_id: A02
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Aumento de Criadouros/indicadores de Anopheles
@@ -2154,9 +2268,21 @@ indicadores:
   semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
   evidencia_minima: Série histórica + dado atual
   entra_no_indice: false
+  indicador_original: '1) Aumento do n° de registros de domicílios positivos para animais peçonhentos e triatomíneos;
+
+    2) Aumento de notificações de acidentes com animais peçonhentos;
+
+    3)Aumento de casos de leishmaniose visceral canina;
+
+    4)Aumento de denúncias de deslocamento da população de morcegos para o ambiente urbano;
+
+    5)Aumento de criadouros de Anopheles;
+
+    Aumento de casos de malária.'
+  origem_carga: legado_complementar
 - id: IND-067
   codigo_fonte: ARARA-067
-  acao_id: A29
+  acao_id: A02
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Aumento de Casos de malária
@@ -2174,9 +2300,21 @@ indicadores:
   semaforo: Acionar avaliação quando ultrapassar baseline/limiar parametrizado
   evidencia_minima: Série histórica + dado atual
   entra_no_indice: false
+  indicador_original: '1) Aumento do n° de registros de domicílios positivos para animais peçonhentos e triatomíneos;
+
+    2) Aumento de notificações de acidentes com animais peçonhentos;
+
+    3)Aumento de casos de leishmaniose visceral canina;
+
+    4)Aumento de denúncias de deslocamento da população de morcegos para o ambiente urbano;
+
+    5)Aumento de criadouros de Anopheles;
+
+    Aumento de casos de malária.'
+  origem_carga: legado_complementar
 - id: IND-068
   codigo_fonte: ARARA-068
-  acao_id: A30
+  acao_id: A12
   eixo_id: eixo_inteligencia_e_avaliacao_de_risco
   area_id: vigiagua
   nome: Cobertura de classificação territorial válida — Ambiental
@@ -2194,9 +2332,12 @@ indicadores:
   semaforo: Herdar regra do indicador consolidado
   evidencia_minima: Referência ao indicador da linha 9
   entra_no_indice: true
+  indicador_original: 1) Mapa/lista de municípios prioritários atualizado na periodicidade estabelecida (Sim/Não);                                                                       2)
+    Nº de municípios classificados por nível de risco.
+  origem_carga: legado_complementar
 - id: IND-069
   codigo_fonte: ARARA-069
-  acao_id: A31
+  acao_id: A11
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigiagua
   nome: Amostras VIGIÁGUA realizadas em áreas críticas versus planejado
@@ -2217,9 +2358,13 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Plano amostral + resultados
   entra_no_indice: true
+  indicador_original: 1) Percentual de amostras analisadas em áreas críticas em relação ao planejado no Sisagua;                                                 2)
+    Relatório de mapeamento de risco hídrico estadual atualizado.                                                      3)
+    Número de técnicos municipais capacitados no estado anualmente.
+  origem_carga: legado_complementar
 - id: IND-070
   codigo_fonte: ARARA-070
-  acao_id: A31
+  acao_id: A11
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigiagua
   nome: Cobertura de mapeamento SAA/SAC/SAI em territórios vulneráveis
@@ -2240,12 +2385,16 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Cadastro georreferenciado
   entra_no_indice: true
+  indicador_original: 1) Percentual de amostras analisadas em áreas críticas em relação ao planejado no Sisagua;                                                 2)
+    Relatório de mapeamento de risco hídrico estadual atualizado.                                                      3)
+    Número de técnicos municipais capacitados no estado anualmente.
+  origem_carga: legado_complementar
 - id: IND-071
   codigo_fonte: ARARA-071
-  acao_id: A31
-  eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
-  area_id: vigiagua
-  nome: Técnicos municipais capacitados em VIGIÁGUA/desastres
+  acao_id: A13
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigilancia_ambiental
+  nome: percentual de municípios com indicadores de risco que receberam orientação técnica.
   tipo: execucao
   modo_atualizacao: semiautomatico
   formula: nº de técnicos capacitados no período; complementar com % dos municípios prioritários com ≥1 técnico capacitado
@@ -2263,9 +2412,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Lista de presença/certificação
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários monitorados na periodicidade definida; percentual de municípios
+    com indicadores de risco que receberam orientação técnica.
+  origem_carga: revisada
 - id: IND-072
   codigo_fonte: ARARA-072
-  acao_id: A31
+  acao_id: A11
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigiagua
   nome: Alertas/orientações VIGIÁGUA emitidos no prazo
@@ -2286,9 +2438,13 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de emissão
   entra_no_indice: true
+  indicador_original: 1) Percentual de amostras analisadas em áreas críticas em relação ao planejado no Sisagua;                                                 2)
+    Relatório de mapeamento de risco hídrico estadual atualizado.                                                      3)
+    Número de técnicos municipais capacitados no estado anualmente.
+  origem_carga: legado_complementar
 - id: IND-073
   codigo_fonte: ARARA-073
-  acao_id: A32
+  acao_id: A04
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Análise de morbimortalidade climato-sensível — consolidada
@@ -2306,11 +2462,14 @@ indicadores:
   semaforo: Herdar regra da linha 12
   evidencia_minima: Referência aos indicadores da linha 12
   entra_no_indice: true
+  indicador_original: Conjunto de indicadores sentinela definido (Sim/Não); % de períodos com análise realizada conforme periodicidade
+    estabelecida.
+  origem_carga: legado_complementar
 - id: IND-074
   codigo_fonte: ARARA-074
-  acao_id: A33
+  acao_id: A10
   eixo_id: eixo_comunicacao_de_risco_e_vulnerabilidade
-  area_id: comunicacao
+  area_id: vigilancia_ambiental
   nome: Comunicação de risco — consolidada
   tipo: resultado
   modo_atualizacao: automatico
@@ -2326,9 +2485,11 @@ indicadores:
   semaforo: Herdar regra da linha 18
   evidencia_minima: Referência aos indicadores da linha 18
   entra_no_indice: true
+  indicador_original: "Nº de materiais/mensagens validados; \nnº de alertas divulgados no prazo definido."
+  origem_carga: legado_alinhado
 - id: IND-075
   codigo_fonte: ARARA-075
-  acao_id: A34
+  acao_id: A13
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Positividade de ovitrampas
@@ -2346,9 +2507,13 @@ indicadores:
   semaforo: Acionar quando ultrapassar limiar validado
   evidencia_minima: Base de ovitrampas
   entra_no_indice: false
+  indicador_original: 'Índice de positividade de ovitrampas superior a 50% e densidade de ovos (IDO) superior a 50 ovos/armadilha;
+
+    Índice de infestação predial e de Breteau superior a 3,9% (LIRAa/LIA)'
+  origem_carga: legado_complementar
 - id: IND-076
   codigo_fonte: ARARA-076
-  acao_id: A34
+  acao_id: A13
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Índice de densidade de ovos — IDO
@@ -2366,9 +2531,13 @@ indicadores:
   semaforo: Acionar quando ultrapassar limiar validado
   evidencia_minima: Base de ovitrampas
   entra_no_indice: false
+  indicador_original: 'Índice de positividade de ovitrampas superior a 50% e densidade de ovos (IDO) superior a 50 ovos/armadilha;
+
+    Índice de infestação predial e de Breteau superior a 3,9% (LIRAa/LIA)'
+  origem_carga: legado_complementar
 - id: IND-077
   codigo_fonte: ARARA-077
-  acao_id: A34
+  acao_id: A13
   eixo_id: eixo_vigilancia_ambiental_e_epidemiologica
   area_id: vigilancia_ambiental
   nome: Índice de Infestação Predial / Índice de Breteau
@@ -2386,12 +2555,16 @@ indicadores:
   semaforo: Faixas conforme norma/programa vigente
   evidencia_minima: Base LIRAa/LIA
   entra_no_indice: false
+  indicador_original: 'Índice de positividade de ovitrampas superior a 50% e densidade de ovos (IDO) superior a 50 ovos/armadilha;
+
+    Índice de infestação predial e de Breteau superior a 3,9% (LIRAa/LIA)'
+  origem_carga: legado_complementar
 - id: IND-078
   codigo_fonte: ARARA-078
-  acao_id: A35
-  eixo_id: eixo_saude_do_trabalhador
-  area_id: saude_trabalhador
-  nome: Regiões/ERS com perfil epidemiológico de saúde do trabalhador entregue
+  acao_id: A14
+  eixo_id: eixo_vigilancia_sanitaria
+  area_id: vigilancia_sanitaria
+  nome: Percentual de municípios prioritários orientados
   tipo: execucao
   modo_atualizacao: semiautomatico
   formula: regiões/ERS que receberam perfil atualizado ÷ regiões/ERS previstas × 100
@@ -2406,11 +2579,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Perfil produzido + registro de entrega
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários orientados; percentual de estabelecimentos selecionados conforme
+    o risco com monitoramento realizado.
+  origem_carga: revisada
 - id: IND-079
   codigo_fonte: ARARA-079
-  acao_id: A36
+  acao_id: A10
   eixo_id: eixo_saude_do_trabalhador
-  area_id: saude_trabalhador
+  area_id: vigilancia_ambiental
   nome: Cobertura de comunicação de risco para trabalhadores
   tipo: resultado
   modo_atualizacao: automatico
@@ -2426,12 +2602,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Log de envio/entrega
   entra_no_indice: true
+  indicador_original: Alertas emitidos
+  origem_carga: legado_alinhado
 - id: IND-080
   codigo_fonte: ARARA-080
-  acao_id: A37
-  eixo_id: eixo_saude_do_trabalhador
+  acao_id: A28
+  eixo_id: eixo_vigilancia_em_saude_do_trabalhador
   area_id: saude_trabalhador
-  nome: Municípios prioritários com vigilância de ambiente/processo de trabalho realizada
+  nome: Percentual de municípios programados com ação de vigilância realizada
   tipo: execucao
   modo_atualizacao: semiautomatico
   formula: municípios supervisionados ÷ municípios prioritários definidos × 100
@@ -2446,12 +2624,15 @@ indicadores:
   semaforo: Semáforo conforme meta pactuada
   evidencia_minima: Registro de vigilância
   entra_no_indice: true
+  indicador_original: Percentual de municípios programados com ação de vigilância realizada; percentual de recomendações com
+    acompanhamento registrado.
+  origem_carga: revisada
 - id: IND-081
   codigo_fonte: ARARA-081
-  acao_id: A37
-  eixo_id: eixo_saude_do_trabalhador
-  area_id: saude_trabalhador
-  nome: Não conformidades ocupacionais com plano de ação
+  acao_id: A11
+  eixo_id: eixo_vigilancia_em_saude_ambiental
+  area_id: vigiagua
+  nome: percentual de não conformidades com medida de controle registrada.
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: não conformidades com encaminhamento/plano ÷ não conformidades identificadas × 100
@@ -2466,12 +2647,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Relatório e plano de ação
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários afetados com monitoramento realizado; percentual de não conformidades
+    com medida de controle registrada.
+  origem_carga: revisada
 - id: IND-082
   codigo_fonte: ARARA-082
-  acao_id: A38
-  eixo_id: eixo_atencao_e_capacidade_assistencial
+  acao_id: A33
+  eixo_id: eixo_gestao_hospitalar
   area_id: atencao_saude
-  nome: Unidades hospitalares com Plano de Contingência atualizado
+  nome: Percentual de unidades hospitalares estratégicas com plano de contingência atualizado
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: unidades com plano vigente ÷ unidades hospitalares prioritárias × 100
@@ -2486,9 +2670,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Plano vigente
   entra_no_indice: true
+  indicador_original: Percentual de unidades hospitalares estratégicas com plano de contingência atualizado; percentual com
+    capacidade instalada avaliada; percentual com protocolos prioritários revisados.
+  origem_carga: revisada
 - id: IND-083
   codigo_fonte: ARARA-083
-  acao_id: A38
+  acao_id: A33
   eixo_id: eixo_atencao_e_capacidade_assistencial
   area_id: atencao_saude
   nome: Unidades hospitalares com capacidade instalada atualizada
@@ -2506,12 +2693,16 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Cadastro e data de validação
   entra_no_indice: true
+  indicador_original: "1) Percentual de unidades hospitalares com Planos de Contingência assistencial elaborados ou atualizados;\
+    \ \n2) Percentual de unidades hospitalares com capacidade instalada e disponibilidade assistencial avaliada e atualizado;\n\
+    3) Percentual de unidades hospitalares com protocolos assistenciais prioritários atualizados."
+  origem_carga: legado_alinhado
 - id: IND-084
   codigo_fonte: ARARA-084
-  acao_id: A38
-  eixo_id: eixo_atencao_e_capacidade_assistencial
+  acao_id: A33
+  eixo_id: eixo_gestao_hospitalar
   area_id: atencao_saude
-  nome: Unidades hospitalares com protocolos assistenciais prioritários atualizados
+  nome: percentual com protocolos prioritários revisados.
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: unidades com protocolos vigentes ÷ unidades prioritárias × 100
@@ -2526,12 +2717,16 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Protocolos vigentes
   entra_no_indice: true
+  indicador_original: Percentual de unidades hospitalares estratégicas com plano de contingência atualizado; percentual com
+    capacidade instalada avaliada; percentual com protocolos prioritários revisados.
+  origem_carga: revisada
 - id: IND-085
   codigo_fonte: ARARA-085
-  acao_id: A39
-  eixo_id: eixo_atencao_e_capacidade_assistencial
+  acao_id: A31
+  eixo_id: eixo_atencao_a_saude
   area_id: atencao_saude
-  nome: Territórios prioritários com prontidão da Atenção Secundária validada
+  nome: Percentual de ERS orientados e percentual de serviços prioritários de Atenção Secundária com necessidades avaliadas
+    e medidas de preparação e continuidade assistencial definidas.
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: territórios com checklist mínimo de prontidão validado ÷ territórios prioritários × 100
@@ -2546,9 +2741,12 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Checklist de prontidão
   entra_no_indice: true
+  indicador_original: Percentual de ERS orientados e percentual de serviços prioritários de Atenção Secundária com necessidades
+    avaliadas e medidas de preparação e continuidade assistencial definidas.
+  origem_carga: revisada
 - id: IND-086
   codigo_fonte: ARARA-086
-  acao_id: A39
+  acao_id: A31
   eixo_id: eixo_atencao_e_capacidade_assistencial
   area_id: atencao_saude
   nome: Demandas de apoio técnico da Atenção Secundária respondidas no SLA
@@ -2566,12 +2764,14 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Registro de demanda e resposta
   entra_no_indice: true
+  indicador_original: Número de orientações técnicas e/ou reuniões realizadas.
+  origem_carga: legado_complementar
 - id: IND-087
   codigo_fonte: ARARA-087
-  acao_id: A40
-  eixo_id: eixo_atencao_e_capacidade_assistencial
+  acao_id: A34
+  eixo_id: eixo_urgencia_e_emergencia
   area_id: atencao_saude
-  nome: Serviços de Urgência/Emergência com checklist de prontidão validado
+  nome: Percentual de serviços prioritários com protocolos e fluxos revisados
   tipo: capacidade
   modo_atualizacao: semiautomatico
   formula: serviços prioritários com triagem, fluxo de transporte, notificação NVEH e insumos verificados ÷ serviços prioritários
@@ -2587,12 +2787,15 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Checklist validado
   entra_no_indice: true
+  indicador_original: Percentual de serviços prioritários com protocolos e fluxos revisados; percentual com comunicação com
+    o CIEVS estabelecida; percentual com disponibilidade de insumos essenciais verificada.
+  origem_carga: revisada
 - id: IND-088
   codigo_fonte: ARARA-088
-  acao_id: A40
-  eixo_id: eixo_atencao_e_capacidade_assistencial
-  area_id: atencao_saude
-  nome: Gaps críticos da Urgência/Emergência com ação corretiva registrada
+  acao_id: A14
+  eixo_id: eixo_vigilancia_sanitaria
+  area_id: vigilancia_sanitaria
+  nome: percentual de estabelecimentos selecionados conforme o risco com monitoramento realizado.
   tipo: resultado
   modo_atualizacao: semiautomatico
   formula: gaps críticos com ação e responsável definidos ÷ gaps críticos identificados × 100
@@ -2607,3 +2810,6 @@ indicadores:
   semaforo: Verde≥95%; Amarelo=80–94%; Vermelho<80%
   evidencia_minima: Gap, responsável, prazo e evidência
   entra_no_indice: true
+  indicador_original: Percentual de municípios prioritários orientados; percentual de estabelecimentos selecionados conforme
+    o risco com monitoramento realizado.
+  origem_carga: revisada

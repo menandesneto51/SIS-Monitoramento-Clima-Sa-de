@@ -945,7 +945,11 @@ def build_pdf(src: Path = DEFAULT_SRC, out: Path = DEFAULT_OUT) -> Path:
                 close_on_fonte = False
             elif nt.startswith("11.4"):
                 _flush_keep()
+                # Força nova página: título 11.4 + Mapa 3 juntos (HEADING_ORPHAN=0)
+                story.append(PageBreak())
                 pending_keep = [p]
+                hold_flush = True
+                close_on_fonte = False
             elif "como a classe" in nt:
                 _flush_keep()
                 pending_keep = [p]

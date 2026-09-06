@@ -65,7 +65,11 @@ def carregar_catalogo() -> dict[str, Any]:
         item = dict(raw)
         item["tipo"] = _slug_tipo(item.get("tipo") or item.get("tipo_planilha") or "")
         item["modo_atualizacao"] = _slug_modo(
-            item.get("modo_atualizacao") or item.get("classe_automacao") or item.get("automacao") or ""
+            item.get("modo_atualizacao")
+            or item.get("modo")
+            or item.get("classe_automacao")
+            or item.get("automacao")
+            or ""
         )
         item["entra_no_indice"] = item["tipo"] in TIPOS_NO_INDICE
         item = enriquecer_item_catalogo(item)

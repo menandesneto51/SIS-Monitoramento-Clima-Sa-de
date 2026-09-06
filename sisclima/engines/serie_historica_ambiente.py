@@ -26,6 +26,11 @@ def serie_clima_estado(met: pd.DataFrame | None = None) -> pd.DataFrame:
     m = met.copy()
     m["data"] = pd.to_datetime(m["data"], errors="coerce").dt.normalize()
     m = m.dropna(subset=["data"])
+    # OBSERVED only — nunca misturar previsão futura na série histórica
+    from datetime import date, timedelta
+
+    corte = pd.Timestamp(date.today() - timedelta(days=1))
+    m = m[m["data"] <= corte]
     agg: dict[str, tuple[str, str]] = {}
     for col, how in (
         ("tmax", "mean"),
@@ -82,8 +87,9 @@ def comparar_janela_atual(
     df["data"] = pd.to_datetime(df["data"], errors="coerce")
     df = df.dropna(subset=["data"]).sort_values("data")
     hoje = pd.Timestamp.now().normalize()
-    # Evita incluir dias de previsão futura na "janela atual".
-    df_obs = df[df["data"] <= hoje]
+    # OBSERVED_DATA_DATE <= REPORT_CUTOFF (hoje−1): não misturar previsão.
+    corte = hoje - pd.Timedelta(days=1)
+    df_obs = df[df["data"] <= corte]
     if len(df_obs) >= max(dias_janela + 3, 10):
         df = df_obs
     if len(df) < max(dias_janela + 3, 10):
@@ -108,8 +114,15 @@ def comparar_janela_atual(
     ):
         if col not in df.columns:
             continue
-        a = pd.to_numeric(atual[col], errors="coerce").mean()
-        h = pd.to_numeric(hist[col], errors="coerce").mean()
+        serie_a = pd.to_numeric(atual[col], errors="coerce")
+        serie_h = pd.to_numeric(hist[col], errors="coerce")
+        # Pico da janela = máximo real (não média das máximas diárias — isso apaga ≥40/41 °C).
+        if col == "tmax_max":
+            a = serie_a.max()
+            h = serie_h.mean()  # referência: pico diário típico do histórico
+        else:
+            a = serie_a.mean()
+            h = serie_h.mean()
         if pd.isna(a) or pd.isna(h):
             continue
         indicadores[rotulo] = {
@@ -169,25 +182,44 @@ def comparar_janela_atual(
                 f"Comparação sazonal de {mes_nome}/{ano} com o mesmo mês na série "
                 f"({', '.join(str(a) for a in mes_cmp['anos_historico']) or 'sem anos anteriores'}): "
                 + "; ".join(bits_z)
-                + ". |z|≥1 sugere desvio relevante frente ao padrão do mês."
+                + "."
             )
 
-    partes = [
-        f"Janela atual ({ini.date()} a {fim.date()}, {dias_janela} dias) frente à média do restante da série "
-        f"({hist['data'].min().date()} a {hist['data'].max().date()}, {len(hist)} dias): "
-    ]
+    partes: list[str] = []
+    # Prioridade: comparação sazonal (mesmo mês)
+    if mes_cmp.get("ok") and mes_cmp.get("narrativa"):
+        partes.append(str(mes_cmp["narrativa"]))
+        # Interpretação z≈0: não falar em anomalia positiva
+        z_tmax = ((mes_cmp.get("indicadores") or {}).get("Tmáx média (°C)") or {}).get("zscore")
+        if z_tmax is not None and abs(float(z_tmax)) < 0.5:
+            mes_nome = [
+                "", "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+                "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+            ][mes]
+            partes.append(
+                f" Interpretação: valor de Tmáx média próximo ao padrão dos {mes_nome}s "
+                "disponíveis na série operacional (sem anomalia sazonal relevante nesta rodada)."
+            )
+        elif z_tmax is not None and abs(float(z_tmax)) >= 1.0:
+            partes.append(
+                " Interpretação: |z|≥1 sugere desvio relevante frente ao padrão do mesmo mês "
+                "em anos anteriores — não substitui climatologia oficial."
+            )
+
+    # Comparação com toda a série: apenas exploratória e rotulada
     bits = []
     for rot, vals in indicadores.items():
-        bits.append(f"{rot} {vals['atual']:.1f} vs histórico {vals['historico']:.1f} (Δ {vals['delta']:+.1f})")
-    if not bits:
+        bits.append(f"{rot} {vals['atual']:.1f} vs série completa {vals['historico']:.1f} (Δ {vals['delta']:+.1f})")
+    if bits:
+        partes.append(
+            f" Comparação descritiva não ajustada por sazonalidade "
+            f"(janela {ini.strftime('%d/%m/%Y')} a {fim.strftime('%d/%m/%Y')} frente à média do restante da série "
+            f"{hist['data'].min().strftime('%d/%m/%Y')} a {hist['data'].max().strftime('%d/%m/%Y')}): "
+            + "; ".join(bits)
+            + ". Leitura exploratória — não substitui comparação sazonal nem climatologia oficial."
+        )
+    if not partes:
         return empty
-    partes.append("; ".join(bits) + ".")
-    partes.append(
-        " Interpretação: desvio positivo em temperatura/UTCI/risco indica condição mais crítica "
-        "que a média da série disponível — não substitui climatologia oficial de longo prazo."
-    )
-    if mes_cmp.get("ok") and mes_cmp.get("narrativa"):
-        partes.append(" " + str(mes_cmp["narrativa"]))
     return {
         "ok": True,
         "dias_serie": int(len(df)),
@@ -196,7 +228,7 @@ def comparar_janela_atual(
         "fim_janela": str(fim.date()),
         "indicadores": indicadores,
         "mes_cmp": mes_cmp,
-        "narrativa": "".join(partes),
+        "narrativa": "".join(partes).strip(),
     }
 
 

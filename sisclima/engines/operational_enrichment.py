@@ -108,6 +108,8 @@ def _latest_by_ibge(df: pd.DataFrame, value_cols: list[str]) -> pd.DataFrame:
 
 
 _CLIMA_SNAP_COLS = [
+    "data",
+    "fonte",
     "tmax",
     "tmin",
     "tmedia",
@@ -120,9 +122,28 @@ _CLIMA_SNAP_COLS = [
     "onda_calor_p95_2d",
 ]
 
+_CLIMA_FORCE_COLS = {
+    "data",
+    "fonte",
+    "tmax",
+    "tmin",
+    "tmedia",
+    "umidade_media",
+    "precipitacao_mm",
+    "utci_proxy",
+    "heat_index",
+    "risco_cumulativo_3d",
+    "risco_calor_diario",
+    "onda_calor_p95_2d",
+}
+
 
 def inject_climate_from_met(resumo: pd.DataFrame, met: pd.DataFrame | None = None) -> pd.DataFrame:
-    """Reinjeta Tmáx/UTCI/risco 3d no resumo a partir da série met_biometeo."""
+    """Reinjeta clima observado (data/fonte/Tmáx/UTCI/risco) no resumo a partir de met_biometeo.
+
+    Preferência sempre da série met (último dia <= hoje). Corrige seed
+    ``simulado_municipal`` e evita combine_first desalinhado por índice.
+    """
     if resumo is None or resumo.empty or "cod_ibge" not in resumo.columns:
         return resumo if resumo is not None else pd.DataFrame()
     if met is None or met.empty:
@@ -151,24 +172,51 @@ def inject_climate_from_met(resumo: pd.DataFrame, met: pd.DataFrame | None = Non
             write_df(work, "met_biometeo")
         except Exception as exc:  # noqa: BLE001
             log.warning("Biometeo não recalculado: %s", exc)
-    snap = _latest_by_ibge(work, [c for c in _CLIMA_SNAP_COLS if c in work.columns])
+    snap_cols = [c for c in _CLIMA_SNAP_COLS if c in work.columns]
+    snap = _latest_by_ibge(work, snap_cols)
     if snap.empty:
         return resumo
     out = resumo.copy()
-    out["cod_ibge"] = out["cod_ibge"].astype(str)
-    snap["cod_ibge"] = snap["cod_ibge"].astype(str)
+    out["cod_ibge"] = out["cod_ibge"].astype(str).str.replace(r"\.0$", "", regex=True)
+    snap["cod_ibge"] = snap["cod_ibge"].astype(str).str.replace(r"\.0$", "", regex=True)
+    if "data" in snap.columns:
+        snap["data"] = pd.to_datetime(snap["data"], errors="coerce").dt.strftime("%Y-%m-%d")
     for col in snap.columns:
         if col in {"cod_ibge", "municipio"}:
             continue
-        m = out[["cod_ibge"]].merge(snap[["cod_ibge", col]].drop_duplicates("cod_ibge"), on="cod_ibge", how="left")
+        m = out[["cod_ibge"]].merge(
+            snap[["cod_ibge", col]].drop_duplicates("cod_ibge"),
+            on="cod_ibge",
+            how="left",
+        )
         incoming = m[col]
+        # Alinha por posição (evita combine_first por índice desalinhado)
         if col not in out.columns:
-            out[col] = incoming
-        else:
-            if col in {"tmax", "tmin", "tmedia", "umidade_media", "precipitacao_mm", "utci_proxy", "heat_index", "risco_cumulativo_3d", "risco_calor_diario"}:
-                out[col] = pd.to_numeric(incoming, errors="coerce").combine_first(pd.to_numeric(out[col], errors="coerce"))
+            out[col] = incoming.to_numpy()
+            continue
+        if col in _CLIMA_FORCE_COLS:
+            if col in {"data", "fonte"}:
+                cur = out[col].astype(object).to_numpy(copy=True)
+                new = incoming.astype(object).to_numpy()
+                for i, v in enumerate(new):
+                    if v is not None and not (isinstance(v, float) and pd.isna(v)) and str(v).strip() not in {"", "nan", "None", "NaT"}:
+                        cur[i] = v
+                out[col] = cur
             else:
-                out[col] = incoming.combine_first(out[col])
+                new = pd.to_numeric(incoming, errors="coerce").to_numpy(copy=True)
+                cur = pd.to_numeric(out[col], errors="coerce").to_numpy(copy=True)
+                use = ~pd.isna(new)
+                cur[use] = new[use]
+                out[col] = cur
+        else:
+            new = incoming.to_numpy()
+            cur = out[col].astype(object).to_numpy(copy=True)
+            for i, v in enumerate(new):
+                if v is not None and not (isinstance(v, float) and pd.isna(v)):
+                    cur[i] = v
+            out[col] = cur
+    if "data" in out.columns:
+        out["data_referencia"] = out["data"].astype(str)
     return out
 
 

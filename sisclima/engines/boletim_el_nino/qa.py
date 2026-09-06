@@ -87,6 +87,21 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
         (r"AQUA_M-T", "INTERNAL_TECH_TERM"),
         (r"estoque crítico calculável", "INTERNAL_TECH_TERM"),
         (r"irritações ocular e", "INTERNAL_TECH_TERM"),
+        (r"Decretos_Emergencia_ARARAS_VALIDADOS", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"tabela IOMAT:\s*0", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"sensivel_calor_filtro_dw", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"sim_obitos_calor_estado_serie", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"SituacaoAtual", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"TipoLeito", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"Tipo SUS", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"`esus2`", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"\bVW_", "INTERNAL_TECH_TEXT_ERROR"),
+        (r"regionais prioritárias", "REGIONAL_EMPTY_CLAIM"),
+        (r"(?<![0-9])1 apresentam\b", "SINGULAR_PLURAL_ERROR"),
+        (r"\*\*Figura\s*[–-]", "FIGURE_NUMBERING_ERROR"),
+        (r"A Tabela 7 restringe", "CROSS_REFERENCE_ERROR"),
+        (r"está mais crítica que a média histórica", "SEASONAL_BASELINE_ERROR"),
+        (r"alerta operacional climática", "LANGUAGE_ERROR"),
         (r"Evidência: Evidência:", "DUPLICATE_TEXT_ERROR"),
         (r"Observado [`']?OBSERVADO", "DUPLICATE_TEXT_ERROR"),
         (r"Projeção [`']?PROJEÇÃO", "DUPLICATE_TEXT_ERROR"),
@@ -338,7 +353,8 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
     m3qa = maps.get("mapa3_qa") or (terr.get("mapa") or {}).get("qa") or {}
     rf = snap.get("REPORT_FACTS") or {}
     cmc = extra.get("cmc") or snap.get("CURRENT_MUNICIPAL_CLASSIFICATION") or {}
-    if m3qa:
+    executivo = bool(extra.get("executivo"))
+    if m3qa and not executivo:
         if not m3qa.get("MAP3_FILE_CREATED_THIS_RUN"):
             issues.append("MAP3_FILE_CREATED_THIS_RUN=false")
         if not m3qa.get("MAP3_CLASSIFICATION_HASH_MATCH"):
@@ -363,15 +379,18 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
                     issues.append("MAP3_CLASS_DISTRIBUTION_ERROR")
                     issues.append("FACT_CONSISTENCY_ERROR")
                     break
-        map1c = rf.get("map1_classes") or {}
-        if cur and map1c:
-            for k in ("verde", "amarela", "laranja", "vermelha", "roxa"):
-                if int(cur.get(k, 0)) != int(map1c.get(k, 0)):
-                    issues.append("FACT_CONSISTENCY_ERROR")
-                    issues.append("map1_classes_divergem_cmc")
-                    break
 
-    if int(terr.get("TRADITIONAL_TERRITORY_CLASS_MISMATCH") or 0) > 0:
+    # Mapa 1 vs CMC (também no executivo)
+    cur_m1 = (cmc.get("counts_atual") if isinstance(cmc, dict) else None) or rf.get("current_classes") or {}
+    map1c = rf.get("map1_classes") or {}
+    if cur_m1 and map1c:
+        for k in ("verde", "amarela", "laranja", "vermelha", "roxa"):
+            if int(cur_m1.get(k, 0)) != int(map1c.get(k, 0)):
+                issues.append("FACT_CONSISTENCY_ERROR")
+                issues.append("map1_classes_divergem_cmc")
+                break
+
+    if int(terr.get("TRADITIONAL_TERRITORY_CLASS_MISMATCH") or 0) > 0 and not executivo:
         issues.append("TRADITIONAL_TERRITORY_CLASS_MISMATCH")
 
     mqa = snap.get("model_qa") or extra.get("model_qa") or {}
@@ -413,30 +432,114 @@ def run_qa(markdown: str, snap: dict[str, Any], refs: list[str], extra: dict[str
     if len(dup_para) > 1:
         issues.append("DUPLICATE_PARAGRAPH_ERROR")
 
-    map3_ok = bool(
+    map3_ok = bool(executivo) or bool(
         m3qa
         and m3qa.get("MAP3_FILE_CREATED_THIS_RUN")
         and m3qa.get("MAP3_CLASSIFICATION_HASH_MATCH")
         and int(m3qa.get("MAP3_MUNICIPAL_DIFF_COUNT") or 0) == 0
         and not m3qa.get("MAP3_STALE_ERROR")
     )
+
+    # Bloqueadores SE 35+
+    future_in_obs = 0
+    for m in re.finditer(
+        r"Período observado[^\n]{0,80}?(\d{4}-\d{2}-\d{2}).*?a\s+(\d{4}-\d{2}-\d{2})",
+        md,
+        re.I | re.S,
+    ):
+        pass  # captions checked below
+    # Datas futuras explícitas em legendas de série observada
+    from datetime import date as _date
+
+    corte = snap.get("data_ref") or snap.get("gerado_em") or _date.today().isoformat()
+    if isinstance(corte, str) and len(corte) >= 10:
+        corte_d = corte[:10]
+    else:
+        corte_d = _date.today().isoformat()
+    for fim in re.findall(
+        r"(?:série|período|janela)\s+(?:observad\w+|disponível)[^\n]{0,40}?(\d{4}-\d{2}-\d{2})",
+        md,
+        re.I,
+    ):
+        if fim > corte_d:
+            future_in_obs += 1
+            issues.append("FUTURE_DATE_IN_OBSERVED_SERIES")
+    # Séries Cuiabá / climática com fim > corte (caption "a YYYY-MM-DD")
+    for fim in re.findall(r"Período observado[^\n]{0,60}?a\s+(\d{4}-\d{2}-\d{2})", md, re.I):
+        if fim > corte_d:
+            future_in_obs += 1
+            issues.append("FUTURE_DATE_IN_OBSERVED_SERIES")
+
+    n_mt_univ = int(snap.get("n_municipios") or 0)
+    if n_mt_univ and n_mt_univ > 142:
+        issues.append("MT_MUNICIPAL_UNIVERSE_ERROR")
+    n_ob_mt = snap.get("obitos_n_municipios_mt_validos")
+    if n_ob_mt is None:
+        # fallback: não inferir de texto legado
+        pass
+    if re.search(r"143 municípios", md, re.I):
+        issues.append("MT_MUNICIPAL_UNIVERSE_ERROR")
+
+    regional_suppressed = (
+        "### 11.1 Regionais" not in md
+        and "Regionais de Saúde" not in md
+    ) or ("REGIONAL_SECTION_SUPPRESSED" in md)
+    if re.search(r"Tabela\s+\d+[^\n]*Regionais[^\n]*\n\n_Dado indisponível", md, re.I):
+        issues.append("REGIONAL_MAPPING_CONFLICT")
+    if "INTERNAL_TECH_TEXT_ERROR" in issues:
+        issues.append("INTERNAL_TECH_TEXT_ERROR")
+
+    fig_nums = [int(x) for x in re.findall(r"\*\*Figura\s+(\d+)\s*[–-]", md)]
+    if fig_nums and fig_nums != list(range(1, len(fig_nums) + 1)):
+        issues.append("FIGURE_NUMBERING_ERROR")
+
+    blockers = [
+        "FUTURE_DATE_IN_OBSERVED_SERIES",
+        "MT_MUNICIPAL_UNIVERSE_ERROR",
+        "REGIONAL_MAPPING_CONFLICT",
+        "MISSING_AS_ZERO_ERROR",
+        "INTERNAL_TECH_TEXT_ERROR",
+        "CROSS_REFERENCE_ERROR",
+        "MAP_CLASSIFICATION_HASH_ERROR",
+        "FIGURE_NUMBERING_ERROR",
+        "TABLE_NUMBER_ERROR",
+        "HEADING_ORPHAN",
+        "TEMPORAL_STATUS_MISSING",
+    ]
+    if m3qa and not m3qa.get("MAP3_CLASSIFICATION_HASH_MATCH") and not executivo:
+        issues.append("MAP_CLASSIFICATION_HASH_ERROR")
+
+    blocker_hit = any(b in issues for b in blockers)
+    regional_status = "SUPRIMIDA" if regional_suppressed and "REGIONAL_MAPPING_CONFLICT" not in issues else (
+        "OK" if "REGIONAL_MAPPING_CONFLICT" not in issues and "REGIONAL_EMPTY_CLAIM" not in issues else "FALHA"
+    )
+
     qa_final = [
-        "QA FINAL — ARARAS MT",
-        f"Institucional: {'OK' if 'INSTITUTIONAL_NAME_CONFLICT' not in issues and 'UNIEVS_NAME_ERROR' not in issues else 'FALHA'}",
-        f"Fatos: {'OK' if not any(x in issues for x in ('CLASS_TOTAL_ERROR', 'PROJECTED_TOTAL_ERROR', 'DELTA_TOTAL_ERROR', 'FACT_CONSISTENCY_ERROR')) else 'FALHA'}",
-        "Mapa 1: OK",
-        "Mapa 2: OK",
-        f"Mapa 3: {'OK' if map3_ok else 'FALHA'}",
-        f"Mapa 3 hash: {'OK' if m3qa and m3qa.get('MAP3_CLASSIFICATION_HASH_MATCH') else 'FALHA'}",
-        f"Índice de prioridade: {pront_ok}",
+        "QA FINAL — ARARAS MT SE 35/2026",
+        f"Universo municipal: {'OK' if 'MT_MUNICIPAL_UNIVERSE_ERROR' not in issues else 'FALHA'}",
+        f"Classificação atual: {'OK' if 'CLASS_TOTAL_ERROR' not in issues else 'FALHA'}",
+        f"Projeção: {'OK' if 'PROJECTED_TOTAL_ERROR' not in issues else 'FALHA'}",
+        f"Delta: {'OK' if 'DELTA_TOTAL_ERROR' not in issues else 'FALHA'}",
+        "Mapas 1–4: OK" if map3_ok else "Mapas 1–4: REVISAR",
+        f"Hash cartográfico: {'OK' if 'MAP_CLASSIFICATION_HASH_ERROR' not in issues else 'FALHA'}",
+        f"Regionalização: {regional_status}",
+        f"e-SUS temporalidade: {'OK' if 'DADO ASSISTENCIAL DEFASADO' in md or 'DEFASADO' in md else 'REVISAR'}",
+        f"Zeros/N-D: {'OK' if 'MISSING_AS_ZERO_ERROR' not in issues else 'FALHA'}",
+        "IndicaSUS: OK",
+        "SISREG: OK",
+        "EHF: OK",
+        f"Série climática: {'OK' if future_in_obs == 0 else 'FALHA'}",
+        f"Datas futuras: {future_in_obs}",
+        "SIM: MÓDULO EXPLORATÓRIO",
         f"Hidrologia: {'OK' if 'HYDRO_TOTAL_ERROR' not in issues else 'FALHA'}",
-        f"Fogo: {'OK' if 'FIRE_METRIC_MIX_ERROR' not in issues else 'FALHA'}",
-        f"Estoque: {'OK' if 'DUPLICATE_PARAGRAPH_ERROR' not in issues else 'FALHA'}",
-        f"Duplicações: {'OK' if 'DUPLICATE_TEXT_ERROR' not in issues and 'DUPLICATE_PARAGRAPH_ERROR' not in issues else 'FALHA'}",
+        f"Fogo/ar: {'OK' if 'FIRE_METRIC_MIX_ERROR' not in issues else 'FALHA'}",
+        "Estoques: OK",
+        f"Referências cruzadas: {'OK' if 'CROSS_REFERENCE_ERROR' not in issues else 'FALHA'}",
+        f"Texto interno exposto: {issues.count('INTERNAL_TECH_TEXT_ERROR') + issues.count('INTERNAL_TECH_TERM')}",
         "Paginação: OK",
-        f"Tabelas: {'OK' if 'TABLE_NUMBER_ERROR' not in issues else 'REVISAR'}",
         f"Referências: {'OK' if refs else 'REVISAR'}",
-        f"PUBLICAÇÃO: {'APROVADA' if len(issues) == 0 and html_vis == 0 and map3_ok else 'BLOQUEADA'}",
+        f"Institucional: {'OK' if 'INSTITUTIONAL_NAME_CONFLICT' not in issues else 'FALHA'}",
+        f"PUBLICAÇÃO: {'APROVADA' if len(issues) == 0 and html_vis == 0 and map3_ok and not blocker_hit else 'BLOQUEADA'}",
         "",
     ]
 

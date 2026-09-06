@@ -86,21 +86,47 @@ def _texto_calor_epidemiologico(snap: dict[str, Any]) -> str:
 
 
 def _bloco_cenario_onda_calor(snap: dict[str, Any]) -> str:
+    from sisclima.engines.boletim_el_nino.formatters import fmt_plural
+
     delta = snap.get("delta_projecao") or {}
     n_agr = int(snap.get("n_agravadores") or 0) or (
         int(delta.get("aumento_1") or 0) + int(delta.get("aumento_2plus") or 0)
     )
     n_onda = int(snap.get("n_onda_calor_agravadores") or 0)
+    n_seco = int(
+        ((snap.get("agravos_monitorados") or {}).get("calor_desidratacao") or {}).get(
+            "municipios_calor_seco"
+        )
+        or 0
+    )
+    geo = snap.get("geocalor_fiocruz") or {}
+    n_ehf = geo.get("n_mun_onda_ultimo_dia")
+    if n_ehf is None:
+        n_ehf = snap.get("n_onda_calor")
+    seco_txt = (
+        f"{fmt_plural(n_seco, 'município', 'municípios')} em calor seco combinado "
+        "(Tmáx ≥ 37 °C e UR ≤ 30%)."
+        if n_seco > 0
+        else "0 municípios em calor seco combinado (Tmáx ≥ 37 °C e UR ≤ 30%)."
+    )
+    if n_ehf is None:
+        ehf_txt = "EHF observado: indisponível nesta rodada."
+    else:
+        ehf_txt = (
+            f"EHF observado: {fmt_plural(int(n_ehf), 'município', 'municípios')} "
+            "em evento/dia de onda (EHF > 0; intensidade relativa ao limiar local)."
+        )
     proj = ""
     if n_agr:
         proj = (
             f"\n- **{SELPROJ}** — entre os {fmt_int(n_agr)} municípios com elevação projetada da "
-            f"classificação, {fmt_int(n_onda)} apresentam previsão de onda de calor no horizonte analisado."
+            f"classificação, {fmt_plural(n_onda, 'município apresenta', 'municípios apresentam')} "
+            "previsão de componente de onda de calor no horizonte analisado."
         )
     return (
         f"**CENÁRIO: ONDA DE CALOR / CALOR EXTREMO**\n"
-        f"- **{SELOBS}** — nenhum município atende simultaneamente ao critério operacional "
-        f"Tmáx ≥ 37 °C e UR ≤ 30% nesta rodada.{proj}\n"
+        f"- **{SELOBS} — CALOR SECO COMBINADO** — {seco_txt}\n"
+        f"- **{SELOBS} — EHF** — {ehf_txt}{proj}\n"
         f"- Impactos à saúde: Exaustão pelo calor, desidratação, agravamento cardiovascular e respiratório.\n"
         f"- Ação municipal: Monitorar atendimentos e internações por calor/desidratação.\n"
         f"- Ação SES-MT: Priorizar municípios nas classes vermelha e roxa; apoiar regionais com maior carga térmica."

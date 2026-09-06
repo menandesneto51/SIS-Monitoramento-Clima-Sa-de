@@ -34,6 +34,7 @@ def build_boletim_semanal(
     *,
     hoje: date | None = None,
     publico: bool = False,
+    executivo: bool = False,
     try_dw: bool = True,
     out_dir: Path | None = None,
 ) -> dict[str, Any]:
@@ -203,19 +204,53 @@ def build_boletim_semanal(
     try:
         from sisclima.engines.esus_clima_analise import analisar_esus_clima, markdown_esus_clima
 
-        snap["esus_clima_md"] = markdown_esus_clima(analisar_esus_clima(), compact=True)
+        _ea = analisar_esus_clima()
+        snap["esus_clima_md"] = markdown_esus_clima(_ea, compact=True)
+        snap["esus_clima_anexo_md"] = markdown_esus_clima(_ea, compact=False)
         snap["esus_clima_ok"] = True
     except Exception as exc:  # noqa: BLE001
         log.warning("Análise e-SUS×clima indisponível no boletim: %s", exc)
         snap.setdefault("esus_clima_md", "")
+        snap.setdefault("esus_clima_anexo_md", "")
         snap["esus_clima_ok"] = False
+
+    try:
+        from sisclima.engines.boletim_el_nino.impacto_chuva import resumo_impacto_chuva
+
+        chuva = resumo_impacto_chuva()
+        snap["impacto_chuva"] = chuva
+        snap["impacto_chuva_md"] = str(chuva.get("markdown") or "")
+        snap["impacto_chuva_ok"] = bool(chuva.get("ok"))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Impacto da chuva indisponível no boletim: %s", exc)
+        snap.setdefault("impacto_chuva", {})
+        snap.setdefault("impacto_chuva_md", "")
+        snap["impacto_chuva_ok"] = False
+
+    try:
+        from sisclima.engines.boletim_el_nino.geocalor_fiocruz import resumo_geocalor_fiocruz
+
+        geo = resumo_geocalor_fiocruz(janela_dias=14, data_fim=data_ref or None)
+        snap["geocalor_fiocruz"] = geo
+        snap["geocalor_fiocruz_md"] = str(geo.get("markdown") or "")
+        snap["geocalor_fiocruz_ok"] = bool(geo.get("ok"))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("GeoCalor/EHF Fiocruz indisponível no boletim: %s", exc)
+        snap.setdefault("geocalor_fiocruz", {})
+        snap.setdefault("geocalor_fiocruz_md", "")
+        snap["geocalor_fiocruz_ok"] = False
 
     try:
         from sisclima.engines.boletim_el_nino.figuras import (
             export_grafico_classes,
             export_grafico_esus_por_classe,
+            export_grafico_geocalor_ehf,
+            export_grafico_picos_tmax,
+            export_grafico_projecao_7d,
             export_mapa_vulneraveis,
             export_serie_climatica,
+            export_serie_cuiaba_amplitude,
+            export_serie_cuiaba_temperaturas,
             relpath_fig,
         )
 
@@ -229,11 +264,51 @@ def build_boletim_semanal(
         except Exception as exc:  # noqa: BLE001
             log.warning("Série climática indisponível: %s", exc)
         try:
+            sc = export_serie_cuiaba_temperaturas(assets_dir, ano_inicio=1981)
+            if sc.get("disponivel"):
+                maps["serie_cuiaba_temps"] = relpath_fig(sc.get("path"), dest)
+                maps["serie_cuiaba_inicio"] = sc.get("inicio")
+                maps["serie_cuiaba_fim"] = sc.get("fim")
+                maps["cuiaba_openmeteo_tmax_semana"] = sc.get("openmeteo_tmax_semana")
+                maps["cuiaba_inmet_30ago"] = sc.get("inmet_tmax_30ago")
+                maps["cuiaba_inmet_31ago"] = sc.get("inmet_tmax_31ago")
+            sa = export_serie_cuiaba_amplitude(assets_dir, ano_inicio=1981)
+            if sa.get("disponivel"):
+                maps["serie_cuiaba_amplitude"] = relpath_fig(sa.get("path"), dest)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Séries Cuiabá indisponíveis: %s", exc)
+        try:
             g_cls = export_grafico_classes(snap.get("niveis"), assets_dir)
             if g_cls.get("disponivel"):
                 maps["grafico_classes"] = relpath_fig(g_cls.get("path"), dest)
         except Exception as exc:  # noqa: BLE001
             log.warning("Gráfico de classes indisponível: %s", exc)
+        try:
+            g_proj = export_grafico_projecao_7d(
+                snap.get("niveis"), snap.get("niveis_projecao_7d"), assets_dir
+            )
+            if g_proj.get("disponivel"):
+                maps["grafico_projecao_7d"] = relpath_fig(g_proj.get("path"), dest)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Gráfico projeção 7d indisponível: %s", exc)
+        try:
+            picos = snap.get("picos_termicos") or {}
+            ranking = picos.get("ranking_40") or picos.get("ranking_41") or picos.get("ranking_37") or []
+            g_picos = export_grafico_picos_tmax(
+                ranking,
+                assets_dir,
+                limiar=40.0 if picos.get("ranking_40") else (41.0 if picos.get("ranking_41") else 37.0),
+            )
+            if g_picos.get("disponivel"):
+                maps["grafico_picos_tmax"] = relpath_fig(g_picos.get("path"), dest)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Gráfico picos Tmáx indisponível: %s", exc)
+        try:
+            g_geo = export_grafico_geocalor_ehf(snap.get("geocalor_fiocruz"), assets_dir)
+            if g_geo.get("disponivel"):
+                maps["grafico_geocalor_ehf"] = relpath_fig(g_geo.get("path"), dest)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Gráfico GeoCalor/EHF indisponível: %s", exc)
         try:
             g_esus = export_grafico_esus_por_classe(None, assets_dir)
             if g_esus.get("disponivel"):
@@ -253,18 +328,32 @@ def build_boletim_semanal(
         log.warning("Figuras do boletim indisponíveis: %s", exc)
 
     refs_abnt = format_referencias_bibliograficas(ref_ids=refs_usadas_boletim(), acesso_em=ref)
-    md = format_markdown(
-        cenario,
-        semana,
-        snap,
-        alertas=alertas,
-        estoque_saf=estoque_saf,
-        maps=maps,
-        prontidao=prontidao,
-        territorios=territorios,
-        referencias=refs_abnt,
-        publico=publico,
-    )
+    if executivo:
+        from sisclima.engines.boletim_el_nino.documento_executivo import format_markdown_executivo
+
+        md = format_markdown_executivo(
+            cenario,
+            semana,
+            snap,
+            alertas=alertas,
+            maps=maps,
+            territorios=territorios,
+            referencias=refs_abnt,
+            publico=publico,
+        )
+    else:
+        md = format_markdown(
+            cenario,
+            semana,
+            snap,
+            alertas=alertas,
+            estoque_saf=estoque_saf,
+            maps=maps,
+            prontidao=prontidao,
+            territorios=territorios,
+            referencias=refs_abnt,
+            publico=publico,
+        )
     qa = run_qa(
         md,
         snap,
@@ -276,11 +365,12 @@ def build_boletim_semanal(
             "estoque_saf": estoque_saf,
             "maps": maps,
             "cmc": cmc,
+            "executivo": executivo,
         },
     )
-    # Bloqueio de publicação do Mapa 3
+    # Bloqueio de publicação do Mapa 3 (versão completa; executivo não embute Mapa 3)
     m3qa = mapa_terr.get("qa") or {}
-    if not mapa_terr.get("ok_publicacao"):
+    if not executivo and not mapa_terr.get("ok_publicacao"):
         for flag in (
             "MAP3_STALE_ERROR",
             "MAP3_CLASS_DISTRIBUTION_ERROR",
@@ -293,6 +383,12 @@ def build_boletim_semanal(
         qa["ok"] = False
         qa["MAP3_BLOQUEIA_APRESENTAVEL"] = True
 
+    rotulo_arq = semana["rotulo"].replace(" ", "_").replace("/", "-")
+    arquivo = (
+        f"Boletim_ElNino_{rotulo_arq}_executivo.md"
+        if executivo
+        else f"Boletim_ElNino_{rotulo_arq}.md"
+    )
     return {
         "semana": semana,
         "cenario": cenario,
@@ -307,7 +403,8 @@ def build_boletim_semanal(
         "cmc": cmc,
         "qa": qa,
         "markdown": md,
-        "arquivo": f"Boletim_ElNino_{semana['rotulo'].replace(' ', '_').replace('/', '-')}.md",
+        "executivo": executivo,
+        "arquivo": arquivo,
     }
 
 

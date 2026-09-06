@@ -95,7 +95,13 @@ def _latest_value_by_mun(df: pd.DataFrame, value_cols: list[str], how: str = 'la
     return latest_by_municipio(out)
 
 
-def _merge(base: pd.DataFrame, other: pd.DataFrame, suffix: str = "") -> pd.DataFrame:
+def _merge(
+    base: pd.DataFrame,
+    other: pd.DataFrame,
+    suffix: str = "",
+    *,
+    keys: list[str] | None = None,
+) -> pd.DataFrame:
     if other is None or other.empty:
         return base
 
@@ -119,13 +125,17 @@ def _merge(base: pd.DataFrame, other: pd.DataFrame, suffix: str = "") -> pd.Data
             _df["data"] = pd.to_datetime(_df["data"], errors="coerce").dt.date.astype(str)
             _df.loc[_df["data"].isin(["NaT", "nan", "None", "<NA>"]), "data"] = ""
 
-    if "data" in base.columns and "data" in other.columns and "cod_ibge" in base.columns and "cod_ibge" in other.columns:
-        keys = ["data", "cod_ibge"]
-    elif "cod_ibge" in base.columns and "cod_ibge" in other.columns:
-        keys = ["cod_ibge"]
-    elif "data" in base.columns and "data" in other.columns:
-        keys = ["data"]
-    else:
+    if keys is None:
+        # Snapshot municipal: nunca juntar por data (datas diferem entre fontes).
+        if "cod_ibge" in base.columns and "cod_ibge" in other.columns:
+            keys = ["cod_ibge"]
+        elif "data" in base.columns and "data" in other.columns:
+            keys = ["data"]
+        else:
+            return base
+
+    missing = [k for k in keys if k not in base.columns or k not in other.columns]
+    if missing:
         return base
 
     return base.merge(other, on=keys, how="left", suffixes=("", suffix or "_y"))
@@ -421,7 +431,10 @@ def _build_municipal_summary(met_ind, press, cap_agg, stock, infra, busca, com, 
         (latest_lacen, '_lacen'), (latest_sim, '_sim'), (latest_rumors, '_rum'), (latest_aq, '_ar'),
         (latest_arbo, '_arbo'),
     ]:
-        merged = _merge(merged, d, suffix=suf)
+        # Snapshot: chave só cod_ibge (evita perder met quando datas divergem)
+        merged = _merge(merged, d, suffix=suf, keys=["cod_ibge"] if (
+            d is not None and not d.empty and "cod_ibge" in merged.columns and "cod_ibge" in d.columns
+        ) else None)
 
     # ANA: chuva/cota municipal (complementa precipitacao do Open-Meteo)
     if ana_risco is not None and isinstance(ana_risco, pd.DataFrame) and not ana_risco.empty:

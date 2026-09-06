@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -72,6 +73,17 @@ from sisclima.engines.boletim_el_nino.orientacoes import (
 )
 from sisclima.engines.boletim_el_nino.prontidao import metodologia_indice_md
 from sisclima.engines.boletim_el_nino.referencias import cite
+
+
+class _FigCounter:
+    """Numeração sequencial de figuras no corpo/anexo."""
+
+    def __init__(self) -> None:
+        self.n = 0
+
+    def caption(self, titulo: str) -> str:
+        self.n += 1
+        return f"**Figura {self.n} – {titulo}**"
 
 
 def _narrativa(cenario: dict[str, Any], chave: str, fallback: str = "") -> str:
@@ -157,104 +169,30 @@ def _secao_agravos_dw(agr: dict[str, Any]) -> str:
 
     esus = dw.get("esus_aps") or agr.get("esus_aps") or {}
     esus_lines: list[str] = []
-    fonte_esus = (
-        "Fonte: Centralizador PEC/eSUS (esus2), cadastro vigente e atendimentos agregados "
-        "nas janelas de 7 e 28 dias; classe ARARAS da rodada. Contagem operacional, não incidência."
-    )
     if esus.get("status") == "ativo" and int(esus.get("municipios") or 0) > 0:
-        class_rows = []
-        for r in esus.get("por_classe") or []:
-            if not isinstance(r, dict):
-                continue
-            class_rows.append(
-                [
-                    str(r.get("classe") or "—"),
-                    fmt_int(r.get("municipios")),
-                    fmt_int(r.get("asma")),
-                    fmt_int(r.get("idoso_60mais")),
-                    fmt_int(r.get("atendimentos_28d")),
-                    fmt_int(r.get("nebulizacao_28d")),
-                ]
-            )
-        mun_rows = []
-        for r in esus.get("municipais") or esus.get("ranking_criticos") or []:
-            if not isinstance(r, dict):
-                continue
-            mun_rows.append(
-                [
-                    str(r.get("municipio") or "—"),
-                    str(r.get("classe_araras") or "—"),
-                    fmt_int(r.get("asma")),
-                    fmt_int(r.get("idoso_60mais")),
-                    fmt_int(r.get("atendimentos_28d")),
-                    fmt_int(r.get("resp_cid_28d")),
-                    fmt_int(r.get("nebulizacao_28d") if r.get("nebulizacao_28d") is not None else r.get("nebulizacao_7d")),
-                ]
-            )
-        esus_lines = [
-            f"- **Atenção primária (Centralizador PEC/eSUS, {fmt_int(esus.get('municipios'))} municípios):** "
-            f"cadastro **{fmt_int(esus.get('cadastros'))}** · asma **{fmt_int(esus.get('asma'))}** · "
-            f"DPOC **{fmt_int(esus.get('dpoc'))}** · idosos 60+ **{fmt_int(esus.get('idoso_60mais'))}** · "
-            f"gestantes **{fmt_int(esus.get('gestante'))}** · acamados **{fmt_int(esus.get('acamado'))}**.",
-            f"- **Atendimentos na atenção primária:** **{fmt_int(esus.get('atendimentos_7d'))}** em 7 dias e "
-            f"**{fmt_int(esus.get('atendimentos_28d'))}** em 28 dias "
-            f"({fmt_int(esus.get('municipios_com_atendimento_28d'))} municípios com registro no período) · "
-            f"CID respiratório 28d **{fmt_int(esus.get('resp_cid_28d'))}** · "
-            f"nebulização 28d **{fmt_int(esus.get('nebulizacao_28d'))}** "
-            f"(7d **{fmt_int(esus.get('nebulizacao_7d'))}**).",
-            f"- **classes vermelha e roxa ARARAS:** {fmt_int(esus.get('municipios_vermelho_roxo'))} municípios "
-            "com cadastro na atenção primária. Contagem operacional; não é incidência nem diagnóstico.",
-        ]
         atraso = int(esus.get("atraso_dias") or 0)
-        if atraso > 0 or esus.get("janela_ancorada"):
-            esus_lines.append(
-                f"- **Atualidade da carga de atendimentos:** última data válida no Centralizador "
-                f"**{esus.get('data_max_atendimento') or '—'}** "
-                f"(atraso de **{fmt_int(atraso)}** dia(s)"
-                + (
-                    f"; janela 7d/28d ancorada em **{esus.get('data_janela_fim') or esus.get('data_max_atendimento') or '—'}**"
-                    if esus.get("janela_ancorada")
-                    else ""
-                )
-                + "). Ausência de município no período **não** significa zero clínico — "
-                "pode ser atraso de envio ao `esus2`."
-            )
-        if class_rows:
-            esus_lines.extend(
-                [
-                    "",
-                    "**Tabela – PEC/eSUS por classe ARARAS (universo estadual)**",
-                    "",
-                    md_table(
-                        ["Classe", "Municípios", "Asma (cad.)", "Idoso 60+", "Atend. 28d", "Nebulização 28d"],
-                        class_rows,
-                    ),
-                    "",
-                    fonte_esus,
-                ]
-            )
-        if mun_rows:
-            esus_lines.extend(
-                [
-                    "",
-                    "**Tabela – PEC/eSUS por município (universo estadual)**",
-                    "",
-                    md_table(
-                        [
-                            "Município",
-                            "Classe",
-                            "Asma (cad.)",
-                            "Idoso 60+",
-                            "Atend. 28d",
-                            "CID resp. 28d",
-                            "Nebulização 28d",
-                        ],
-                        mun_rows,
-                    ),
-                    "",
-                    fonte_esus,
-                ]
-            )
+        data_max_raw = str(esus.get("data_max_atendimento") or "—")
+        if re.match(r"^\d{4}-\d{2}-\d{2}", data_max_raw):
+            y, m, d = data_max_raw[:10].split("-")
+            data_max = f"{d}/{m}/{y}"
+        else:
+            data_max = data_max_raw
+        esus_lines = [
+            "",
+            "> **DADO ASSISTENCIAL DEFASADO**  ",
+            f"> Última atualização: **{data_max}**  ",
+            "> Não representa a situação corrente da SE em curso.",
+            "",
+            f"- **Atenção primária (Centralizador PEC/eSUS):** cadastro **{fmt_int(esus.get('cadastros'))}** · "
+            f"asma **{fmt_int(esus.get('asma'))}** · idosos 60+ **{fmt_int(esus.get('idoso_60mais'))}** · "
+            f"gestantes **{fmt_int(esus.get('gestante'))}** · "
+            f"**{fmt_int(esus.get('municipios_vermelho_roxo'))}** municípios vermelho/roxo com cadastro.",
+            f"- Status temporal: **DEFASADO** (última carga **{data_max}**, "
+            f"atraso **{fmt_int(atraso)}** dia(s)). Usado só como contexto de vulnerabilidade/cobertura, "
+            "**não** como pressão assistencial corrente.",
+            "- Tabelas detalhadas de atendimento: **anexo técnico / painel**. "
+            "Ausência de envio = **N/D** (≠ zero clínico).",
+        ]
 
     return "\n".join(
         [
@@ -278,48 +216,174 @@ def _load_json(path: Path) -> dict[str, Any]:
     return {}
 
 
-def _secao_ondas_calor(snap: dict[str, Any], maps: dict[str, Any] | None = None) -> str:
-    """Ondas de calor — sem nomenclatura STAR; foco operacional ARARAS."""
+def _secao_ondas_calor(
+    snap: dict[str, Any],
+    maps: dict[str, Any] | None = None,
+    figs: _FigCounter | None = None,
+) -> tuple[str, str]:
+    """Ondas de calor — GeoCalor/EHF (Fiocruz) + operação ARARAS; sem nomenclatura STAR.
+
+    Returns:
+        (corpo_principal_md, anexo_series_md)
+    """
     maps = maps or {}
+    figs = figs or _FigCounter()
     n = snap.get("n_municipios")
     n_onda = snap.get("n_onda_calor")
     n_tmax = snap.get("n_tmax_37")
     ext = (snap.get("extremos") or {}).get("tmax") or {}
     tmax_max = ext.get("tmax")
+    om_cui = maps.get("cuiaba_openmeteo_tmax_semana")
+    inmet_30 = maps.get("cuiaba_inmet_30ago") or 41.2
+    inmet_31 = maps.get("cuiaba_inmet_31ago") or 41.3
+    picos = snap.get("picos_termicos") or {}
     linhas = [
         "",
         "### Ondas de calor",
         "",
-        "Monitoramento operacional ARARAS: persistência térmica (P95 ≥ 2 dias) e UTCI, "
-        "complementados pelo Excess Heat Factor (EHF) quando a série climática estiver disponível. "
-        "**Não substitui** avisos oficiais do INMET.",
+        "Três conceitos distintos: (A) **calor seco combinado** (Tmáx ≥ 37 °C e UR ≤ 30%); "
+        "(B) **onda de calor EHF observada** (EHF > 0 por ≥ 3 dias); "
+        "(C) **projeção ARARAS ~7 dias** (componente térmico projetado). "
+        "**Não substitui** avisos do INMET.",
         "",
-        f"- **Calor extremo nesta rodada:** Tmáx máxima **{fmt_num(tmax_max, 1, ' °C')}** · "
-        f"**{fmt_frac(n_tmax, n)}** com Tmáx ≥ 37 °C · "
-        f"sinal de onda (P95≥2d) em **{fmt_frac(n_onda, n)}**.",
-        f"- **Classes vermelha e roxa:** **{fmt_frac(snap.get('n_vermelha_roxa'), n)}** agora; "
-        f"projeção ~7 dias em **{fmt_frac(int((snap.get('niveis_projecao_7d') or {}).get('vermelha') or 0) + int((snap.get('niveis_projecao_7d') or {}).get('roxa') or 0), n)}**.",
     ]
-    if maps.get("serie_climatica"):
-        ini = maps.get("serie_climatica_inicio") or "—"
-        fim = maps.get("serie_climatica_fim") or "—"
+
+    geo_md = str(snap.get("geocalor_fiocruz_md") or "").strip()
+    if geo_md:
+        geo_body = geo_md
+        if geo_body.startswith("### "):
+            geo_body = "\n".join(geo_body.splitlines()[1:]).lstrip("\n")
+        linhas.extend(["#### GeoCalor / EHF (Fiocruz)", "", geo_body])
+    elif snap.get("geocalor_fiocruz_ok") is False:
+        linhas.append(
+            "#### GeoCalor / EHF (Fiocruz)\n\nIndisponível nesta rodada — ver notas metodológicas.\n"
+        )
+    if maps.get("grafico_geocalor_ehf"):
+        geo = snap.get("geocalor_fiocruz") or {}
         linhas.extend(
             [
                 "",
-                f"**Figura – Série climática operacional (Tmáx estadual mensal, {ini} a {fim})**",
+                figs.caption("Municípios em dia de onda (EHF / GeoCalor Fiocruz)"),
                 "",
-                f"![Série climática Tmáx]({maps.get('serie_climatica')})",
+                f"![GeoCalor EHF]({maps.get('grafico_geocalor_ehf')})",
                 "",
-                f"Fonte: grade operacional ARARAS MT (história climática municipal). Série disponível a partir de {ini}.",
+                f"Fonte: cálculo EHF estadual ARARAS (definição GeoCalor / Nairn & Fawcett). "
+                f"Janela observada {geo.get('janela_inicio') or '—'} a {geo.get('janela_fim') or '—'}.",
+                "",
             ]
+        )
+
+    linhas.extend(["#### Operação ARARAS (grade e classes)", ""])
+    if picos.get("ok"):
+        ini = picos.get("janela_inicio") or "—"
+        fim = picos.get("janela_fim") or "—"
+        n_mun = picos.get("n_municipios_janela") or n
+        linhas.extend(
+            [
+                f"- **Picos da janela ({ini} a {fim}):** Tmáx máxima estadual **{fmt_num(picos.get('tmax_max_semana'), 1, ' °C')}** · "
+                f"**{fmt_frac(picos.get('n_tmax_41'), n_mun)}** ≥ 41 °C · "
+                f"**{fmt_frac(picos.get('n_tmax_40'), n_mun)}** ≥ 40 °C · "
+                f"**{fmt_frac(picos.get('n_tmax_37'), n_mun)}** ≥ 37 °C.",
+                f"- **Contexto da grade do dia (rodada):** Tmáx máx. **{fmt_num(tmax_max, 1, ' °C')}** "
+                f"em {ext.get('municipio') or '—'} · **{fmt_frac(n_tmax, n)}** ≥ 37 °C hoje · "
+                f"persistência P95≥2d em **{fmt_frac(n_onda, n)}** — distinto do EHF (≥ 3 dias).",
+            ]
+        )
+        ranking = picos.get("ranking_40") or picos.get("ranking_41") or picos.get("ranking_37") or []
+        if ranking:
+            rows = [
+                [
+                    str(r.get("municipio") or "—"),
+                    fmt_num(r.get("tmax_max"), 1, " °C"),
+                    str(r.get("data_pico") or "—"),
+                ]
+                for r in ranking[:12]
+            ]
+            linhas.extend(
+                [
+                    "",
+                    "**Picos de Tmáx municipal na janela (≥ 40 °C quando houver; senão ≥ 37 °C)**",
+                    "",
+                    md_table(["Município", "Tmáx pico", "Data"], rows),
+                    "",
+                    "Fonte: histórico municipal diário ARARAS (grade Open-Meteo). Pico = máxima diária por município na janela.",
+                ]
+            )
+        if maps.get("grafico_picos_tmax"):
+            linhas.extend(
+                [
+                    "",
+                    figs.caption("Ranking de picos de Tmáx na janela"),
+                    "",
+                    f"![Picos de Tmáx]({maps.get('grafico_picos_tmax')})",
+                    "",
+                    "Fonte: ARARAS MT — histórico municipal diário da janela (observado).",
+                ]
+            )
+    else:
+        linhas.append(
+            f"- **Calor na rodada (grade ARARAS):** Tmáx máx. estadual **{fmt_num(tmax_max, 1, ' °C')}** · "
+            f"**{fmt_frac(n_tmax, n)}** ≥ 37 °C · persistência P95≥2d em **{fmt_frac(n_onda, n)}**."
         )
     linhas.extend(
         [
+            f"- **Cuiabá:** INMET **{fmt_num(inmet_30, 1, ' °C')}** (30/08) e **{fmt_num(inmet_31, 1, ' °C')}** (31/08); "
+            f"Open-Meteo na semana ~**{fmt_num(om_cui, 1, ' °C')}** (modelo < estação).",
+            f"- **Vermelho/roxo:** **{fmt_frac(snap.get('n_vermelha_roxa'), n)}** agora · "
+            f"projeção ~7d **{fmt_frac(int((snap.get('niveis_projecao_7d') or {}).get('vermelha') or 0) + int((snap.get('niveis_projecao_7d') or {}).get('roxa') or 0), n)}**.",
+            "- **Chuva 01/09:** alívio térmico temporário (seção de recursos hídricos); não encerra a pressão projetada.",
             "",
-            "Fonte: ARARAS MT/CIEVS-MT. Contagem operacional — não é incidência nem causalidade individual.",
+            "Fonte: ARARAS MT/CIEVS-MT; Open-Meteo Archive; INMET (máximas oficiais de estação). "
+            "Séries longas (Cuiabá e Tmáx mensal estadual): **anexo técnico**.",
         ]
     )
-    return "\n".join(linhas)
+
+    anexo: list[str] = ["", "### Séries climáticas de suporte (anexo técnico)", ""]
+    if maps.get("serie_cuiaba_temps"):
+        ini = maps.get("serie_cuiaba_inicio") or "—"
+        fim = maps.get("serie_cuiaba_fim") or "—"
+        anexo.extend(
+            [
+                figs.caption(
+                    f"Temperaturas diárias em Cuiabá ({ini[:4] if len(str(ini)) >= 4 else ini}–"
+                    f"{fim[:4] if len(str(fim)) >= 4 else fim}) — observado"
+                ),
+                "",
+                f"![Temperaturas diárias Cuiabá]({maps.get('serie_cuiaba_temps')})",
+                "",
+                "Fonte: Open-Meteo Archive (ponto Cuiabá). Pontos pretos: máximas oficiais INMET em 30–31/08/2026 "
+                f"({fmt_num(inmet_30, 1)} e {fmt_num(inmet_31, 1)} °C). Período observado {ini} a {fim}.",
+                "",
+            ]
+        )
+    if maps.get("serie_cuiaba_amplitude"):
+        anexo.extend(
+            [
+                figs.caption("Amplitude térmica diária em Cuiabá — observado"),
+                "",
+                f"![Amplitude térmica Cuiabá]({maps.get('serie_cuiaba_amplitude')})",
+                "",
+                "Fonte: Open-Meteo Archive (máxima − mínima diária) com média móvel de 30 dias. Série observada.",
+                "",
+            ]
+        )
+    if maps.get("serie_climatica"):
+        ini = maps.get("serie_climatica_inicio") or "—"
+        fim = maps.get("serie_climatica_fim") or "—"
+        anexo.extend(
+            [
+                figs.caption(
+                    f"Série climática operacional estadual (Tmáx mensal, {ini} a {fim}) — observado"
+                ),
+                "",
+                f"![Série climática Tmáx]({maps.get('serie_climatica')})",
+                "",
+                f"Fonte: grade operacional ARARAS MT. Período observado {ini} a {fim}.",
+                "",
+            ]
+        )
+    anexo_md = "\n".join(anexo) if len(anexo) > 4 else ""
+    return "\n".join(linhas), anexo_md
 
 
 def _cards_executivos(snap: dict[str, Any]) -> str:
@@ -330,14 +394,28 @@ def _cards_executivos(snap: dict[str, Any]) -> str:
     crit = snap.get("n_vermelha_roxa")
     proj = snap.get("niveis_projecao_7d") or {}
     proj_crit = int(proj.get("vermelha") or 0) + int(proj.get("roxa") or 0)
+    picos = snap.get("picos_termicos") or {}
     ext = (snap.get("extremos") or {}).get("tmax") or {}
+    pico = picos.get("tmax_max_semana") if picos.get("ok") else None
+    n41 = picos.get("n_tmax_41") if picos.get("ok") else None
+    n40 = picos.get("n_tmax_40") if picos.get("ok") else None
+    n37_sem = picos.get("n_tmax_37") if picos.get("ok") else None
     pct = ""
     if crit is not None and n:
         pct = f"{fmt_num(100.0 * float(crit) / float(n), 1, '%')} do estado"
+    if pico is not None:
+        calor_max = f"pico semana **{fmt_num(pico, 1, ' °C')}**"
+        calor_cnt = (
+            f"**{fmt_int(n41)}** ≥ 41 °C · **{fmt_int(n40)}** ≥ 40 °C · "
+            f"**{fmt_frac(n37_sem, n)}** ≥ 37 °C (janela)"
+        )
+    else:
+        calor_max = f"máxima **{fmt_num(ext.get('tmax'), 1, ' °C')}**"
+        calor_cnt = f"**{fmt_frac(snap.get('n_tmax_37'), n)}** ≥ 37 °C"
     return f"""| RISCO ATUAL | PROJEÇÃO ~7 DIAS | CALOR |
 | --- | --- | --- |
-| **{fmt_int(crit)}/{fmt_int(n)}** vermelho ou roxo | **{fmt_int(proj_crit)}/{fmt_int(n)}** vermelho ou roxo | máxima **{fmt_num(ext.get('tmax'), 1, ' °C')}** |
-| {pct} | agravamento disseminado | **{fmt_frac(snap.get('n_tmax_37'), n)}** ≥ 37 °C |
+| **{fmt_int(crit)}/{fmt_int(n)}** vermelho ou roxo | **{fmt_int(proj_crit)}/{fmt_int(n)}** vermelho ou roxo | {calor_max} |
+| {pct} | agravamento disseminado | {calor_cnt} |
 
 | UMIDADE | FOGO | QUALIDADE DO AR |
 | --- | --- | --- |
@@ -364,29 +442,39 @@ def _n_classe(snap: dict[str, Any], chave: str, alt: Any = None) -> str:
 
 def _leitura_executiva(snap: dict[str, Any]) -> str:
     niveis = snap.get("niveis") or {}
+    n = snap.get("n_municipios")
+    crit = snap.get("n_vermelha_roxa")
+    proj = snap.get("niveis_projecao_7d") or {}
+    proj_crit = int(proj.get("vermelha") or 0) + int(proj.get("roxa") or 0)
     n37 = int(snap.get("n_tmax_37") or 0)
     n25 = int(snap.get("n_pm25_25") or 0)
-    n30 = int(snap.get("n_umidade_30") or 0)
-    expos: list[str] = []
-    if n37 > 0:
-        expos.append("calor extremo")
-    if n30 > 0:
-        expos.append("ar seco")
-    if n25 > 0:
-        expos.append("material particulado elevado")
-    if len(expos) >= 2:
-        exp_txt = ", ".join(expos[:-1]) + " e " + expos[-1]
-    elif expos:
-        exp_txt = expos[0]
-    else:
-        exp_txt = "exposições climáticas relevantes"
-    return (
-        f"Distribuição atual: {fmt_distribuicao_niveis(niveis)}. "
-        f"A mediana estadual não descreve o recorte mais exposto: há municípios com {exp_txt}. "
-        "A projeção de sete dias indica agravamento "
-        "disseminado e recomenda preparação assistencial nos territórios já em vermelho ou roxo, "
-        "incluindo populações indígenas, quilombolas e trabalhadores expostos."
+    chuva = snap.get("impacto_chuva") or {}
+    linhas = [
+        f"**Situação:** {fmt_frac(crit, n)} em vermelho/roxo ({fmt_distribuicao_niveis(niveis)}).",
+        f"**Projeção ~7 dias:** {fmt_frac(proj_crit, n)} em vermelho/roxo — agravamento disseminado.",
+    ]
+    if n37 or n25:
+        bits = []
+        if n37:
+            bits.append(f"Tmáx ≥ 37 °C em {fmt_frac(n37, n)}")
+        if n25:
+            bits.append(f"PM2,5 ≥ 25 µg/m³ em {fmt_frac(n25, n)}")
+        linhas.append("**Exposição na rodada:** " + " · ".join(bits) + ".")
+    if chuva.get("ok"):
+        dias = {d.get("data"): d for d in (chuva.get("dias") or []) if isinstance(d, dict)}
+        pico = dias.get("2026-08-31") or {}
+        ch = dias.get("2026-09-01") or {}
+        if pico and ch:
+            linhas.append(
+                f"**Chuva de 01/09:** alívio térmico temporário — municípios com Tmáx ≥ 37 °C "
+                f"caíram de {fmt_frac(pico.get('tmax_ge37'), pico.get('n'))} (31/08) para "
+                f"{fmt_frac(ch.get('tmax_ge37'), ch.get('n'))} (01/09); a projeção ~7d volta a pressionar."
+            )
+    linhas.append(
+        "Priorizar preparação assistencial nos vermelhos/roxos, com atenção a povos indígenas, "
+        "quilombolas, idosos, gestantes e trabalhadores expostos."
     )
+    return " ".join(linhas)
 
 
 def _implicacao_operacional(snap: dict[str, Any]) -> str:
@@ -396,29 +484,25 @@ def _implicacao_operacional(snap: dict[str, Any]) -> str:
     n30 = int(snap.get("n_umidade_30") or 0)
     eixos: list[str] = []
     if n37 > 0:
-        eixos.append("calor intenso")
+        eixos.append("calor")
     if n25 > 0:
-        eixos.append("exposição à fumaça")
-    if len(eixos) >= 2:
-        nucleo = f"A combinação de {eixos[0]} e {eixos[1]}"
-    elif eixos:
-        nucleo = f"A presença de {eixos[0]}"
-    else:
-        nucleo = "O cenário operacional da rodada"
-    if n30 == 1:
-        nucleo += ", com ocorrência localizada de baixa umidade"
-    elif n30 > 1:
-        nucleo += ", com baixa umidade em múltiplos municípios"
+        eixos.append("fumaça/PM2,5")
+    if n30 > 0:
+        eixos.append("ar seco")
+    nucleo = " + ".join(eixos) if eixos else "cenário operacional"
     return (
-        f"**Implicação operacional.** {nucleo} justifica reforçar a vigilância, "
-        "revisar a capacidade assistencial e verificar a disponibilidade de insumos "
-        "nos territórios prioritários."
+        f"**Implicação.** Manter vigilância e capacidade assistencial nos prioritários "
+        f"({nucleo}). A chuva de 01/09 não encerra a exposição térmica projetada."
     )
 
 
 def _leitura_regional_curta(snap: dict[str, Any]) -> str:
-    """2–4 frases a partir da tabela de regionais — sem repetir todas as linhas."""
-    regs = list(snap.get("regionais") or [])
+    """2–4 frases a partir da tabela de regionais — suprime se mapeamento indisponível."""
+    regs = [
+        r
+        for r in (snap.get("regionais") or [])
+        if str(r.get("regional") or "").strip() not in {"", "—", "nan", "None"}
+    ]
     if not regs:
         return ""
     top = regs[0]
@@ -447,14 +531,7 @@ def _leitura_regional_curta(snap: dict[str, Any]) -> str:
             f"A maior mediana regional de Tmáx no recorte é **{fmt_num(tmax_top.get('tmax_mediana'), 1, ' °C')}** "
             f"({tmax_top.get('regional')})."
         )
-    # macrorregião aproximada pelo nome das duas primeiras
-    top2 = [str(r.get("regional") or "") for r in regs[:2] if r.get("regional")]
-    if len(top2) == 2:
-        frases.append(
-            f"A atenção imediata permanece nas regionais **{top2[0]}** e **{top2[1]}**, "
-            "com reforço assistencial nos municípios já em vermelho ou roxo."
-        )
-    return " ".join(frases[:4])
+    return " ".join(frases)
 
 
 def _frase_exposicao_rodada(snap: dict[str, Any]) -> str:
@@ -479,9 +556,10 @@ def _frase_exposicao_rodada(snap: dict[str, Any]) -> str:
 
 def _prioridades_imediatas() -> str:
     return (
-        "- Reforçar vigilância de agravos relacionados a calor e fumaça nos municípios em vermelho ou roxo.\n"
-        "- Revisar capacidade assistencial e insumos nos territórios com Tmáx ≥ 37 °C ou PM2,5 ≥ 25 µg/m³.\n"
-        "- Articular regionais, DSEI/SESAI e Vigilância em Saúde do Trabalhador nos recortes prioritários."
+        "- Vigilância de agravos por calor/fumaça nos vermelhos/roxos.\n"
+        "- Capacidade assistencial e insumos onde Tmáx ≥ 37 °C ou PM2,5 ≥ 25 µg/m³.\n"
+        "- Articular regionais, DSEI/SESAI e Saúde do Trabalhador nos prioritários.\n"
+        "- Tratar a chuva de 01/09 como alívio temporário — manter prontidão na projeção ~7d."
     )
 
 
@@ -743,17 +821,23 @@ def _bloco_ocupacao_sisreg_md(*, publico: bool = False) -> str:
         f"- Ocupação estadual: **{q.get('ocupacao_ponderada_txt') or q.get('ocupacao_media_txt') or '—'}%** "
         f"({q.get('leitos_ocupados_txt') or '—'} ocupados / {q.get('leitos_total_txt') or '—'} elegíveis)",
         f"- Cobertura: **{q.get('ocupacao_n_tempo_real') or '—'}** municípios com taxa · "
-        f"**{q.get('ocupacao_n_sem_leitos') or '—'}** sem leitos elegíveis no recorte SIEGES"
+        f"**{q.get('ocupacao_n_sem_leitos') or '—'}** sem leitos elegíveis no recorte"
         + (f" · {q.get('unidades_n')} unidades" if q.get("unidades_n") else ""),
-        f"- Pressão SISREG: **{q.get('sisreg_n') or '—'}** municípios · "
-        f"solicitações média {q.get('sisreg_solicitacoes_media_txt') or '—'} · "
-        f"máx {q.get('sisreg_solicitacoes_max_txt') or '—'}",
-        f"- Filtros: _{q.get('filtros_sieges_txt') or 'SIEGES'}_",
+        f"- Pressão SISREG (solicitações no recorte da rodada): **{q.get('sisreg_n') or '—'}** municípios · "
+        f"média municipal {q.get('sisreg_solicitacoes_media_txt') or '—'} · "
+        f"máximo municipal {q.get('sisreg_solicitacoes_max_txt') or '—'} "
+        "(métrica de fila/demanda regulada — temporalidade conforme carga da Sala).",
+        "- Ocupação calculada segundo filtros assistenciais institucionais do SIEGES/IndicaSUS "
+        "(detalhamento técnico no painel/anexo).",
         "",
         f"_{q.get('nota_separacao')}_",
     ]
 
-    por_reg = q.get("ocupacao_por_regional") or []
+    por_reg = [
+        r
+        for r in (q.get("ocupacao_por_regional") or [])
+        if str(r.get("regional") or "").strip() not in {"", "—", "nan", "None"}
+    ]
     if por_reg:
         rows_reg = []
         for r in por_reg:
@@ -792,8 +876,17 @@ def _bloco_ocupacao_sisreg_md(*, publico: bool = False) -> str:
                 ),
                 "",
                 "_Termômetro assistencial: % ponderado por leitos elegíveis (SIEGES). "
-                "Municípios sem leitos no recorte não entram no denominador do %. "
-                "UTI por regional permanece pendente de mapeamento TipoLeito no IndicaSUS._",
+                "Municípios sem leitos no recorte não entram no denominador do %._",
+            ]
+        )
+    else:
+        linhas.extend(
+            [
+                "",
+                "**Síntese estadual da ocupação hospitalar**",
+                "",
+                "Distribuição por Regional de Saúde indisponível nesta rodada "
+                "(mapeamento municipal→regional ausente). Mantém-se a síntese estadual acima.",
             ]
         )
 
@@ -825,10 +918,13 @@ def _bloco_ocupacao_sisreg_md(*, publico: bool = False) -> str:
         rows = []
         for r in top_sem:
             sis = r.get("kpi_sisreg_solicitacoes")
+            reg = r.get("regional")
+            if reg is None or str(reg).strip().lower() in {"", "nan", "none", "null"}:
+                reg = "—"
             rows.append(
                 [
                     str(r.get("municipio") or "—"),
-                    str(r.get("regional") or "—"),
+                    str(reg),
                     f"{sis:.0f}" if sis is not None else "—",
                 ]
             )
@@ -918,26 +1014,34 @@ def format_markdown(
 
     linhas_reg: list[list[str]] = []
     for r in (snap.get("regionais") or [])[:8]:
+        nome_reg = str(r.get("regional") or "").strip()
+        if nome_reg in {"", "—", "nan", "None"}:
+            continue
         linhas_reg.append(
             [
-                str(r.get("regional") or "—"),
+                nome_reg,
                 fmt_int(r.get("n_vermelha_roxa")),
                 str(r.get("tendencia_7d") or "—"),
                 fmt_num(r.get("tmax_mediana"), 1, " °C"),
             ]
         )
-    tab_reg = bloco_tabela(
-        "Regionais de saúde com maior concentração de municípios nas classes vermelha e roxa",
-        md_table(
-            ["Regional", "Municípios em vermelho/roxo (atual)", "Mudança ~7 dias", "Tmáx mediana"],
-            linhas_reg if snap.get("disponivel") else [],
-        ),
-        "ARARAS MT/CIEVS-MT, classificação municipal agregada por regional de saúde.",
-        nota=(
-            "↑ indica aumento da classificação; → estabilidade; ↓ redução, "
-            "considerando todos os municípios da Regional."
-        ),
-    )
+    if linhas_reg and snap.get("disponivel"):
+        tab_reg = bloco_tabela(
+            "Regionais de saúde com maior concentração de municípios nas classes vermelha e roxa",
+            md_table(
+                ["Regional", "Municípios em vermelho/roxo (atual)", "Mudança ~7 dias", "Tmáx mediana"],
+                linhas_reg,
+            ),
+            "ARARAS MT/CIEVS-MT, classificação municipal agregada por regional de saúde.",
+            nota=(
+                "↑ indica aumento da classificação; → estabilidade; ↓ redução, "
+                "considerando todos os municípios da Regional."
+            ),
+        )
+        secao_reg = f"### 11.1 Regionais de Saúde\n\n{tab_reg}\n\n{_leitura_regional_curta(snap)}\n"
+    else:
+        tab_reg = ""
+        secao_reg = ""  # REGIONAL_SECTION_SUPPRESSED
     fonte_rodada = _fonte_araras(semana)
     bloco_ocup_sisreg = _bloco_ocupacao_sisreg_md(publico=publico)
     tab_ind = bloco_tabela(
@@ -1047,6 +1151,7 @@ Municípios com dados comparáveis: {fmt_frac(n_delta, snap.get('n_municipios'))
         mapa_md = f"_{maps.get('motivo', INDISPONIVEL)}_"
 
     fig_classes = ""
+    figs = _FigCounter()
     if maps.get("grafico_classes"):
         fig_classes = (
             f"![Classes ARARAS]({maps.get('grafico_classes')})\n\n"
@@ -1055,23 +1160,11 @@ Municípios com dados comparáveis: {fmt_frac(n_delta, snap.get('n_municipios'))
     fig_esus = ""
     if maps.get("grafico_esus_vulneraveis"):
         fig_esus = (
-            "**Figura – Vulneráveis na APS por classe ARARAS**\n\n"
+            f"{figs.caption('Vulneráveis na APS por classe ARARAS')}\n\n"
             f"![Vulneráveis APS]({maps.get('grafico_esus_vulneraveis')})\n\n"
-            "Fonte: e-SUS APS (cadastro) × classe ARARAS da rodada."
+            "Fonte: e-SUS APS (cadastro) × classe ARARAS da rodada. Status: contexto/DEFASADO se carga atrasada."
         )
-    if maps.get("mapa_vulneraveis"):
-        fig_mapa_vuln = (
-            "**Mapa 4 – Classificação ARARAS e populações vulneráveis "
-            "(indígenas, quilombolas, idosos e gestantes)**\n\n"
-            f"![Mapa 4]({maps.get('mapa_vulneraveis')})\n\n"
-            f"Fonte: ARARAS MT/CIEVS-MT; FUNAI (aldeias); Fundação Cultural Palmares (quilombos); "
-            f"e-SUS APS (idosos/gestantes em municípios vermelhos/roxos). Rodada de {semana.get('gerado_em_pt', '—')}.\n"
-            "Nota: aldeias por coordenada disponível; quilombos sem coordenada validada aparecem como presença municipal. "
-            "Bolhas de idosos/gestantes são escala visual do cadastro APS — não são incidência."
-        )
-    else:
-        fig_mapa_vuln = ""
-    fig_mapa3_extra = ""
+    secao_ondas_md, anexo_series_md = _secao_ondas_calor(snap, maps, figs)
     if maps.get("mapa_territorios"):
         fig_mapa3_extra = (
             "**Mapa 3 – Classificação de risco climático, aldeias indígenas e municípios com "
@@ -1084,11 +1177,24 @@ Municípios com dados comparáveis: {fmt_frac(n_delta, snap.get('n_municipios'))
             "presença municipal e não localização exata."
         )
     else:
-        fig_mapa3_extra = (
-            "**Mapa 3 – Classificação de risco climático, aldeias indígenas e municípios com "
-            "comunidades quilombolas certificadas em Mato Grosso**\n\n"
-            "![Mapa 3](_assets_SE_34-2026/mapa_territorios_tradicionais.png)\n\n"
-            "Fonte: FUNAI e Fundação Cultural Palmares sobre classes ARARAS."
+        fig_mapa3_extra = ""
+    # Mapa 4 só no corpo se Mapa 3 ausente (reduz redundância)
+    fig_mapa_vuln = ""
+    if maps.get("mapa_vulneraveis") and not maps.get("mapa_territorios"):
+        fig_mapa_vuln = (
+            "**Mapa 4 – Classificação ARARAS e populações vulneráveis "
+            "(idosos e gestantes na APS)**\n\n"
+            f"![Mapa 4]({maps.get('mapa_vulneraveis')})\n\n"
+            f"Fonte: ARARAS MT/CIEVS-MT; e-SUS APS. Rodada de {semana.get('gerado_em_pt', '—')}."
+        )
+    anexo_mapa4 = ""
+    if maps.get("mapa_vulneraveis") and maps.get("mapa_territorios"):
+        anexo_mapa4 = (
+            "\n### Mapa complementar — populações vulneráveis (anexo)\n\n"
+            "**Mapa 4 – Classificação ARARAS e populações vulneráveis "
+            "(idosos e gestantes na APS)**\n\n"
+            f"![Mapa 4]({maps.get('mapa_vulneraveis')})\n\n"
+            f"Fonte: ARARAS MT/CIEVS-MT; e-SUS APS. Rodada de {semana.get('gerado_em_pt', '—')}.\n"
         )
 
     obitos_fallback = (
@@ -1133,10 +1239,7 @@ Base normativa: Portaria n.º 0590/2026/GBSES.
 
 ## 2. Cenário El Niño
 
-**El Niño confirmado desde 11/06/2026.**  
-**Niño 3.4:** anomalia de {str(enso.get('nino34_recente') or '+1,4 °C').split('(')[0].strip()} nas semanas anteriores ao boletim.
-
-{_narrativa(cenario, 'perspectivas', enso.get('persistencia', INDISPONIVEL))}
+**El Niño confirmado desde 11/06/2026.** Niño 3.4: {str(enso.get('nino34_recente') or '+1,4 °C').split('(')[0].strip()} (semanas anteriores). Persistência forte até o fim de 2026 (APCC/NOAA — Painel El Niño n.º {cenario.get('edicao', '02')}).
 
 Fonte: Painel El Niño 2026–2027, boletim n.º {cenario.get('edicao', '02')}, {cenario.get('mes_referencia', 'julho de 2026')}.
 
@@ -1144,23 +1247,18 @@ Fonte: Painel El Niño 2026–2027, boletim n.º {cenario.get('edicao', '02')}, 
 
 ## 3. Cenário sazonal — Brasil → Amazônia Legal → Mato Grosso
 
-{_narrativa(cenario, 'previsao_aso', str(br.get('chuva') or INDISPONIVEL))}
+Trimestre ASO/2026 (CPTEC/INPE–INMET–FUNCEME): chuva abaixo da normal no centro-norte do País; temperatura acima da normal, com risco de ondas de calor, ar seco e queimadas.
 
 - **Chuva (Brasil):** {br.get('chuva', INDISPONIVEL)} `{SELPREV}`
 - **Temperatura (Brasil):** {br.get('temperatura', INDISPONIVEL)} `{SELPREV}`
-
-### Amazônia Legal e Mato Grosso
-
-{_narrativa(cenario, 'amazonia_legal', str(mt.get('chuva') or INDISPONIVEL))}
-
 - **Chuva em MT:** {mt.get('chuva', INDISPONIVEL)}
 - **Temperatura em MT:** {mt.get('temperatura', INDISPONIVEL)}
 
 ### Comparação operacional — situação atual × série ambiental
 
-{snap.get('serie_ambiente_md') or 'Série ambiental operacional ainda insuficiente nesta rodada para comparação formal com o histórico.'}
+{snap.get('serie_ambiente_md') or 'Série ambiental operacional ainda insuficiente nesta rodada.'}
 
-_Fonte: painel ARARAS MT (abas Série ambiental e Sazonalidade / OR). A série operacional não substitui a climatologia oficial de longo prazo._
+_Fonte: painel ARARAS MT. A série operacional não substitui climatologia oficial de longo prazo._
 
 ---
 
@@ -1172,17 +1270,13 @@ Distribuição atual: {fmt_distribuicao_niveis(snap.get('niveis'))}.
 
 {tab_ind}
 
-Cobertura dos quatro indicadores: {fmt_frac(snap.get('cobertura_tmax'), snap.get('n_municipios'))} municípios.
-
-**O que isso significa para esta semana?** A mediana não descreve o recorte mais exposto. {_frase_exposicao_rodada(snap)} a preparação deve concentrar-se nesses municípios, e não na média.
+Cobertura dos indicadores: {fmt_frac(snap.get('cobertura_tmax'), snap.get('n_municipios'))} municípios. Preparação deve seguir o recorte mais exposto, não a mediana.
 
 ---
 
 ## 5. Mato Grosso — Projeção operacional (~7 dias)
 
-A projeção operacional do ARARAS MT estima a classificação municipal para aproximadamente sete dias, permitindo comparação com a situação atual.
-
-Distribuição projetada: {fmt_distribuicao_niveis(snap.get('niveis_projecao_7d'))}
+Distribuição projetada: {fmt_distribuicao_niveis(snap.get('niveis_projecao_7d'))}.
 
 ---
 
@@ -1194,9 +1288,7 @@ Distribuição projetada: {fmt_distribuicao_niveis(snap.get('niveis_projecao_7d'
 
 ## 7. Alertas meteorológicos e ambientais — Mato Grosso
 
-Parâmetro climático oficial para a semana **{semana.get('rotulo', '—')}** ({semana.get('periodo_pt', '—')}).
-
-_Recorte territorial: **Estado de Mato Grosso**. O Instituto Nacional de Meteorologia (INMET) lista apenas avisos que abrangem Mato Grosso; trechos exclusivos de Mato Grosso do Sul são excluídos._
+Semana **{semana.get('rotulo', '—')}** ({semana.get('periodo_pt', '—')}). Recorte: **Mato Grosso** (avisos INMET exclusivos de MS excluídos).
 
 {inmet.get('resumo_climatico_md', INDISPONIVEL)}
 
@@ -1208,35 +1300,31 @@ _Recorte territorial: **Estado de Mato Grosso**. O Instituto Nacional de Meteoro
 
 **AVISOS COM INÍCIO POSTERIOR NA SEMANA**
 
-{inmet.get('inmet_futuros_sintese_md') or inmet.get('inmet_futuros_md') or '_Nenhum aviso com início posterior registrado nesta consulta._'}
+{inmet.get('inmet_futuros_sintese_md') or inmet.get('inmet_futuros_md') or '_Nenhum aviso com início posterior nesta consulta._'}
 
-Consulta: {inmet.get('consulta_em', '—')}. Fonte: feed Alert-AS / portal INMET {inmet.get('citacao_inmet', cite('inmet_alertas'))}.
-A lista completa dos avisos permanece no painel operacional.
+Consulta: {inmet.get('consulta_em', '—')}. Fonte: Alert-AS / INMET {inmet.get('citacao_inmet', cite('inmet_alertas'))}. Detalhe no painel.
 
-### Centro Nacional de Monitoramento e Alertas de Desastres Naturais (CEMADEN)
+### CEMADEN
 
 {inmet.get('cemaden_md', INDISPONIVEL)}
 
-Fonte: Painel CEMADEN {inmet.get('citacao_cemaden', cite('cemaden_alertas'))}. Consulta: {inmet.get('consulta_em', '—')}.
+Fonte: CEMADEN {inmet.get('citacao_cemaden', cite('cemaden_alertas'))}. Consulta: {inmet.get('consulta_em', '—')}.
 
-### Síntese integrada de alertas meteorológicos e ambientais
+### Síntese integrada
 
 {inmet.get('titan_md', INDISPONIVEL)}
 
-_Fontes integradas: INMET, CEMADEN, saturação do solo, risco hidrológico e classificação ARARAS {cite('araras_mt')}._
+_Fontes: INMET, CEMADEN, solo, hidro e classificação ARARAS {cite('araras_mt')}._
 
 ---
 
 ## 8. Recursos hídricos / seca / estiagem
 
-{_narrativa(cenario, 'centro_oeste_monitor', str(mt.get('monitor_secas_jun2026') or INDISPONIVEL))}
-
 - {interpretar_hidrologia(snap)}
-- Precipitação mediana no **dia de referência operacional**: **{fmt_num(snap.get('precip_mediana'), 1, ' mm')}** · municípios sem chuva nesse dia: {fmt_frac(snap.get('n_sem_chuva'), snap.get('n_municipios'))}
+- Precipitação mediana no dia de referência: **{fmt_num(snap.get('precip_mediana'), 1, ' mm')}** · sem chuva: {fmt_frac(snap.get('n_sem_chuva'), snap.get('n_municipios'))}.
+- Monitor de Secas (jun/2026): MT sem áreas classificadas com seca — produto defasado; cruzar com sinais locais.
 
-{analisar_cenario_bloco('O que isso significa para esta semana?', [
-    'No Monitor de Secas de junho de 2026, Mato Grosso não apresentava áreas classificadas com seca. A defasagem temporal desse produto e os sinais locais desta rodada recomendam interpretação conjunta, sem extrapolação estadual.',
-])}
+{snap.get('impacto_chuva_md') or ''}
 
 ---
 
@@ -1245,10 +1333,10 @@ _Fontes integradas: INMET, CEMADEN, saturação do solo, risco hidrológico e cl
 {_narrativa(cenario, 'risco_fogo', str(mt.get('risco_fogo') or INDISPONIVEL))}
 
 - {interpretar_fogo(snap)}
-- IQA (classes, ordem operacional): {fmt_counts(snap.get('qualidade_ar'), ordem=['verde', 'amarela', 'laranja', 'vermelha', 'roxa', 'cinza'])}
+- IQA: {fmt_counts(snap.get('qualidade_ar'), ordem=['verde', 'amarela', 'laranja', 'vermelha', 'roxa', 'cinza'])}
 - {interpretar_pm25(snap)}
 
-A combinação de focos de calor e material particulado fino reforça a vigilância de agravos respiratórios nos municípios prioritários.
+Focos + PM2,5 reforçam vigilância respiratória nos prioritários.
 
 
 ---
@@ -1273,24 +1361,19 @@ Associação temporal/espacial — **não implica causalidade**.
 
 {fig_esus}
 
-{_secao_ondas_calor(snap, maps)}
+{secao_ondas_md}
 
 {snap.get('obitos_clima_md') or obitos_fallback}
 
 {analisar_cenario_bloco('Leitura epidemiológica', [
-    'Associação temporal e espacial não implica causalidade. Sinais assistenciais e de notificação devem ser lidos com a defasagem das fontes e com a cobertura de cada indicador.',
+    'Associação temporal/espacial ≠ causalidade. Ler sinais com defasagem e cobertura de cada fonte.',
 ])}
 
 ---
 
 ## 11. Priorização territorial e acesso assistencial
 
-### 11.1 Regionais de Saúde
-
-{tab_reg}
-
-{_leitura_regional_curta(snap)}
-
+{secao_reg}
 ### 11.2 Índice de prioridade de preparação clima–saúde
 
 Municípios no extremo de atenção. Municípios prioritários para acompanhamento.
@@ -1315,9 +1398,9 @@ _{prontidao.get('nota', '')}_
 
 ### 11.4 Povos indígenas, comunidades quilombolas, idosos, gestantes e acesso assistencial
 
-{fig_mapa_vuln}
-
 {fig_mapa3_extra}
+
+{fig_mapa_vuln}
 
 **Municípios com aldeias indígenas em classes vermelha ou roxa**
 
@@ -1334,7 +1417,7 @@ _{territorios.get('nota_quilombos', '')}_
 
 **Geolocalização, classificação e distância da rede**
 
-O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo certificado sobre a classe ARARAS. A Tabela 7 restringe o recorte a municípios **vermelhos ou roxos** com território longe da Atenção Primária à Saúde (APS) (> 30 km) ou do hospital (> 50 km).
+O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo certificado sobre a classe ARARAS. A tabela de acesso assistencial restringe o recorte a municípios **vermelhos ou roxos** com território longe da Atenção Primária à Saúde (APS) (> 30 km) ou do hospital (> 50 km).
 
 {territorios.get('cobertura_md', INDISPONIVEL)}
 
@@ -1358,7 +1441,9 @@ O Mapa 3 localiza aldeias (coordenada da aldeia) e municípios com quilombo cert
 
 ---
 
-## 13. Orientações de estoques e insumos (provisório)
+## 13. Orientações gerais sobre estoques e insumos
+
+Dados específicos de estoque ainda não validados para esta rodada — as orientações abaixo são de preparação e **não** substituem programação farmacêutica nem prescrição clínica.
 
 Até validação dos dados de estoques estratégicos estaduais, este boletim **não** publica quadro de estoques nem autonomia por item.
 
@@ -1395,10 +1480,17 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 {metodologia_indice_md()}
 - **Medidor de trajetória:** não calculado nesta rodada por insuficiência de série temporal.
 - **Série ambiental operacional:** média estadual diária (Open-Meteo / consolidação ARARAS) e qualidade do ar estadual; a comparação “janela atual × restante da série” é descritiva e não substitui climatologia oficial.
+- **GeoCalor / EHF (Fiocruz–LAGAS):** EHIsig = T3d − P95 local; EHIaccl = T3d − T30d; EHF = EHIsig × max(1, EHIaccl); evento ≥ 3 dias consecutivos com EHF > 0; intensidade pela distribuição local dos EHF positivos (EHF85). Cálculo estadual ARARAS para os 142 municípios (o portal GeoCalor não publica Cuiabá/MT).
 - **Óbitos SIM sensíveis ao calor/clima:** ver metodologia abaixo e a aba homônima do painel.
 - **Figuras e tabelas:** identificação acima e fonte abaixo (NBR 14724 / NBR 10719); referências bibliográficas em NBR 6023.
 
 {snap.get('obitos_metodologia_md') or ''}
+
+{snap.get('esus_clima_anexo_md') or ''}
+
+{anexo_series_md}
+
+{anexo_mapa4}
 
 {documentacao_regra_projecao_md()}
 
@@ -1412,6 +1504,8 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 | Climatologia | Comportamento médio esperado para a região e a época. |
 | PM2,5 | Partículas com diâmetro aerodinâmico de até 2,5 µm. |
 | Percentil 95 | Valor acima do qual estão cerca de 5% das observações comparáveis. |
+| EHF | Excess Heat Factor (Nairn & Fawcett) — índice de onda de calor do GeoCalor/Fiocruz. |
+| EHIsig / EHIaccl | Componentes do EHF: significância térmica e aclimatização recente. |
 | Índice de prioridade de preparação | Score 0–100 (maior = maior urgência de preparação clima–saúde). |
 | Índice de prioridade global | Score 0–100 do painel (vigilância, pressão, adaptação, fragilidade, alerta). |''',
         "Elaboração CIEVS-MT/ARARAS MT.",

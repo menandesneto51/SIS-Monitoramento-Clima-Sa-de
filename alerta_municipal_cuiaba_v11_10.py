@@ -55,11 +55,13 @@ try:
 except Exception:
     pass
 
-DB = Path("data/output/sis_integrado.db")
+DB = Path("data/output/sis_integrado.db")  # legado; preferir sisclima.core.db
 DEFAULT_TO = "vigidesastrescuiaba@gmail.com"
 MUNICIPIO = "Cuiabá"
 COD_IBGE_CUIABA = "5103403"
 HIST_TABLE = "historico_envios_alerta_cuiaba_v11_10"
+# Dados climáticos de Cuiabá não podem estar mais velhos que isto (dias) para envio
+MAX_LAG_DIAS_CLIMA = 2
 
 NIVEL_ORDEM = {
     "cinza": -1,
@@ -257,13 +259,128 @@ def record_history(
     con.commit()
 
 
-def build_payload(con: sqlite3.Connection) -> dict[str, Any]:
-    resumo = read_table(con, "resumo_municipal_atual")
-    pred = read_table(con, "predicao_calor_7d_municipal_v6")
-    ai = read_table(con, "alerta_inteligente_municipal_v6")
-    v9 = read_table(con, "v9_priorizacao_epidemiologica")
-    ocup_mun = read_table(con, "hospital_ocupacao_municipio")
-    ocup_est = read_table(con, "hospital_ocupacao_estado")
+def read_ops_table(name: str) -> pd.DataFrame:
+    """Lê tabela da base operacional atual (Postgres ou SQLite de fallback do core.db)."""
+    try:
+        from sisclima.core.db import read_table as _rt
+
+        df = _rt(name)
+        return df if df is not None else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
+def _parse_date(val: Any) -> pd.Timestamp | None:
+    ts = pd.to_datetime(val, errors="coerce")
+    if pd.isna(ts):
+        return None
+    return pd.Timestamp(ts).normalize()
+
+
+def avaliar_frescor_cuiaba(*, max_lag_dias: int = MAX_LAG_DIAS_CLIMA) -> dict[str, Any]:
+    """Garante que o snapshot de Cuiabá não é anterior ao corte operacional."""
+    hoje = pd.Timestamp.today().normalize()
+    corte = hoje - pd.Timedelta(days=max(0, int(max_lag_dias)))
+    out: dict[str, Any] = {
+        "ok": False,
+        "corte": str(corte.date()),
+        "hoje": str(hoje.date()),
+        "data_resumo": None,
+        "data_hist_clima": None,
+        "data_geocalor": None,
+        "fonte_resumo": None,
+        "motivo": "",
+    }
+
+    resumo = read_ops_table("resumo_municipal_atual")
+    row = find_cuiaba(resumo)
+    if row is None:
+        out["motivo"] = "Cuiabá ausente em resumo_municipal_atual"
+        return out
+
+    data_resumo = _parse_date(get(row, "data", "data_referencia", default=None))
+    out["data_resumo"] = str(data_resumo.date()) if data_resumo is not None else None
+    out["fonte_resumo"] = str(get(row, "fonte", default="") or "")
+    out["nivel"] = normalize_level(get(row, "nivel", "nivel_operacional", default="cinza"))
+    out["tmax"] = get(row, "tmax", "tmax_atual", default=None)
+
+    # hist_clima / geocalor / met como prova de atualização climática (só observado ≤ hoje)
+    for table, key in (
+        ("hist_clima_municipal_diario", "data_hist_clima"),
+        ("star_clima_geocalor_diario", "data_geocalor"),
+        ("met_biometeo", "data_met"),
+    ):
+        df = read_ops_table(table)
+        if df.empty or "cod_ibge" not in df.columns or "data" not in df.columns:
+            continue
+        m = df[
+            df["cod_ibge"]
+            .astype(str)
+            .str.replace(r"\.0$", "", regex=True)
+            .str.zfill(7)
+            .eq(COD_IBGE_CUIABA)
+        ].copy()
+        if m.empty:
+            continue
+        m["_d"] = pd.to_datetime(m["data"], errors="coerce")
+        m = m[m["_d"].notna() & (m["_d"] <= hoje)]
+        if m.empty:
+            continue
+        dmax = _parse_date(m["_d"].max())
+        out[key] = str(dmax.date()) if dmax is not None else None
+
+    candidatos = [
+        _parse_date(out.get("data_resumo")),
+        _parse_date(out.get("data_hist_clima")),
+        _parse_date(out.get("data_met")),
+        _parse_date(out.get("data_geocalor")),
+    ]
+    melhores = [d for d in candidatos if d is not None]
+    ref = max(melhores) if melhores else None
+    out["data_referencia_efetiva"] = str(ref.date()) if ref is not None else None
+
+    if ref is None:
+        out["motivo"] = "sem data climática de Cuiabá na base operacional"
+        return out
+
+    if ref < corte:
+        out["motivo"] = (
+            f"série climática de Cuiabá defasada "
+            f"(efetivo={out.get('data_referencia_efetiva')}, corte={out['corte']})"
+        )
+        return out
+
+    # Resumo simulado antigo: aviso, mas não bloqueia se a série met/hist estiver no corte
+    fonte = (out.get("fonte_resumo") or "").lower()
+    if "simulado" in fonte and (data_resumo is None or data_resumo < corte):
+        out["motivo"] = (
+            f"ok_com_aviso: resumo ainda marcado simulado "
+            f"(data={out.get('data_resumo')}), mas série climática atualizada "
+            f"({out.get('data_referencia_efetiva')})"
+        )
+    else:
+        out["motivo"] = "ok"
+
+    out["ok"] = True
+    return out
+
+
+def build_payload(_con: sqlite3.Connection | None = None) -> dict[str, Any]:
+    """Monta payload a partir da base operacional (não do SQLite legado)."""
+    resumo = read_ops_table("resumo_municipal_atual")
+    # Garante clima observado atualizado (corrige seed simulado / combine_first quebrado)
+    try:
+        from sisclima.engines.operational_enrichment import inject_climate_from_met
+
+        if not resumo.empty:
+            resumo = inject_climate_from_met(resumo)
+    except Exception:
+        pass
+    pred = read_ops_table("predicao_calor_7d_municipal_v6")
+    ai = read_ops_table("alerta_inteligente_municipal_v6")
+    v9 = read_ops_table("v9_priorizacao_epidemiologica")
+    ocup_mun = read_ops_table("hospital_ocupacao_municipio")
+    ocup_est = read_ops_table("hospital_ocupacao_estado")
 
     r = find_cuiaba(resumo)
     p = find_cuiaba(pred)
@@ -278,15 +395,21 @@ def build_payload(con: sqlite3.Connection) -> dict[str, Any]:
 
     max_nivel = max([nivel, nivel_pred, nivel_ai, nivel_v9], key=level_rank)
 
-    # campos operacionais
+    frescor = avaliar_frescor_cuiaba()
+    data_ref = frescor.get("data_referencia_efetiva") or get(r, "data", "data_referencia", default=None)
+
     data = {
         "municipio": MUNICIPIO,
         "cod_ibge": COD_IBGE_CUIABA,
         "gerado_em": datetime.now().strftime("%d/%m/%Y %H:%M"),
         "dados_atualizados_em": (
-            datetime.fromtimestamp(DB.stat().st_mtime).strftime("%d/%m/%Y %H:%M")
-            if DB.exists() else datetime.now().strftime("%d/%m/%Y %H:%M")
+            pd.to_datetime(data_ref).strftime("%d/%m/%Y")
+            if data_ref
+            else datetime.now().strftime("%d/%m/%Y %H:%M")
         ),
+        "data_referencia": data_ref,
+        "fonte_dados": get(r, "fonte", default=frescor.get("fonte_resumo")),
+        "frescor": frescor,
         "emitido_em": datetime.now().strftime("%d/%m/%Y %H:%M"),
         "nivel_operacional": nivel,
         "nivel_predicao_7d": nivel_pred,
@@ -304,12 +427,11 @@ def build_payload(con: sqlite3.Connection) -> dict[str, Any]:
         "pm25": get(r, "pm25_ugm3", default=None),
         "iqa": get(r, "iq_ar_score", "iqa", default=None),
 
-        # Ocupação hospitalar = IndicaSUS (filtros SIEGES); pressão assistencial = SISREG
         "ocupacao_pct": get(r, "ocupacao_leitos_pct", default=get(h, "ocupacao_leitos_pct", "ocupacao_pct", default=None)),
         "fonte_ocupacao": get(r, "fonte_ocupacao", default=get(h, "fonte", default=None)),
         "leitos_total": get(r, "leitos_total", default=get(h, "leitos_total", "leitos_existentes", default=None)),
         "leitos_ocupados": get(r, "leitos_ocupados", default=get(h, "leitos_ocupados", default=None)),
-        "pressao_pct": get(r, "pressao_calor_pct", default=None),  # mantido no payload; não é a linha de pressão assistencial
+        "pressao_pct": get(r, "pressao_calor_pct", default=None),
         "sisreg_solicitacoes": get(r, "kpi_sisreg_solicitacoes", default=None),
         "sisreg_fila_h": get(r, "kpi_sisreg_fila_h", default=None),
         "sisreg_semaforo": get(r, "kpi_sisreg_semaforo", default=None),
@@ -326,55 +448,24 @@ def build_payload(con: sqlite3.Connection) -> dict[str, Any]:
     else:
         data["ocupacao_estado_pct"] = None
 
-    # Preferir resumo operacional (Postgres) para ocupação/SISREG quando disponível.
-    try:
-        from sisclima.core.db import read_table as read_ops
-
-        ops = read_ops("resumo_municipal_atual")
-        if ops is not None and not ops.empty:
-            row_ops = find_cuiaba(ops)
-            if row_ops is not None:
-                data["ocupacao_pct"] = get(
-                    row_ops, "ocupacao_leitos_pct", default=data.get("ocupacao_pct")
-                )
-                data["fonte_ocupacao"] = get(
-                    row_ops, "fonte_ocupacao", default=data.get("fonte_ocupacao")
-                )
-                data["leitos_total"] = get(
-                    row_ops, "leitos_total", default=data.get("leitos_total")
-                )
-                data["leitos_ocupados"] = get(
-                    row_ops, "leitos_ocupados", default=data.get("leitos_ocupados")
-                )
-                data["sisreg_solicitacoes"] = get(
-                    row_ops, "kpi_sisreg_solicitacoes", default=data.get("sisreg_solicitacoes")
-                )
-                data["sisreg_fila_h"] = get(
-                    row_ops, "kpi_sisreg_fila_h", default=data.get("sisreg_fila_h")
-                )
-                data["sisreg_semaforo"] = get(
-                    row_ops, "kpi_sisreg_semaforo", default=data.get("sisreg_semaforo")
-                )
-                data["sisreg_score"] = get(
-                    row_ops, "kpi_sisreg_score", default=data.get("sisreg_score")
-                )
-        occ = read_ops("hospital_ocupacao_municipio")
-        if occ is not None and not occ.empty:
-            h_ops = find_cuiaba(occ)
-            if h_ops is not None:
-                if data.get("ocupacao_pct") is None or (isinstance(data.get("ocupacao_pct"), float) and pd.isna(data.get("ocupacao_pct"))):
-                    data["ocupacao_pct"] = get(h_ops, "ocupacao_pct", "ocupacao_leitos_pct", default=None)
-                data["leitos_total"] = get(
-                    h_ops, "leitos_existentes", "leitos_total", default=data.get("leitos_total")
-                )
-                data["leitos_ocupados"] = get(
-                    h_ops, "leitos_ocupados", default=data.get("leitos_ocupados")
-                )
-                data["fonte_ocupacao"] = get(h_ops, "fonte", default=data.get("fonte_ocupacao"))
-    except Exception:
-        pass
+    # Preferir ocupação/SISREG já no resumo; reforço via hospital_ocupacao_municipio
+    if h is not None:
+        if data.get("ocupacao_pct") is None or (
+            isinstance(data.get("ocupacao_pct"), float) and pd.isna(data.get("ocupacao_pct"))
+        ):
+            data["ocupacao_pct"] = get(h, "ocupacao_pct", "ocupacao_leitos_pct", default=None)
+        data["leitos_total"] = get(
+            h, "leitos_existentes", "leitos_total", default=data.get("leitos_total")
+        )
+        data["leitos_ocupados"] = get(h, "leitos_ocupados", default=data.get("leitos_ocupados"))
+        data["fonte_ocupacao"] = get(h, "fonte", default=data.get("fonte_ocupacao"))
 
     return data
+
+
+# Mantém assinatura antiga usada por patches/testes
+def build_payload_legacy(con: sqlite3.Connection) -> dict[str, Any]:
+    return build_payload(con)
 
 
 def recommendations(payload: dict[str, Any]) -> list[str]:
@@ -557,15 +648,39 @@ def main() -> None:
     parser.add_argument("--send", action="store_true", help="Envia e-mail real.")
     parser.add_argument("--dry-run", action="store_true", help="Apenas gera prévia.")
     parser.add_argument("--force", action="store_true", help="Ignora deduplicação diária.")
+    parser.add_argument(
+        "--force-stale",
+        action="store_true",
+        help="Permite envio mesmo com dados climáticos defasados (não recomendado).",
+    )
     parser.add_argument("--to", default=DEFAULT_TO, help="Destinatário.")
     parser.add_argument("--min-level", default="verde", help="Nível mínimo para envio: verde, amarela, laranja, vermelha, roxa.")
     args = parser.parse_args()
 
-    if not DB.exists():
-        raise SystemExit(f"ERRO: banco não encontrado: {DB}")
+    load_env()
+    frescor = avaliar_frescor_cuiaba()
+    print("============================================================")
+    print("ALERTA MUNICIPAL CUIABÁ V11.10")
+    print("============================================================")
+    print(
+        f"Frescor: ok={frescor.get('ok')} efetivo={frescor.get('data_referencia_efetiva')} "
+        f"resumo={frescor.get('data_resumo')} fonte={frescor.get('fonte_resumo')} "
+        f"corte={frescor.get('corte')}"
+    )
+    if not frescor.get("ok"):
+        print(f"[AVISO] {frescor.get('motivo')}")
+        if args.send and not args.force_stale:
+            raise SystemExit(
+                "BLOQUEIO: dados de Cuiabá não atualizados. "
+                "Rode a rotina/pipeline antes do envio (ou --force-stale só em emergência)."
+            )
 
-    con = sqlite3.connect(DB)
-    payload = build_payload(con)
+    # Histórico de envios permanece no SQLite local (arquivo dedicado)
+    hist_db = DB if DB.exists() else Path("data/output/alerta_cuiaba_hist.db")
+    hist_db.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(hist_db)
+
+    payload = build_payload()
     text = compose_text(payload)
     html = compose_html(text)
 
@@ -576,13 +691,14 @@ def main() -> None:
     preview_txt.write_text(text, encoding="utf-8")
     preview_html.write_text(html, encoding="utf-8")
 
-    subject = f"{EMOJI.get(payload['nivel_final'], '⚪')} Alerta ARARAS MT Cuiabá — {payload['nivel_final'].capitalize()} — {datetime.now():%d/%m/%Y}"
+    subject = (
+        f"{EMOJI.get(payload['nivel_final'], '⚪')} Alerta ARARAS MT Cuiabá — "
+        f"{payload['nivel_final'].capitalize()} — {datetime.now():%d/%m/%Y}"
+    )
 
-    print("============================================================")
-    print("ALERTA MUNICIPAL CUIABÁ V11.10")
-    print("============================================================")
     print(f"Destinatário: {args.to}")
     print(f"Nível final: {payload['nivel_final']}")
+    print(f"Dados de referência: {payload.get('dados_atualizados_em')} ({payload.get('fonte_dados')})")
     print(f"Nível mínimo para envio: {normalize_level(args.min_level)}")
     print(f"Prévia TXT: {preview_txt}")
     print(f"Prévia HTML: {preview_html}")
@@ -600,20 +716,44 @@ def main() -> None:
     if not should_send:
         detalhe = f"Nível {payload['nivel_final']} abaixo do mínimo {args.min_level}; envio não realizado."
         print(detalhe)
-        record_history(con, args.to, payload["nivel_operacional"], payload["nivel_predicao_7d"], payload["nivel_alerta_inteligente"], "ignorado", detalhe)
+        record_history(
+            con,
+            args.to,
+            payload["nivel_operacional"],
+            payload["nivel_predicao_7d"],
+            payload["nivel_alerta_inteligente"],
+            "ignorado",
+            detalhe,
+        )
         con.close()
         return
 
     if already_sent(con, args.to, force=args.force):
         detalhe = "Já existe envio para Cuiabá hoje. Use --force para reenviar."
         print(detalhe)
-        record_history(con, args.to, payload["nivel_operacional"], payload["nivel_predicao_7d"], payload["nivel_alerta_inteligente"], "ignorado", detalhe)
+        record_history(
+            con,
+            args.to,
+            payload["nivel_operacional"],
+            payload["nivel_predicao_7d"],
+            payload["nivel_alerta_inteligente"],
+            "ignorado",
+            detalhe,
+        )
         con.close()
         return
 
     ok, detalhe = send_email(args.to, subject, text, html)
     status = "enviado" if ok else "erro"
-    record_history(con, args.to, payload["nivel_operacional"], payload["nivel_predicao_7d"], payload["nivel_alerta_inteligente"], status, detalhe)
+    record_history(
+        con,
+        args.to,
+        payload["nivel_operacional"],
+        payload["nivel_predicao_7d"],
+        payload["nivel_alerta_inteligente"],
+        status,
+        detalhe,
+    )
 
     con.close()
 

@@ -4,6 +4,7 @@ Correlações ecológicas municipais — não afirmam causalidade individual.
 """
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import numpy as np
@@ -26,17 +27,19 @@ def _spearman(x: pd.Series, y: pd.Series) -> dict[str, Any]:
     m = a.notna() & b.notna()
     n = int(m.sum())
     if n < 8:
-        return {"n": n, "rho": None, "p": None}
+        return {"n": n, "rho": None, "p": None, "motivo": f"pares válidos insuficientes (n={n}; mínimo 8)"}
     try:
         from scipy import stats
 
+        if float(a[m].std(ddof=0) or 0) == 0 or float(b[m].std(ddof=0) or 0) == 0:
+            return {"n": n, "rho": None, "p": None, "motivo": "variância nula em uma das séries"}
         rho, p = stats.spearmanr(a[m], b[m])
         if not np.isfinite(rho):
-            return {"n": n, "rho": None, "p": None}
-        return {"n": n, "rho": float(rho), "p": float(p) if np.isfinite(p) else None}
+            return {"n": n, "rho": None, "p": None, "motivo": "resultado numérico inválido"}
+        return {"n": n, "rho": float(rho), "p": float(p) if np.isfinite(p) else None, "motivo": None}
     except Exception as exc:  # noqa: BLE001
         log.debug("spearman falhou: %s", exc)
-        return {"n": n, "rho": None, "p": None}
+        return {"n": n, "rho": None, "p": None, "motivo": f"erro numérico ({exc})"}
 
 
 def _load_esus_municipal() -> pd.DataFrame:
@@ -112,6 +115,15 @@ def analisar_esus_clima(df: pd.DataFrame | None = None) -> dict[str, Any]:
         s = _num(base.loc[mask, col])
         return float(s.mean()) if s.notna().any() else None
 
+    atraso = 0
+    data_max = ""
+    if "atraso_dias" in base.columns:
+        atraso = int(_num(base["atraso_dias"]).fillna(0).max())
+    if "data_max_atendimento" in base.columns:
+        vals = base["data_max_atendimento"].dropna().astype(str).str.strip()
+        vals = vals[vals != ""]
+        data_max = str(vals.iloc[0]) if not vals.empty else ""
+
     corrs = {
         "atend_28d_x_tmax": _spearman(base.get("atendimentos_28d", pd.Series(dtype=float)), base.get("tmax", pd.Series(dtype=float))),
         "atend_28d_x_pm25": _spearman(base.get("atendimentos_28d", pd.Series(dtype=float)), base.get("pm25_ugm3", pd.Series(dtype=float))),
@@ -122,7 +134,10 @@ def analisar_esus_clima(df: pd.DataFrame | None = None) -> dict[str, Any]:
 
     top_resp = []
     if "resp_cid_28d" in base.columns:
-        tmp = base.nlargest(8, "resp_cid_28d", keep="all") if _num(base["resp_cid_28d"]).fillna(0).sum() > 0 else base.head(0)
+        s_resp = _num(base["resp_cid_28d"])
+        # Só ordenar por CID quando há observação válida (>0); zeros de atraso não entram no top
+        mask_ok = s_resp.notna() & (s_resp > 0)
+        tmp = base.loc[mask_ok].nlargest(8, "resp_cid_28d", keep="all") if mask_ok.any() else base.head(0)
         for _, r in tmp.iterrows():
             top_resp.append(
                 {
@@ -132,6 +147,7 @@ def analisar_esus_clima(df: pd.DataFrame | None = None) -> dict[str, Any]:
                     "pm25": r.get("pm25_ugm3"),
                     "tmax": r.get("tmax"),
                     "atendimentos_28d": r.get("atendimentos_28d"),
+                    "atend_ausente": pd.isna(r.get("atendimentos_28d")),
                 }
             )
 
@@ -160,9 +176,20 @@ def analisar_esus_clima(df: pd.DataFrame | None = None) -> dict[str, Any]:
             "media_pm25_criticos": _mean_group("pm25_ugm3", crit),
             "correlacoes": corrs,
             "top_resp_cid": top_resp,
+            "atraso_dias": atraso,
+            "data_max_atendimento": data_max,
+            "status_temporal": "DEFASADO" if atraso >= 7 else ("ATUAL" if data_max else "INDISPONÍVEL"),
         }
     )
     return out
+
+
+def _fmt_data_pt(val: Any) -> str:
+    s = str(val or "").strip()
+    if re.match(r"^\d{4}-\d{2}-\d{2}", s):
+        y, m, d = s[:10].split("-")
+        return f"{d}/{m}/{y}"
+    return s or "—"
 
 
 def markdown_esus_clima(
@@ -180,71 +207,107 @@ def markdown_esus_clima(
             f"({a.get('erro') or 'sem cruzamento'}).\n"
         )
 
+    data_max = _fmt_data_pt(a.get("data_max_atendimento") or "—")
+    atraso = int(a.get("atraso_dias") or 0)
+    selo = (
+        f"> **DADO ASSISTENCIAL DEFASADO**  \n"
+        f"> Última atualização: **{data_max}**  \n"
+        f"> Não representa a situação corrente da semana epidemiológica em curso "
+        f"(defasagem de **{fmt_int(atraso)}** dia(s))."
+    )
+
+    if compact:
+        return "\n".join(
+            [
+                "",
+                "### Atenção primária (e-SUS APS) — contexto",
+                "",
+                selo,
+                "",
+                f"Centralizador e-SUS APS: última carga válida **{data_max}**, "
+                f"defasagem **{fmt_int(atraso)}** dias. "
+                "Dados utilizados apenas como contexto de vulnerabilidade/cobertura, "
+                "**não** como pressão assistencial atual.",
+                "",
+                f"- Cadastro (contexto): asma **{fmt_int(a.get('asma'))}** · idosos 60+ "
+                f"**{fmt_int(a.get('idoso_60mais'))}** · gestantes **{fmt_int(a.get('gestante'))}** · "
+                f"**{fmt_int(a.get('n_criticos'))}** municípios vermelho/roxo com cadastro.",
+                "",
+                "Tabelas detalhadas, correlações e top municípios: **anexo técnico / painel**.",
+                "Ausência de envio ≠ zero clínico (municípios sem carga na janela: **N/D**).",
+            ]
+        )
+
     def _corr_txt(key: str, label: str) -> str:
         c = (a.get("correlacoes") or {}).get(key) or {}
         rho, p, n = c.get("rho"), c.get("p"), c.get("n")
         if rho is None:
-            return f"- **{label}:** insuficiente (n={fmt_int(n)})."
+            motivo = c.get("motivo") or f"não calculável (n válido={fmt_int(n)})"
+            return f"- **{label}:** não calculada — motivo: {motivo}."
         sig = ""
         if p is not None and p < 0.05:
-            sig = " (p<0,05)"
+            sig = " · p<0,05"
         elif p is not None:
-            sig = f" (p={fmt_num(p, 3)})"
-        return f"- **{label}:** ρ de Spearman = **{fmt_num(rho, 2)}** · n={fmt_int(n)}{sig}."
+            sig = f" · p={fmt_num(p, 3)}"
+        return f"- **{label}:** ρ = **{fmt_num(rho, 2)}**; n válido = {fmt_int(n)}{sig}."
+
+    def _fmt_atend(v: Any, ausente: bool = False) -> str:
+        if ausente or v is None or (isinstance(v, float) and pd.isna(v)):
+            return "N/D"
+        return fmt_int(v)
 
     lines = [
         "",
-        "### Análise e-SUS APS × clima e classes ARARAS",
+        "### Análise e-SUS APS × clima e classes ARARAS (anexo)",
+        "",
+        selo,
         "",
         "Cruzamento ecológico municipal (cadastro/atendimentos da APS com Tmáx, PM2,5 e classe). "
-        "**Não implica causalidade individual.**",
+        "**Não implica causalidade individual.** Data de referência dos atendimentos: "
+        f"**{data_max}**.",
         "",
         f"- **Universo:** {fmt_int(a.get('n'))} municípios · "
         f"**{fmt_int(a.get('n_criticos'))}** em vermelho/roxo.",
         f"- **Cadastro:** asma **{fmt_int(a.get('asma'))}** · DPOC **{fmt_int(a.get('dpoc'))}** · "
         f"idosos 60+ **{fmt_int(a.get('idoso_60mais'))}** · gestantes **{fmt_int(a.get('gestante'))}** · "
         f"acamados **{fmt_int(a.get('acamado'))}**.",
-        f"- **Atendimentos:** 7d **{fmt_int(a.get('atendimentos_7d'))}** · 28d **{fmt_int(a.get('atendimentos_28d'))}** · "
-        f"CID respiratório 28d **{fmt_int(a.get('resp_cid_28d'))}**.",
-        f"- **Críticos vs demais (médias):** idosos {fmt_num(a.get('media_idoso_criticos'), 0)} vs "
-        f"{fmt_num(a.get('media_idoso_outros'), 0)} · atend. 28d {fmt_num(a.get('media_atend28_criticos'), 0)} vs "
-        f"{fmt_num(a.get('media_atend28_outros'), 0)} · Tmáx **{fmt_num(a.get('media_tmax_criticos'), 1, ' °C')}** · "
-        f"PM2,5 **{fmt_num(a.get('media_pm25_criticos'), 1, ' µg/m³')}**.",
         "",
         "**Correlações (Spearman):**",
         _corr_txt("atend_28d_x_tmax", "Atend. 28d × Tmáx"),
         _corr_txt("resp_cid_28d_x_pm25", "CID respiratório 28d × PM2,5"),
         _corr_txt("idoso_x_tmax", "Idosos 60+ × Tmáx"),
     ]
-    if not compact:
-        rows = []
-        for r in (a.get("top_resp_cid") or [])[:5]:
-            rows.append(
-                [
-                    str(r.get("municipio") or "—"),
-                    str(r.get("classe") or "—"),
-                    fmt_int(r.get("resp_cid_28d")),
-                    fmt_num(r.get("pm25"), 1),
-                    fmt_num(r.get("tmax"), 1),
-                ]
-            )
-        if rows:
-            lines.extend(
-                [
-                    "",
-                    "**Top 5 – CID respiratório (28d) na APS**",
-                    "",
-                    md_table(
-                        ["Município", "Classe", "CID resp. 28d", "PM2,5", "Tmáx (°C)"],
-                        rows,
-                    ),
-                ]
-            )
+    rows = []
+    for r in (a.get("top_resp_cid") or [])[:5]:
+        rows.append(
+            [
+                str(r.get("municipio") or "—"),
+                str(r.get("classe") or "—"),
+                fmt_int(r.get("resp_cid_28d")),
+                fmt_num(r.get("pm25"), 1),
+                fmt_num(r.get("tmax"), 1),
+                _fmt_atend(r.get("atendimentos_28d"), bool(r.get("atend_ausente"))),
+            ]
+        )
+    if rows:
+        lines.extend(
+            [
+                "",
+                "**Top 5 – CID respiratório (28d) na APS**",
+                "",
+                f"_Data de referência dos atendimentos: {data_max}_",
+                "",
+                md_table(
+                    ["Município", "Classe", "CID resp. 28d", "PM2,5", "Tmáx (°C)", "Atend. 28d"],
+                    rows,
+                ),
+            ]
+        )
     lines.extend(
         [
             "",
             "Fonte: Centralizador PEC/eSUS (agregado municipal) × ARARAS. "
-            "Ausência de atendimento não é zero clínico. Detalhamento no painel operacional.",
+            "Ausência de atendimento = **N/D** (não zero clínico).",
         ]
     )
     return "\n".join(lines)
