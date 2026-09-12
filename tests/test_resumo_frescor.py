@@ -27,7 +27,7 @@ class ResumoFrescorTests(unittest.TestCase):
                 }
             ]
         )
-        out = refresh_resumo_multirisco(df, inject_ehf=False, persist=False)
+        out = refresh_resumo_multirisco(df, inject_ehf=False, merge_predicao=False, persist=False)
         self.assertEqual(out.loc[0, "nivel"], "verde")
         self.assertEqual(out.loc[0, "nivel_predicao_7d"], "amarela")
         self.assertIn("indice_resiliencia_municipal_0_100", out.columns)

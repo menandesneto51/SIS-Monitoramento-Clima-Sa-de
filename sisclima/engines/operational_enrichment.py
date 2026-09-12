@@ -1228,6 +1228,13 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         resumo_reload = read_table("resumo_municipal_atual")
         if resumo_reload is not None and not resumo_reload.empty:
             resumo = resumo_reload
+            # Reload apaga merge em memória — reanexa pred 7d
+            try:
+                from sisclima.engines.boletim_el_nino.snapshot import merge_predicao_7d
+
+                resumo = merge_predicao_7d(resumo, pred)
+            except Exception as exc_merge:  # noqa: BLE001
+                log.warning("Re-merge pred 7d após nowcast falhou: %s", exc_merge)
     except Exception as exc:  # noqa: BLE001
         log.warning("Nowcast epidemiológico não executado: %s", exc)
 
@@ -1239,6 +1246,14 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     )
 
     resumo = enrich_panel_indicators(resumo, pred)
+    # Persistir pred 7d no resumo (painel/boletim/alertas leem a mesma tabela)
+    try:
+        from sisclima.engines.boletim_el_nino.snapshot import merge_predicao_7d
+
+        resumo = merge_predicao_7d(resumo, pred)
+        write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Persistência pred 7d no resumo falhou: %s", exc)
 
     # WASH IBGE (antes do AdaptaSUS, para alimentar risco_wash)
     try:

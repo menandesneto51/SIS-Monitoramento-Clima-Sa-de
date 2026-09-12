@@ -41,7 +41,7 @@ Camada operacional alinhada ao legado TITAN, com **código legível** e fontes o
 
 Consolidados na aba **Clima / TITAN** e, de forma unificada, na aba **Alertas**:
 
-- Antes do digest: `refresh_resumo_multirisco` (EHF → IRM → RIT → compostos) + gate ETL quando `ALERT_REQUIRE_FRESH_ETL=true`.
+- Antes do digest: `refresh_resumo_multirisco` (pred 7d → EHF → IRM → RIT → compostos) + gate ETL quando `ALERT_REQUIRE_FRESH_ETL=true`.
 - Tabela legada `alerta_integrado_sis_titan`: `nivel_alerta_integrado = max(ARARAS, INMET, Cemaden, solo, hidro, calor)`.
 - Ajudante de interpretação (padrão Meningites): guia + justificativa + download `.md`.
 
