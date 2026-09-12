@@ -1,7 +1,26 @@
 # Pacote de produção — ARARAS MT
 
-**Commit de referência:** HEAD desta branch (`araras-mt` / `operacional-araras-v10`).  
+**Branch operacional (produção):** `operacional-araras-v10`  
+**Commit de referência:** HEAD dessa branch (ex.: IRM/RIT frescor).  
 **Entrada do site/painel:** `streamlit_app.py` → `app_v9.py`.
+
+## Política de branches (caminho seguro)
+
+| Branch | Papel |
+|--------|--------|
+| **`operacional-araras-v10`** | Fonte da verdade do ARARAS MT — push, deploy e releases |
+| **`legacy-vigia-main`** | Arquivo do histórico antigo VIGIA (cópia de `origin/main` em 2026-09-12) |
+| **`main` (GitHub)** | Ainda aponta para o legado VIGIA — **não** usar force-push sem decisão explícita e Cloud já migrado |
+| Local `main` | Pode existir; **rastreia** `origin/operacional-araras-v10` (`git push` / `git pull` nessa upstream) |
+
+```powershell
+# Desenvolvimento / publicação segura
+git checkout main
+git pull                    # puxa operacional-araras-v10
+git push origin HEAD:operacional-araras-v10
+```
+
+**Não** execute `git push --force origin main` no fluxo diário.
 
 ## Escopo publicado
 
@@ -51,7 +70,7 @@ Ordem única: **EHF → IRM → RIT → compostos** (`sisclima/engines/resumo_fr
 Indicadores novos: `indice_resiliencia_municipal_0_100` (capacidade), `rit_score_rede` (fragilidade), `gap_fumaca_nebulizacao`, `pressao_x_resiliencia`. Não alteram `nivel` / `nivel_predicao_7d`.
 ## Deploy Streamlit Cloud
 
-- **Branch:** `araras-mt`
+- **Branch:** `operacional-araras-v10` (não usar `main` legado VIGIA)
 - **Main file:** `streamlit_app.py`
 - Secrets: copiar de `.streamlit/secrets.toml.example` (nunca versionar `.env`)
 

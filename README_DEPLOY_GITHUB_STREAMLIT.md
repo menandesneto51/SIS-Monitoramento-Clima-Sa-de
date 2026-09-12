@@ -34,30 +34,29 @@ Não subir ao GitHub arquivos com dados sensíveis, credenciais, `.env`, contato
 
 **Manter apenas 1 app** deste repositório no https://share.streamlit.io:
 
-| Manter | Apagar |
-|--------|--------|
-| Branch **`painel-v9`** · `streamlit_app.py` | Branch **`main`** · `streamlit_app.py` (deps pesadas / pasta `pages/` / painel antigo) |
+| Manter | Não usar / apagar app antigo |
+|--------|------------------------------|
+| Branch **`operacional-araras-v10`** · `streamlit_app.py` | Branch **`main`** (legado VIGIA) · apps em `painel-v9` desatualizados |
 
-1. Em https://share.streamlit.io, no app da branch **`main`**: menu **⋯** → **Delete app**
-2. No app da branch **`painel-v9`**: menu **⋯** → **Reboot app** (ou **Manage app** → logs, se o ícone vermelho persistir)
-3. Configuração correta do app único:
+1. Se existir app na branch **`main`** (VIGIA): menu **⋯** → **Delete app** (o histórico VIGIA está arquivado em `legacy-vigia-main`).
+2. Criar ou reapontar o app único:
    - Repository: `menandesneto51/SIS-Monitoramento-Clima-Sa-de`
-   - Branch: **`painel-v9`**
+   - Branch: **`operacional-araras-v10`**
    - Main file path: `streamlit_app.py`
    - Python version (Advanced): **3.12** (preferencial). O Cloud **ignora** `runtime.txt`; se ficar em 3.14, o `requirements.txt` já usa wheels compatíveis (`psycopg2-binary>=2.9.12`, `pyarrow>=25`).
-4. Em **Advanced settings → Secrets**, colar o conteúdo de `.streamlit/secrets.toml.example` e definir:
+3. Em **Advanced settings → Secrets**, colar o conteúdo de `.streamlit/secrets.toml.example` e definir:
    - `ALERT_EMAIL_TO` = `seu_email,notifica@ses.mt.gov.br`
    - `ALERT_CENTRAL_ONLY_SES` = `"true"`
    - `ALERT_FANOUT_ENABLED` = `"false"`
    - `DATABASE_URL` apontando para um **Postgres acessível na internet** (Neon/Supabase/Railway), se quiser dados ao vivo.
      `localhost` / Docker da máquina **não funciona** no Cloud.
-5. Aguardar o build ficar verde e abrir o link do app.
+4. Aguardar o build ficar verde e abrir o link do app.
 
 Dependências Cloud: `requirements.txt` enxuto (sem Fiona/GDAL/Google gRPC). Lista completa local: `requirements-full.txt`.
 **Não** use `packages.txt` com comentários — o apt do Cloud interpreta cada palavra como pacote.
 
 Sem `DATABASE_URL` no Cloud, o painel usa o snapshot `data/cloud/sis_cloud_seed.db` (KPIs/abas).
-Atualizar snapshot local: `.\\.venv\\Scripts\\python.exe exportar_snapshot_cloud.py` e push em `painel-v9`.
+Atualizar snapshot local: `.\.venv\Scripts\python.exe exportar_snapshot_cloud.py` e push em `operacional-araras-v10`.
 
 ## Docker (servidor SES — painel + agendador diário)
 
