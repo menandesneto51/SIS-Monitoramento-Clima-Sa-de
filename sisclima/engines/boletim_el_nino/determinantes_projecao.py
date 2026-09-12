@@ -81,7 +81,11 @@ def quadro_determinantes_projecao(
                 if c in p.columns or c == "_cod"
             ]
             p = p[[c for c in keep if c in p.columns]].drop_duplicates("_cod")
-            work = work.merge(p, on="_cod", how="left", suffixes=("", "_pred"))
+            # Idempotente se resumo já trouxe pred 7d (frescor / merge prévio)
+            overlap = [c for c in p.columns if c != "_cod"]
+            drop_overlap = overlap + [f"{c}_pred" for c in overlap]
+            work = work.drop(columns=[c for c in drop_overlap if c in work.columns], errors="ignore")
+            work = work.merge(p, on="_cod", how="left")
 
     if work["_cod"].notna().any():
         work = work.dropna(subset=["_cod"]).drop_duplicates("_cod")
@@ -152,6 +156,11 @@ def quadro_determinantes_projecao(
     )
     if n_up and n_d:
         intro += f", com **{fmt_frac(n_up, n_d)}** municípios comparáveis em elevação de classe."
+    intro += (
+        " A escalada é puxada pelos **drivers térmicos do modelo** (Tmáx prevista, UTCI, "
+        "risco cumulativo e onda P95), que elevam o risco térmico projetado e, com isso, "
+        "a classe operacional — sem incorporar EHF, fumaça/PM2,5 ou pressão assistencial."
+    )
 
     onda_extra = (
         f" (mediana {fmt_num(mediana_onda, 1)} dias)"
@@ -215,9 +224,13 @@ def quadro_determinantes_projecao(
         f"{intro}\n\n"
         f"### A. Drivers que entram no modelo\n\n"
         f"{tab_a}\n\n"
+        "**EHF (GeoCalor/Fiocruz) não entra no modelo de classificação projetada** nesta versão; "
+        "consta só como monitoramento observado (onda EHF ≥ 3 dias), separado da projeção ARARAS ~7d.\n\n"
         f"### B. Contexto concomitante\n\n"
-        f"Descreve a situação atual dos municípios que sobem de classe; "
-        f"**não** constitui contribuição matemática para a projeção nesta versão.\n\n"
+        f"Descreve a situação atual dos municípios que sobem de classe "
+        f"(umidade, **PM2,5/fumaça** e focos de calor); "
+        f"**não** constitui contribuição matemática para a projeção nesta versão — "
+        f"são leitura concomitante de exposição, não drivers do modelo.\n\n"
         f"{tab_b}\n\n"
         "A classe projetada utiliza o maior nível entre intensidade térmica, estresse térmico, "
         "persistência e onda de calor, evitando a soma de sinais correlacionados. "

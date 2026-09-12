@@ -28,6 +28,28 @@ _SNAP_MUN_COLS = [
 
 _SECA_HIDRO = frozenset({"seca_baixa", "seca_moderada", "seca_alta"})
 _INUND_HIDRO = frozenset({"inundacao_alta", "inundacao_moderada"})
+
+
+def _nivel_from_counts(niveis: dict[str, Any] | None) -> tuple[str | None, str | None]:
+    """Retorna (nivel_modal, nivel_estado=pior com contagem>0) a partir do histograma."""
+    if not niveis:
+        return None, None
+    valid: dict[str, int] = {}
+    for k, v in niveis.items():
+        key = str(k).strip().lower()
+        if key not in STAGE_ORDER or STAGE_ORDER[key] < 0:
+            continue
+        try:
+            n = int(v or 0)
+        except (TypeError, ValueError):
+            continue
+        if n > 0:
+            valid[key] = n
+    if not valid:
+        return None, None
+    modal = max(valid.items(), key=lambda kv: (kv[1], STAGE_ORDER.get(kv[0], -1)))[0]
+    pior = max(valid.keys(), key=lambda k: STAGE_ORDER.get(k, -1))
+    return modal, pior
 _HABITUAL_HIDRO = frozenset({"normal"})
 
 
@@ -286,11 +308,11 @@ def merge_predicao_7d(resumo: pd.DataFrame, predicao: pd.DataFrame | None) -> pd
         return out
     out["cod_ibge"] = out["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
     pred["cod_ibge"] = pred["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
-    out = out.merge(pred, on="cod_ibge", how="left", suffixes=("", "_pred"))
-    if "tendencia_7d_pred" in out.columns and "tendencia_7d" not in out.columns:
-        out["tendencia_7d"] = out["tendencia_7d_pred"]
-    if "nivel_predicao_7d_pred" in out.columns:
-        out["nivel_predicao_7d"] = out["nivel_predicao_7d_pred"].combine_first(out.get("nivel_predicao_7d"))
+    # Idempotente: resumo já pode ter pred persistida (frescor) — evita MergeError *_pred
+    drop_cols = [c for c in cols if c != "cod_ibge"]
+    drop_cols += [f"{c}_pred" for c in drop_cols]
+    out = out.drop(columns=[c for c in drop_cols if c in out.columns], errors="ignore")
+    out = out.merge(pred, on="cod_ibge", how="left")
     return out
 
 
@@ -653,6 +675,12 @@ def snapshot_operacional(resumo: pd.DataFrame) -> dict[str, Any]:
         "n_amarela": _n_level(df, "amarela"),
         "niveis": {str(k).lower(): int(v) for k, v in nivel_counts.items()} if nivel_counts else None,
         "niveis_projecao_7d": nivel_proj_counts,
+        "nivel_modal": _nivel_from_counts(
+            {str(k).lower(): int(v) for k, v in nivel_counts.items()} if nivel_counts else None
+        )[0],
+        "nivel_estado": _nivel_from_counts(
+            {str(k).lower(): int(v) for k, v in nivel_counts.items()} if nivel_counts else None
+        )[1],
         "delta_projecao": delta_resumo,
         "delta_n_comparavel": (
             int(
@@ -727,9 +755,12 @@ def snapshot_operacional(resumo: pd.DataFrame) -> dict[str, Any]:
         },
     }
     try:
+        from sisclima.engines.boletim_el_nino.cenario import semana_iso
         from sisclima.engines.boletim_el_nino.picos_termicos import resumo_picos_termicos
 
-        picos = resumo_picos_termicos(janela_dias=14)
+        # Janela = SE epidemiológica corrente (início da SE → hoje), não a semana anterior
+        se = semana_iso()
+        picos = resumo_picos_termicos(inicio_se=str(se.get("inicio") or ""), janela_dias=7)
         snap["picos_termicos"] = picos
         if picos.get("ok"):
             snap["tmax_max_semana"] = picos.get("tmax_max_semana")
