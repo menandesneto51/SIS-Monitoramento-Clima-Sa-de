@@ -709,6 +709,48 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         intern_indicasus = load_dw_indicasus_internacao()
         write_df(intern_indicasus if intern_indicasus is not None else pd.DataFrame(), 'epi_indicasus_internacao_cid')
 
+        # Onda 1: persistir intoxicação detalhe + extras clima (agregação no enrich)
+        try:
+            from sisclima.ingestion.dw_sources import (
+                load_dw_sinan_agravos_extras_clima,
+                load_dw_sinan_intoxicacao_detalhe,
+            )
+
+            intox_det = load_dw_sinan_intoxicacao_detalhe()
+            write_df(intox_det if intox_det is not None else pd.DataFrame(), 'epi_sinan_intoxicacao_detalhe')
+            extras_clima = load_dw_sinan_agravos_extras_clima()
+            write_df(extras_clima if extras_clima is not None else pd.DataFrame(), 'epi_sinan_agravos_extras_clima')
+        except Exception as exc:
+            print(f"[AVISO] SINAN intox/extras DW não persistidos: {exc}")
+
+        # Onda 2: malaria + CNES equipamentos (agregados municipais)
+        try:
+            from sisclima.ingestion.dw_sources import load_dw_cnes_equipamentos, load_dw_sivep_malaria
+
+            mal = load_dw_sivep_malaria()
+            write_df(mal if mal is not None else pd.DataFrame(), "epi_sivep_malaria")
+            eq = load_dw_cnes_equipamentos()
+            write_df(eq if eq is not None else pd.DataFrame(), "epi_cnes_equipamentos_municipal")
+        except Exception as exc:
+            print(f"[AVISO] Malária/CNES equipamentos DW não persistidos: {exc}")
+
+        # Onda 3: rede CNES APS (contagens municipais — sem PII)
+        try:
+            from sisclima.ingestion.dw_sources import (
+                load_dw_cnes_equipes_ab,
+                load_dw_cnes_profissionais,
+                load_dw_cnes_servico_classificacao,
+            )
+
+            prof = load_dw_cnes_profissionais()
+            write_df(prof if prof is not None else pd.DataFrame(), "epi_cnes_profissionais_municipal")
+            eab = load_dw_cnes_equipes_ab()
+            write_df(eab if eab is not None else pd.DataFrame(), "epi_cnes_equipes_ab_municipal")
+            svc = load_dw_cnes_servico_classificacao()
+            write_df(svc if svc is not None else pd.DataFrame(), "epi_cnes_servico_classificacao_municipal")
+        except Exception as exc:
+            print(f"[AVISO] CNES rede APS DW não persistidos: {exc}")
+
         sivep = sivep_summary(sivep_raw, populacao)
         lacen = lacen_summary(lacen_raw)
         sinan = sinan_summary(sinan_raw)
@@ -919,7 +961,7 @@ def run_pipeline(send_alerts: bool = True) -> dict:
         except Exception as exc:
             log.warning('ETL e-SUS APS não aplicada: %s', exc)
 
-        # STAR / GeoCalor — incremental ou cache (carga histórica: script dedicado)
+        # STAR / GeoCalor — antes do inject EHF/RIT no resumo (mesma rodada)
         try:
             from sisclima.ingestion.etl_esus_star import etl_star_geocalor
 
@@ -927,6 +969,21 @@ def run_pipeline(send_alerts: bool = True) -> dict:
             log.info('ETL STAR/GeoCalor: %s', star_meta)
         except Exception as exc:
             log.warning('ETL STAR/GeoCalor não aplicada: %s', exc)
+
+        # Reinjeta EHF + IRM + RIT + compostos no resumo após STAR da rodada
+        try:
+            from sisclima.engines.resumo_frescor import refresh_resumo_multirisco
+
+            resumo_mun = alinha_recorte_oficial(read_table('resumo_municipal_atual'))
+            resumo_mun = refresh_resumo_multirisco(resumo_mun, inject_ehf=True, persist=True)
+            log.info(
+                'Pós-STAR multirisco: ehf=%s irm=%s rit=%s',
+                int(resumo_mun['ehf_geocalor'].notna().sum()) if 'ehf_geocalor' in resumo_mun.columns else 0,
+                int(resumo_mun['indice_resiliencia_municipal_0_100'].notna().sum()) if 'indice_resiliencia_municipal_0_100' in resumo_mun.columns else 0,
+                int(resumo_mun['rit_0_100'].notna().sum()) if 'rit_0_100' in resumo_mun.columns else 0,
+            )
+        except Exception as exc:
+            log.warning('Inject multirisco pós-STAR não aplicado: %s', exc)
 
         if not resumo_mun.empty:
             resumo_estado = resumo_mun.sort_values(['score','indice_vulnerabilidade_calor'] if 'indice_vulnerabilidade_calor' in resumo_mun.columns else ['score'], ascending=False).head(1).copy()

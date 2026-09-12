@@ -208,8 +208,10 @@ def step_pressao_alertas() -> dict:
         m["cod_ibge"] = m["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
         base = base.merge(m, on="cod_ibge", how="left")
         from sisclima.engines.prioridade_global import enrich_prioridade_global
+        from sisclima.engines.resumo_frescor import refresh_resumo_multirisco
 
         base = enrich_prioridade_global(base)
+        base = refresh_resumo_multirisco(base, inject_ehf=True, persist=False)
         write_df(base, "resumo_municipal_atual", if_exists="replace")
 
     payloads = build_alertas_multinivel(

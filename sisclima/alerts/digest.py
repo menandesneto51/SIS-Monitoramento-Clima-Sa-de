@@ -39,6 +39,7 @@ ICON = {
     "cuiaba": "🏙️",
     "indicadores": "📊",
     "predicao": "🔮",
+    "rit": "🧭",
     "motivo": "⚠️",
     "prioridade": "🎯",
     "orient_gestor": "👔",
@@ -201,105 +202,10 @@ def _dist_compact(dist: dict[str, Any] | None, indicadores: list[dict] | None = 
 
 
 def build_orientacoes_ses_setores(payload: dict[str, Any]) -> dict[str, str]:
-    """Checklist operacional por setor da SES, ancorado no cenário."""
-    nivel = _norm_level(payload.get("nivel"))
-    dist = payload.get("distribuicao") or {}
-    n_rox = int(dist.get("roxa", 0) or 0)
-    n_verm = int(dist.get("vermelha", 0) or 0)
-    n_lar = int(dist.get("laranja", 0) or 0)
-    n_crit = n_rox + n_verm
-    prior = payload.get("municipios_prioritarios") or []
-    top_names = ", ".join(str(p.get("municipio")) for p in prior[:5] if p.get("municipio"))
-    pred = payload.get("predicao") or {}
-    n_up = pred.get("municipios_tendencia_alta") or "—"
+    """Checklist operacional por setor da SES — delega ao módulo canônico de personas."""
+    from sisclima.engines.orientacoes_personas import build_orientacoes_personas_ses
 
-    vals: dict[str, float | None] = {}
-    for ind in payload.get("indicadores") or []:
-        campo = str(ind.get("campo") or "")
-        if campo in {"utci_proxy", "ocupacao_leitos_pct", "pm25_ugm3", "incidencia_arbovirus_100k", "risco_cumulativo_3d"}:
-            vals[campo] = _parse_num(ind.get("valor"))
-
-    utci = vals.get("utci_proxy")
-    ocup = vals.get("ocupacao_leitos_pct")
-    pm = vals.get("pm25_ugm3")
-    arbo = vals.get("incidencia_arbovirus_100k")
-
-    from sisclima.engines.atencao_farmaceutica import acao_estadual, flags_from_resumo, orientacao_mascara
-
-    flags_ag = {
-        "fumaca": pm is not None and pm >= 25,
-        "iqa_atencao": pm is not None and pm >= 15,
-        "inundacao": False,
-        "calor": utci is not None and utci >= 32,
-        "arbovirose": arbo is not None and arbo >= 10,
-        "srag": False,
-    }
-    try:
-        from sisclima.core.db import read_table as _rt
-
-        flags_ag = flags_from_resumo(_rt("resumo_municipal_atual"))
-    except Exception:
-        pass
-    saf = acao_estadual({}, agreg=flags_ag)
-    mascara_iqa = orientacao_mascara(pm)
-
-    cievs = (
-        f"Manter sala de situação ativa ({LEVEL_LABEL.get(nivel, nivel)}). "
-        f"Articular {n_crit} município(s) em vermelha/roxa e {n_lar} em laranja. "
-        f"Foco: {top_names or 'municípios de maior pontuação'}."
-    )
-    hospitalar = (
-        "Verificar leitos e plano de contingência hospitalar nas regionais prioritárias"
-        + (f" (ocupação estadual ~{ocup:.1f}%)".replace(".", ",") if ocup is not None else "")
-        + ". Avaliar expansão, regulação e leitos de retaguarda."
-    )
-    if ocup is not None and ocup < 75:
-        hospitalar += " Ocupação ainda abaixo do limiar de alerta (≥75%) — monitorar tendência e filas."
-    regulacao = (
-        "Mapear vagas e fluxos para prioritários; "
-        "retaguarda para hipertermia, desidratação grave e descompensações cardiorrespiratórias."
-    )
-    trabalhador = (
-        "Orientar troca/flexibilização de jornadas sob sol"
-        + (f" (sensação pico ~{utci:.1f} °C)".replace(".", ",") if utci is not None else "")
-        + "; priorizar rural, construção, coleta e serviços externos; pausas, hidratação e sombra/climatização."
-    )
-    aps = (
-        "Busca ativa de idosos, gestantes, crianças e pessoas em situação de rua nos prioritários; "
-        "hidratação e sinais de gravidade."
-    )
-    amb = (
-        "Eliminar criadouros e comunicar risco de dengue; "
-        + (f"acompanhar ar (PM2,5 pico ~{pm:.0f} µg/m³)." if pm is not None else "acompanhar qualidade do ar.")
-    )
-    comunicacao = (
-        f"Boletim unificado às Regionais; mensagens de hidratação e evitar pico de calor; "
-        f"{mascara_iqa} "
-        f"Antecipar comunicação aos {n_up} municípios com tendência de piora em ~7 dias."
-    )
-    terr = "Articular SESAI/DSEI, APS rural e Defesa Civil nos municípios com aldeias, quilombos, assentamentos ou barragem DPA alto. Distância ao eixo ≠ inundação."
-    try:
-        from sisclima.engines.vigibarragens_clima import sintese_territorial
-
-        syn = sintese_territorial()
-        if syn.get("ok") and syn.get("texto"):
-            terr = syn["texto"]
-            top = syn.get("top") or []
-            if top:
-                terr += " Prioridade: " + "; ".join(top[:4]) + "."
-    except Exception:
-        pass
-    return {
-        "comando_cievs": cievs,
-        "gestao_hospitalar": hospitalar,
-        "regulacao": regulacao,
-        "assistencia_farmaceutica": saf,
-        "saude_trabalhador": trabalhador,
-        "atencao_primaria": aps,
-        "povos_territorios": terr,
-        "vigilancia_ambiental": amb,
-        "comunicacao_risco": comunicacao,
-    }
+    return build_orientacoes_personas_ses(payload)
 
 
 def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
@@ -363,6 +269,19 @@ def _kpi_line(ind: dict[str, Any], *, escopo: str = "estadual") -> str | None:
 
 # Alias do plano (legado): valor + status, sem limiar por linha
 _fmt_indicator_line = _kpi_line
+
+
+def _rit_municipio_one_liner(m: dict[str, Any], idx: int) -> str:
+    """Uma linha: município · RIT · dominante · radar de domínios."""
+    faixa = _norm_level(m.get("rit_faixa") or m.get("nivel"))
+    rit_v = _parse_num(m.get("rit_0_100"))
+    rit_txt = f"{rit_v:.0f}" if rit_v is not None else "—"
+    dom = m.get("rit_dominio_dominante_rotulo") or m.get("rit_dominio_dominante") or "—"
+    radar = m.get("radar_compacto") or "—"
+    return (
+        f"{idx}. {EMOJI.get(faixa, '🧭')} {m.get('municipio')} ({m.get('regional') or '—'}) "
+        f"· RIT {rit_txt} · dominante: {dom} · {radar}"
+    )
 
 
 def _priority_one_liner(m: dict[str, Any], idx: int) -> str:
@@ -432,6 +351,18 @@ def _priority_one_liner(m: dict[str, Any], idx: int) -> str:
                 break
     if pressao is not None:
         parts.append(f"pressão {_f(pressao)}/100")
+    rit_v = _parse_num(m.get("rit_0_100"))
+    if rit_v is not None:
+        dom = m.get("rit_dominio_dominante_rotulo") or m.get("rit_dominio_dominante") or "—"
+        parts.append(f"RIT {_f(rit_v, 0)} ({dom})")
+    elif m.get("radar_compacto"):
+        parts.append(f"RIT {m.get('radar_compacto')}")
+    ehf = _parse_num(m.get("ehf_geocalor"))
+    if ehf is None:
+        ehf = _parse_num(m.get("ehf"))
+    if ehf is not None:
+        intens = m.get("intensidade_ehf") or ""
+        parts.append(f"EHF {_f(ehf, 2)}" + (f" {intens}" if intens else ""))
     al = m.get("n_aldeias")
     qi = m.get("n_quilombos")
     asst = m.get("n_assentamentos")
@@ -534,6 +465,39 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
         f"🏘️ {n_mun} municípios | {dist_txt}",
         f"{ICON['motivo']} {str(p.get('motivo') or '—')[:280]}",
         f"{ICON['predicao']} {pred.get('icone_predicao', '🔮')} {pred.get('resumo', '—')}",
+        f"{ICON['rit']} {(p.get('rit') or {}).get('icone_rit', '🧭')} {(p.get('rit') or {}).get('resumo', 'RIT indisponível')}",
+    ]
+    rit = p.get("rit") or {}
+    if rit.get("dominantes_distribuicao_txt"):
+        lines.append(f"🧭 Influenciadores RIT: {rit.get('dominantes_distribuicao_txt')}")
+    # Frescor STAR GeoCalor (SLO informativo — não bloqueia o digest)
+    geo_ref = None
+    geo_idade = None
+    n_onda = None
+    for ind in inds:
+        if ind.get("campo") == "ehf_geocalor_cobertura":
+            geo_ref = (ind.get("limiar") or "").replace("ref. ", "").split(" ·")[0].strip() or None
+            val = str(ind.get("valor") or "")
+            if "onda ativa" in val.lower():
+                try:
+                    n_onda = val.split("onda ativa")[-1].strip().split()[0]
+                except Exception:
+                    n_onda = None
+            elif "is_hw_day" in val.lower() or "onda (" in val.lower():
+                try:
+                    n_onda = val.split()[-1]
+                except Exception:
+                    pass
+        if ind.get("campo") == "ehf_geocalor_frescor":
+            geo_ref = ind.get("valor") or geo_ref
+            geo_idade = ind.get("limiar")
+        if ind.get("campo") == "onda_geocalor_ativa":
+            n_onda = str(ind.get("valor") or n_onda)
+    if geo_ref or n_onda:
+        idade_txt = f" · {geo_idade}" if geo_idade else ""
+        onda_txt = f" · em onda ativa: {n_onda}" if n_onda else ""
+        lines.append(f"🌡️ GeoCalor STAR: data {geo_ref or '—'}{idade_txt}{onda_txt}")
+    lines += [
         "",
         f"{ICON['indicadores']} Situação estadual",
     ]
@@ -610,6 +574,14 @@ def format_ses_telegram(p: dict[str, Any]) -> str:
     lines += ["", f"{ICON['prioridade']} Municípios prioritários (top {len(prior)})"]
     for i, m in enumerate(prior, 1):
         lines.append(_priority_one_liner(m, i))
+
+    mun_rit = (p.get("municipios_rit_prioritarios") or (p.get("rit") or {}).get("municipios_rit_prioritarios") or [])[
+        : max(max_prio, 12)
+    ]
+    if mun_rit:
+        lines += ["", f"{ICON['rit']} Municípios com maior RIT (influenciadores)"]
+        for i, m in enumerate(mun_rit, 1):
+            lines.append(_rit_municipio_one_liner(m, i))
 
     return "\n".join(lines)
 
@@ -715,9 +687,12 @@ def build_orientacoes_municipal(payload: dict[str, Any]) -> dict[str, str]:
         if c == "risco_cumulativo_3d" and risco is None:
             risco = _parse_num(ind.get("valor"))
 
+    from sisclima.engines.recommendations import acao_sugerida_contextual
+
     gestor = (
         f"Manter sala de situação municipal ({LEVEL_LABEL.get(nivel, nivel)}); "
-        "informar a Regional e a SES; checar insumos e pontos de hidratação/resfriamento."
+        "informar a Regional e a SES; checar insumos e pontos de hidratação/resfriamento. "
+        f"Ação contextual: {acao_sugerida_contextual(payload)}."
     )
     if STAGE_ORDER.get(nivel, -1) >= STAGE_ORDER.get("laranja", 2):
         gestor += " Avaliar centro de operações parcial e comunicação pública."
@@ -802,6 +777,12 @@ def format_regional_telegram(p: dict[str, Any]) -> str:
         f"🏘️ {n_mun} municípios na jurisdição | {dist_txt}",
         f"{ICON['motivo']} {str(p.get('motivo') or '—')[:280]}",
         f"{ICON['predicao']} {pred.get('icone_predicao', '🔮')} {pred.get('resumo', '—')}",
+        f"{ICON['rit']} {(p.get('rit') or {}).get('icone_rit', '🧭')} {(p.get('rit') or {}).get('resumo', 'RIT indisponível')}",
+    ]
+    rit = p.get("rit") or {}
+    if rit.get("dominantes_distribuicao_txt"):
+        lines.append(f"🧭 Influenciadores RIT: {rit.get('dominantes_distribuicao_txt')}")
+    lines += [
         "",
         f"{ICON['indicadores']} Situação da regional",
     ]
@@ -836,6 +817,14 @@ def format_regional_telegram(p: dict[str, Any]) -> str:
     lines += ["", f"{ICON['prioridade']} Municípios prioritários da regional (top {len(prior)})"]
     for i, m in enumerate(prior, 1):
         lines.append(_priority_one_liner(m, i))
+
+    mun_rit = (p.get("municipios_rit_prioritarios") or (p.get("rit") or {}).get("municipios_rit_prioritarios") or [])[
+        : max(max_prio, 12)
+    ]
+    if mun_rit:
+        lines += ["", f"{ICON['rit']} Municípios com maior RIT na regional (influenciadores)"]
+        for i, m in enumerate(mun_rit, 1):
+            lines.append(_rit_municipio_one_liner(m, i))
 
     return "\n".join(lines)
 
@@ -1235,7 +1224,15 @@ def format_payload_html(p: dict[str, Any]) -> str:
 
 
 def build_multilevel_pack(resumo: pd.DataFrame | None = None) -> tuple[list[dict[str, Any]], str, dict]:
-    resumo = resumo if resumo is not None else read_table("resumo_municipal_atual")
+    if resumo is None:
+        from sisclima.engines.resumo_frescor import load_resumo_fresco
+
+        # Persiste IRM/RIT/compostos frescos antes de montar o digest
+        resumo = load_resumo_fresco(persist=True)
+    else:
+        from sisclima.engines.resumo_frescor import refresh_resumo_multirisco
+
+        resumo = refresh_resumo_multirisco(resumo, inject_ehf=True, persist=False)
     alerta = read_table("alerta_integrado_sis_titan") if table_exists("alerta_integrado_sis_titan") else pd.DataFrame()
     pred = (
         read_table("predicao_calor_7d_municipal_v6")

@@ -35,6 +35,8 @@ Este guia detalha a **logística da Sala**: (1) entrar no painel restrito, (2) n
 - Não substitui a Portaria 0590 nem ofícios da SES.
 - Não ensina o SINAN, o SEI nem o IndicaSUS — só o ponto de entrada no ARARAS.
 - Alertas climáticos multinível (e-mail/Telegram do digest) são um **canal separado** dos indicadores ARARA da Sala.
+- Antes do envio, o scheduler exige ETL fresca (quando `ALERT_REQUIRE_FRESH_ETL=true`) e **reaplica** IRM → RIT → compostos no `resumo_municipal_atual` (capacidade CNES + domínio fragilidade de rede).
+- No painel Visão: cards de RIT por domínio (inclui fragilidade de rede), IRM e compostos (`gap_fumaca_nebulizacao`, `pressao_x_resiliencia`).
 
 ---
 

@@ -1,5 +1,19 @@
 # Integração TITAN — solo, resiliência CNES e alertas
 
+| Camada | Fonte | Tabelas / produtos |
+| --- | --- | --- |
+| Solo / TITAN | Open-Meteo umidade + alertas oficiais | `indice_saturacao_solo`, `alerta_integrado_sis_titan` |
+| Resiliência operacional | Estoque / infra / busca / comunicação | `indice_resiliencia` (legado operacional) |
+| Resiliência CNES + IRM | DW CNES estab/leitos/prof/eAB/nebulização | `indice_resiliencia_municipal_0_100`, `rit_score_rede` |
+| Alertas TITAN | INMET API/CSV + Cemaden `wsAlertas2` + ANA SOAP | `inmet_alertas`, `cemaden_alertas`, `ana_risco_municipal`, `hidro_risco_municipal` (`situacao_hidro`: seca_baixa / inundacao_alta) |
+
+## IRM no RIT e frescor
+
+- **IRM** = capacidade (alto = melhor). **Não** eleva o RIT.
+- **`rit_score_rede`** = fragilidade `100 − IRM` (6º domínio do RIT).
+- Refresh unificado: `sisclima/engines/resumo_frescor.py` (EHF → IRM → RIT → compostos) antes de alertas, boletim e painel.
+- Ver `docs/adr/ADR-RIT-multirisco.md` e `docs/institucional/Guia_leigo_calculos_indicadores_ARARAS_MT.md`.
+
 Camada operacional alinhada ao legado TITAN, com **código legível** e fontes oficiais (sem ofuscação / sem scrapers stealth — política SES).
 
 ## O que entra no ARARAS MT
@@ -21,11 +35,13 @@ Camada operacional alinhada ao legado TITAN, com **código legível** e fontes o
 - `indice_resiliencia`: capacidade de resposta (ocupação + estoque + infra + busca + comunicação).
 - Com CNES disponível, o componente `capacidade_leitos` mistura leitos livres e capacidade instalada per capita.
 - `indice_capacidade_cnes`: proxy de capacidade assistencial instalada (não é o mesmo que resiliência).
+- **IRM** (`indice_resiliencia_municipal_0_100`): capacidade CNES composta (estab/leitos/prof/eAB/nebulização). No RIT entra `rit_score_rede = 100 − IRM`.
 
 ## Alertas
 
 Consolidados na aba **Clima / TITAN** e, de forma unificada, na aba **Alertas**:
 
+- Antes do digest: `refresh_resumo_multirisco` (EHF → IRM → RIT → compostos) + gate ETL quando `ALERT_REQUIRE_FRESH_ETL=true`.
 - Tabela legada `alerta_integrado_sis_titan`: `nivel_alerta_integrado = max(ARARAS, INMET, Cemaden, solo, hidro, calor)`.
 - Ajudante de interpretação (padrão Meningites): guia + justificativa + download `.md`.
 

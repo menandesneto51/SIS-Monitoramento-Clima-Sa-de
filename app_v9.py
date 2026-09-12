@@ -66,11 +66,21 @@ from sisclima.ui.home_ops import (
     ameaca_dominante_estado,
     build_fonte_frescor_home,
     build_trajetoria_7d,
+    cards_agravos_extras_clima,
+    cards_compostos_sala,
+    cards_ehf_geocalor,
+    cards_irm_resiliencia,
+    cards_onda2_rede_malaria,
+    cards_onda3_cnes_rede,
+    cards_rit_dominios,
+    cards_rit_estado,
+    cards_vigilancia_ops,
     explicar_nivel_municipio,
     frescor_resumo,
     pressao_card_caption,
     pressao_card_value,
     pressao_rotulo,
+    tabela_divergencia_pred_rit,
     tabela_prioridades_hoje,
     tendencia_card_caption,
     tendencia_card_value,
@@ -83,9 +93,9 @@ try:
     from sisclima.ui.explainers import GLOSSARIO_PUBLICO, HOW_TO_READ_PUBLIC
 except ImportError:
     HOW_TO_READ_PUBLIC = [
-        "1. Abra a aba Visão: faixa de nível, cards do recorte e o mapa de risco de 3 dias.",
+        "1. Abra a aba Visão: faixa de nível, cards do recorte, RIT multirisco e o mapa de risco de 3 dias.",
         "2. Filtre regional ou município no topo — o recorte vale para todas as abas.",
-        "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
+        "3. Em Mapas, compare calor, fumaça, vulnerabilidade, faixa RIT e a predição de 7 dias.",
         "4. Em Território, confira a malha municipal e as populações vulneráveis.",
         "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
         "6. Em El Niño, leia o cenário oficial (ASO) e o boletim da semana.",
@@ -106,6 +116,10 @@ except ImportError:
         "indice_vigilancia_integrada",
         "indice_prioridade_global",
         "faixa_prioridade_global",
+        "rit_0_100",
+        "rit_faixa",
+        "rit_dominio_dominante",
+        "rit_completude_pct",
         "tendencia_7d",
         "tendencia_prioridade_7d",
         "pressao_calor_pct",
@@ -1020,6 +1034,12 @@ from sisclima.engines.prioridade_global import enrich_prioridade_global, state_p
 resumo_all = enrich_panel_indicators(resumo_all, pred_v6 if not pred_v6.empty else None)
 resumo_all, _, _ = enrich_adaptasus_intelligence(resumo_all)
 resumo_all = enrich_prioridade_global(resumo_all)
+try:
+    from sisclima.engines.resumo_frescor import refresh_resumo_multirisco
+
+    resumo_all = refresh_resumo_multirisco(resumo_all, inject_ehf=True, persist=False)
+except Exception:
+    pass
 map_df_all, geojson_mun, shapefile_status = prepare_map_df(resumo_all)
 intel_state = state_indicator_summary(resumo_all)
 prioridade_state = state_prioridade_summary(resumo_all)
@@ -1177,7 +1197,7 @@ NAV_SECTIONS: list[str] = [
     "Assistência",
     "Arboviroses",
     "SIVEP / Sentinela SG",
-    "GeoCalor",
+    "GeoCalor",  # key estável; label no menu = RR GeoCalor
     "AdaptaSUS / Guia MS",
     "Eventos em saúde",
     "Correlação clima-saúde",
@@ -1228,7 +1248,7 @@ def _nav_button_groups(*, publico: bool, abrir_sala: bool) -> list[tuple[str, li
         clima.extend(
             [
                 ("Clima / TITAN", "Clima / TITAN"),
-                ("GeoCalor", "GeoCalor"),
+                ("RR GeoCalor", "GeoCalor"),
             ]
         )
         saude.extend(
@@ -1638,6 +1658,138 @@ if _mostrar_home:
             )
 
     ui_theme.section_title(
+        f"RIT — Risco Integrado Territorial · {_rotulo_recorte}",
+        "Multirisco observado (máx. entre domínios) · paralelo ao nível ARARAS e à predição térmica ~7d",
+    )
+    ui_theme.callout(
+        "RIT não substitui o nível Verde→Roxa nem a predição ~7 dias. "
+        "Pressão assistencial só entra se a fonte tiver ≤14 dias.",
+        "info",
+    )
+    ui_theme.insight_cards(cards_rit_estado(_view))
+    _rit_dom_cards = cards_rit_dominios(_view)
+    if _rit_dom_cards:
+        ui_theme.insight_cards(_rit_dom_cards)
+        _comp_nota = next((c for c in _rit_dom_cards if c[0] == "Completude RIT"), None)
+        if _comp_nota and "abaixo" in str(_comp_nota[2]).lower():
+            ui_theme.callout(
+                f"Completude RIT mediana {_comp_nota[1]} — revisar fontes dos domínios omitidos.",
+                "warn",
+            )
+    _map_rit = map_df if not map_df.empty else map_df_all
+    if "rit_faixa" in _map_rit.columns:
+        choropleth_or_points(
+            _map_rit,
+            geojson_mun,
+            "rit_faixa",
+            f"Faixa RIT · {_rotulo_recorte}",
+            hover_cols=[
+                c
+                for c in [
+                    "regional_saude",
+                    "municipio",
+                    "nivel",
+                    "rit_0_100",
+                    "rit_faixa",
+                    "rit_dominio_dominante",
+                    "rit_completude_pct",
+                    "ehf_geocalor",
+                    "intensidade_ehf",
+                    "tmax",
+                    "pm25_ugm3",
+                ]
+                if c in _map_rit.columns
+            ],
+            categorical=True,
+        )
+    else:
+        st.caption("Colunas RIT ausentes neste recorte — rode o enrich/pipeline.")
+
+    ui_theme.section_title(
+        f"EHF GeoCalor (Fiocruz) · {_rotulo_recorte}",
+        "Onda de calor Excess Heat Factor — observado STAR; alimenta RIT e alertas",
+    )
+    ui_theme.callout(
+        "EHF GeoCalor ≠ aba «RR GeoCalor» de risco relativo cardiorrespiratório. "
+        "P95 onda é legado paralelo; não substitui este índice.",
+        "info",
+    )
+    ui_theme.insight_cards(cards_ehf_geocalor(_view))
+    if "onda_geocalor_ativa" in _view.columns:
+        _so_onda = st.checkbox(
+            "Filtrar Visão EHF: só municípios em onda GeoCalor ativa",
+            value=False,
+            key="filtro_onda_geocalor_visao",
+        )
+        _view_ehf = (
+            _view[pd.to_numeric(_view["onda_geocalor_ativa"], errors="coerce").fillna(0).gt(0)]
+            if _so_onda
+            else _view
+        )
+    else:
+        _view_ehf = _view
+        _so_onda = False
+    _map_ehf = map_df if not map_df.empty else map_df_all
+    if _so_onda and "onda_geocalor_ativa" in _map_ehf.columns and "cod_ibge" in _map_ehf.columns:
+        _cods_onda = set(
+            _view_ehf["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False).dropna()
+        ) if "cod_ibge" in _view_ehf.columns else set()
+        if _cods_onda:
+            _map_ehf = _map_ehf[
+                _map_ehf["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False).isin(_cods_onda)
+            ]
+    if "ehf_geocalor" in _map_ehf.columns:
+        choropleth_or_points(
+            _map_ehf,
+            geojson_mun,
+            "ehf_geocalor",
+            f"EHF GeoCalor · {_rotulo_recorte}",
+            hover_cols=[
+                c
+                for c in [
+                    "regional_saude",
+                    "municipio",
+                    "nivel",
+                    "ehf_geocalor",
+                    "intensidade_ehf",
+                    "is_hw_day",
+                    "duracao_onda_ehf_dias",
+                    "data_ehf_geocalor",
+                    "rit_faixa",
+                ]
+                if c in _map_ehf.columns
+            ],
+            categorical=False,
+        )
+    else:
+        st.caption("EHF GeoCalor ausente — rode ETL STAR + enrich.")
+
+    ui_theme.section_title(
+        f"Divergência nível × pred ~7d × RIT · {_rotulo_recorte}",
+        "Sinais vs ação — só leitura; não altera fórmulas",
+    )
+    _div_tbl = tabela_divergencia_pred_rit(
+        _view,
+        pred_v6 if pred_v6 is not None and not pred_v6.empty else None,
+        n=10,
+    )
+    if _div_tbl is not None and not _div_tbl.empty:
+        show_df(_div_tbl, height=280)
+    else:
+        st.caption("Sem divergências relevantes neste recorte (ou pred/RIT ausentes).")
+
+    ui_theme.section_title(
+        f"Sinais compostos e vigilância · {_rotulo_recorte}",
+        "Fumaça/IRM/nebulização, pressão×RIT, completude · extras clima · SISAGUA / entomologia / denúncias",
+    )
+    ui_theme.insight_cards(cards_compostos_sala(_view))
+    ui_theme.insight_cards(cards_irm_resiliencia(_view))
+    ui_theme.insight_cards(cards_agravos_extras_clima(_view))
+    ui_theme.insight_cards(cards_onda2_rede_malaria(_view))
+    ui_theme.insight_cards(cards_onda3_cnes_rede(_view))
+    ui_theme.insight_cards(cards_vigilancia_ops(_view))
+
+    ui_theme.section_title(
         "Mapa de risco cumulativo 3 dias",
         f"Recorte: {_rotulo_recorte} · Tmáx, UTCI e nível no hover",
     )
@@ -1648,7 +1800,14 @@ if _mostrar_home:
             geojson_mun,
             "risco_cumulativo_3d",
             f"Risco cumulativo 3 dias · {_rotulo_recorte}",
-            hover_cols=["regional_saude", "nivel", "tmax", "utci_proxy", "score", "municipio"],
+            hover_cols=[
+                c for c in [
+                    "regional_saude", "municipio", "nivel", "score",
+                    "rit_0_100", "rit_faixa", "rit_dominio_dominante",
+                    "ehf_geocalor", "intensidade_ehf",
+                    "tmax", "utci_proxy",
+                ] if c in _map_risco.columns
+            ],
             categorical=False,
         )
     else:
@@ -1662,7 +1821,7 @@ if _mostrar_home:
         st.caption(
             f"Atualização do resumo: {_data_proc} · fontes OK {_frescor_sum['n_ok']}/{_frescor_sum['n_total']} "
             f"({_frescor_sum['pct_ok']:.0f}%) · {_frescor_sum['n_problema']} com defasagem/parcial/indisponível. "
-            "Detalhe de fontes → aba **Fontes e qualidade**."
+            "Detalhe de fontes → aba **Fontes e qualidade**. Colunas RIT = multirisco observado (não substituem o nível operacional)."
         )
         _prio_hoje = tabela_prioridades_hoje(_view, n=10)
         if _prio_hoje.empty:
@@ -2244,6 +2403,18 @@ elif SECTION_KEY == "Mapas":
     st.markdown("#### Painel de mapas temáticos")
     mapas_tematicos = [
         ("Risco cumulativo 3 dias", "risco_cumulativo_3d"),
+        ("Faixa RIT (multirisco observado)", "rit_faixa"),
+        ("RIT 0–100", "rit_0_100"),
+        ("RIT score térmico", "rit_score_termico"),
+        ("RIT score ar/PM2,5", "rit_score_ar"),
+        ("RIT score EHF", "rit_score_ehf"),
+        ("RIT score hidro", "rit_score_hidro"),
+        ("RIT score pressão", "rit_score_pressao"),
+        ("RIT fragilidade de rede", "rit_score_rede"),
+        ("IRM capacidade CNES (0–100)", "indice_resiliencia_municipal_0_100"),
+        ("EHF GeoCalor (Fiocruz)", "ehf_geocalor"),
+        ("Onda GeoCalor ativa", "onda_geocalor_ativa"),
+        ("Dia de onda EHF (is_hw_day)", "is_hw_day"),
         ("Vigilância integrada (0–100)", "indice_vigilancia_integrada"),
         ("Tensão climática (0–100)", "indice_tensao_climatica"),
         ("Carga em saúde (0–100)", "indice_carga_saude"),
@@ -2261,7 +2432,14 @@ elif SECTION_KEY == "Mapas":
                     geojson_mun,
                     _col,
                     _titulo,
-                    hover_cols=["regional_saude", "nivel", "score", "risco_cumulativo_3d", "ocupacao_leitos_pct", "pressao_calor_pct"],
+                    hover_cols=[
+                        c for c in [
+                            "regional_saude", "nivel", "score",
+                            "rit_0_100", "rit_faixa", "rit_dominio_dominante",
+                            "ehf_geocalor", "intensidade_ehf", "is_hw_day",
+                            "risco_cumulativo_3d", "ocupacao_leitos_pct", "pressao_calor_pct",
+                        ] if c in map_df.columns
+                    ],
                 )
             else:
                 st.info(f"Indicador {_col} ainda não disponível.")
@@ -3363,6 +3541,13 @@ Notas 0–100 publicadas nos cards da Visão: calor acumulado, sinais de saúde 
 
 A prioridade global (0–100) ordena municípios. A tendência ~7 dias compara o nível atual com a predição da semana seguinte — não é cenário sazonal.
 
+
+### 5b. RIT e EHF GeoCalor
+
+O **RIT** (0–100) é multirisco observado (máximo entre térmico, ar/PM2,5, hidro, EHF e pressão fresca). Não substitui o nível Verde→Roxa nem a predição ~7 dias (só térmica).
+
+O **EHF GeoCalor** (Fiocruz–LAGAS / Nairn & Fawcett) vem de `star_clima_geocalor_diario` → join no resumo → domínio EHF do RIT e textos de alerta. A onda P95 (`onda_calor_p95_2d`) é legado paralelo, não substitui o EHF.
+
 ### 6. Qualidade do ar e vulnerabilidade
 
 PM2,5 e IQA descrevem fumaça/poluição. A vulnerabilidade ao calor junta idosos, crianças e exposição territorial. Populações vulneráveis no mapa de Território usam aldeias, quilombos e assentamentos com coordenada.
@@ -3399,6 +3584,14 @@ O nível operacional é uma síntese de múltiplos blocos: clima/biometeorologia
 | Laranja | alerta |
 | Vermelha | resposta intensificada |
 | Roxa | situação crítica/excepcional |
+
+
+### RIT e EHF GeoCalor (operacional)
+
+- **RIT**: máximo entre domínios válidos; scorecard nos alertas e em «Por que este nível?».
+- **EHF GeoCalor**: ETL STAR (`etl_star_geocalor`) → `inject_ehf_geocalor` → RIT/alertas/painéis.
+- **P95 onda** permanece no estágio ARARAS como candidato legado; não confundir com EHF Fiocruz.
+- Aba **GeoCalor** do menu (RR cardiorrespiratório) é outro produto.
 
 ### 2. Risco cumulativo de calor em 3 dias
 

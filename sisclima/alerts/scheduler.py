@@ -14,6 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
+
 from sisclima.alerts.digest import send_digest
 from sisclima.core.config import as_bool, env
 from sisclima.core.logging_utils import get_logger
@@ -69,13 +71,47 @@ def _etl_health_status() -> tuple[bool, dict[str, Any]]:
     return age_h <= max_age_h, meta
 
 
+def _geocalor_freshness_note() -> dict[str, Any]:
+    """Loga defasagem do EHF GeoCalor sem bloquear o envio (SLO informativo)."""
+    from sisclima.engines.ehf_geocalor import geocalor_freshness_meta
+
+    out = geocalor_freshness_meta()
+    if not out.get("ok"):
+        if out.get("reason") == "stale":
+            log.warning(
+                "GeoCalor defasado: max_data=%s idade=%sd limiar=%sd (envio segue; corrija STAR ETL)",
+                out.get("max_data"),
+                out.get("idade_dias"),
+                out.get("max_age_days"),
+            )
+        elif out.get("reason") == "star_vazio":
+            log.warning("GeoCalor frescor: tabela star_clima_geocalor_diario vazia")
+        else:
+            log.warning("GeoCalor frescor: %s", out.get("reason") or out.get("detail") or out)
+    else:
+        log.info("GeoCalor fresco: max_data=%s idade=%sd", out.get("max_data"), out.get("idade_dias"))
+    return out
+
+
 def run_once(*, force: bool = False, skip_cooldown: bool = False) -> dict:
+    geo_meta = _geocalor_freshness_note()
     if not force:
         ready, etl_meta = _etl_health_status()
         if not ready:
             log.warning("Envio adiado: ETL indisponível ou defasada · %s", etl_meta)
-            return {"status": "etl_indisponivel", "etl": etl_meta}
-    return send_digest(force=force, skip_cooldown=skip_cooldown)
+            return {"status": "etl_indisponivel", "etl": etl_meta, "geocalor": geo_meta}
+    # Reaplica IRM/RIT/compostos no resumo antes do digest (dados frescos no alerta)
+    try:
+        from sisclima.engines.resumo_frescor import load_resumo_fresco
+
+        load_resumo_fresco(persist=True)
+        log.info("Resumo multirisco atualizado antes do digest (IRM/RIT/compostos)")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Frescor IRM/RIT antes do digest falhou: %s", exc)
+    out = send_digest(force=force, skip_cooldown=skip_cooldown)
+    if isinstance(out, dict):
+        out["geocalor"] = geo_meta
+    return out
 
 
 def run_loop() -> None:

@@ -621,6 +621,32 @@ def enrich_resumo_columns(resumo: pd.DataFrame) -> pd.DataFrame:
                 out["municipio"] = out["municipio"].fillna(out[cand])
     drop_aux = [c for c in out.columns if c.endswith("_vuln") or c in ("cod_ibge7", "cod_ibge6", "municipio_geo")]
     out = out.drop(columns=drop_aux, errors="ignore")
+
+    # EHF GeoCalor (star_clima_geocalor_diario) → resumo operacional / RIT / alertas
+    try:
+        from sisclima.engines.ehf_geocalor import inject_ehf_geocalor
+
+        out = inject_ehf_geocalor(out, prefer_geocalor=True)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Join EHF GeoCalor não aplicado: %s", exc)
+
+    # Vigilância: SISAGUA / entomologia / denúncias (CSV → ops_* → join)
+    try:
+        from sisclima.ingestion.ops_vigilancia import join_ops_vigilancia_resumo, persist_ops_vigilancia
+
+        persist_ops_vigilancia()
+        out = join_ops_vigilancia_resumo(out)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Join ops vigilância não aplicado: %s", exc)
+
+    # Piloto PM proxy Open-Meteo (default off)
+    try:
+        from sisclima.engines.pm_proxy_openmeteo import apply_pm_openmeteo_proxy
+
+        out = apply_pm_openmeteo_proxy(out)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("PM proxy Open-Meteo não aplicado: %s", exc)
+
     return out
 
 
@@ -923,7 +949,18 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     if not ops_cnes_resumo.empty:
         write_df(ops_cnes_resumo, "ops_resumo_operacional_cnes")
         inj = ops_cnes_resumo[
-            [c for c in ["cod_ibge", "indice_capacidade_cnes", "cnes_leitos_total", "cnes_leitos_per_10k", "cnes_estabelecimentos_total"] if c in ops_cnes_resumo.columns]
+            [
+                c
+                for c in [
+                    "cod_ibge",
+                    "indice_capacidade_cnes",
+                    "cnes_leitos_total",
+                    "cnes_leitos_per_10k",
+                    "cnes_estabelecimentos_total",
+                    "cnes_estab_per_10k",
+                ]
+                if c in ops_cnes_resumo.columns
+            ]
         ].drop_duplicates("cod_ibge")
         inj["cod_ibge"] = inj["cod_ibge"].astype(str)
         resumo["cod_ibge"] = resumo["cod_ibge"].astype(str)
@@ -1374,6 +1411,41 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
         write_df(resumo, "resumo_municipal_atual")
     except Exception as exc:  # noqa: BLE001
         log.warning("Prioridade global não calculada: %s", exc)
+
+    # Sinais DW (fumaça/extras/CNES onda2–3) antes do IRM/RIT
+    try:
+        from sisclima.engines.dw_sinais_municipais import enrich_resumo_dw_sinais
+
+        resumo = enrich_resumo_dw_sinais(resumo, try_dw=True)
+        write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Sinais DW municipais não aplicados: %s", exc)
+
+    # IRM (capacidade) — alimenta domínio rede do RIT como fragilidade
+    try:
+        from sisclima.engines.indice_resiliencia_municipal import enrich_indice_resiliencia
+
+        resumo = enrich_indice_resiliencia(resumo)
+        write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("IRM não calculado: %s", exc)
+
+    # RIT multirisco (observado; paralelo à projeção térmica ~7d)
+    try:
+        from sisclima.engines.rit_multirisco import enrich_rit_multirisco
+
+        resumo = enrich_rit_multirisco(resumo)
+        write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("RIT multirisco não calculado: %s", exc)
+
+    try:
+        from sisclima.engines.indicadores_compostos import enrich_indicadores_compostos
+
+        resumo = enrich_indicadores_compostos(resumo)
+        write_df(resumo, "resumo_municipal_atual")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Indicadores compostos não calculados: %s", exc)
 
     try:
         from sisclima.engines.atencao_farmaceutica import aplicar_acoes_farmaceuticas

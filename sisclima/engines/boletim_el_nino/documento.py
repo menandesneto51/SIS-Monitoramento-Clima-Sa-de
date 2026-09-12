@@ -65,6 +65,7 @@ from sisclima.engines.boletim_el_nino.interpretacao import (
 )
 from sisclima.engines.boletim_el_nino.determinantes_projecao import quadro_determinantes_projecao
 from sisclima.engines.predicao_skill_7d import documentacao_regra_projecao_md
+from sisclima.engines.rit_multirisco import documentacao_rit_md
 from sisclima.engines.boletim_el_nino.orientacoes import (
     _texto_calor_epidemiologico,
     impactos_potenciais_saude,
@@ -103,6 +104,33 @@ def _cel_extremo(n_ext: Any, n: Any, criterio: str) -> str:
     if n_ext is None:
         return INDISPONIVEL
     return f"{fmt_frac(n_ext, n)} {criterio}"
+
+
+def _bloco_irm_compostos(snap: dict[str, Any]) -> str:
+    """Bloco opcional IRM + compostos leves (capacidade ≠ elevação de RIT)."""
+    c = snap.get("compostos") or {}
+    rit = snap.get("rit") or {}
+    if not c.get("disponivel") and rit.get("irm_mediana") is None:
+        return ""
+    irm = c.get("irm_mediana")
+    if irm is None:
+        irm = rit.get("irm_mediana")
+    n = c.get("n_municipios") or rit.get("n")
+    n_gap = c.get("n_gap_fumaca_nebulizacao")
+    n_pr = c.get("n_pressao_x_resiliencia")
+    linhas = [
+        f"- **IRM mediano (capacidade CNES):** {fmt_num(irm, 0) if irm is not None else '—'} "
+        f"(alto = melhor rede; no RIT entra só a fragilidade 100−IRM).",
+    ]
+    if n_gap is not None and n is not None:
+        linhas.append(
+            f"- **Gap fumaça × nebulização:** {fmt_frac(n_gap, n)} municípios com sinal de fumaça e nebulizadores = 0."
+        )
+    if n_pr is not None and n is not None:
+        linhas.append(
+            f"- **Pressão × resiliência:** {fmt_frac(n_pr, n)} com tensão entre pressão assistencial e faixa do IRM."
+        )
+    return "### Capacidade de rede (IRM) e compostos\n\n" + "\n".join(linhas) + "\n"
 
 
 def _leitura_faixa(
@@ -168,6 +196,31 @@ def _secao_agravos_dw(agr: dict[str, Any]) -> str:
         )
 
     esus = dw.get("esus_aps") or agr.get("esus_aps") or {}
+    extras = dw.get("sinan_extras_clima") or {}
+    por_agravo = extras.get("por_agravo_7d") or {}
+    extras_line = ""
+    if por_agravo:
+        partes = [f"{k} **{_v(v)}**" for k, v in sorted(por_agravo.items(), key=lambda x: -int(x[1] or 0))]
+        extras_line =             f"- **Agravos extras clima (SINAN/DW):** {'; '.join(partes)}."
+    elif extras.get("fonte") == "indisponivel":
+        extras_line = "- **Agravos extras clima (SINAN/DW):** indisponível nesta rodada."
+
+    malaria = dw.get("sivep_malaria") or {}
+    malaria_line = ""
+    if malaria.get("casos_malaria_7d") is not None:
+        malaria_line = (
+            f"- **Malária (SIVEP/DW):** {_v(malaria.get('casos_malaria_7d'))} casos em "
+            f"{_v(malaria.get('municipios_7d'))} município(s)"
+            + (f" · janela `{malaria.get('janela')}`" if malaria.get("janela") else "")
+            + " — base pode estar defasada; não substitui SRAG local."
+        )
+
+    sivep = dw.get("sivep_alergico_dda") or {}
+    sivep_line = (
+        f"- **SRAG:** {_v(sivep.get('casos_srag_7d'))} casos na janela · "
+        f"fonte **{sivep.get('fonte') or '—'}** (preferencial: SIVEP local; DW só se local vazio)."
+    )
+
     esus_lines: list[str] = []
     if esus.get("status") == "ativo" and int(esus.get("municipios") or 0) > 0:
         atraso = int(esus.get("atraso_dias") or 0)
@@ -202,6 +255,9 @@ def _secao_agravos_dw(agr: dict[str, Any]) -> str:
             f"- **Intoxicação exógena (sinal de fumaça):** {_v(intox.get('notificacoes_intox_total_7d'))} notificações; "
             f"**{_v(intox.get('notificacoes_fumaca_7d'))}** com sinal de fumaça.",
             _internacao_linha(),
+            sivep_line,
+            extras_line,
+            malaria_line,
             *esus_lines,
         ]
     )
@@ -234,9 +290,8 @@ def _secao_ondas_calor(
     ext = (snap.get("extremos") or {}).get("tmax") or {}
     tmax_max = ext.get("tmax")
     om_cui = maps.get("cuiaba_openmeteo_tmax_semana")
-    inmet_30 = maps.get("cuiaba_inmet_30ago") or 41.2
-    inmet_31 = maps.get("cuiaba_inmet_31ago") or 41.3
     picos = snap.get("picos_termicos") or {}
+    cui_g = picos.get("cuiaba_grade") or {}
     linhas = [
         "",
         "### Ondas de calor",
@@ -325,15 +380,22 @@ def _secao_ondas_calor(
             f"- **Calor na rodada (grade ARARAS):** Tmáx máx. estadual **{fmt_num(tmax_max, 1, ' °C')}** · "
             f"**{fmt_frac(n_tmax, n)}** ≥ 37 °C · persistência P95≥2d em **{fmt_frac(n_onda, n)}**."
         )
+    cui_tmax = cui_g.get("tmax_max") if cui_g.get("tmax_max") is not None else om_cui
+    cui_data = cui_g.get("data_pico")
+    if cui_tmax is not None:
+        cui_txt = (
+            f"- **Cuiabá (grade Open-Meteo):** pico na janela **{fmt_num(cui_tmax, 1, ' °C')}**"
+            + (f" em {cui_data}." if cui_data else ".")
+        )
+    else:
+        cui_txt = "- **Cuiabá (grade Open-Meteo):** sem pico de grade disponível nesta janela."
     linhas.extend(
         [
-            f"- **Cuiabá:** INMET **{fmt_num(inmet_30, 1, ' °C')}** (30/08) e **{fmt_num(inmet_31, 1, ' °C')}** (31/08); "
-            f"Open-Meteo na semana ~**{fmt_num(om_cui, 1, ' °C')}** (modelo < estação).",
+            cui_txt,
             f"- **Vermelho/roxo:** **{fmt_frac(snap.get('n_vermelha_roxa'), n)}** agora · "
             f"projeção ~7d **{fmt_frac(int((snap.get('niveis_projecao_7d') or {}).get('vermelha') or 0) + int((snap.get('niveis_projecao_7d') or {}).get('roxa') or 0), n)}**.",
-            "- **Chuva 01/09:** alívio térmico temporário (seção de recursos hídricos); não encerra a pressão projetada.",
             "",
-            "Fonte: ARARAS MT/CIEVS-MT; Open-Meteo Archive; INMET (máximas oficiais de estação). "
+            "Fonte: ARARAS MT/CIEVS-MT; Open-Meteo Archive (grade). "
             "Séries longas (Cuiabá e Tmáx mensal estadual): **anexo técnico**.",
         ]
     )
@@ -351,8 +413,7 @@ def _secao_ondas_calor(
                 "",
                 f"![Temperaturas diárias Cuiabá]({maps.get('serie_cuiaba_temps')})",
                 "",
-                "Fonte: Open-Meteo Archive (ponto Cuiabá). Pontos pretos: máximas oficiais INMET em 30–31/08/2026 "
-                f"({fmt_num(inmet_30, 1)} e {fmt_num(inmet_31, 1)} °C). Período observado {ini} a {fim}.",
+                f"Fonte: Open-Meteo Archive (ponto Cuiabá). Período observado {ini} a {fim}.",
                 "",
             ]
         )
@@ -421,6 +482,8 @@ def _cards_executivos(snap: dict[str, Any]) -> str:
 | --- | --- | --- |
 | **{fmt_frac(snap.get('n_umidade_30'), n)}** ≤ 30% | **{fmt_int(snap.get('focos_7d_total'))}** focos de calor | **{fmt_frac(snap.get('n_pm25_25'), n)}** ≥ 25 µg/m³ |
 | mediana {fmt_num(snap.get('umidade_mediana'), 0, '%')} | Satélite de referência do Programa Queimadas · 7 dias · {fmt_int(snap.get('n_com_focos_7d'))} municípios · {fmt_int(snap.get('deteccoes_7d_total'))} detecções multi-satélite | máximo {fmt_num(snap.get('pm25_max'), 1, ' µg/m³')} |
+
+{(snap.get('rit') or {}).get('card_md') or ''}
 """
 
 
@@ -448,32 +511,45 @@ def _leitura_executiva(snap: dict[str, Any]) -> str:
     proj_crit = int(proj.get("vermelha") or 0) + int(proj.get("roxa") or 0)
     n37 = int(snap.get("n_tmax_37") or 0)
     n25 = int(snap.get("n_pm25_25") or 0)
-    chuva = snap.get("impacto_chuva") or {}
+    chuva_ok = bool(snap.get("impacto_chuva_ok")) or bool((snap.get("impacto_chuva") or {}).get("ok"))
     linhas = [
         f"**Situação:** {fmt_frac(crit, n)} em vermelho/roxo ({fmt_distribuicao_niveis(niveis)}).",
         f"**Projeção ~7 dias:** {fmt_frac(proj_crit, n)} em vermelho/roxo — agravamento disseminado.",
+        "**Drivers da escalada (modelo):** Tmáx prevista, UTCI, risco cumulativo e onda P95 "
+        "(persistência térmica projetada) — **não** o EHF.",
+        "**EHF/GeoCalor não entra no cálculo da classe projetada**; é monitoramento observado separado.",
+        "**RIT (Risco Integrado Territorial):** leitura observada multidomínio (máx. entre térmico, ar, hidro, EHF, pressão fresca e fragilidade de rede/IRM) — **paralelo** à projeção ~7d térmica; ver bloco na seção 4.",
     ]
-    if n37 or n25:
-        bits = []
-        if n37:
-            bits.append(f"Tmáx ≥ 37 °C em {fmt_frac(n37, n)}")
-        if n25:
-            bits.append(f"PM2,5 ≥ 25 µg/m³ em {fmt_frac(n25, n)}")
-        linhas.append("**Exposição na rodada:** " + " · ".join(bits) + ".")
-    if chuva.get("ok"):
-        dias = {d.get("data"): d for d in (chuva.get("dias") or []) if isinstance(d, dict)}
-        pico = dias.get("2026-08-31") or {}
-        ch = dias.get("2026-09-01") or {}
-        if pico and ch:
-            linhas.append(
-                f"**Chuva de 01/09:** alívio térmico temporário — municípios com Tmáx ≥ 37 °C "
-                f"caíram de {fmt_frac(pico.get('tmax_ge37'), pico.get('n'))} (31/08) para "
-                f"{fmt_frac(ch.get('tmax_ge37'), ch.get('n'))} (01/09); a projeção ~7d volta a pressionar."
-            )
+    if n37:
+        linhas.append(f"**Exposição térmica na rodada:** Tmáx ≥ 37 °C em {fmt_frac(n37, n)}.")
     linhas.append(
-        "Priorizar preparação assistencial nos vermelhos/roxos, com atenção a povos indígenas, "
-        "quilombolas, idosos, gestantes e trabalhadores expostos."
+        f"**Qualidade do ar (contexto concomitante, não driver do modelo):** "
+        f"PM2,5 ≥ 25 µg/m³ em {fmt_frac(n25, n)}"
+        + (
+            f" (máx. {fmt_num(snap.get('pm25_max'), 1, ' µg/m³')})."
+            if snap.get("pm25_max") is not None
+            else "."
+        )
     )
+    if chuva_ok:
+        chuva_md = str(snap.get("impacto_chuva_md") or "").strip()
+        if chuva_md:
+            linhas.append("**Chuva na SE corrente:** ver bloco operacional de impacto hídrico (alívio temporário).")
+    agr = snap.get("agravos_monitorados") or {}
+    dw = agr.get("dw_epidemiologia") or {}
+    esus = dw.get("esus_aps") or agr.get("esus_aps") or {}
+    if esus.get("status") == "ativo" and int(esus.get("municipios") or 0) > 0:
+        linhas.append(
+            f"**Vulneráveis (e-SUS APS):** idosos 60+ **{fmt_int(esus.get('idoso_60mais'))}** · "
+            f"gestantes **{fmt_int(esus.get('gestante'))}** · asma **{fmt_int(esus.get('asma'))}** · "
+            f"**{fmt_int(esus.get('municipios_vermelho_roxo'))}** municípios vermelho/roxo com cadastro. "
+            "Priorizar também povos indígenas e quilombolas nos territórios críticos."
+        )
+    else:
+        linhas.append(
+            "Priorizar preparação assistencial nos vermelhos/roxos, com atenção a povos indígenas, "
+            "quilombolas, idosos, gestantes e trabalhadores expostos."
+        )
     return " ".join(linhas)
 
 
@@ -492,7 +568,8 @@ def _implicacao_operacional(snap: dict[str, Any]) -> str:
     nucleo = " + ".join(eixos) if eixos else "cenário operacional"
     return (
         f"**Implicação.** Manter vigilância e capacidade assistencial nos prioritários "
-        f"({nucleo}). A chuva de 01/09 não encerra a exposição térmica projetada."
+        f"({nucleo}). Manter prontidão na projeção ~7d e priorizar vulneráveis "
+        f"(idosos, gestantes, asma, povos indígenas e quilombolas) nos vermelhos/roxos."
     )
 
 
@@ -559,7 +636,8 @@ def _prioridades_imediatas() -> str:
         "- Vigilância de agravos por calor/fumaça nos vermelhos/roxos.\n"
         "- Capacidade assistencial e insumos onde Tmáx ≥ 37 °C ou PM2,5 ≥ 25 µg/m³.\n"
         "- Articular regionais, DSEI/SESAI e Saúde do Trabalhador nos prioritários.\n"
-        "- Tratar a chuva de 01/09 como alívio temporário — manter prontidão na projeção ~7d."
+        "- Priorizar APS e vulneráveis (idosos 60+, gestantes, asma, povos indígenas e quilombolas) "
+        "nos municípios vermelho/roxo; manter prontidão na projeção ~7d."
     )
 
 
@@ -940,13 +1018,18 @@ def _bloco_ocupacao_sisreg_md(*, publico: bool = False) -> str:
     return "\n".join(linhas)
 
 
-def _bloco_atos_oficiais() -> str:
+def _bloco_atos_oficiais(snap: dict[str, Any] | None = None) -> str:
     try:
         from sisclima.reporting.decretos_alerta import bloco_decretos_markdown_boletim
 
-        return bloco_decretos_markdown_boletim()
-    except Exception:  # noqa: BLE001
-        return ""
+        # Busca já pode ter sido feita no builder; aqui só monta o markdown a partir da base.
+        _ = snap
+        return bloco_decretos_markdown_boletim(max_iomat=5, atualizar=False)
+    except Exception as exc:  # noqa: BLE001
+        return (
+            "### Atos oficiais correlatos (decretos e portarias)\n\n"
+            f"_Indisponível nesta rodada ({exc})._\n"
+        )
 
 
 def format_markdown(
@@ -1272,6 +1355,10 @@ Distribuição atual: {fmt_distribuicao_niveis(snap.get('niveis'))}.
 
 Cobertura dos indicadores: {fmt_frac(snap.get('cobertura_tmax'), snap.get('n_municipios'))} municípios. Preparação deve seguir o recorte mais exposto, não a mediana.
 
+{(snap.get('rit') or {}).get('markdown') or ''}
+
+{_bloco_irm_compostos(snap)}
+
 ---
 
 ## 5. Mato Grosso — Projeção operacional (~7 dias)
@@ -1494,6 +1581,8 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 
 {documentacao_regra_projecao_md()}
 
+{documentacao_rit_md()}
+
 **Glossário**
 
 {bloco_tabela(
@@ -1506,6 +1595,9 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 | Percentil 95 | Valor acima do qual estão cerca de 5% das observações comparáveis. |
 | EHF | Excess Heat Factor (Nairn & Fawcett) — índice de onda de calor do GeoCalor/Fiocruz. |
 | EHIsig / EHIaccl | Componentes do EHF: significância térmica e aclimatização recente. |
+| RIT | Risco Integrado Territorial (0–100): máximo entre domínios observados válidos; paralelo à projeção ~7d. |
+| Domínio dominante | Domínio com maior escore no RIT do município. |
+| Completude (RIT) | Percentual de domínios com dado válido na rodada. |
 | Índice de prioridade de preparação | Score 0–100 (maior = maior urgência de preparação clima–saúde). |
 | Índice de prioridade global | Score 0–100 do painel (vigilância, pressão, adaptação, fragilidade, alerta). |''',
         "Elaboração CIEVS-MT/ARARAS MT.",

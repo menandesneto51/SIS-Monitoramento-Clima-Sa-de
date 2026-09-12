@@ -42,9 +42,9 @@ LEVEL_GUIDE: dict[str, dict[str, str]] = {
 }
 
 HOW_TO_READ_PUBLIC = [
-    "1. Abra a aba Visão: faixa de nível, cards do recorte e o mapa de risco de 3 dias.",
+    "1. Abra a aba Visão: faixa de nível, cards do recorte, RIT multirisco e o mapa de risco de 3 dias.",
     "2. Filtre regional ou município no topo — o recorte vale para todas as abas.",
-    "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
+    "3. Em Mapas, compare calor, fumaça, vulnerabilidade, faixa RIT e a predição de 7 dias.",
     "4. Em Território, confira a malha municipal e as populações vulneráveis.",
     "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
     "6. Em Série ambiental, compare a janela atual com a série histórica de calor/ar.",
@@ -52,7 +52,7 @@ HOW_TO_READ_PUBLIC = [
     "8. Em Óbitos e clima, veja a série SIM sensível ao calor e a metodologia.",
     "9. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
     "10. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
-    "11. Em Cálculos, leia como cada indicador publicado é composto.",
+    "11. Em Cálculos, leia como cada indicador publicado é composto (incluindo RIT).",
 ]
 
 GLOSSARIO_PUBLICO = [
@@ -65,6 +65,16 @@ GLOSSARIO_PUBLICO = [
     "indice_vigilancia_integrada",
     "indice_prioridade_global",
     "faixa_prioridade_global",
+    "rit_0_100",
+    "rit_faixa",
+    "rit_dominio_dominante",
+    "rit_completude_pct",
+    "ehf_geocalor",
+    "intensidade_ehf",
+    "is_hw_day",
+    "onda_geocalor_ativa",
+    "duracao_onda_ehf_dias",
+    "data_ehf_geocalor",
     "tendencia_7d",
     "tendencia_prioridade_7d",
     "pressao_calor_pct",
@@ -251,6 +261,177 @@ INDICATOR_GLOSSARY: dict[str, dict[str, str]] = {
         "nome": "Faixa da prioridade global",
         "leigo": "Leitura rápida da prioridade global (baixa / moderada / alta / muito alta).",
         "como_ler": "Use para ranking de plantão; confirme no território e no nível operacional.",
+    },
+    "rit_0_100": {
+        "nome": "RIT — Risco Integrado Territorial (0–100)",
+        "leigo": "Nota observada multirisco do município: máximo entre térmico, ar/PM2,5, hidro, EHF e pressão fresca.",
+        "como_ler": "Paralelo à projeção ~7 dias (só térmica). Não substitui o nível Verde→Roxa nem a predição.",
+    },
+    "rit_faixa": {
+        "nome": "Faixa do RIT",
+        "leigo": "Tradução do RIT nas mesmas cores do ARARAS (verde → roxa).",
+        "como_ler": "Compare com o nível operacional: podem divergir (ex.: RIT alto por fumaça com nível térmico menor).",
+    },
+    "rit_dominio_dominante": {
+        "nome": "RIT — domínio dominante",
+        "leigo": "Qual fator mais elevou o RIT nesta rodada (térmico, ar, hidro, EHF, pressão ou fragilidade de rede).",
+        "como_ler": "É o principal influenciador da nota RIT — use no plantão e no scorecard do alerta.",
+    },
+    "rit_score_rede": {
+        "nome": "RIT — fragilidade de rede",
+        "leigo": "Inverso da capacidade CNES (IRM): 100 − IRM. Alta fragilidade puxa o RIT; IRM alto não eleva risco.",
+        "como_ler": "Omitido se IRM nulo (CNES off ou completude < 40%). Não altera `nivel` nem pred ~7d.",
+    },
+    "indice_resiliencia_municipal_0_100": {
+        "nome": "IRM — Índice de Resiliência Municipal",
+        "leigo": "Capacidade assistencial CNES 0–100 (estab, leitos, profissionais, eAB, nebulização).",
+        "como_ler": "Quanto maior, melhor. No RIT entra só o inverso (fragilidade). Distinto do índice de resiliência operacional legado.",
+    },
+    "irm_faixa": {
+        "nome": "Faixa do IRM",
+        "leigo": "Tradução da capacidade: baixa → muito_alta.",
+        "como_ler": "Faixa baixa + pressão alta gera o composto pressão × resiliência.",
+    },
+
+    "ehf_geocalor": {
+        "nome": "EHF GeoCalor (Fiocruz)",
+        "leigo": "Índice de onda de calor Excess Heat Factor (Nairn & Fawcett), calculado para os 142 municípios.",
+        "como_ler": "EHF > 0 indica excesso de calor; intensidade baixa/severa/extrema. Alimenta o RIT e os alertas. Não é a aba RR GeoCalor de risco relativo cardiorrespiratório.",
+    },
+    "intensidade_ehf": {
+        "nome": "Intensidade da onda EHF",
+        "leigo": "Classificação local dos dias com EHF > 0 (baixa, severa, extrema).",
+        "como_ler": "Usa o percentil EHF85 do município. Só faz sentido com EHF positivo.",
+    },
+    "is_hw_day": {
+        "nome": "Dia de onda GeoCalor",
+        "leigo": "1 se o dia faz parte de sequência ≥3 dias com EHF > 0.",
+        "como_ler": "Marca onda em curso, não um pico isolado.",
+    },
+    "onda_geocalor_ativa": {
+        "nome": "Onda GeoCalor ativa",
+        "leigo": "1 quando o município está em dia de onda (is_hw_day) e EHF > 0.",
+        "como_ler": "Indicador composto para painéis/digest. Não substitui o nível ARARAS nem o RIT.",
+    },
+    "onda_geocalor_severidade": {
+        "nome": "Severidade da onda GeoCalor ativa",
+        "leigo": "Intensidade EHF (baixa/severa/extrema) apenas quando a onda está ativa.",
+        "como_ler": "Vazio quando não há onda ativa.",
+    },
+    "duracao_onda_ehf_dias": {
+        "nome": "Duração atual da onda EHF (dias)",
+        "leigo": "Quantos dias seguidos de EHF > 0 até a data de referência.",
+        "como_ler": "Entra na persistência térmica quando ≥ limiar (ex.: 5 dias) junto com EHF positivo.",
+    },
+    "data_ehf_geocalor": {
+        "nome": "Data de referência do EHF GeoCalor",
+        "leigo": "Último dia da série STAR usada no join.",
+        "como_ler": "Se a defasagem for grande, rode a ETL STAR (não interprete como risco zero).",
+    },
+    "rit_completude_pct": {
+        "nome": "RIT — completude (%)",
+        "leigo": "Percentual de domínios com dado válido no cálculo do RIT.",
+        "como_ler": "Baixa completude = menos certeza; pressão defasada (>14 dias) é omitida e reduz a completude.",
+    },
+    "sinal_fumaca_sem_pm": {
+        "nome": "Fumaça / intoxicação",
+        "leigo": "1 quando há focos sem PM2,5 **ou** notificações SINAN de intoxicação por fumaça/queimada (7d, DW).",
+        "como_ler": "Não interprete como ar limpo — busque monitor/proxy e oriente grupos sensíveis.",
+    },
+    "n_intox_fumaca_7d": {
+        "nome": "Intoxicações fumaça (7d)",
+        "leigo": "Contagem municipal de intoxicação exógena filtrada por fumaça/queimada no DW.",
+        "como_ler": "Agregado por município; sem nome/cartão SUS.",
+    },
+    "casos_extras_clima_7d": {
+        "nome": "Agravos extras clima (7d)",
+        "leigo": "Soma municipal de peçonhentos, hantavirose, febre maculosa, leish visceral e SRAG SINAN.",
+        "como_ler": "Bloco de vigilância climática — não altera o nível operacional.",
+    },
+    "fonte_srag": {
+        "nome": "Fonte SRAG",
+        "leigo": "Origem dos casos respiratórios no resumo: SIVEP local (preferencial) ou SINAN DW (fallback).",
+        "como_ler": "USE_DW_SIVEP só entra se a base local estiver vazia.",
+    },
+    "internacoes_cid_clima_7d": {
+        "nome": "Internações CID clima (7d)",
+        "leigo": "Internações IndicaSUS/VW_INTERNACAO com CID sensível ao clima na janela.",
+        "como_ler": "Complementa ocupação de leitos na leitura de pressão × RIT.",
+    },
+    "casos_malaria_7d": {
+        "nome": "Malária (7d)",
+        "leigo": "Casos agregados de SIVEP_MALARIA no DW por município de residência.",
+        "como_ler": "Não substitui SIVEP-SRAG local; útil para RIT hidro-território / boletim.",
+    },
+    "equipamentos_nebulizacao": {
+        "nome": "Nebulizadores (CNES)",
+        "leigo": "Quantidade de equipamentos tipados como nebulização na competência CNES mais recente.",
+        "como_ler": "Proxy de resiliência assistencial em fumaça/respiratório — não é estoque farmacêutico.",
+    },
+    "equipamentos_total": {
+        "nome": "Equipamentos CNES (total)",
+        "leigo": "Soma municipal de equipamentos existentes na última competência CNES.",
+        "como_ler": "Agregado por município; sem identificar estabelecimento na Sala.",
+    },
+    "casos_leish_tegumentar_7d": {
+        "nome": "Leishmaniose tegumentar (7d)",
+        "leigo": "Notificações SINAN de leishmaniose tegumentar na janela (extras clima).",
+        "como_ler": "Entra no bloco extras clima; não altera o nível operacional.",
+    },
+    "cnes_profissionais_qtd": {
+        "nome": "Profissionais CNES (qtd)",
+        "leigo": "Contagem municipal de vínculos profissionais na última competência CNES.",
+        "como_ler": "Agregado sem nome/CNS/CPF — resiliência de rede, não nível clínico.",
+    },
+    "cnes_equipes_ab_qtd": {
+        "nome": "Equipes eAB (qtd)",
+        "leigo": "Equipes de atenção básica cadastradas no CNES por município.",
+        "como_ler": "Útil para cobertura APS; `cnes_equipes_ab_povos_tradicionais` sinaliza atendimento a povos.",
+    },
+    "cnes_servicos_classificacao_qtd": {
+        "nome": "Serviços CNES (qtd)",
+        "leigo": "Serviços/classificações habilitados no CNES (soma municipal).",
+        "como_ler": "Mapa de oferta; não entra em `nivel` nem pred 7d.",
+    },
+    "pressao_x_rit": {
+        "nome": "Pressão × RIT (divergência)",
+        "leigo": "Compara a faixa da pressão assistencial com a faixa do RIT.",
+        "como_ler": "Preenchido só quando as faixas discordam — útil no plantão IndicaSUS/SISREG vs multirisco.",
+    },
+    "gap_fumaca_nebulizacao": {
+        "nome": "Gap fumaça × nebulização",
+        "leigo": "1 quando há sinal de fumaça/intox e nebulizadores CNES = 0 no município.",
+        "como_ler": "Lacuna de capacidade respiratória perante fumaça — não inventa nebulizador se o dado CNES faltar.",
+    },
+    "pressao_x_resiliencia": {
+        "nome": "Pressão × resiliência (IRM)",
+        "leigo": "Marca tensão quando pressão assistencial e faixa do IRM discordam de forma relevante.",
+        "como_ler": "Analogia a pressão × RIT, olhando capacidade de rede em vez do multirisco.",
+    },
+    "completude_sala_pct": {
+        "nome": "Completude Sala (%)",
+        "leigo": "Média de fontes críticas presentes na linha municipal (clima, ar, assistência, EHF, RIT).",
+        "como_ler": "Meta operacional sugerida ≥60%. Abaixo disso, revisar aba Fontes.",
+    },
+    "fonte_pm25": {
+        "nome": "Fonte do PM2,5",
+        "leigo": "Origem do valor de PM2,5 (monitor local ou proxy_openmeteo).",
+        "como_ler": "Proxy só entra se USE_OPENMETEO_PM_PROXY=true e não sobrescreve monitor.",
+    },
+    "sisagua_monitoramento_valido": {
+        "nome": "SISAGUA — monitoramento válido",
+        "leigo": "Município com amostra/monitoramento de água marcado como válido na carga.",
+        "como_ler": "Sem CSV ops_sisagua a Sala mostra lacuna explícita.",
+    },
+    "entomologia_iip": {
+        "nome": "Entomologia — IIP / Breteau",
+        "leigo": "Índice de infestação predial (LIRAa/ovitrampa).",
+        "como_ler": "IIP > 3,9 indica alerta vetorial no recorte.",
+    },
+    "denuncias_sla_ok": {
+        "nome": "Denúncias — SLA ok",
+        "leigo": "Município com resposta a denúncias dentro do prazo combinado.",
+        "como_ler": "Sem carga ops_denuncias = aguardando sistema COVSAN/Visa.",
     },
     "completude_prioridade_pct": {
         "nome": "Completude da prioridade (%)",
@@ -494,17 +675,18 @@ SECTION_GUIDES: dict[str, dict[str, str]] = {
 
 HOW_TO_READ_PANEL = [
     "1. Olhe a faixa colorida e os 6 cards de Situação estadual: nível, alerta, ameaça, tendência, pressão e frescor.",
-    "2. Use Prioridades de hoje (top 10): motivo, tendência, ocupação/CNES/resiliência, lacunas e ação.",
-    "3. Lembre: sinal do ARARAS ≠ ativação formal de COE/emergência.",
-    "4. Em Alertas: registre validação humana, gere a prévia do boletim SES e só então arme o envio.",
-    "5. Na Visão executiva, o mapa responde ‘onde?’ e ‘Por que este nível?’ explica o score.",
-    "6. Em dúvida sobre um número, abra Frescor por fonte, Cálculos ou o Guia do leitor.",
+    "2. Use Prioridades de hoje (top 10): motivo, tendência, RIT/scorecard, ocupação/CNES/resiliência, lacunas e ação.",
+    "3. Compare o nível operacional (ARARAS) com o RIT multirisco e com a predição térmica ~7 dias — são produtos distintos.",
+    "4. Lembre: sinal do ARARAS ≠ ativação formal de COE/emergência.",
+    "5. Em Alertas: registre validação humana, gere a prévia do boletim SES e só então arme o envio.",
+    "6. Na Visão executiva, o mapa responde ‘onde?’ e ‘Por que este nível?’ explica score + RIT.",
+    "7. Em dúvida sobre um número, abra Frescor por fonte, Cálculos ou o Guia do leitor.",
 ]
 
 HOW_TO_READ_PUBLIC = [
-    "1. Abra a aba Visão: faixa de nível, cards do recorte e o mapa de risco de 3 dias.",
+    "1. Abra a aba Visão: faixa de nível, cards do recorte, RIT multirisco e o mapa de risco de 3 dias.",
     "2. Filtre regional ou município no topo — o recorte vale para todas as abas.",
-    "3. Em Mapas, compare calor, fumaça, vulnerabilidade e a predição de 7 dias.",
+    "3. Em Mapas, compare calor, fumaça, vulnerabilidade, faixa RIT e a predição de 7 dias.",
     "4. Em Território, confira a malha municipal e as populações vulneráveis.",
     "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
     "6. Em El Niño, leia o cenário oficial (ASO) e o boletim da semana.",
@@ -513,7 +695,7 @@ HOW_TO_READ_PUBLIC = [
     "9. Em Óbitos e clima, veja a série SIM sensível ao calor e a metodologia.",
     "10. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
     "11. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
-    "12. Em Cálculos, leia como cada indicador publicado é composto.",
+    "12. Em Cálculos, leia como cada indicador publicado é composto (incluindo RIT).",
 ]
 
 GLOSSARIO_PUBLICO = [
@@ -526,6 +708,16 @@ GLOSSARIO_PUBLICO = [
     "indice_vigilancia_integrada",
     "indice_prioridade_global",
     "faixa_prioridade_global",
+    "rit_0_100",
+    "rit_faixa",
+    "rit_dominio_dominante",
+    "rit_completude_pct",
+    "ehf_geocalor",
+    "intensidade_ehf",
+    "is_hw_day",
+    "onda_geocalor_ativa",
+    "duracao_onda_ehf_dias",
+    "data_ehf_geocalor",
     "tendencia_7d",
     "tendencia_prioridade_7d",
     "pressao_calor_pct",

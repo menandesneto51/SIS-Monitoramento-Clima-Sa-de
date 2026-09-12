@@ -150,6 +150,15 @@ INDICADOR_COLS = [
     ("indice_vigilancia_integrada", "Índice de vigilância integrada (0 a 100)"),
     ("tendencia_7d", "Tendência prevista para ~7 dias"),
     ("nivel_predicao_7d", "Classificação prevista para ~7 dias"),
+    ("rit_0_100", "RIT — Risco Integrado Territorial (0 a 100)"),
+    ("rit_faixa", "RIT — faixa (observado multidomínio)"),
+    ("rit_dominio_dominante", "RIT — domínio dominante"),
+    ("rit_completude_pct", "RIT — completude dos domínios (%)"),
+    ("ehf_geocalor", "EHF GeoCalor (Fiocruz) — último dia"),
+    ("intensidade_ehf", "Intensidade da onda EHF (baixa/severa/extrema)"),
+    ("is_hw_day", "Dia de onda de calor GeoCalor (0/1)"),
+    ("duracao_onda_ehf_dias", "Duração atual da onda EHF (dias)"),
+    ("data_ehf_geocalor", "Data de referência do EHF GeoCalor"),
     ("componente_dominante", "Fator que mais elevou o alerta"),
     ("motivo", "Motivo principal"),
     ("motivo_integrado", "Motivo do alerta integrado"),
@@ -235,6 +244,236 @@ def _pick_indicadores(row: pd.Series | dict) -> list[dict[str, str]]:
 
 def _orientacoes(nivel: str) -> dict[str, str]:
     return dict(ORIENT.get(_norm_nivel(nivel), ORIENT["cinza"]))
+
+
+def _ensure_rit_cols(df: pd.DataFrame) -> pd.DataFrame:
+    """Garante EHF + IRM + RIT + compostos no frame (não altera nivel/pred 7d)."""
+    if df is None or df.empty:
+        return df if df is not None else pd.DataFrame()
+    try:
+        from sisclima.engines.resumo_frescor import refresh_resumo_multirisco
+
+        return refresh_resumo_multirisco(df, inject_ehf=True, persist=False)
+    except Exception:
+        return df
+
+def _geocalor_attach(payload: dict[str, Any], row: pd.Series | dict) -> None:
+    """Anexa campos GeoCalor/EHF ao payload de alerta."""
+    from sisclima.engines.ehf_geocalor import geocalor_linhas_alerta
+
+    data = row if isinstance(row, dict) else row.to_dict()
+    for key in (
+        "ehf_geocalor",
+        "ehf",
+        "ehf_adaptado",
+        "is_hw_day",
+        "intensidade_ehf",
+        "data_ehf_geocalor",
+        "ehf_geocalor_idade_dias",
+        "duracao_onda_ehf_dias",
+        "duracao_onda_calor_dias",
+        "ehf_fonte",
+    ):
+        if key in data and data.get(key) is not None:
+            payload[key] = data.get(key)
+    lines = geocalor_linhas_alerta(data)
+    if lines:
+        payload["geocalor_linhas"] = lines
+    # resumo curto para Telegram estadual / ranking
+    ehf = data.get("ehf_geocalor")
+    if ehf is None or (isinstance(ehf, float) and pd.isna(ehf)):
+        ehf = data.get("ehf")
+    if ehf is not None and not (isinstance(ehf, float) and pd.isna(ehf)):
+        try:
+            payload["ehf_resumo"] = (
+                f"EHF {float(ehf):.2f}"
+                f" ({data.get('intensidade_ehf') or '—'}; ref. {data.get('data_ehf_geocalor') or '—'})"
+            )
+        except (TypeError, ValueError):
+            pass
+
+
+def _rit_from_row(row: pd.Series | dict) -> dict[str, Any]:
+    """Contexto RIT municipal — produto paralelo à projeção térmica ~7d."""
+    from sisclima.engines.rit_multirisco import DOMINIO_ROTULOS, scorecard_rit
+
+    data = row if isinstance(row, pd.Series) else pd.Series(row)
+    # Preferir scores já no resumo; senão recalcula
+    if data.get("rit_0_100") is not None and not (
+        isinstance(data.get("rit_0_100"), float) and pd.isna(data.get("rit_0_100"))
+    ):
+        rit_calc = {
+            "rit_0_100": data.get("rit_0_100"),
+            "rit_faixa": data.get("rit_faixa"),
+            "rit_dominio_dominante": data.get("rit_dominio_dominante"),
+            "rit_completude_pct": data.get("rit_completude_pct"),
+            "rit_score_termico": data.get("rit_score_termico"),
+            "rit_score_ar": data.get("rit_score_ar"),
+            "rit_score_hidro": data.get("rit_score_hidro"),
+            "rit_score_ehf": data.get("rit_score_ehf"),
+            "rit_score_pressao": data.get("rit_score_pressao"),
+            "rit_score_rede": data.get("rit_score_rede"),
+            "rit_pressao_omitida_defasagem": data.get("rit_pressao_omitida_defasagem"),
+        }
+        sc = scorecard_rit(rit=rit_calc)
+    else:
+        sc = scorecard_rit(row=data)
+
+    if not sc.get("disponivel"):
+        return {
+            "disponivel": False,
+            "resumo": "RIT (Risco Integrado Territorial) indisponível nesta rodada.",
+            "scorecard": sc,
+            "dominios": sc.get("dominios") or [],
+            "explicacao_dominante": sc.get("explicacao_dominante") or "—",
+            "radar_compacto": sc.get("radar_compacto") or "—",
+        }
+
+    faixa = _norm_nivel(sc.get("rit_faixa"))
+    if faixa == "cinza" and str(sc.get("rit_faixa") or "").strip():
+        faixa = str(sc.get("rit_faixa")).strip().lower()
+    dom = str(sc.get("dominio_dominante") or "—")
+    rot_dom = DOMINIO_ROTULOS.get(dom, dom)
+    omit = bool(sc.get("rit_pressao_omitida_defasagem"))
+    nota_p = " Pressão omitida por defasagem." if omit else ""
+    return {
+        "disponivel": True,
+        "rit_0_100": float(sc["rit_0_100"]),
+        "rit_faixa": faixa,
+        "icone_rit": EMOJI.get(faixa, "⚪") if faixa in EMOJI else "🧭",
+        "rit_dominio_dominante": dom,
+        "rit_dominio_dominante_rotulo": rot_dom,
+        "rit_completude_pct": sc.get("rit_completude_pct"),
+        "rit_pressao_omitida_defasagem": omit,
+        "scorecard": sc,
+        "dominios": sc.get("dominios") or [],
+        "explicacao_dominante": sc.get("explicacao_dominante") or "—",
+        "radar_compacto": sc.get("radar_compacto") or "—",
+        "resumo": (
+            f"RIT observado: {_fmt(sc['rit_0_100'], 0)}/100 ({LEVEL_LABEL.get(faixa, faixa)}); "
+            f"principal influenciador: {rot_dom}. "
+            f"{sc.get('explicacao_dominante') or ''} "
+            f"Paralelo à projeção ~7d (térmica).{nota_p}"
+        ).strip(),
+    }
+
+
+def _rit_from_df(df: pd.DataFrame) -> dict[str, Any]:
+    """Contexto RIT agregado (estadual/regional) + influenciadores municipais."""
+    from sisclima.engines.rit_multirisco import DOMINIO_ROTULOS
+
+    if df is None or df.empty or "rit_0_100" not in df.columns:
+        return {
+            "disponivel": False,
+            "resumo": "RIT (Risco Integrado Territorial) indisponível nesta rodada.",
+            "dominantes_distribuicao": {},
+            "municipios_rit_prioritarios": [],
+        }
+    work = df.copy()
+    scores = pd.to_numeric(work["rit_0_100"], errors="coerce")
+    if scores.notna().sum() == 0:
+        return {
+            "disponivel": False,
+            "resumo": "RIT (Risco Integrado Territorial) indisponível nesta rodada.",
+            "dominantes_distribuicao": {},
+            "municipios_rit_prioritarios": [],
+        }
+    if "rit_faixa" in work.columns:
+        faixa_pior = _worst_nivel(work["rit_faixa"])
+        vc = work["rit_faixa"].map(lambda x: str(x or "").strip().lower()).value_counts()
+        n_crit = int(work["rit_faixa"].astype(str).str.lower().isin(["vermelha", "roxa"]).sum())
+    else:
+        faixa_pior = "cinza"
+        vc = pd.Series(dtype=int)
+        n_crit = 0
+    n = len(work)
+    med = float(scores.median())
+    mx = float(scores.max())
+    omit = (
+        int(work["rit_pressao_omitida_defasagem"].fillna(False).astype(bool).sum())
+        if "rit_pressao_omitida_defasagem" in work.columns
+        else 0
+    )
+    dominantes_distribuicao: dict[str, int] = {}
+    if "rit_dominio_dominante" in work.columns:
+        dvc = work["rit_dominio_dominante"].astype(str).value_counts()
+        dominantes_distribuicao = {
+            DOMINIO_ROTULOS.get(str(k), str(k)): int(v) for k, v in dvc.items() if str(k) not in {"", "nan", "—", "None"}
+        }
+    dom = next(iter(dominantes_distribuicao.keys()), "—")
+    dist = ", ".join(f"{k}:{int(v)}" for k, v in vc.items()) if not vc.empty else "—"
+    dist_dom = ", ".join(f"{k}:{v}" for k, v in dominantes_distribuicao.items()) if dominantes_distribuicao else "—"
+    if omit == 1:
+        nota_p = " Pressão omitida por defasagem em 1 município."
+    elif omit > 1:
+        nota_p = f" Pressão omitida por defasagem em {omit} municípios."
+    else:
+        nota_p = ""
+    mun_rit = _top_rit_prioritarios(work, n=12)
+    return {
+        "disponivel": True,
+        "rit_faixa_pior": faixa_pior,
+        "icone_rit": EMOJI.get(faixa_pior, "🧭"),
+        "rit_mediana": med,
+        "rit_max": mx,
+        "n_critico": n_crit,
+        "n": n,
+        "dominio_moda": dom,
+        "dominantes_distribuicao": dominantes_distribuicao,
+        "dominantes_distribuicao_txt": dist_dom,
+        "distribuicao_faixas": dist,
+        "n_pressao_omitida": omit,
+        "municipios_rit_prioritarios": mun_rit,
+        "resumo": (
+            f"RIT observado: {n_crit}/{n} em faixa vermelha ou roxa; "
+            f"mediana {_fmt(med, 0)} · máx {_fmt(mx, 0)}; "
+            f"influenciadores mais frequentes: {dist_dom}. "
+            f"Paralelo à projeção ~7d (térmica).{nota_p}"
+        ),
+    }
+
+
+def _top_rit_prioritarios(base: pd.DataFrame, n: int = 12) -> list[dict[str, Any]]:
+    """Top municípios por RIT com dominante e radar compacto."""
+    from sisclima.engines.rit_multirisco import DOMINIO_ROTULOS
+
+    if base is None or base.empty or "rit_0_100" not in base.columns:
+        return []
+    work = base.copy()
+    work["_rit"] = pd.to_numeric(work["rit_0_100"], errors="coerce")
+    top = work.dropna(subset=["_rit"]).sort_values("_rit", ascending=False).head(int(n))
+    out: list[dict[str, Any]] = []
+    for _, row in top.iterrows():
+        rit_ctx = _rit_from_row(row)
+        dom = str(rit_ctx.get("rit_dominio_dominante") or row.get("rit_dominio_dominante") or "—")
+        out.append(
+            {
+                "municipio": str(row.get("municipio") or row.get("cod_ibge") or "—"),
+                "cod_ibge": str(row.get("cod_ibge") or ""),
+                "regional": str(row.get("regional_saude") or row.get("regional") or "—"),
+                "nivel": _norm_nivel(row.get("_nivel") or row.get("nivel")),
+                "rit_0_100": float(row["_rit"]),
+                "rit_faixa": rit_ctx.get("rit_faixa") or row.get("rit_faixa"),
+                "rit_dominio_dominante": dom,
+                "rit_dominio_dominante_rotulo": DOMINIO_ROTULOS.get(dom, dom),
+                "explicacao_dominante": rit_ctx.get("explicacao_dominante"),
+                "radar_compacto": rit_ctx.get("radar_compacto") or "—",
+                "dominios": rit_ctx.get("dominios") or [],
+                "ehf_geocalor": row.get("ehf_geocalor"),
+                "ehf": row.get("ehf"),
+                "intensidade_ehf": row.get("intensidade_ehf"),
+                "is_hw_day": row.get("is_hw_day"),
+                "data_ehf_geocalor": row.get("data_ehf_geocalor"),
+            }
+        )
+    return out
+
+
+def _attach_rit(payload: dict[str, Any], rit: dict[str, Any]) -> dict[str, Any]:
+    payload["rit"] = rit
+    if rit.get("municipios_rit_prioritarios"):
+        payload["municipios_rit_prioritarios"] = rit["municipios_rit_prioritarios"]
+    return payload
 
 
 def ensure_municipio_names(df: pd.DataFrame) -> pd.DataFrame:
@@ -639,6 +878,169 @@ def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> lis
                     "limiar": "composto (ocupação se houver + SISREG + SINAN + SIM) ≠ nível Verde→Roxa",
                 }
             )
+    # RIT — Risco Integrado Territorial (observado; não substitui projeção ~7d)
+    if "rit_faixa" in df.columns or "rit_0_100" in df.columns:
+        rit = _rit_from_df(df)
+        if rit.get("disponivel"):
+            inds.append(
+                {
+                    "campo": "rit_n_critico",
+                    "rotulo": "RIT — municípios em faixa vermelha ou roxa",
+                    "valor": f"{rit.get('n_critico')}/{rit.get('n')}",
+                    "escala": "contagem (observado multidomínio)",
+                    "limiar": "paralelo à projeção ~7d térmica · max entre domínios válidos",
+                }
+            )
+            inds.append(
+                {
+                    "campo": "rit_0_100",
+                    "rotulo": "RIT — mediana / máximo (0 a 100)",
+                    "valor": f"{_fmt(rit.get('rit_mediana'), 0)} / {_fmt(rit.get('rit_max'), 0)}",
+                    "escala": "0 a 100",
+                    "limiar": "0–24 verde · 25–49 amarela · 50–69 laranja · 70–84 vermelha · 85–100 roxa",
+                }
+            )
+            if rit.get("distribuicao_faixas") and rit.get("distribuicao_faixas") != "—":
+                inds.append(
+                    {
+                        "campo": "rit_distribuicao_faixas",
+                        "rotulo": "RIT — municípios por faixa",
+                        "valor": str(rit.get("distribuicao_faixas")),
+                        "escala": "contagem por faixa",
+                        "limiar": f"domínio mais frequente: {rit.get('dominio_moda') or '—'}",
+                    }
+                )
+            if int(rit.get("n_pressao_omitida") or 0) > 0:
+                inds.append(
+                    {
+                        "campo": "rit_pressao_omitida",
+                        "rotulo": "RIT — pressão omitida por defasagem",
+                        "valor": str(rit.get("n_pressao_omitida")),
+                        "escala": "municípios",
+                        "limiar": "não eleva o RIT quando carga >14 dias",
+                    }
+                )
+    # GeoCalor / EHF no recorte (estadual ou regional)
+    if "ehf_geocalor" in df.columns or "ehf" in df.columns:
+        ehf_s = pd.to_numeric(df.get("ehf_geocalor", df.get("ehf")), errors="coerce")
+        n_pos = int((ehf_s.fillna(0) > 0).sum())
+        n_hw = (
+            int(pd.to_numeric(df["is_hw_day"], errors="coerce").fillna(0).gt(0).sum())
+            if "is_hw_day" in df.columns
+            else 0
+        )
+        n_onda = (
+            int(pd.to_numeric(df["onda_geocalor_ativa"], errors="coerce").fillna(0).gt(0).sum())
+            if "onda_geocalor_ativa" in df.columns
+            else n_hw
+        )
+        data_ref = None
+        idade = None
+        if "data_ehf_geocalor" in df.columns and df["data_ehf_geocalor"].notna().any():
+            data_ref = str(df["data_ehf_geocalor"].dropna().astype(str).mode().iloc[0])
+        if "ehf_geocalor_idade_dias" in df.columns and df["ehf_geocalor_idade_dias"].notna().any():
+            idade = int(pd.to_numeric(df["ehf_geocalor_idade_dias"], errors="coerce").dropna().mode().iloc[0])
+        inds.append(
+            {
+                "campo": "ehf_geocalor_cobertura",
+                "rotulo": "GeoCalor / EHF — municípios com EHF > 0",
+                "valor": f"{n_pos}/{len(df)}" + (f" · onda ativa {n_onda}" if n_onda else ""),
+                "escala": "contagem",
+                "limiar": f"ref. {data_ref or '—'} · Nairn & Fawcett / Fiocruz",
+            }
+        )
+        if data_ref is not None or idade is not None:
+            inds.append(
+                {
+                    "campo": "ehf_geocalor_frescor",
+                    "rotulo": "GeoCalor STAR — data / idade",
+                    "valor": str(data_ref or "—"),
+                    "escala": "data",
+                    "limiar": f"defasagem {idade}d" if idade is not None else "idade n/d",
+                }
+            )
+        if "onda_geocalor_ativa" in df.columns:
+            inds.append(
+                {
+                    "campo": "onda_geocalor_ativa",
+                    "rotulo": "Onda GeoCalor ativa (is_hw_day + EHF>0)",
+                    "valor": f"{n_onda}/{len(df)}",
+                    "escala": "contagem",
+                    "limiar": "indicador composto — não substitui o nível ARARAS",
+                }
+            )
+        if ehf_s.notna().any():
+            inds.append(
+                {
+                    "campo": "ehf_geocalor_max",
+                    "rotulo": "GeoCalor / EHF — máximo no recorte",
+                    "valor": float(ehf_s.max()),
+                    "escala": "índice EHF",
+                    "limiar": ">0 sinal de excesso de calor; intensidade baixa/severa/extrema",
+                }
+            )
+    # Compostos / vigilância
+    if "sinal_fumaca_sem_pm" in df.columns:
+        n_fum = int(pd.to_numeric(df["sinal_fumaca_sem_pm"], errors="coerce").fillna(0).sum())
+        inds.append(
+            {
+                "campo": "sinal_fumaca_sem_pm",
+                "rotulo": "Fumaça sem PM2,5 (focos>0 e PM nulo)",
+                "valor": f"{n_fum}/{len(df)}",
+                "escala": "contagem",
+                "limiar": "não interpretar como ar limpo",
+            }
+        )
+    if "completude_sala_pct" in df.columns:
+        med = pd.to_numeric(df["completude_sala_pct"], errors="coerce").median()
+        if pd.notna(med):
+            inds.append(
+                {
+                    "campo": "completude_sala_pct",
+                    "rotulo": "Completude Sala (fontes críticas)",
+                    "valor": float(med),
+                    "escala": "%",
+                    "limiar": "meta operacional ≥60%",
+                }
+            )
+    if "sisagua_monitoramento_valido" in df.columns:
+        ok = int(pd.to_numeric(df["sisagua_monitoramento_valido"], errors="coerce").fillna(0).gt(0).sum())
+        inds.append(
+            {
+                "campo": "sisagua_cobertura",
+                "rotulo": "SISAGUA — municípios com monitoramento válido",
+                "valor": f"{ok}/{len(df)}",
+                "escala": "contagem",
+                "limiar": "Visa / água segura",
+            }
+        )
+    if "entomologia_iip" in df.columns:
+        alto = int(pd.to_numeric(df["entomologia_iip"], errors="coerce").fillna(0).gt(3.9).sum())
+        inds.append(
+            {
+                "campo": "entomologia_alerta",
+                "rotulo": "Entomologia — municípios com IIP > 3,9",
+                "valor": f"{alto}/{len(df)}",
+                "escala": "contagem",
+                "limiar": "LIRAa / risco vetorial",
+            }
+        )
+    if "denuncias_sla_pct" in df.columns or "denuncias_sla_ok" in df.columns:
+        if "denuncias_sla_pct" in df.columns:
+            med = pd.to_numeric(df["denuncias_sla_pct"], errors="coerce").median()
+            val = f"{float(med):.0f}%" if pd.notna(med) else "—"
+        else:
+            ok = int(pd.to_numeric(df["denuncias_sla_ok"], errors="coerce").fillna(0).eq(1).sum())
+            val = f"{ok}/{len(df)} OK"
+        inds.append(
+            {
+                "campo": "denuncias_sla",
+                "rotulo": "Denúncias ambientais — SLA",
+                "valor": val,
+                "escala": "% ou contagem",
+                "limiar": "Visa / COVSAN",
+            }
+        )
     return inds
 
 
@@ -678,9 +1080,25 @@ def _top_prioritarios(base: pd.DataFrame, n: int = 8) -> list[dict[str, Any]]:
                 "n_assentamentos": row.get("n_assentamentos"),
                 "n_barragens_dpa_alto": row.get("n_barragens_dpa_alto"),
                 "cenario_dominante": row.get("cenario_dominante"),
+                "rit_0_100": row.get("rit_0_100"),
+                "rit_faixa": row.get("rit_faixa"),
+                "rit_dominio_dominante": row.get("rit_dominio_dominante"),
+                "ehf_geocalor": row.get("ehf_geocalor"),
+                "ehf": row.get("ehf"),
+                "intensidade_ehf": row.get("intensidade_ehf"),
+                "is_hw_day": row.get("is_hw_day"),
+                "data_ehf_geocalor": row.get("data_ehf_geocalor"),
                 "indicadores": _pick_indicadores(row),
             }
         )
+        # Anexa radar RIT ao prioritário operacional (sem reordenar a lista)
+        try:
+            rit_ctx = _rit_from_row(row)
+            out[-1]["explicacao_dominante"] = rit_ctx.get("explicacao_dominante")
+            out[-1]["radar_compacto"] = rit_ctx.get("radar_compacto")
+            out[-1]["rit_dominio_dominante_rotulo"] = rit_ctx.get("rit_dominio_dominante_rotulo")
+        except Exception:
+            pass
     return out
 
 
@@ -716,6 +1134,7 @@ def build_alertas_multinivel(
     base = _merge_base(resumo, alerta_integrado, predicao_7d)
     if base.empty:
         return []
+    base = _ensure_rit_cols(base)
 
     min_rank = STAGE_ORDER.get(_norm_nivel(min_level), 1)
     nivel_col = "nivel_alerta_integrado" if "nivel_alerta_integrado" in base.columns else "nivel"
@@ -732,6 +1151,8 @@ def build_alertas_multinivel(
         "SISREG (regulação/fila)",
         "Vigibarragens (FUNAI/Palmares/INCRA/SNISB)",
         "ARARAS MT",
+        "RIT multirisco (observado)",
+        "GeoCalor / EHF (Fiocruz–LAGAS)",
     ]
 
     payloads: list[dict[str, Any]] = []
@@ -758,6 +1179,7 @@ def build_alertas_multinivel(
         est["distribuicao"] = base["nivel"].map(_norm_nivel).value_counts().to_dict()
     else:
         est["distribuicao"] = base["_nivel"].value_counts().to_dict()
+    _attach_rit(est, _rit_from_df(base))
     payloads.append(est)
 
     # 2) Regionais
@@ -781,6 +1203,7 @@ def build_alertas_multinivel(
             )
             rp["municipios_prioritarios"] = _top_prioritarios(g, n=top_reg)
             rp["distribuicao"] = g["_nivel"].value_counts().to_dict()
+            _attach_rit(rp, _rit_from_df(g))
             payloads.append(rp)
 
     # 3) Municipais
@@ -847,6 +1270,12 @@ def build_alertas_multinivel(
         mp["n_territorios_tradicionais"] = row.get("n_territorios_tradicionais")
         mp["cenario_dominante"] = row.get("cenario_dominante")
         mp["cuidados_territoriais"] = row.get("cuidados_territoriais")
+        mp["rit_0_100"] = row.get("rit_0_100")
+        mp["rit_faixa"] = row.get("rit_faixa")
+        mp["rit_dominio_dominante"] = row.get("rit_dominio_dominante")
+        mp["rit_completude_pct"] = row.get("rit_completude_pct")
+        _attach_rit(mp, _rit_from_row(row))
+        _geocalor_attach(mp, row)
         payloads.append(mp)
 
     # 4) Cuiabá
@@ -905,6 +1334,12 @@ def build_alertas_multinivel(
         cp["n_territorios_tradicionais"] = row.get("n_territorios_tradicionais")
         cp["cenario_dominante"] = row.get("cenario_dominante")
         cp["cuidados_territoriais"] = row.get("cuidados_territoriais")
+        cp["rit_0_100"] = row.get("rit_0_100")
+        cp["rit_faixa"] = row.get("rit_faixa")
+        cp["rit_dominio_dominante"] = row.get("rit_dominio_dominante")
+        cp["rit_completude_pct"] = row.get("rit_completude_pct")
+        _attach_rit(cp, _rit_from_row(row))
+        _geocalor_attach(cp, row)
         payloads.append(cp)
 
     return payloads
@@ -915,6 +1350,7 @@ def payloads_to_dataframe(payloads: list[dict[str, Any]]) -> pd.DataFrame:
     for p in payloads:
         o = p.get("orientacoes") or {}
         pred = p.get("predicao") or {}
+        rit = p.get("rit") or {}
         rows.append(
             {
                 "escopo": p.get("escopo"),
@@ -927,6 +1363,10 @@ def payloads_to_dataframe(payloads: list[dict[str, Any]]) -> pd.DataFrame:
                 "motivo": p.get("motivo"),
                 "nivel_predicao_7d": pred.get("nivel_predicao_7d"),
                 "predicao_resumo": pred.get("resumo"),
+                "rit_faixa": rit.get("rit_faixa") or rit.get("rit_faixa_pior"),
+                "rit_0_100": rit.get("rit_0_100") or rit.get("rit_mediana"),
+                "rit_dominio_dominante": rit.get("rit_dominio_dominante") or rit.get("dominio_moda"),
+                "rit_resumo": rit.get("resumo"),
                 "orientacao_gestor": o.get("gestor"),
                 "orientacao_profissional": o.get("profissional"),
                 "orientacao_populacao": o.get("populacao"),
@@ -953,10 +1393,42 @@ def render_payload_markdown(p: dict[str, Any]) -> str:
     for ind in p.get("indicadores") or []:
         lines.append(f"- **{ind.get('rotulo')}:** {ind.get('valor')}")
     pred = p.get("predicao") or {}
+    rit = p.get("rit") or {}
     lines += [
         "",
         "## Predição (~7 dias)",
         f"{pred.get('icone_predicao', '')} {pred.get('resumo', '—')}",
+        "",
+        "## RIT multirisco (observado)",
+        f"{rit.get('icone_rit', '🧭')} {rit.get('resumo', '—')}",
+    ]
+    if rit.get("explicacao_dominante"):
+        lines.append(f"**Principal influenciador:** {rit.get('explicacao_dominante')}")
+    if rit.get("dominios"):
+        lines.append("")
+        lines.append("### Classificação por domínio")
+        for d in rit.get("dominios") or []:
+            if d.get("status") == "valido":
+                lines.append(
+                    f"- **{d.get('rotulo')}:** {_fmt(d.get('score'), 0)}/100 · faixa {d.get('faixa')}"
+                )
+            elif d.get("status") == "omitido_defasagem":
+                lines.append(f"- **{d.get('rotulo')}:** omitido por defasagem")
+            else:
+                lines.append(f"- **{d.get('rotulo')}:** indisponível")
+    mun_rit = p.get("municipios_rit_prioritarios") or rit.get("municipios_rit_prioritarios") or []
+    if mun_rit:
+        lines.append("")
+        lines.append("### Municípios com maior RIT (influenciadores)")
+        for i, m in enumerate(mun_rit[:12], 1):
+            lines.append(
+                f"{i}. **{m.get('municipio')}** — RIT {_fmt(m.get('rit_0_100'), 0)} "
+                f"({m.get('rit_faixa')}) · dominante: {m.get('rit_dominio_dominante_rotulo') or m.get('rit_dominio_dominante')} "
+                f"· {m.get('radar_compacto') or '—'}"
+            )
+    if rit.get("dominantes_distribuicao_txt"):
+        lines.append(f"**Distribuição de influenciadores:** {rit.get('dominantes_distribuicao_txt')}")
+    lines += [
         "",
         "## Orientações",
         f"### Gestor\n{((p.get('orientacoes') or {}).get('gestor') or '—')}",

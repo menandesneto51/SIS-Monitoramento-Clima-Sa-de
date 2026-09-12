@@ -42,6 +42,34 @@ def build_boletim_semanal(
     semana = semana_iso(hoje)
     dest = out_dir or OUT_DIR
 
+    # Busca IOMAT de atos oficiais (persistência) antes de montar o markdown
+    atos_meta: dict[str, Any] = {"ok": False}
+    try:
+        from sisclima.core.db import read_table, table_exists
+        from sisclima.reporting.decretos_alerta import atualizar_base_atos_oficiais
+
+        precisa_busca = True
+        if table_exists("iomat_decretos_emergencia"):
+            prev = read_table("iomat_decretos_emergencia")
+            if prev is not None and not prev.empty and "coletado_em" in prev.columns:
+                col = pd.to_datetime(prev["coletado_em"], errors="coerce")
+                if col.notna().any() and (pd.Timestamp.now() - col.max()).total_seconds() < 6 * 3600:
+                    precisa_busca = False
+                    atos_meta = {
+                        "ok": True,
+                        "n": int(len(prev)),
+                        "n_iomat": int((prev.get("fonte").astype(str).str.upper() == "IOMAT").sum())
+                        if "fonte" in prev.columns
+                        else int(len(prev)),
+                        "cache": True,
+                    }
+                    log.info("Atos oficiais: reutilizando busca recente (%s registros)", len(prev))
+        if precisa_busca:
+            atos_meta = atualizar_base_atos_oficiais(dias=60, pages=2, incluir_imprensa=False)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Atualização de atos oficiais falhou: %s", exc)
+        atos_meta = {"ok": False, "motivo": str(exc)}
+
     predicao = None
     try:
         from sisclima.core.db import read_table
@@ -51,7 +79,46 @@ def build_boletim_semanal(
         log.warning("Predição 7d indisponível: %s", exc)
 
     resumo_enriched = merge_predicao_7d(resumo, predicao)
+    try:
+        from sisclima.engines.resumo_frescor import refresh_resumo_multirisco
+
+        if "esus_idade_dias" not in resumo_enriched.columns and "atraso_dias" in resumo_enriched.columns:
+            resumo_enriched = resumo_enriched.copy()
+            resumo_enriched["esus_idade_dias"] = pd.to_numeric(resumo_enriched["atraso_dias"], errors="coerce")
+        resumo_enriched = refresh_resumo_multirisco(resumo_enriched, inject_ehf=True, persist=False)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("EHF/IRM/RIT/compostos indisponíveis no boletim: %s", exc)
+
     snap = snapshot_operacional(resumo_enriched)
+    snap["atos_oficiais_meta"] = atos_meta
+    # Frescor EHF da mesma linhagem do inject
+    try:
+        if "data_ehf_geocalor" in resumo_enriched.columns and resumo_enriched["data_ehf_geocalor"].notna().any():
+            snap["ehf_data_ref"] = str(resumo_enriched["data_ehf_geocalor"].dropna().astype(str).mode().iloc[0])
+        if "ehf_geocalor_idade_dias" in resumo_enriched.columns and resumo_enriched["ehf_geocalor_idade_dias"].notna().any():
+            snap["ehf_idade_dias"] = int(
+                pd.to_numeric(resumo_enriched["ehf_geocalor_idade_dias"], errors="coerce").dropna().mode().iloc[0]
+            )
+        if "onda_geocalor_ativa" in resumo_enriched.columns:
+            snap["n_onda_geocalor_ativa"] = int(
+                pd.to_numeric(resumo_enriched["onda_geocalor_ativa"], errors="coerce").fillna(0).gt(0).sum()
+            )
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Metadados EHF no snap indisponíveis: %s", exc)
+    try:
+        from sisclima.engines.rit_multirisco import resumo_rit_estadual
+
+        snap["rit"] = resumo_rit_estadual(resumo_enriched)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Resumo RIT indisponível: %s", exc)
+        snap["rit"] = {"disponivel": False}
+    try:
+        from sisclima.engines.indicadores_compostos import resumo_compostos_estadual
+
+        snap["compostos"] = resumo_compostos_estadual(resumo_enriched)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Resumo compostos/IRM indisponível: %s", exc)
+        snap["compostos"] = {"disponivel": False}
     ref = hoje or date.today()
 
     try:
@@ -63,6 +130,22 @@ def build_boletim_semanal(
         snap.get("agravos_monitorados") or {},
         dw_agravos,
     )
+    # Reaplica multirisco se atraso e-SUS estadual estiver disponível (domínio pressão)
+    try:
+        from sisclima.engines.resumo_frescor import refresh_resumo_multirisco
+        from sisclima.engines.rit_multirisco import resumo_rit_estadual
+
+        agr = snap.get("agravos_monitorados") or {}
+        dw = agr.get("dw_epidemiologia") or {}
+        esus = dw.get("esus_aps") or agr.get("esus_aps") or {}
+        atraso = esus.get("atraso_dias")
+        if atraso is not None:
+            resumo_enriched = resumo_enriched.copy()
+            resumo_enriched["esus_idade_dias"] = int(atraso)
+            resumo_enriched = refresh_resumo_multirisco(resumo_enriched, inject_ehf=True, persist=False)
+            snap["rit"] = resumo_rit_estadual(resumo_enriched)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Reaplicação RIT com atraso e-SUS falhou: %s", exc)
 
     alertas_df = None
     cemaden_df = None
@@ -217,10 +300,12 @@ def build_boletim_semanal(
     try:
         from sisclima.engines.boletim_el_nino.impacto_chuva import resumo_impacto_chuva
 
-        chuva = resumo_impacto_chuva()
+        chuva = resumo_impacto_chuva(ref=data_ref or None)
         snap["impacto_chuva"] = chuva
-        snap["impacto_chuva_md"] = str(chuva.get("markdown") or "")
+        snap["impacto_chuva_md"] = str(chuva.get("markdown") or "") if chuva.get("ok") else ""
         snap["impacto_chuva_ok"] = bool(chuva.get("ok"))
+        if not chuva.get("ok") and chuva.get("motivo"):
+            log.info("Impacto da chuva omitido: %s", chuva.get("motivo"))
     except Exception as exc:  # noqa: BLE001
         log.warning("Impacto da chuva indisponível no boletim: %s", exc)
         snap.setdefault("impacto_chuva", {})
@@ -270,8 +355,6 @@ def build_boletim_semanal(
                 maps["serie_cuiaba_inicio"] = sc.get("inicio")
                 maps["serie_cuiaba_fim"] = sc.get("fim")
                 maps["cuiaba_openmeteo_tmax_semana"] = sc.get("openmeteo_tmax_semana")
-                maps["cuiaba_inmet_30ago"] = sc.get("inmet_tmax_30ago")
-                maps["cuiaba_inmet_31ago"] = sc.get("inmet_tmax_31ago")
             sa = export_serie_cuiaba_amplitude(assets_dir, ano_inicio=1981)
             if sa.get("disponivel"):
                 maps["serie_cuiaba_amplitude"] = relpath_fig(sa.get("path"), dest)

@@ -20,22 +20,35 @@
 ## Operação rápida
 
 ```powershell
-# Painel local
+# Painel local (reaplica IRM/RIT/compostos na carga)
 .\.venv\Scripts\streamlit.exe run streamlit_app.py
 
-# ETL (uma rodada)
+# ETL (uma rodada) — inclui enrich operacional + multirisco
 .\.venv\Scripts\python.exe -m sisclima.pipeline
 
-# Alertas (uma vez, com gate de frescor)
+# Alertas (uma vez, com gate de frescor ETL + refresh IRM/RIT antes do digest)
 .\.venv\Scripts\python.exe -m sisclima.alerts.scheduler --once
 
 # Decretos (CLI)
 .\.venv\Scripts\python.exe scripts\buscar_decretos_emergencia_araras.py --dias 60
 
-# Boletim semanal
+# Boletim semanal (refresh EHF→IRM→RIT→compostos no builder)
 .\.venv\Scripts\python.exe -m sisclima.engines.boletim_el_nino_semanal --no-dw
 ```
 
+### Frescor multirisco (obrigatório)
+
+Ordem única: **EHF → IRM → RIT → compostos** (`sisclima/engines/resumo_frescor.py`).
+
+| Superfície | Quando atualiza |
+|---|---|
+| ETL / `run_operational_enrichment` | Ao final da rodada (antes de alerta inteligente) |
+| Pipeline pós-STAR | Após GeoCalor da rodada |
+| Alertas (`scheduler` / digest) | **Antes** de montar e enviar o digest |
+| Painel (`app_v9`) | Na carga do `resumo_municipal_atual` |
+| Boletim El Niño | No builder, antes do snapshot RIT |
+
+Indicadores novos: `indice_resiliencia_municipal_0_100` (capacidade), `rit_score_rede` (fragilidade), `gap_fumaca_nebulizacao`, `pressao_x_resiliencia`. Não alteram `nivel` / `nivel_predicao_7d`.
 ## Deploy Streamlit Cloud
 
 - **Branch:** `araras-mt`
@@ -50,9 +63,10 @@
 
 ## Limitações conhecidas (não bloqueiam este pacote)
 
-- Alguns conectores do Plano ainda em espera de tabela (`SISAGUA`, entomologia, denúncias)
+- Conectores do Plano SISAGUA / entomologia / denúncias leem CSV em `data/local/vigilancia/` (exemplos incluídos); sem CSV a UI mostra lacuna explícita
 - Fontes DW marcadas `pendente_sql_dw` no catálogo de agravos
 - Cobertura hidrológica municipal parcial no boletim
+- PM proxy Open-Meteo desligado por default (`USE_OPENMETEO_PM_PROXY=false`)
 
 ## Hardening de segurança (mínimo)
 
