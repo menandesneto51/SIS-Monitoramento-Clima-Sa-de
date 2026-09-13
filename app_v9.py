@@ -98,8 +98,8 @@ except ImportError:
         "3. Em Mapas, compare calor, fumaça, vulnerabilidade, faixa RIT e a predição de 7 dias.",
         "4. Em Território, confira a malha municipal e as populações vulneráveis.",
         "5. Em Qualidade do ar, veja PM2,5, IQA e focos de queimadas.",
-        "6. Em El Niño, leia o cenário oficial (ASO) e o boletim da semana.",
-        "7. Em Arboviroses, acompanhe dengue, zika e chikungunya (casos 7 dias e mapa).",
+        "6. Em El Niño (logo após o Guia), leia o cenário oficial (ASO) e o boletim da semana.",
+        "7. Em Cenário Epidemiológico, acompanhe arboviroses e demais agravos sensíveis ao clima.",
         "8. Em Cemaden / ANA, veja alertas de desastre, nível de rio e chuva.",
         "9. Em Sazonalidade / OR, compare o mês atual com o histórico e o odds ratio ecológico.",
         "10. Em Série ambiental, veja calor/ar no tempo e o desvio da janela atual vs a série.",
@@ -170,7 +170,7 @@ from sisclima.ui.interpretacoes import (
 )
 from sisclima.ui.views_extra import (
     render_adaptasus,
-    render_arboviroses,
+    render_cenario_epidemiologico,
     render_geocalor,
     render_hidrologia,
     render_sentinela_sg,
@@ -964,6 +964,14 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "analise_clima_saude_correlacoes_v8",
         "analise_clima_saude_alertas_estatisticos_v8",
     },
+    "Cenário Epidemiológico": {
+        "epi_arboviroses",
+        "epi_arboviroses_municipal",
+        "epi_sinan_agravos",
+        "epi_sinan_agravos_extras_clima",
+        "epi_sinan_intoxicacao_detalhe",
+        "epi_indicasus_internacao_cid",
+    },
 }
 
 TABLE_VAR_BINDINGS: dict[str, str] = {
@@ -1187,15 +1195,15 @@ for _col in ("data_referencia", "data_processamento", "atualizado_em"):
 
 NAV_SECTIONS: list[str] = [
     "Guia do leitor",
+    "El Niño / Contingência",
     "Visão executiva",
     "Mapas",
     "Fontes e qualidade",
-    "El Niño / Contingência",
     "Prontidão climática",
     "Clima / TITAN",
     "Qualidade do ar",
     "Assistência",
-    "Arboviroses",
+    "Cenário Epidemiológico",
     "SIVEP / Sentinela SG",
     "GeoCalor",  # key estável; label no menu = RR GeoCalor
     "AdaptaSUS / Guia MS",
@@ -1220,6 +1228,7 @@ def _nav_button_groups(*, publico: bool, abrir_sala: bool) -> list[tuple[str, li
     """Mesmo layout de botões do painel público; o interno só acrescenta abas no mesmo padrão."""
     leitura = [
         ("Guia do leitor", "Guia do leitor"),
+        ("El Niño", "El Niño / Contingência"),
         ("Visão", "Visão executiva"),
         ("Mapas", "Mapas"),
         ("Território", "Geografia"),
@@ -1227,11 +1236,10 @@ def _nav_button_groups(*, publico: bool, abrir_sala: bool) -> list[tuple[str, li
     clima = [
         ("Qualidade do ar", "Qualidade do ar"),
         ("Série ambiental", "Série histórica ambiental"),
-        ("El Niño", "El Niño / Contingência"),
         ("Cemaden / ANA", "Cemaden / ANA"),
     ]
     saude = [
-        ("Arboviroses", "Arboviroses"),
+        ("Cenário epidemiológico", "Cenário Epidemiológico"),
         ("Óbitos e clima", "Óbitos e clima"),
     ]
     analise = [
@@ -1301,10 +1309,13 @@ _ABA_ALIASES: dict[str, str] = {
     "ar": "Qualidade do ar",
     "qualidade-ar": "Qualidade do ar",
     "ambiente": "Qualidade do ar",
-    "as": "Arboviroses",
-    "agravos": "Arboviroses",
-    "saude": "Arboviroses",
-    "arboviroses": "Arboviroses",
+    "as": "Cenário Epidemiológico",
+    "agravos": "Cenário Epidemiológico",
+    "saude": "Cenário Epidemiológico",
+    "arboviroses": "Cenário Epidemiológico",
+    "cenario-epidemiologico": "Cenário Epidemiológico",
+    "cenario": "Cenário Epidemiológico",
+    "epidemiologico": "Cenário Epidemiológico",
     "rt": "Mapas",
     "resposta": "Mapas",
     "territorial": "Mapas",
@@ -1416,6 +1427,9 @@ with st.sidebar:
         with st.expander("Gestão de cadastros e níveis", expanded=False):
             render_gestao_usuarios()
     SECTION_KEY = st.session_state[_NAV_STATE]
+    if SECTION_KEY == "Arboviroses":
+        SECTION_KEY = "Cenário Epidemiológico"
+        st.session_state[_NAV_STATE] = SECTION_KEY
 
 if SECTION_KEY == SALA_PLANO_NAV and not _ABRIR_SALA:
     SECTION_KEY = "Visão executiva"
@@ -4724,11 +4738,11 @@ elif SECTION_KEY == "Alertas":
         height=320,
     )
 
-elif SECTION_KEY == "Arboviroses":
+elif SECTION_KEY in ("Cenário Epidemiológico", "Arboviroses"):
     _recorte_cod = None
     if _PAINEL_PUBLICO and "cod_ibge" in resumo.columns:
         _recorte_cod = set(resumo["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False).dropna())
-    _call_view(render_arboviroses, publico=_PAINEL_PUBLICO, recorte_codigos=_recorte_cod)
+    _call_view(render_cenario_epidemiologico, publico=_PAINEL_PUBLICO, recorte_codigos=_recorte_cod)
 
 elif SECTION_KEY == "SIVEP / Sentinela SG":
     render_sivep()

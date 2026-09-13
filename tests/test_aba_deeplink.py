@@ -34,7 +34,9 @@ def _resolve_aba_query(raw: str, valid: set[str]) -> str | None:
         "ce": "El Niño / Contingência",
         "qualidade-ar": "Qualidade do ar",
         "ar": "Qualidade do ar",
-        "as": "Arboviroses",
+        "as": "Cenário Epidemiológico",
+        "arboviroses": "Cenário Epidemiológico",
+        "cenario-epidemiologico": "Cenário Epidemiológico",
         "rt": "Mapas",
         "assistencia": "Assistência",
         "sala": "Sala de Situação / Plano El Niño",
@@ -72,10 +74,12 @@ def test_resolve_exact_key():
 
 
 def test_resolve_slug_alias():
-    valid = {"Qualidade do ar", "Arboviroses", "Mapas", "El Niño / Contingência"}
+    valid = {"Qualidade do ar", "Cenário Epidemiológico", "Mapas", "El Niño / Contingência"}
     assert _resolve_aba_query("ar", valid) == "Qualidade do ar"
     assert _resolve_aba_query("ce", valid) == "El Niño / Contingência"
     assert _resolve_aba_query("qualidade-ar", valid) == "Qualidade do ar"
+    assert _resolve_aba_query("as", valid) == "Cenário Epidemiológico"
+    assert _resolve_aba_query("arboviroses", valid) == "Cenário Epidemiológico"
 
 
 def test_resolve_ignores_unavailable_tab():

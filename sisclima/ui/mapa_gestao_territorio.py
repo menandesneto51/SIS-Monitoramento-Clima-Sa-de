@@ -18,10 +18,23 @@ _GRUPO_CNES = {
     "ambulatorio": "Ambulatório / clínica",
     "outros": "Outros",
 }
+_GRUPO_STYLE = {
+    "hospital": {"color": "#7f1d1d", "size": 13},
+    "urgencia": {"color": "#c2410c", "size": 11},
+    "aps": {"color": "#1d4ed8", "size": 8},
+    "laboratorio": {"color": "#0f766e", "size": 9},
+    "ambulatorio": {"color": "#6d28d9", "size": 7},
+    "outros": {"color": "#64748b", "size": 6},
+}
 _CAT_TERR = {
     "aldeia indígena": "Aldeia",
     "quilombo": "Quilombo",
     "assentamento": "Assentamento",
+}
+_CAT_TERR_STYLE = {
+    "Aldeia": {"color": "#15803d", "size": 12},
+    "Quilombo": {"color": "#a16207", "size": 12},
+    "Assentamento": {"color": "#b45309", "size": 11},
 }
 
 
@@ -135,54 +148,90 @@ def render_mapa_gestao_territorio(resumo: pd.DataFrame, *, allow_fetch: bool = F
 
     fig = go.Figure()
     if not pts_cnes.empty:
-        fig.add_trace(
-            go.Scattermap(
-                lat=pts_cnes["lat"],
-                lon=pts_cnes["lon"],
-                mode="markers",
-                name="CNES",
-                marker={"size": 8, "color": "#1d4ed8"},
-                text=pts_cnes["rotulo"].astype(str),
-                customdata=pts_cnes[[c for c in ["cnes", "tipo_unidade", "municipio", "fonte_coord"] if c in pts_cnes.columns]].to_numpy()
-                if any(c in pts_cnes.columns for c in ["cnes", "tipo_unidade"])
-                else None,
-                hovertemplate="%{text}<br>CNES %{customdata[0]}<extra>Unidade</extra>",
+        order = ["hospital", "urgencia", "aps", "laboratorio", "ambulatorio", "outros"]
+        grupos_plot = [g for g in order if g in set(pts_cnes.get("grupo_tipo", pd.Series(dtype=str)).dropna())]
+        for g in pts_cnes.get("grupo_tipo", pd.Series(dtype=str)).dropna().unique():
+            if g not in grupos_plot:
+                grupos_plot.append(g)
+        for g in grupos_plot:
+            sub = pts_cnes[pts_cnes["grupo_tipo"] == g] if "grupo_tipo" in pts_cnes.columns else pts_cnes
+            if sub.empty:
+                continue
+            style = _GRUPO_STYLE.get(str(g), {"color": "#475569", "size": 7})
+            opac = 0.9
+            if "fonte_coord" in sub.columns:
+                # média simples: centroides mais claros
+                n_cent = int((sub["fonte_coord"].astype(str) == "centroid_municipio").sum())
+                if n_cent == len(sub):
+                    opac = 0.45
+                elif n_cent > 0:
+                    opac = 0.7
+            hover = (
+                sub["rotulo"].astype(str)
+                + "<br>"
+                + sub.get("tipo_unidade", pd.Series([""] * len(sub))).astype(str)
+                + "<br>"
+                + sub.get("municipio", pd.Series([""] * len(sub))).astype(str)
             )
-        )
+            fig.add_trace(
+                go.Scattermap(
+                    lat=sub["lat"],
+                    lon=sub["lon"],
+                    mode="markers",
+                    name=_GRUPO_CNES.get(str(g), str(g)),
+                    marker={"size": style["size"], "color": style["color"], "opacity": opac},
+                    text=hover,
+                    hovertemplate="%{text}<extra>CNES</extra>",
+                )
+            )
     if not pts_terr.empty:
-        fig.add_trace(
-            go.Scattermap(
-                lat=pts_terr["lat"],
-                lon=pts_terr["lon"],
-                mode="markers",
-                name="Territórios",
-                marker={"size": 11, "color": "#b45309"},
-                text=pts_terr["rotulo"].astype(str)
-                + " · "
-                + pts_terr.get("camada", "").astype(str)
-                + (
-                    "<br>APS "
-                    + pts_terr["km_aps"].astype(str)
-                    + " km"
+        for camada in pts_terr["camada"].dropna().unique():
+            sub = pts_terr[pts_terr["camada"] == camada]
+            style = _CAT_TERR_STYLE.get(str(camada), {"color": "#b45309", "size": 11})
+            fig.add_trace(
+                go.Scattermap(
+                    lat=sub["lat"],
+                    lon=sub["lon"],
+                    mode="markers",
+                    name=str(camada),
+                    marker={"size": style["size"], "color": style["color"], "opacity": 0.95},
+                    text=sub["rotulo"].astype(str)
+                    + " · "
+                    + sub.get("camada", "").astype(str)
                     + (
-                        pts_terr["min_aps"].map(lambda v: f" ({int(v)} min)" if pd.notna(v) else "")
-                        if "min_aps" in pts_terr.columns
+                        "<br>APS "
+                        + sub["km_aps"].astype(str)
+                        + " km"
+                        + (
+                            sub["min_aps"].map(lambda v: f" ({int(v)} min)" if pd.notna(v) else "")
+                            if "min_aps" in sub.columns
+                            else ""
+                        )
+                        + " · hosp. "
+                        + sub["km_hospital"].astype(str)
+                        + " km"
+                        if "km_aps" in sub.columns
                         else ""
-                    )
-                    + " · hosp. "
-                    + pts_terr["km_hospital"].astype(str)
-                    + " km"
-                    if "km_aps" in pts_terr.columns
-                    else ""
-                ),
-                hovertemplate="%{text}<extra>Território</extra>",
+                    ),
+                    hovertemplate="%{text}<extra>Território</extra>",
+                )
             )
-        )
     fig.update_layout(
-        map_style="open-street-map",
-        margin=dict(l=0, r=0, t=0, b=0),
-        height=500,
-        legend_title_text="Camada",
+        map_style="carto-positron",
+        margin=dict(l=0, r=0, t=8, b=0),
+        height=520,
+        legend=dict(
+            title="Tipo / território",
+            orientation="v",
+            yanchor="top",
+            y=0.98,
+            xanchor="left",
+            x=0.01,
+            bgcolor="rgba(255,255,255,0.88)",
+            bordercolor="#cbd5e1",
+            borderwidth=1,
+            font=dict(size=11),
+        ),
         map={"center": {"lat": -12.6, "lon": -55.7}, "zoom": 4.8},
     )
     try:

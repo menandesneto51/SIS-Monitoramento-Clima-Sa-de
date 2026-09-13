@@ -93,7 +93,7 @@ def build_fonte_frescor_home(resumo: pd.DataFrame | None = None) -> pd.DataFrame
         ("SISREG / pressão hospitalar", "ops_sisreg_municipio", ["data_processamento", "atualizado_em"], 48, "Fila/regulação — demanda territorial"),
         ("Predição calor ~7d", "predicao_calor_7d_municipal_v6", ["data_processamento", "gerado_em", "data_referencia", "data"], 36, "Nowcast climático (não sazonal)"),
         ("SIVEP / SRAG", "epi_sivep_srag", ["data", "data_sintomas", "data_notificacao"], 72, "Respiratório"),
-        ("Arboviroses", "epi_arboviroses_municipal", ["data", "data_referencia", "semana_epidemiologica"], 96, "Dengue/Zika/Chik"),
+        ("Cenário epidemiológico", "epi_arboviroses_municipal", ["data", "data_referencia", "semana_epidemiologica"], 96, "Arbo + extras clima"),
         ("INMET alertas", "inmet_alertas", ["inicio", "data_atualizacao", "gerado_em"], 24, "Alertas oficiais"),
         ("Cemaden", "cemaden_alertas", ["data_atualizacao", "data"], 24, "Desastres / hidrologia"),
         ("Qualidade do ar", "qualidade_ar_municipal", ["data", "data_referencia"], 48, "PM2,5 / IQA"),

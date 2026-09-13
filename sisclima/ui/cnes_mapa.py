@@ -17,6 +17,16 @@ _GRUPO_LABEL = {
     "outros": "Outros",
 }
 
+# Paleta distinta (daltonismo-amigável) + tamanho por papel na rede
+_GRUPO_STYLE = {
+    "hospital": {"color": "#7f1d1d", "size": 14},
+    "urgencia": {"color": "#c2410c", "size": 12},
+    "aps": {"color": "#1d4ed8", "size": 9},
+    "laboratorio": {"color": "#0f766e", "size": 10},
+    "ambulatorio": {"color": "#6d28d9", "size": 8},
+    "outros": {"color": "#64748b", "size": 7},
+}
+
 
 def _filter_recorte(df: pd.DataFrame, resumo: pd.DataFrame) -> pd.DataFrame:
     if df is None or df.empty or resumo is None or resumo.empty:
@@ -30,6 +40,74 @@ def _filter_recorte(df: pd.DataFrame, resumo: pd.DataFrame) -> pd.DataFrame:
         muns = set(resumo["municipio"].dropna().astype(str).str.casefold())
         out = out[out["municipio"].astype(str).str.casefold().isin(muns)]
     return out
+
+
+def _plot_cnes_por_tipo(pts: pd.DataFrame):
+    """Uma trilha por tipo — legenda legível e tamanhos distintos."""
+    import plotly.graph_objects as go
+
+    fig = go.Figure()
+    order = ["hospital", "urgencia", "aps", "laboratorio", "ambulatorio", "outros"]
+    grupos = [g for g in order if g in set(pts.get("grupo_tipo", pd.Series(dtype=str)).dropna())]
+    for g in pts.get("grupo_tipo", pd.Series(dtype=str)).dropna().unique():
+        if g not in grupos:
+            grupos.append(g)
+
+    for g in grupos:
+        sub = pts[pts["grupo_tipo"] == g] if "grupo_tipo" in pts.columns else pts
+        if sub.empty:
+            continue
+        style = _GRUPO_STYLE.get(str(g), {"color": "#475569", "size": 8})
+        # Centroide municipal: menor opacidade para não competir com ponto oficial
+        if "fonte_coord" in sub.columns:
+            opac = sub["fonte_coord"].astype(str).map(
+                lambda f: 0.45 if f == "centroid_municipio" else 0.9
+            )
+        else:
+            opac = pd.Series([0.85] * len(sub), index=sub.index)
+        hover = (
+            sub.get("nome_unidade", sub.get("cnes", "")).astype(str)
+            + "<br>"
+            + sub.get("tipo_unidade", "").astype(str)
+            + "<br>"
+            + sub.get("municipio", "").astype(str)
+            + "<br>"
+            + sub.get("fonte_coord", "").astype(str)
+        )
+        fig.add_trace(
+            go.Scattermap(
+                lat=sub["lat"],
+                lon=sub["lon"],
+                mode="markers",
+                name=_GRUPO_LABEL.get(str(g), str(g)),
+                marker={
+                    "size": style["size"],
+                    "color": style["color"],
+                    "opacity": opac.tolist(),
+                },
+                text=hover,
+                hovertemplate="%{text}<extra></extra>",
+            )
+        )
+    fig.update_layout(
+        map_style="carto-positron",
+        margin=dict(l=0, r=0, t=8, b=0),
+        height=520,
+        legend=dict(
+            title="Tipo de unidade",
+            orientation="v",
+            yanchor="top",
+            y=0.98,
+            xanchor="left",
+            x=0.01,
+            bgcolor="rgba(255,255,255,0.85)",
+            bordercolor="#cbd5e1",
+            borderwidth=1,
+            font=dict(size=12),
+        ),
+        map=dict(center=dict(lat=-12.6, lon=-55.8), zoom=4.8),
+    )
+    return fig
 
 
 def render_mapa_cnes(resumo: pd.DataFrame, *, allow_fetch: bool = False) -> None:
@@ -67,8 +145,8 @@ def render_mapa_cnes(resumo: pd.DataFrame, *, allow_fetch: bool = False) -> None
         ]
     )
     callout(
-        "Ponto oficial = lat/lon do CNES (MS/DW). Centroide municipal = unidade sem geolocalização no cadastro — "
-        "não é o endereço da porta. Filtre o tipo para leitura operacional.",
+        "Cor = tipo de unidade · tamanho = papel na rede (hospital maior que APS). "
+        "Ponto semitransparente = centroide municipal (sem lat/lon no cadastro), não o endereço da porta.",
         "info",
     )
 
@@ -81,8 +159,15 @@ def render_mapa_cnes(resumo: pd.DataFrame, *, allow_fetch: bool = False) -> None
         format_func=lambda g: _GRUPO_LABEL.get(g, g),
         key="cnes_geo_tipos",
     )
+    so_oficial = st.checkbox(
+        "Só coordenadas oficiais (ocultar centroides)",
+        value=False,
+        key="cnes_geo_so_oficial",
+    )
     if escolhidos and not pts.empty:
         pts = pts[pts["grupo_tipo"].isin(escolhidos)]
+    if so_oficial and not pts.empty and "fonte_coord" in pts.columns:
+        pts = pts[pts["fonte_coord"].astype(str).isin(["opendata_cnes", "dw_cnes"])]
     if pts.empty:
         st.info("Nenhuma unidade com coordenada para os filtros atuais.")
         return
@@ -90,47 +175,48 @@ def render_mapa_cnes(resumo: pd.DataFrame, *, allow_fetch: bool = False) -> None
         st.caption(f"Exibindo 4.000 de {len(pts)} pontos para o mapa permanecer utilizável.")
         pts = pts.head(4000)
 
-    import plotly.express as px
+    # Contagem por tipo — leitura rápida antes do mapa
+    if "grupo_tipo" in pts.columns:
+        cont = (
+            pts["grupo_tipo"]
+            .map(lambda g: _GRUPO_LABEL.get(g, g))
+            .value_counts()
+            .rename_axis("tipo")
+            .reset_index(name="unidades")
+        )
+        st.dataframe(cont, hide_index=True, use_container_width=True, height=min(220, 40 + 28 * len(cont)))
 
-    hover = [c for c in ["cnes", "tipo_unidade", "municipio", "fonte_coord"] if c in pts.columns]
-    color = "grupo_tipo" if "grupo_tipo" in pts.columns else None
     try:
+        fig = _plot_cnes_por_tipo(pts)
+        try:
+            st.plotly_chart(fig, width="stretch")
+        except TypeError:
+            st.plotly_chart(fig, use_container_width=True)
+    except Exception:
+        import plotly.express as px
+
+        pts = pts.copy()
+        pts["tipo_rotulo"] = pts.get("grupo_tipo", "").map(lambda g: _GRUPO_LABEL.get(g, g))
         fig = px.scatter_map(
             pts,
             lat="lat",
             lon="lon",
-            color=color,
+            color="tipo_rotulo",
             hover_name="nome_unidade" if "nome_unidade" in pts.columns else None,
-            hover_data=hover,
+            hover_data=[c for c in ["cnes", "tipo_unidade", "municipio", "fonte_coord"] if c in pts.columns],
             zoom=5.1,
-            height=460,
+            height=520,
+            color_discrete_sequence=["#7f1d1d", "#c2410c", "#1d4ed8", "#0f766e", "#6d28d9", "#64748b"],
         )
-        fig.update_layout(map_style="open-street-map", margin=dict(l=0, r=0, t=0, b=0), legend_title_text="Tipo")
-    except Exception:
-        fig = px.scatter_geo(
-            pts,
-            lat="lat",
-            lon="lon",
-            color=color,
-            hover_name="nome_unidade" if "nome_unidade" in pts.columns else None,
-            height=460,
-        )
-        fig.update_geos(
-            fitbounds="locations",
-            visible=False,
-            projection_type="mercator",
-            lataxis_range=[-18.6, -7.0],
-            lonaxis_range=[-62.0, -50.0],
-        )
-        fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), legend_title_text="Tipo")
-    try:
-        st.plotly_chart(fig, width="stretch")
-    except TypeError:
-        st.plotly_chart(fig, use_container_width=True)
+        fig.update_layout(map_style="carto-positron", margin=dict(l=0, r=0, t=0, b=0), legend_title_text="Tipo")
+        try:
+            st.plotly_chart(fig, width="stretch")
+        except TypeError:
+            st.plotly_chart(fig, use_container_width=True)
 
     tab_ok, tab_sem = st.tabs(["Unidades no mapa", "Sem coordenada oficial"])
     with tab_ok:
-        cols = [c for c in ["cnes", "nome_unidade", "tipo_unidade", "municipio", "fonte_coord"] if c in pts.columns]
+        cols = [c for c in ["cnes", "nome_unidade", "tipo_unidade", "grupo_tipo", "municipio", "fonte_coord"] if c in pts.columns]
         st.dataframe(pts[cols].sort_values("municipio") if "municipio" in pts.columns else pts[cols], hide_index=True, height=280)
     with tab_sem:
         sem = df[pd.to_numeric(df.get("lat"), errors="coerce").isna() | (df.get("fonte_coord", "") == "")]

@@ -40,22 +40,28 @@ def _filter_recorte(df: pd.DataFrame, recorte_codigos: set[str] | None) -> pd.Da
     return df[cod.isin(recorte_codigos)].copy()
 
 
-def render_arboviroses(*, publico: bool = False, recorte_codigos: set[str] | None = None) -> None:
-    section_title(
-        "Arboviroses",
-        "Dengue, Zika, Chikungunya e correlatas"
-        if publico
-        else f"Dengue, Zika, Chikungunya e correlatas · base {backend_name()}",
-    )
-    if not publico:
-        callout(
-            "Casos em 7 dias mostram a pressão recente. Cruze com calor/chuva na Visão executiva — não projete a temporada só com este recorte.",
-            "info",
+def render_arboviroses(
+    *,
+    publico: bool = False,
+    recorte_codigos: set[str] | None = None,
+    embedded: bool = False,
+) -> None:
+    if not embedded:
+        section_title(
+            "Arboviroses",
+            "Dengue, Zika, Chikungunya e correlatas"
+            if publico
+            else f"Dengue, Zika, Chikungunya e correlatas · base {backend_name()}",
         )
+        if not publico:
+            callout(
+                "Casos em 7 dias mostram a pressão recente. Cruze com calor/chuva na Visão executiva — não projete a temporada só com este recorte.",
+                "info",
+            )
     arbo = _filter_recorte(read_table("epi_arboviroses"), recorte_codigos)
     arbo_mun = _filter_recorte(read_table("epi_arboviroses_municipal"), recorte_codigos)
     resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
-    if not publico:
+    if not publico and not embedded:
         render_interpretacao(
             "arboviroses",
             GUIDE_ARBO,
@@ -66,7 +72,7 @@ def render_arboviroses(*, publico: bool = False, recorte_codigos: set[str] | Non
         st.info(
             "Sem dados de arboviroses neste recorte."
             if publico
-            else "Tabelas de arboviroses ainda não geradas. Rode o pipeline."
+            else "Tabelas de arboviroses ainda não geradas. Rode o pipeline — ausência não é zero."
         )
         return
 
@@ -169,6 +175,247 @@ def render_arboviroses(*, publico: bool = False, recorte_codigos: set[str] | Non
             )
             if fig_map is not None:
                 st.plotly_chart(fig_map, use_container_width=True)
+
+
+def _metric_sum(df: pd.DataFrame, col: str) -> int | None:
+    if df is None or df.empty or col not in df.columns:
+        return None
+    return int(pd.to_numeric(df[col], errors="coerce").fillna(0).sum())
+
+
+def _render_bloco_sinan_extras(*, recorte_codigos: set[str] | None, publico: bool) -> None:
+    from sisclima.engines.dw_sinais_municipais import aggregate_sinan_extras_municipal
+
+    extras = _filter_recorte(read_table("epi_sinan_agravos_extras_clima"), recorte_codigos)
+    resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
+    callout(
+        "Hantavirose, animais peçonhentos, SRAG-SINAN, leishmanioses e febre maculosa (quando houver carga DW). "
+        "Ausência de linha não significa zero de casos.",
+        "info",
+    )
+    mun = pd.DataFrame()
+    if not extras.empty:
+        mun = aggregate_sinan_extras_municipal(extras)
+        mun = _filter_recorte(mun, recorte_codigos)
+    # Fallback: colunas já no resumo após enrich DW
+    if mun.empty and not resumo.empty:
+        cols = [
+            c
+            for c in (
+                "casos_hantavirose_7d",
+                "casos_peconhentos_7d",
+                "casos_srag_sinan_7d",
+                "casos_leish_visceral_7d",
+                "casos_leish_tegumentar_7d",
+                "casos_febre_maculosa_7d",
+                "casos_extras_clima_7d",
+            )
+            if c in resumo.columns
+        ]
+        if cols:
+            mun = resumo[["cod_ibge"] + (["municipio"] if "municipio" in resumo.columns else []) + cols].copy()
+
+    if mun.empty:
+        st.info("Sem agravos SINAN extras neste recorte (tabela vazia ou ainda sem enrich).")
+        return
+
+    labels = [
+        ("casos_extras_clima_7d", "Extras 7d"),
+        ("casos_hantavirose_7d", "Hantavirose"),
+        ("casos_peconhentos_7d", "Peçonhentos"),
+        ("casos_srag_sinan_7d", "SRAG SINAN"),
+        ("casos_leish_visceral_7d", "LV"),
+        ("casos_febre_maculosa_7d", "Febre maculosa"),
+    ]
+    cols_ui = st.columns(min(6, len(labels)))
+    for i, (col, lab) in enumerate(labels):
+        val = _metric_sum(mun, col)
+        cols_ui[i % len(cols_ui)].metric(lab, "—" if val is None else val)
+
+    show = mun.copy()
+    if "municipio" not in show.columns and not resumo.empty and "cod_ibge" in show.columns:
+        r = resumo.copy()
+        r["cod_ibge"] = r["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+        show["cod_ibge"] = show["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+        show = show.merge(
+            r[[c for c in ["cod_ibge", "municipio"] if c in r.columns]].drop_duplicates("cod_ibge"),
+            on="cod_ibge",
+            how="left",
+        )
+    sort_c = "casos_extras_clima_7d" if "casos_extras_clima_7d" in show.columns else None
+    if sort_c:
+        show[sort_c] = pd.to_numeric(show[sort_c], errors="coerce")
+        show = show.sort_values(sort_c, ascending=False)
+    st.dataframe(show, use_container_width=True, height=320)
+    if sort_c and "municipio" in show.columns and not publico:
+        top = show.head(15)
+        if not top.empty:
+            st.plotly_chart(
+                px.bar(top, x="municipio", y=sort_c, title="Top municípios — agravos extras clima (7d)"),
+                use_container_width=True,
+            )
+
+
+def _render_bloco_intox_fumaca(*, recorte_codigos: set[str] | None) -> None:
+    from sisclima.engines.dw_sinais_municipais import aggregate_intox_fumaca_municipal
+
+    raw = _filter_recorte(read_table("epi_sinan_intoxicacao_detalhe"), recorte_codigos)
+    resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
+    callout(
+        "Intoxicação exógena com menção a fumaça/queimada (SINAN). Não confundir total de intoxicações com o subconjunto fumaça.",
+        "warn",
+    )
+    mun = aggregate_intox_fumaca_municipal(raw) if not raw.empty else pd.DataFrame()
+    mun = _filter_recorte(mun, recorte_codigos)
+    if mun.empty and not resumo.empty:
+        cols = [c for c in ("n_intox_total_7d", "n_intox_fumaca_7d") if c in resumo.columns]
+        if cols:
+            mun = resumo[["cod_ibge"] + (["municipio"] if "municipio" in resumo.columns else []) + cols].copy()
+    if mun.empty:
+        st.info("Sem intoxicação/fumaça carregada neste recorte.")
+        return
+    c1, c2 = st.columns(2)
+    c1.metric("Intoxicações 7d", _metric_sum(mun, "n_intox_total_7d") or 0)
+    c2.metric("Com menção a fumaça 7d", _metric_sum(mun, "n_intox_fumaca_7d") or 0)
+    show = mun.copy()
+    if "municipio" not in show.columns and not resumo.empty:
+        r = resumo.copy()
+        r["cod_ibge"] = r["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+        show["cod_ibge"] = show["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+        show = show.merge(
+            r[[c for c in ["cod_ibge", "municipio"] if c in r.columns]].drop_duplicates("cod_ibge"),
+            on="cod_ibge",
+            how="left",
+        )
+    if "n_intox_fumaca_7d" in show.columns:
+        show["n_intox_fumaca_7d"] = pd.to_numeric(show["n_intox_fumaca_7d"], errors="coerce")
+        show = show.sort_values("n_intox_fumaca_7d", ascending=False)
+    st.dataframe(show, use_container_width=True, height=300)
+
+
+def _render_bloco_internacoes(*, recorte_codigos: set[str] | None) -> None:
+    from sisclima.engines.dw_sinais_municipais import aggregate_internacao_cid_municipal
+
+    raw = _filter_recorte(read_table("epi_indicasus_internacao_cid"), recorte_codigos)
+    resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
+    callout(
+        "Internações IndicaSUS/SIH por grupos CID sensíveis ao clima (respiratório, desidratação, DDA, cardiovascular). "
+        "Não é ocupação em tempo real.",
+        "info",
+    )
+    mun = aggregate_internacao_cid_municipal(raw) if not raw.empty else pd.DataFrame()
+    mun = _filter_recorte(mun, recorte_codigos)
+    if mun.empty and not resumo.empty and "internacoes_cid_clima_7d" in resumo.columns:
+        mun = resumo[
+            [c for c in ["cod_ibge", "municipio", "internacoes_cid_clima_7d"] if c in resumo.columns]
+        ].copy()
+    if mun.empty:
+        st.info("Sem internações CID clima neste recorte.")
+        return
+    c1, c2 = st.columns(2)
+    tot_col = next(
+        (c for c in ("internacoes_cid_clima_7d", "numero_internacoes", "internacoes_7d") if c in mun.columns),
+        None,
+    )
+    c1.metric("Internações clima 7d", _metric_sum(mun, tot_col) if tot_col else 0)
+    c2.metric("Municípios com registro", int((pd.to_numeric(mun[tot_col], errors="coerce").fillna(0) > 0).sum()) if tot_col else 0)
+    if not raw.empty and "grupo_internacao_clima" in raw.columns:
+        g = raw.copy()
+        g["n"] = pd.to_numeric(g.get("numero_internacoes", 1), errors="coerce").fillna(1)
+        by = g.groupby("grupo_internacao_clima", as_index=False)["n"].sum().sort_values("n", ascending=False)
+        st.plotly_chart(
+            px.bar(by, x="grupo_internacao_clima", y="n", title="Internações por grupo CID (recorte)"),
+            use_container_width=True,
+        )
+    st.dataframe(mun, use_container_width=True, height=280)
+
+
+def _render_bloco_malaria_srag(*, recorte_codigos: set[str] | None) -> None:
+    resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
+    callout(
+        "Malária (SIVEP/DW) e sinais de SRAG no resumo. Detalhe SIVEP-Gripe e Sentinela permanece na aba própria.",
+        "tip",
+    )
+    if resumo.empty:
+        st.info("Resumo municipal vazio neste recorte.")
+        return
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Malária 7d", _metric_sum(resumo, "casos_malaria_7d") if "casos_malaria_7d" in resumo.columns else "—")
+    c2.metric("SRAG 7d", _metric_sum(resumo, "casos_srag_7d") if "casos_srag_7d" in resumo.columns else "—")
+    c3.metric(
+        "Incidência SRAG máx.",
+        f"{float(pd.to_numeric(resumo['incidencia_srag_100k'], errors='coerce').max()):.1f}"
+        if "incidencia_srag_100k" in resumo.columns
+        and pd.to_numeric(resumo["incidencia_srag_100k"], errors="coerce").notna().any()
+        else "—",
+    )
+    fonte = "—"
+    if "fonte_srag" in resumo.columns and resumo["fonte_srag"].notna().any():
+        fonte = str(resumo["fonte_srag"].dropna().astype(str).mode().iloc[0])
+    c4.metric("Fonte SRAG", fonte)
+    cols = [
+        c
+        for c in (
+            "cod_ibge",
+            "municipio",
+            "casos_malaria_7d",
+            "casos_srag_7d",
+            "incidencia_srag_100k",
+            "srag_tendencia",
+            "fonte_srag",
+        )
+        if c in resumo.columns
+    ]
+    show = resumo[cols].copy()
+    for c in ("casos_malaria_7d", "casos_srag_7d"):
+        if c in show.columns:
+            show[c] = pd.to_numeric(show[c], errors="coerce")
+    sort_c = "casos_srag_7d" if "casos_srag_7d" in show.columns else ("casos_malaria_7d" if "casos_malaria_7d" in show.columns else None)
+    if sort_c:
+        show = show.sort_values(sort_c, ascending=False)
+    st.dataframe(show, use_container_width=True, height=300)
+
+
+def render_cenario_epidemiologico(*, publico: bool = False, recorte_codigos: set[str] | None = None) -> None:
+    """Aba unificada: arboviroses + demais agravos sensíveis ao clima."""
+    section_title(
+        "Cenário Epidemiológico",
+        "Arboviroses, SINAN extras, fumaça, internações e SRAG/malária"
+        if publico
+        else f"Arboviroses e demais agravos sensíveis ao clima · base {backend_name()}",
+    )
+    callout(
+        "Leitura multi-fonte (SINAN, IndicaSUS, SIVEP/resumo). Cada bloco declara a fonte. "
+        "Ausência de dado ≠ zero. Para série SIVEP completa use a aba SIVEP / Sentinela.",
+        "info",
+    )
+    resumo = _filter_recorte(read_table("resumo_municipal_atual"), recorte_codigos)
+    if not publico and not resumo.empty:
+        from sisclima.ui.home_ops import cards_agravos_extras_clima
+        from sisclima.ui.theme import insight_cards
+
+        insight_cards(cards_agravos_extras_clima(resumo))
+
+    tabs = st.tabs(
+        [
+            "Arboviroses",
+            "Agravos SINAN",
+            "Fumaça / intoxicação",
+            "Internações clima",
+            "Malária / SRAG",
+        ]
+    )
+    with tabs[0]:
+        render_arboviroses(publico=publico, recorte_codigos=recorte_codigos, embedded=True)
+    with tabs[1]:
+        _render_bloco_sinan_extras(recorte_codigos=recorte_codigos, publico=publico)
+    with tabs[2]:
+        _render_bloco_intox_fumaca(recorte_codigos=recorte_codigos)
+    with tabs[3]:
+        _render_bloco_internacoes(recorte_codigos=recorte_codigos)
+    with tabs[4]:
+        _render_bloco_malaria_srag(recorte_codigos=recorte_codigos)
+
 
 
 def render_sivep() -> None:
@@ -607,9 +854,13 @@ def render_hidrologia(*, publico: bool = False, recorte_codigos: set[str] | None
 
 
 def render_geocalor() -> None:
-    section_title("GeoCalor cardiorrespiratório", "Ondas de calor × internações e óbitos — lags 0–7")
+    section_title(
+        "RR GeoCalor / cardiorrespiratório",
+        "Ondas de calor × internações e óbitos — lags 0–7 (risco relativo)",
+    )
     callout(
-        "RR (risco relativo) > 1 sugere mais eventos após o calor, com defasagem em dias. É modelo exploratório — não é laudo individual.",
+        "RR (risco relativo) > 1 sugere mais eventos após o calor, com defasagem em dias. "
+        "Produto distinto do EHF GeoCalor (ondas STAR) na Visão/Mapas.",
         "warn",
     )
     status_df = read_table("geocalor_status_modelagem_v11_12")
