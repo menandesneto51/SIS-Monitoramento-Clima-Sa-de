@@ -93,9 +93,44 @@ def load_dw_internacao_cid_clima() -> pd.DataFrame:
 
 
 def load_dw_sinan_agravos_extras_clima() -> pd.DataFrame:
-    """SINAN extras: hantavirose, peçonhentos, SRAG, leishmaniose, febre maculosa."""
+    """SINAN extras: hantavirose, peçonhentos, SRAG, leishmaniose (V/T), febre maculosa."""
     return _load_dw_query('dw_sinan_agravos_extras_clima.sql', 'SINAN')
 
 
 def load_dw_gal_lacen() -> pd.DataFrame:
     return _load_dw_query('dw_gal_lacen_resultados.sql', 'GAL')
+
+
+def load_dw_sivep_malaria() -> pd.DataFrame:
+    """Malária agregada por município (DW). Flag USE_DW_SIVEP — não substitui SRAG local."""
+    return _load_dw_query('dw_sivep_malaria_municipal.sql', 'SIVEP')
+
+
+def load_dw_cnes_equipamentos() -> pd.DataFrame:
+    """Equipamentos CNES agregados por município (inclui nebulização quando tipado)."""
+    return _load_dw_query('dw_cnes_equipamentos_municipal.sql', 'CNES')
+
+
+def load_dw_cnes_equipamentos_por_tipo() -> pd.DataFrame:
+    """Equipamentos CNES por município × tipo/grupo (sem PII)."""
+    return _load_dw_query('dw_cnes_equipamentos_por_tipo_municipal.sql', 'CNES')
+
+
+def load_dw_cnes_profissionais() -> pd.DataFrame:
+    """Profissionais CNES — só contagens municipais (sem nome/CNS/CPF)."""
+    return _load_dw_query('dw_cnes_profissionais_municipal.sql', 'CNES')
+
+
+def load_dw_cnes_profissionais_por_ocupacao() -> pd.DataFrame:
+    """Profissionais CNES por município × CBO/ocupação (sem identificadores pessoais)."""
+    return _load_dw_query('dw_cnes_profissionais_por_ocupacao_municipal.sql', 'CNES')
+
+
+def load_dw_cnes_equipes_ab() -> pd.DataFrame:
+    """Equipes de atenção básica CNES — contagens municipais."""
+    return _load_dw_query('dw_cnes_equipes_ab_municipal.sql', 'CNES')
+
+
+def load_dw_cnes_servico_classificacao() -> pd.DataFrame:
+    """Serviços/classificações CNES — contagens municipais."""
+    return _load_dw_query('dw_cnes_servico_classificacao_municipal.sql', 'CNES')

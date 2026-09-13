@@ -1199,7 +1199,15 @@ def run_operational_enrichment(reclassify: bool = True) -> dict[str, Any]:
     arbo_mun = read_table("epi_arboviroses_municipal")
     press_series = read_table("epi_pressao_assistencial")
     occ_mun = read_table("hospital_ocupacao_municipio")
-    saz = compute_seasonality_outputs(met, sivep_series, arbo_mun, press_series, occ_mun)
+    aq_sazon = read_table("qualidade_ar_municipal")
+    saz = compute_seasonality_outputs(
+        met,
+        sivep_series,
+        arbo_mun,
+        press_series,
+        occ_mun,
+        qualidade_ar=aq_sazon,
+    )
     for tname, frame in saz.items():
         write_df(frame if frame is not None else pd.DataFrame(), tname)
     pred, pred_reg = build_predicao_7d(met, resumo)

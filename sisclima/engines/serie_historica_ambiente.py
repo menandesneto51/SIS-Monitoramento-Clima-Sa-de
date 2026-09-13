@@ -148,6 +148,7 @@ def comparar_janela_atual(
         for col, rotulo in (
             ("tmax_media", "Tmáx média (°C)"),
             ("utci_proxy_media", "UTCI médio"),
+            ("umidade_media_media", "Umidade média (%)"),
             ("risco_cumulativo_3d_media", "Risco cumulativo 3d"),
         ):
             if col not in df_m.columns:

@@ -86,6 +86,7 @@ TABLES = [
     "sazonalidade_perfil_semana_epi_v1",
     "sazonalidade_picos_v1",
     "clima_desfecho_lags_v1",
+    "sazonalidade_clima_cobertura_v1",
     "v9_status_modelagem_temporal",
     "v9_validacao",
     "v9_painel_saude_municipal_mensal",

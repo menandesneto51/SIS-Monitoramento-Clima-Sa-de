@@ -879,7 +879,7 @@ saude_calor_serie = saude_dic = gal_pos_mun = gal_pos_serie = sim_obitos_serie =
 alerta_mun_v6 = alerta_reg_v6 = pred_reg_v6 = pd.DataFrame()
 pred_skill_resumo = pred_ml_aux = epi_nowcast = epi_nowcast_skill = pd.DataFrame()
 analise_base_v8 = analise_corr_v8 = analise_or_v1 = analise_alertas_v8 = pd.DataFrame()
-sazon_mensal_v1 = sazon_heat_v1 = sazon_perfil_v1 = sazon_picos_v1 = lags_v1 = pd.DataFrame()
+sazon_mensal_v1 = sazon_heat_v1 = sazon_perfil_v1 = sazon_picos_v1 = lags_v1 = sazon_clima_cobertura_v1 = pd.DataFrame()
 validacao_v75 = v9_status = v9_validacao = v9_saude_mensal = v9_clima = pd.DataFrame()
 v9_painel = v9_lags = v9_modelos = v9_priorizacao = pd.DataFrame()
 
@@ -891,6 +891,10 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "cnes_unidades_geo",
         "cobertura_territorio_cnes",
         "vigibarragens_populacoes",
+        "epi_cnes_equipamentos_por_tipo",
+        "epi_cnes_profissionais_por_ocupacao",
+        "epi_cnes_equipamentos_municipal",
+        "epi_cnes_profissionais_municipal",
     },
     "Visão executiva": {"alerta_integrado_sis_titan", "cemaden_alertas", "inmet_alertas"},
     "Clima / TITAN": {
@@ -916,7 +920,13 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "ops_resumo_operacional_cnes",
         "cnes_unidades_geo",
     },
-    "Geografia": {"cnes_unidades_geo", "cobertura_territorio_cnes", "vigibarragens_populacoes"},
+    "Geografia": {
+        "cnes_unidades_geo",
+        "cobertura_territorio_cnes",
+        "vigibarragens_populacoes",
+        "epi_cnes_equipamentos_por_tipo",
+        "epi_cnes_profissionais_por_ocupacao",
+    },
     "Inteligência": {
         "alerta_inteligente_municipal_v6",
         "alerta_inteligente_regional_v6",
@@ -958,6 +968,9 @@ SECTION_TABLE_DEPS: dict[str, set[str]] = {
         "sazonalidade_heatmap_semana_ano_v1",
         "sazonalidade_picos_v1",
         "clima_desfecho_lags_v1",
+        "sazonalidade_clima_cobertura_v1",
+        "qualidade_ar_municipal",
+        "met_biometeo",
     },
     "Correlação clima-saúde": {
         "analise_clima_saude_base_municipal_v8",
@@ -1012,6 +1025,7 @@ TABLE_VAR_BINDINGS: dict[str, str] = {
     "sazonalidade_perfil_semana_epi_v1": "sazon_perfil_v1",
     "sazonalidade_picos_v1": "sazon_picos_v1",
     "clima_desfecho_lags_v1": "lags_v1",
+    "sazonalidade_clima_cobertura_v1": "sazon_clima_cobertura_v1",
     "validacao_v7_5": "validacao_v75",
     "v9_status_modelagem_temporal": "v9_status",
     "v9_validacao": "v9_validacao",
@@ -2467,6 +2481,14 @@ elif SECTION_KEY == "Mapas":
 
     render_mapa_gestao_territorio(resumo, allow_fetch=not _PAINEL_PUBLICO)
 
+    st.markdown("#### Equipamentos e profissionais CNES")
+    st.caption(
+        "Camadas agregadas do DW (USE_DW_CNES). Profissionais só por família de ocupação/CBO — sem nomes."
+    )
+    from sisclima.ui.cnes_mapas_rede import render_mapas_rede_cnes
+
+    render_mapas_rede_cnes(resumo, allow_fetch=not _PAINEL_PUBLICO)
+
     st.markdown("#### Mapa preditivo 7 dias")
     st.caption("Nível operacional previsto para a semana seguinte no recorte filtrado. Não é cenário sazonal.")
     _traj_map = build_trajetoria_7d(resumo, pred_v6 if not pred_v6.empty else None)
@@ -3400,6 +3422,14 @@ elif SECTION_KEY == "Geografia":
     from sisclima.ui.mapa_gestao_territorio import render_mapa_gestao_territorio
 
     render_mapa_gestao_territorio(resumo, allow_fetch=not _PAINEL_PUBLICO)
+
+    st.markdown("#### Equipamentos e profissionais CNES")
+    st.caption(
+        "Camadas agregadas do DW (USE_DW_CNES). Profissionais só por família de ocupação/CBO — sem nomes."
+    )
+    from sisclima.ui.cnes_mapas_rede import render_mapas_rede_cnes
+
+    render_mapas_rede_cnes(resumo, allow_fetch=not _PAINEL_PUBLICO)
 
     st.markdown("#### Mapa de vulnerabilidade territorial ao calor")
     if "indice_vulnerabilidade_calor" in map_df.columns:
@@ -4772,171 +4802,18 @@ elif SECTION_KEY == "Óbitos e clima":
     render_obitos_clima(publico=_PAINEL_PUBLICO)
 
 elif SECTION_KEY == "Sazonalidade / OR":
-    ui_theme.section_title(
-        "Sazonalidade e Odds Ratio",
-        "Padrão histórico e chance relativa clima–agravos",
+    from sisclima.ui.sazonalidade_or import render_sazonalidade_or
+
+    render_sazonalidade_or(
+        resumo=resumo,
+        publico=_PAINEL_PUBLICO,
+        show_df=show_df,
+        render_interpretacao=None if _PAINEL_PUBLICO else render_interpretacao,
+        guide=None if _PAINEL_PUBLICO else GUIDE_SAZONAL_OR,
+        narrativa_fn=None if _PAINEL_PUBLICO else narrativa_sazonal_or,
+        persist=True,
+        max_age_hours=24.0,
     )
-    ui_theme.callout(
-        "Esta aba descreve padrão histórico e chance relativa entre grupos de municípios. "
-        "Não prova que o clima causou o caso individual.",
-        "info",
-    )
-    # Comparação atual × série ambiental (mesmo recorte da nova aba)
-    try:
-        from sisclima.engines.serie_historica_ambiente import resumo_serie_ambiente_boletim
-
-        _amb = resumo_serie_ambiente_boletim()
-        _cmp = _amb.get("comparacao") or {}
-        if _cmp.get("ok"):
-            ui_theme.section_title(
-                "Situação atual × série ambiental",
-                "Desvio da janela de 7 dias e z-score do mês corrente vs mesmo mês em anos anteriores",
-            )
-            ui_theme.callout(str(_cmp.get("narrativa") or ""), "warn")
-            _mes = _cmp.get("mes_cmp") or {}
-            if _mes.get("ok") and _mes.get("indicadores"):
-                _cards = []
-                for rot, vals in _mes["indicadores"].items():
-                    _cards.append(
-                        (
-                            rot,
-                            f"z={vals['zscore']:+.2f}",
-                            f"{vals['atual']:.1f} vs {vals['media_historica_mesmo_mes']:.1f}",
-                        )
-                    )
-                if _cards:
-                    ui_theme.insight_cards(_cards[:6])
-            st.caption("Detalhe gráfico na aba **Série ambiental**. |z|≥1 = desvio relevante do padrão do mês.")
-    except Exception:
-        pass
-    st.markdown(
-        """
-**Como ler estes dados**
-
-1. **Índice sazonal mensal** — acima de 1 o mês é historicamente mais crítico do que a média do período. A linha tracejada marca a média (1,0).
-2. **Heatmap semana × ano** — cores mais quentes indicam semanas em que o indicador costuma subir. Compare a semana atual com o mesmo período de anos anteriores.
-3. **Odds Ratio (OR)** — compara municípios mais expostos vs menos expostos. OR &gt; 1 sugere maior chance do desfecho no grupo exposto; olhe também o intervalo de confiança e se o resultado é significativo (p &lt; 0,05).
-4. **Lags (0–14 dias)** — mostra com quantos dias de defasagem o clima se associa ao desfecho. É exploratório: gera hipótese, não decisão clínica.
-        """
-    )
-    if not _PAINEL_PUBLICO:
-        ui_theme.callout(
-            "Odds Ratio e correlações temporais são análises ecológicas exploratórias: ajudam na priorização, não comprovam causalidade individual.",
-            "warn",
-        )
-        render_interpretacao(
-            "sazonal_or",
-            GUIDE_SAZONAL_OR,
-            lambda: narrativa_sazonal_or(analise_or_v1, sazon_mensal_v1),
-        )
-        st.markdown(
-            "- Análise ecológica de sazonalidade e odds ratio clima–agravos do ARARAS "
-            "(calor, arboviroses, SRAG, ocupação).  \n"
-            "- Documento local: `docs/ANALISE_OR_SAZONALIDADE.md`."
-        )
-
-    if sazon_picos_v1.empty and sazon_mensal_v1.empty and analise_or_v1.empty:
-        st.info(
-            "Sazonalidade e odds ratio ainda não disponíveis neste recorte."
-            if _PAINEL_PUBLICO
-            else "Tabelas de sazonalidade/OR ainda não geradas. Rode completar_sistema_operacional.py."
-        )
-    else:
-        c1, c2, c3 = st.columns(3)
-        if not sazon_mensal_v1.empty:
-            top = sazon_mensal_v1.sort_values("indice_sazonal", ascending=False).head(1)
-            c1.metric("Mês de pico sazonal", str(top["mes_rotulo"].iloc[0]) if not top.empty else "—")
-        else:
-            c1.metric("Mês de pico sazonal", "—")
-
-        if not sazon_picos_v1.empty:
-            se = sazon_picos_v1[sazon_picos_v1["tipo"] == "se_atual_vs_media"].head(1)
-            if not se.empty and pd.notna(se.get("valor_atual").iloc[0]) and pd.notna(se.get("valor_medio_historico").iloc[0]):
-                atual = float(se["valor_atual"].iloc[0])
-                media = float(se["valor_medio_historico"].iloc[0])
-                c2.metric("SE atual vs média", f"{atual:.2f}", delta=f"{(atual - media):+.2f}")
-            else:
-                c2.metric("SE atual vs média", "—")
-        else:
-            c2.metric("SE atual vs média", "—")
-
-        if not analise_or_v1.empty and "significativo_005" in analise_or_v1.columns:
-            c3.metric("OR significativos (p<0.05)", int(pd.to_numeric(analise_or_v1["significativo_005"], errors="coerce").fillna(0).astype(int).sum()))
-        else:
-            c3.metric("OR significativos (p<0.05)", 0)
-
-        st.markdown("#### Índice sazonal mensal")
-        if not sazon_mensal_v1.empty:
-            sm = sazon_mensal_v1.copy()
-            sm["indice_sazonal"] = pd.to_numeric(sm["indice_sazonal"], errors="coerce")
-            fig = px.bar(
-                sm.sort_values("mes"),
-                x="mes_rotulo",
-                y="indice_sazonal",
-                color="acima_media" if "acima_media" in sm.columns else None,
-                color_discrete_map={True: LEVEL_COLOR_MAP["laranja"], False: LEVEL_COLOR_MAP["verde"]},
-                title="Índice sazonal mensal (acima de 1 = acima da média histórica)",
-            )
-            fig.add_hline(y=1.0, line_dash="dash")
-            fig.update_layout(showlegend=False)
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Sem série mensal para índice sazonal.")
-
-        st.markdown("#### Heatmap semana epidemiológica × ano")
-        if not sazon_heat_v1.empty:
-            h = sazon_heat_v1.copy()
-            h["valor"] = pd.to_numeric(h["valor"], errors="coerce")
-            mat = h.pivot_table(index="ano_epi", columns="semana_epi", values="valor", aggfunc="mean")
-            if not mat.empty:
-                fig_h = px.imshow(
-                    mat,
-                    aspect="auto",
-                    color_continuous_scale="YlOrRd",
-                    title="Heatmap sazonal (SE × ano)",
-                    labels={"x": "Semana epidemiológica", "y": "Ano epidemiológico", "color": "valor"},
-                )
-                st.plotly_chart(fig_h, use_container_width=True)
-            else:
-                st.info("Heatmap vazio nesta rodada.")
-        else:
-            st.info("Sem dados para heatmap sazonal.")
-
-        st.markdown("#### Odds Ratio clima–agravos/ocupação")
-        if not analise_or_v1.empty:
-            or_df = analise_or_v1.copy()
-            show_df(
-                or_df,
-                [c for c in ["exposicao", "desfecho", "n_analisado", "limiar_exposicao", "limiar_desfecho", "or", "ic95_inferior", "ic95_superior", "p_value", "significativo_005", "interpretacao"] if c in or_df.columns],
-                height=340,
-            )
-        else:
-            st.info("Sem OR calculado nesta rodada.")
-
-        st.markdown("#### Lags clima–desfecho (0–14 dias)")
-        if not lags_v1.empty:
-            lg = lags_v1.copy().head(150)
-            lg["lag_dias"] = pd.to_numeric(lg["lag_dias"], errors="coerce")
-            lg["abs_spearman"] = pd.to_numeric(lg["abs_spearman"], errors="coerce")
-            fig_l = px.scatter(
-                lg,
-                x="lag_dias",
-                y="abs_spearman",
-                color="desfecho",
-                symbol="exposicao",
-                title="Força da correlação temporal por lag (|Spearman|)",
-                hover_data=[c for c in ["exposicao", "desfecho", "spearman", "pearson", "n_dias_validos"] if c in lg.columns],
-            )
-            st.plotly_chart(fig_l, use_container_width=True)
-            show_df(
-                lg.sort_values(["abs_spearman", "n_dias_validos"], ascending=[False, False]),
-                [c for c in ["exposicao", "desfecho", "lag_dias", "spearman", "pearson", "abs_spearman", "n_dias_validos"] if c in lg.columns],
-                height=300,
-            )
-        else:
-            st.info("Sem tabela de lags nesta rodada.")
-        if not _PAINEL_PUBLICO:
-            ui_theme.glossary_expander(["indice_sazonal", "odds_ratio", "ocupacao_leitos_pct", "pressao_calor_pct"])
 
 elif SECTION_KEY == "Correlação clima-saúde":
     ui_theme.section_title(

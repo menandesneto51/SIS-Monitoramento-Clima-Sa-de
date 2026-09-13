@@ -2,8 +2,38 @@
 """Sazonalidade clima-saúde (agravos, ocupação e índices climáticos do ARARAS)."""
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pandas as pd
+
+try:
+    from scipy import stats as _scipy_stats
+except Exception:  # pragma: no cover
+    _scipy_stats = None
+
+from sisclima.engines.clima_exposicoes import (
+    CLIMA_EXPOSICOES,
+    available_climate_cols,
+    ensure_amplitude_termica,
+)
+
+
+def _spearman_pvalue(rho: float, n: int) -> float:
+    """p bilateral aproximado (t de Student sobre Spearman)."""
+    if pd.isna(rho) or n < 3:
+        return float("nan")
+    r = float(rho)
+    if abs(r) >= 0.999999:
+        return 0.0
+    tstat = r * math.sqrt((n - 2) / (1.0 - r * r))
+    if _scipy_stats is not None:
+        try:
+            return float(2.0 * _scipy_stats.t.sf(abs(tstat), n - 2))
+        except Exception:
+            pass
+    # Normal aproximada (n grande)
+    return float(math.erfc(abs(tstat) / math.sqrt(2.0)))
 
 
 MESES = {
@@ -36,23 +66,53 @@ def _state_daily_from_inputs(
     arbo_mun: pd.DataFrame,
     pressao: pd.DataFrame,
     ocup_mun: pd.DataFrame,
+    qualidade_ar: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
-    # Base de datas pela meteorologia
+    """Série estadual diária: Open-Meteo/biometeo + Copernicus/IQA + desfechos."""
     m = _to_date(met, "data")
     if m.empty:
         return pd.DataFrame()
-    daily = m.groupby("data", as_index=False).agg(
-        tmax=("tmax", "mean") if "tmax" in m.columns else ("data", "count"),
-        utci_proxy=("utci_proxy", "mean") if "utci_proxy" in m.columns else ("data", "count"),
-        risco_cumulativo_3d=("risco_cumulativo_3d", "mean") if "risco_cumulativo_3d" in m.columns else ("data", "count"),
-        precipitacao_mm=("precipitacao_mm", "mean") if "precipitacao_mm" in m.columns else ("data", "count"),
-        pm25_ugm3=("pm25_ugm3", "mean") if "pm25_ugm3" in m.columns else ("data", "count"),
-    )
-    for c in ["tmax", "utci_proxy", "risco_cumulativo_3d", "precipitacao_mm", "pm25_ugm3"]:
-        if c in daily.columns:
-            daily[c] = pd.to_numeric(daily[c], errors="coerce")
+    m = ensure_amplitude_termica(m)
 
-    sv = _to_date(sivep, "data")
+    # Agrega todas as exposições climáticas presentes no met
+    clima_cols = available_climate_cols(m, CLIMA_EXPOSICOES)
+    if not clima_cols:
+        # mínimo operacional
+        clima_cols = [c for c in ("tmax", "utci_proxy") if c in m.columns]
+    if not clima_cols:
+        return pd.DataFrame()
+
+    agg_kw = {c: (c, "mean") for c in clima_cols}
+    daily = m.groupby("data", as_index=False).agg(**agg_kw)
+    for c in clima_cols:
+        daily[c] = pd.to_numeric(daily[c], errors="coerce")
+
+    # Qualidade do ar (Copernicus/CAMS) — completa PM/IQA se não vierem no met
+    aq = qualidade_ar if qualidade_ar is not None else pd.DataFrame()
+    if not aq.empty:
+        a = _to_date(aq, "data")
+        aq_cols = available_climate_cols(a, CLIMA_EXPOSICOES)
+        # preferir colunas de ar mesmo se já no met (preenche gaps depois)
+        if aq_cols:
+            for c in aq_cols:
+                a[c] = pd.to_numeric(a[c], errors="coerce")
+            a_state = a.groupby("data", as_index=False)[aq_cols].mean()
+            # merge: usa valor AQ onde met está ausente; se coluna nova, adiciona
+            daily = daily.merge(a_state, on="data", how="left", suffixes=("", "_aq"))
+            for c in aq_cols:
+                aq_c = f"{c}_aq"
+                if aq_c in daily.columns:
+                    if c in daily.columns:
+                        daily[c] = daily[c].combine_first(daily[aq_c])
+                    else:
+                        daily[c] = daily[aq_c]
+                    daily = daily.drop(columns=[aq_c])
+                elif c not in daily.columns and c in a_state.columns:
+                    pass  # already merged without suffix when only in right
+
+    daily = ensure_amplitude_termica(daily)
+
+    sv = _to_date(sivep, "data") if sivep is not None else pd.DataFrame()
     if not sv.empty:
         cols = [c for c in ["casos_srag", "obitos", "incidencia_srag_100k"] if c in sv.columns]
         if cols:
@@ -61,19 +121,18 @@ def _state_daily_from_inputs(
             sv_state = sv.groupby("data", as_index=False)[cols].sum(min_count=1)
             daily = daily.merge(sv_state, on="data", how="left")
 
-    ab = _to_date(arbo_mun, "data")
+    ab = _to_date(arbo_mun, "data") if arbo_mun is not None else pd.DataFrame()
     if not ab.empty and "casos_arbovirus_7d" in ab.columns:
         ab["casos_arbovirus_7d"] = pd.to_numeric(ab["casos_arbovirus_7d"], errors="coerce")
         ab_state = ab.groupby("data", as_index=False)["casos_arbovirus_7d"].sum(min_count=1)
         daily = daily.merge(ab_state, on="data", how="left")
 
-    pr = _to_date(pressao, "data")
+    pr = _to_date(pressao, "data") if pressao is not None else pd.DataFrame()
     if not pr.empty and "pressao_calor_pct" in pr.columns:
         pr["pressao_calor_pct"] = pd.to_numeric(pr["pressao_calor_pct"], errors="coerce")
         pr_state = pr.groupby("data", as_index=False)["pressao_calor_pct"].mean()
         daily = daily.merge(pr_state, on="data", how="left")
 
-    # Ocupação: usar série se houver data; senão snapshot vira constante no último dia
     oc = ocup_mun.copy() if ocup_mun is not None else pd.DataFrame()
     if not oc.empty and "ocupacao_pct" in oc.columns:
         oc = oc.rename(columns={"ocupacao_pct": "ocupacao_leitos_pct"})
@@ -175,8 +234,12 @@ def _picos(mensal_idx: pd.DataFrame, heat: pd.DataFrame, perfil: pd.DataFrame) -
 def _lag_correlations(daily: pd.DataFrame, max_lag: int = 14) -> pd.DataFrame:
     if daily.empty:
         return pd.DataFrame()
-    expos = [c for c in ["tmax", "utci_proxy", "risco_cumulativo_3d", "pm25_ugm3", "precipitacao_mm"] if c in daily.columns]
-    desf = [c for c in ["casos_srag", "casos_arbovirus_7d", "ocupacao_leitos_pct", "pressao_calor_pct", "obitos"] if c in daily.columns]
+    expos = available_climate_cols(daily, CLIMA_EXPOSICOES)
+    desf = [
+        c
+        for c in ["casos_srag", "casos_arbovirus_7d", "ocupacao_leitos_pct", "pressao_calor_pct", "obitos"]
+        if c in daily.columns
+    ]
     rows: list[dict] = []
     for exp in expos:
         for out in desf:
@@ -195,6 +258,7 @@ def _lag_correlations(daily: pd.DataFrame, max_lag: int = 14) -> pd.DataFrame:
                 xr = x.rank(method="average")
                 yr = y.rank(method="average")
                 spear = xr.corr(yr, method="pearson")
+                p_sp = _spearman_pvalue(float(spear) if pd.notna(spear) else float("nan"), n)
                 rows.append(
                     {
                         "exposicao": exp,
@@ -203,13 +267,18 @@ def _lag_correlations(daily: pd.DataFrame, max_lag: int = 14) -> pd.DataFrame:
                         "pearson": pear,
                         "spearman": spear,
                         "abs_spearman": abs(float(spear)) if pd.notna(spear) else np.nan,
+                        "p_value": p_sp,
+                        "significativo_005": bool((not pd.isna(p_sp)) and p_sp < 0.05),
                         "n_dias_validos": n,
                         "nota_tecnica": "Correlação ecológica temporal exploratória (não causal).",
                     }
                 )
     if not rows:
         return pd.DataFrame()
-    out = pd.DataFrame(rows).sort_values(["abs_spearman", "n_dias_validos"], ascending=[False, False])
+    out = pd.DataFrame(rows).sort_values(
+        ["significativo_005", "abs_spearman", "n_dias_validos"],
+        ascending=[False, False, False],
+    )
     out["data_processamento"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
     return out
 
@@ -220,6 +289,7 @@ def compute_seasonality_outputs(
     epi_arboviroses_municipal: pd.DataFrame,
     epi_pressao_assistencial: pd.DataFrame,
     hospital_ocupacao_municipio: pd.DataFrame,
+    qualidade_ar: pd.DataFrame | None = None,
 ) -> dict[str, pd.DataFrame]:
     daily = _state_daily_from_inputs(
         met_biometeo,
@@ -227,17 +297,36 @@ def compute_seasonality_outputs(
         epi_arboviroses_municipal,
         epi_pressao_assistencial,
         hospital_ocupacao_municipio,
+        qualidade_ar=qualidade_ar,
     )
     mensal_idx = _monthly_index(daily)
     heat = _heatmap_week_year(daily)
     perfil = _week_profile(heat)
     picos = _picos(mensal_idx, heat, perfil)
     lags = _lag_correlations(daily, max_lag=14)
+    # Inventário de cobertura climática desta rodada
+    clima_ok = available_climate_cols(daily, CLIMA_EXPOSICOES)
+    cobertura = pd.DataFrame(
+        [
+            {
+                "variavel": c,
+                "disponivel": True,
+                "n_dias_validos": int(pd.to_numeric(daily[c], errors="coerce").notna().sum()),
+                "media": float(pd.to_numeric(daily[c], errors="coerce").mean()),
+            }
+            for c in clima_ok
+        ]
+    )
+    stamp = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    for frame in (mensal_idx, heat, perfil, picos, cobertura):
+        if frame is not None and not frame.empty:
+            frame["data_processamento"] = stamp
     return {
         "sazonalidade_indice_mensal_v1": mensal_idx,
         "sazonalidade_heatmap_semana_ano_v1": heat,
         "sazonalidade_perfil_semana_epi_v1": perfil,
         "sazonalidade_picos_v1": picos,
         "clima_desfecho_lags_v1": lags,
+        "sazonalidade_clima_cobertura_v1": cobertura,
     }
 

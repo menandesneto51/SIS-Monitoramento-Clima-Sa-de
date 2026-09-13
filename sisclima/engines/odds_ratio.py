@@ -14,14 +14,10 @@ except Exception:  # pragma: no cover
     stats = None
 
 
-DEFAULT_EXPOSURES = [
-    "tmax",
-    "utci_proxy",
-    "risco_cumulativo_3d",
-    "pm25_ugm3",
-    "precipitacao_mm",
-    "indice_tensao_climatica",
-]
+from sisclima.engines.clima_exposicoes import CLIMA_EXPOSICOES
+
+# Open-Meteo + Copernicus/CAMS + derivados — só usa o que existir no resumo
+DEFAULT_EXPOSURES = list(CLIMA_EXPOSICOES)
 
 DEFAULT_OUTCOMES = [
     "casos_srag",
