@@ -331,30 +331,30 @@ def scorecard_rit(
 
     dominante = str(rit.get("rit_dominio_dominante") or "—")
     faixa_geral = str(rit.get("rit_faixa") or faixa_rit(float(rit_score)))
-    dom_item = next((d for d in dominios if d["id"] == dominante), None)
-    if dom_item and dom_item.get("status") == "valido":
-        explicacao = (
-            f"RIT puxado por {dom_item['rotulo']} "
-            f"({_fmt_score(dom_item['score'])} → {dom_item['faixa']})"
-        )
-    else:
-        explicacao = f"RIT puxado por {DOMINIO_ROTULOS.get(dominante, dominante)}"
-
-    demais = [
+    # Citar só o(s) domínio(s) que realmente puxam o RIT (score = RIT ou empatados no máximo).
+    # Os demais já aparecem no bloco "RIT — classificação por domínio".
+    influenciadores = [
         d
         for d in dominios
-        if d["id"] != dominante
+        if d.get("status") == "valido"
+        and d.get("score") is not None
+        and abs(float(d["score"]) - float(rit_score)) < 0.51
     ]
-    partes_demais: list[str] = []
-    for d in demais:
-        if d["status"] == "valido":
-            partes_demais.append(f"{d['rotulo']} {d['faixa']}")
-        elif d["status"] == "omitido_defasagem":
-            partes_demais.append(f"{d['rotulo']} omitida")
+    if not influenciadores:
+        dom_item = next((d for d in dominios if d["id"] == dominante), None)
+        if dom_item and dom_item.get("status") == "valido":
+            influenciadores = [dom_item]
+    if influenciadores:
+        partes = [
+            f"{d['rotulo']} ({_fmt_score(d['score'])} → {d['faixa']})"
+            for d in influenciadores
+        ]
+        if len(partes) == 1:
+            explicacao = f"RIT puxado por {partes[0]}"
         else:
-            partes_demais.append(f"{d['rotulo']} —")
-    if partes_demais:
-        explicacao = f"{explicacao}; demais: {', '.join(partes_demais)}"
+            explicacao = f"RIT puxado por: {'; '.join(partes)}"
+    else:
+        explicacao = f"RIT puxado por {DOMINIO_ROTULOS.get(dominante, dominante)}"
 
     return {
         "disponivel": True,
@@ -536,6 +536,8 @@ def resumo_rit_estadual(resumo: pd.DataFrame, top_n: int = 10) -> dict[str, Any]
 {tab}
 
 > RIT = observado multidomínio; projeção ~7d = térmica. Composição: máximo entre domínios válidos.{nota_def}{nota_irm}
+>
+> **Atenção:** «domínio pressão omitido do RIT por defasagem» ({fmt_int(omit_p)} mun.) **não** é o mesmo indicador que «pressão × resiliência/IRM» (composto de capacidade de rede).
 """
     return {
         "disponivel": True,
@@ -550,8 +552,18 @@ def resumo_rit_estadual(resumo: pd.DataFrame, top_n: int = 10) -> dict[str, Any]
         "card_md": (
             f"| RIT MULTIRISCO | MODELO ~7 DIAS |\n"
             f"| --- | --- |\n"
-            f"| **{fmt_int(crit)}/{fmt_int(n)}** faixa vermelha ou roxa | classe projetada **térmica** |\n"
-            f"| Observado (máx. entre 6 domínios, incl. rede) | Não incorpora IRM como elevador — só fragilidade |"
+            f"| **{fmt_int(crit)}/{fmt_int(n)}** faixa vermelha ou roxa · completude mediana "
+            f"{fmt_num(med_comp, 0, '%') if med_comp is not None else '—'} | classe projetada **térmica** |\n"
+            f"| Observado (máx. entre domínios válidos) | Não incorpora IRM como elevador — só fragilidade |"
+        ),
+        "sintese_executiva_md": (
+            f"RIT VR **{fmt_frac(crit, n)}** · completude mediana "
+            f"**{fmt_num(med_comp, 0, '%') if med_comp is not None else '—'}**"
+            + (
+                f" · domínio pressão omitido por defasagem em {fmt_int(omit_p)} mun."
+                if omit_p
+                else ""
+            )
         ),
     }
 

@@ -92,20 +92,56 @@ def enrich_indice_resiliencia(resumo: pd.DataFrame) -> pd.DataFrame:
         return resumo if resumo is not None else pd.DataFrame()
     out = resumo.copy()
     n = len(out)
-    pop = _num(out["populacao"]) if "populacao" in out.columns else pd.Series(np.nan, index=out.index)
 
-    # Estabelecimentos /10k
-    if "cnes_estab_per_10k" in out.columns:
-        dens_e = _num(out["cnes_estab_per_10k"])
-    else:
-        dens_e = _densidade_10k(out.get("cnes_estabelecimentos_total", pd.Series(np.nan, index=out.index)), pop)
+    # População: coluna principal; se vazia, completa pelo catálogo IBGE MT (142).
+    if "populacao" not in out.columns:
+        out["populacao"] = np.nan
+    pop = _num(out["populacao"])
+    if pop.isna().any() and "cod_ibge" in out.columns:
+        try:
+            from sisclima.ingestion.ibge_municipios import catalogo_municipios_mt
+
+            cat = catalogo_municipios_mt()
+            if cat is not None and not cat.empty and "populacao" in cat.columns:
+                cat = cat.copy()
+                cat["cod_ibge"] = (
+                    cat["cod_ibge"].astype(str).str.replace(r"\.0$", "", regex=True).str.extract(r"(\d+)", expand=False).str.zfill(7)
+                )
+                pop_map = (
+                    cat.dropna(subset=["cod_ibge"])
+                    .drop_duplicates("cod_ibge")
+                    .set_index("cod_ibge")["populacao"]
+                )
+                keys = (
+                    out["cod_ibge"].astype(str).str.replace(r"\.0$", "", regex=True).str.extract(r"(\d+)", expand=False).str.zfill(7)
+                )
+                filled = keys.map(pop_map)
+                miss = pop.isna() & filled.notna()
+                out.loc[miss, "populacao"] = pd.to_numeric(filled.loc[miss], errors="coerce")
+                pop = _num(out["populacao"])
+        except Exception:
+            pass
+
+    # Estabelecimentos /10k — se per_10k nulo, recalcula a partir de totais CNES
+    dens_e = _num(out["cnes_estab_per_10k"]) if "cnes_estab_per_10k" in out.columns else pd.Series(np.nan, index=out.index)
+    if dens_e.isna().any():
+        estab = out.get("cnes_estabelecimentos_total")
+        if estab is None or _num(estab).isna().all():
+            estab = out.get("cnes_estabelecimentos_com_profissional")
+        dens_fb = _densidade_10k(estab if estab is not None else pd.Series(np.nan, index=out.index), pop)
+        dens_e = dens_e.fillna(dens_fb)
     comp_e = _score_clip(dens_e, teto=8.0)
 
-    # Leitos /10k
-    if "cnes_leitos_per_10k" in out.columns:
-        dens_l = _num(out["cnes_leitos_per_10k"])
-    else:
-        dens_l = _densidade_10k(out.get("cnes_leitos_total", pd.Series(np.nan, index=out.index)), pop)
+    # Leitos /10k — fallback CNES → IndicaSUS (leitos_total / leitos_sus)
+    dens_l = _num(out["cnes_leitos_per_10k"]) if "cnes_leitos_per_10k" in out.columns else pd.Series(np.nan, index=out.index)
+    if dens_l.isna().any():
+        leitos = out.get("cnes_leitos_total")
+        if leitos is None or _num(leitos).isna().all():
+            leitos = out.get("leitos_total")
+        if leitos is None or _num(leitos).isna().all():
+            leitos = out.get("leitos_sus")
+        dens_fb = _densidade_10k(leitos if leitos is not None else pd.Series(np.nan, index=out.index), pop)
+        dens_l = dens_l.fillna(dens_fb)
     comp_l = _score_clip(dens_l, teto=25.0)
 
     # Profissionais /10k
@@ -140,8 +176,17 @@ def enrich_indice_resiliencia(resumo: pd.DataFrame) -> pd.DataFrame:
         pct = 100.0 * len(vals) / float(len(_PESOS)) if _PESOS else 0.0
         completude.append(round(pct, 1))
         if pct < _MIN_COMPLETUDE or not vals:
-            irm.append(np.nan)
-            faixa.append("—")
+            # Fallback legado: índice de resiliência operacional já calculado
+            legacy = np.nan
+            if "indice_resiliencia" in out.columns:
+                legacy = pd.to_numeric(out["indice_resiliencia"].iloc[i], errors="coerce")
+            if pd.notna(legacy):
+                score = float(legacy)
+                irm.append(round(score, 1))
+                faixa.append(_faixa_capacidade(score))
+            else:
+                irm.append(np.nan)
+                faixa.append("—")
             continue
         # Renormaliza pesos só sobre componentes válidos
         w_sum = sum(_PESOS[k] for k, _ in vals)

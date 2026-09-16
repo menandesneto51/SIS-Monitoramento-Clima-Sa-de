@@ -109,6 +109,7 @@ class RitMultiriscoTests(unittest.TestCase):
         self.assertEqual(by_id["ehf"]["faixa"], "roxa")
         self.assertEqual(by_id["ar"]["faixa"], "verde")
         self.assertIn("EHF", sc["explicacao_dominante"])
+        self.assertNotIn("demais", sc["explicacao_dominante"])
         self.assertIn("Ar/PM2,5", sc["radar_compacto"])
 
     def test_scorecard_pressao_omitida(self) -> None:

@@ -154,7 +154,7 @@ INDICADOR_COLS = [
     ("rit_faixa", "RIT — faixa (observado multidomínio)"),
     ("rit_dominio_dominante", "RIT — domínio dominante"),
     ("rit_completude_pct", "RIT — completude dos domínios (%)"),
-    ("ehf_geocalor", "EHF GeoCalor (Fiocruz) — último dia"),
+    ("ehf_geocalor", "EHF GeoCalor — último dia"),
     ("intensidade_ehf", "Intensidade da onda EHF (baixa/severa/extrema)"),
     ("is_hw_day", "Dia de onda de calor GeoCalor (0/1)"),
     ("duracao_onda_ehf_dias", "Duração atual da onda EHF (dias)"),
@@ -946,7 +946,7 @@ def _indicadores_agregados(df: pd.DataFrame, *, escopo: str = "estadual") -> lis
                 "rotulo": "GeoCalor / EHF — municípios com EHF > 0",
                 "valor": f"{n_pos}/{len(df)}" + (f" · onda ativa {n_onda}" if n_onda else ""),
                 "escala": "contagem",
-                "limiar": f"ref. {data_ref or '—'} · Nairn & Fawcett / Fiocruz",
+                "limiar": f"ref. {data_ref or '—'} · Nairn & Fawcett (EHF calculado ARARAS)",
             }
         )
         if data_ref is not None or idade is not None:
@@ -1152,7 +1152,7 @@ def build_alertas_multinivel(
         "Vigibarragens (FUNAI/Palmares/INCRA/SNISB)",
         "ARARAS MT",
         "RIT multirisco (observado)",
-        "GeoCalor / EHF (Fiocruz–LAGAS)",
+        "GeoCalor / EHF (cálculo ARARAS)",
     ]
 
     payloads: list[dict[str, Any]] = []
@@ -1257,6 +1257,11 @@ def build_alertas_multinivel(
         mp["pm25_ugm3"] = row.get("pm25_ugm3")
         mp["iq_ar_score"] = row.get("iq_ar_score")
         mp["qualidade_ar_nivel"] = row.get("qualidade_ar_nivel")
+        mp["indice_prioridade_global"] = row.get("indice_prioridade_global")
+        mp["faixa_prioridade_global"] = row.get("faixa_prioridade_global")
+        mp["nivel_priorizacao_v9"] = row.get("nivel_priorizacao_v9")
+        mp["nivel_prioridade_v9"] = row.get("nivel_priorizacao_v9") or row.get("nivel_prioridade_v9")
+        mp["score_priorizacao_v9"] = row.get("score_priorizacao_v9")
         mp["situacao_hidro"] = row.get("situacao_hidro")
         mp["nivel_alerta_hidro"] = row.get("nivel_alerta_hidro")
         mp["casos_srag"] = row.get("casos_srag")
@@ -1300,12 +1305,12 @@ def build_alertas_multinivel(
                 ),
             },
             motivo=_motivo_em_linguagem_clara(
-                str(row.get("motivo_integrado") or row.get("motivo") or "Alerta dedicado Vigidesastre Cuiabá.")
+                str(row.get("motivo_integrado") or row.get("motivo") or "Alerta dedicado ARARAS MT · Cuiabá.")
             ),
-            fontes=fontes + ["Vigidesastre Cuiabá"],
+            fontes=fontes + ["ARARAS MT · Cuiabá"],
             data_referencia=_data_referencia_escopo(pd.DataFrame([row])),
         )
-        cp["remetente"] = "VIGIDESASTRE CUIABÁ"
+        cp["remetente"] = "ARARAS MT · CUIABÁ"
         cp["regional"] = str(row.get("regional_saude") or "Cuiabá")
         cp["score"] = row.get("score")
         cp["tmax"] = row.get("tmax")
@@ -1325,6 +1330,11 @@ def build_alertas_multinivel(
         cp["pm25_ugm3"] = row.get("pm25_ugm3")
         cp["iq_ar_score"] = row.get("iq_ar_score")
         cp["qualidade_ar_nivel"] = row.get("qualidade_ar_nivel")
+        cp["indice_prioridade_global"] = row.get("indice_prioridade_global")
+        cp["faixa_prioridade_global"] = row.get("faixa_prioridade_global")
+        cp["nivel_priorizacao_v9"] = row.get("nivel_priorizacao_v9")
+        cp["nivel_prioridade_v9"] = row.get("nivel_priorizacao_v9") or row.get("nivel_prioridade_v9")
+        cp["score_priorizacao_v9"] = row.get("score_priorizacao_v9")
         cp["situacao_hidro"] = row.get("situacao_hidro")
         cp["nivel_alerta_hidro"] = row.get("nivel_alerta_hidro")
         cp["n_aldeias"] = row.get("n_aldeias")
