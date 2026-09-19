@@ -167,7 +167,26 @@ def _col_fonte(col: str) -> str:
     return col
 
 
-def _agg_atual_hist(atual: pd.DataFrame, hist: pd.DataFrame, col: str) -> tuple[float, float] | None:
+def _hist_por_ano(hist: pd.DataFrame, fonte: str, *, como: str) -> pd.Series:
+    """Uma observação por ano no recorte histórico (média, max ou soma)."""
+    tmp = hist.copy()
+    tmp["_ano"] = pd.to_datetime(tmp["data"]).dt.year
+    tmp["_v"] = pd.to_numeric(tmp[fonte], errors="coerce")
+    g = tmp.groupby("_ano")["_v"]
+    if como == "sum":
+        return g.sum().dropna()
+    if como == "max":
+        return g.max().dropna()
+    return g.mean().dropna()
+
+
+def _agg_atual_hist(
+    atual: pd.DataFrame,
+    hist: pd.DataFrame,
+    col: str,
+    *,
+    hist_por_ano: bool = False,
+) -> tuple[float, float] | None:
     fonte = _col_fonte(col)
     if fonte not in atual.columns or fonte not in hist.columns:
         return None
@@ -177,10 +196,7 @@ def _agg_atual_hist(atual: pd.DataFrame, hist: pd.DataFrame, col: str) -> tuple[
         a = float(serie_a.sum(skipna=True))
         # média dos acumulados anuais no mesmo recorte
         if "data" in hist.columns and hist["data"].notna().any():
-            tmp = hist.copy()
-            tmp["_ano"] = pd.to_datetime(tmp["data"]).dt.year
-            tmp["_v"] = serie_h
-            acum_anos = tmp.groupby("_ano")["_v"].sum().dropna()
+            acum_anos = _hist_por_ano(hist, fonte, como="sum")
             if len(acum_anos) < 1:
                 return None
             h = float(acum_anos.mean())
@@ -190,12 +206,16 @@ def _agg_atual_hist(atual: pd.DataFrame, hist: pd.DataFrame, col: str) -> tuple[
         a = serie_a.max()
         h = serie_h.max()
         if "data" in hist.columns and hist["data"].notna().any():
-            tmp = hist.copy()
-            tmp["_ano"] = pd.to_datetime(tmp["data"]).dt.year
-            tmp["_v"] = pd.to_numeric(tmp[fonte], errors="coerce")
-            picos = tmp.groupby("_ano")["_v"].max().dropna()
+            picos = _hist_por_ano(hist, fonte, como="max")
             if len(picos) >= 1:
                 h = float(picos.mean())
+    elif hist_por_ano and "data" in hist.columns and hist["data"].notna().any():
+        # YTD / janelas multi-anuais: 1 valor por ano, depois média entre anos
+        a = serie_a.mean()
+        medias = _hist_por_ano(hist, fonte, como="mean")
+        if len(medias) < 1:
+            return None
+        h = float(medias.mean())
     else:
         a = serie_a.mean()
         h = serie_h.mean()
@@ -204,7 +224,13 @@ def _agg_atual_hist(atual: pd.DataFrame, hist: pd.DataFrame, col: str) -> tuple[
     return float(a), float(h)
 
 
-def _zscore_atual_hist(atual: pd.DataFrame, hist: pd.DataFrame, col: str) -> dict[str, float] | None:
+def _zscore_atual_hist(
+    atual: pd.DataFrame,
+    hist: pd.DataFrame,
+    col: str,
+    *,
+    hist_por_ano: bool = False,
+) -> dict[str, float] | None:
     fonte = _col_fonte(col)
     if fonte not in atual.columns or fonte not in hist.columns:
         return None
@@ -212,10 +238,7 @@ def _zscore_atual_hist(atual: pd.DataFrame, hist: pd.DataFrame, col: str) -> dic
         a = float(pd.to_numeric(atual[fonte], errors="coerce").sum(skipna=True))
         if "data" not in hist.columns:
             return None
-        tmp = hist.copy()
-        tmp["_ano"] = pd.to_datetime(tmp["data"]).dt.year
-        tmp["_v"] = pd.to_numeric(tmp[fonte], errors="coerce")
-        acum_anos = tmp.groupby("_ano")["_v"].sum().dropna()
+        acum_anos = _hist_por_ano(hist, fonte, como="sum")
         if pd.isna(a) or len(acum_anos) < _MIN_ANOS_HIST:
             return None
         mu = float(acum_anos.mean())
@@ -228,7 +251,26 @@ def _zscore_atual_hist(atual: pd.DataFrame, hist: pd.DataFrame, col: str) -> dic
             "zscore": z,
             "delta": float(a - mu),
         }
-    a = pd.to_numeric(atual[fonte], errors="coerce").mean()
+    if col == "tmax_max":
+        a = float(pd.to_numeric(atual[fonte], errors="coerce").max())
+        como = "max"
+    else:
+        a = float(pd.to_numeric(atual[fonte], errors="coerce").mean())
+        como = "mean"
+    if hist_por_ano and "data" in hist.columns and hist["data"].notna().any():
+        anos = _hist_por_ano(hist, fonte, como=como)
+        if pd.isna(a) or len(anos) < _MIN_ANOS_HIST:
+            return None
+        mu = float(anos.mean())
+        sd = float(anos.std(ddof=0))
+        z = float((a - mu) / sd) if sd > 1e-9 else 0.0
+        return {
+            "atual": float(a),
+            "media_historica_mesmo_periodo": mu,
+            "desvio_padrao": sd,
+            "zscore": z,
+            "delta": float(a - mu),
+        }
     h_s = pd.to_numeric(hist[fonte], errors="coerce").dropna()
     if pd.isna(a) or len(h_s) < _MIN_DIAS_HIST_MES:
         return None
@@ -528,11 +570,12 @@ def comparar_janela_atual(
         for col, rotulo in _metricas():
             if not _metrica_disponivel(df, col):
                 continue
-            pair = _agg_atual_hist(atual_ytd, hist_ytd, col)
+            # YTD: 1 observação por ano histórico (não pool de dias entre anos)
+            pair = _agg_atual_hist(atual_ytd, hist_ytd, col, hist_por_ano=True)
             if pair is None:
                 continue
             a_v, h_v = pair
-            zinfo = _zscore_atual_hist(atual_ytd, hist_ytd, col)
+            zinfo = _zscore_atual_hist(atual_ytd, hist_ytd, col, hist_por_ano=True)
             ind_ytd[rotulo] = {
                 "atual": a_v,
                 "historico": h_v,

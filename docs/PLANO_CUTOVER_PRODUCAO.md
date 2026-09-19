@@ -2,7 +2,8 @@
 
 **Objetivo:** colocar o painel em produção/piloto no servidor SES com Postgres + ETL, sem alertas reais até aceite CIEVS.  
 **Documentos-base:** `docs/CHECKLIST_HOMOLOGACAO_STI.md`, `docs/STI_IMPLANTACAO_SERVIDOR_SES.md`, `docs/RELEASE_PRODUCAO.md`.  
-**Branch:** `araras-mt` / tag de release do dia.
+**Branch:** `operacional-araras-v10` (tag de release do dia).  
+**Validação agentes (2026-09-19):** Security OK · Bugbot OK (YTD corrigido) · Smoke `APROVADO_FASE1_COM_RESSALVAS` (soft: `ehf_fresco`). Ver `docs/RELEASE_PRODUCAO.md`.
 
 ---
 
@@ -42,13 +43,14 @@ Se algum G* falhar → **não publicar**; corrigir e remarcar.
 Ordem fixa (não pular):
 
 ```powershell
-# No servidor SES, pasta do projeto
-docker compose up -d db
+# No servidor SES, pasta do projeto (overlay produção)
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d db
 # aguardar healthy
-docker compose up -d --build etl-scheduler app
-docker compose ps
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build etl-scheduler app landing
+docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
 curl -s -o /nul -w "%{http_code}" http://127.0.0.1:8501/healthz
 # esperado: 200
+# NÃO subir alerts-scheduler sem --profile alertas + aceite CIEVS
 ```
 
 | # | Ação | Feito |

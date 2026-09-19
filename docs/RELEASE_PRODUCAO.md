@@ -95,3 +95,31 @@ Indicadores novos: `indice_resiliencia_municipal_0_100` (capacidade), `rit_score
 - Postgres Compose **sem** porta publicada no host (só rede Docker)
 - E-mails de alerta com vários destinatários usam **Bcc**
 - OIDC STI não auto-promove a SES salvo `STI_OIDC_AUTO_SES=true`
+
+---
+
+## Validação pré-produção (2026-09-19)
+
+| Agente / gate | Resultado | Notas |
+|---|---|---|
+| **Security Review** | APROVADO | Sem achados medium+ no diff operacional |
+| **Bugbot** | APROVADO após correção | YTD climático agora agrega **1 valor por ano** (não pool diário entre anos) |
+| **Smoke homologação** | `APROVADO_FASE1_COM_RESSALVAS` | Hard gates OK; soft: `ehf_fresco` se GeoCalor >3d (fonte externa) |
+| **Docker overlay prod** | OK | `docker-compose.yml` + `docker-compose.prod.yml`; `/healthz` 200 |
+| **Alertas** | HOLD | Manter `SEND_ALERT_ON_LEVEL_CHANGE=false` até aceite CIEVS |
+
+### GO / NO-GO
+
+- **GO Fase 1 (painel + ETL + Postgres)** no servidor SES, branch `operacional-araras-v10`.
+- **NO-GO alertas reais** até aceite CIEVS + frescor EHF ≤3 dias no smoke.
+- Cutover: seguir `docs/PLANO_CUTOVER_PRODUCAO.md` + `docs/CHECKLIST_HOMOLOGACAO_STI.md`.
+
+```powershell
+# Smoke no host (após ETL)
+.\.venv\Scripts\python.exe scripts\smoke_homologacao_producao.py --skip-rede
+# Esperado: all_ok=true; soft_fail só ehf_fresco se atraso GeoCalor
+
+# Subir produção (servidor SES)
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d db
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build etl-scheduler app landing
+```
