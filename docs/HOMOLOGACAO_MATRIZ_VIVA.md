@@ -49,8 +49,8 @@ Legenda: OK | NOK | PEND | N/A
 |------|--------|-----------|
 | Prévia sem SMTP | OK | `logs/homologacao_alertas/` (Cuiabá EHF+RIT OK) |
 | Piloto Cuiabá/Sorriso/Baixada | OK | CSV `ativo=1` |
-| 15 ERS cadastrados | OK | `ativo=0` até ativação |
-| Envio real / profile alertas | PEND | OK CIEVS explícito |
+| 16 ERS ativos | OK | aceite CIEVS 2026-09-19 |
+| Envio real / profile alertas | OK | pós-aceite CIEVS |
 
 ---
 
