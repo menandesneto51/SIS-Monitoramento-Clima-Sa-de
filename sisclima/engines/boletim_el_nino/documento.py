@@ -1360,20 +1360,34 @@ Fonte: Painel El Niño 2026–2027, boletim n.º {cenario.get('edicao', '02')}, 
 
 ---
 
-## 3. Cenário sazonal — Brasil → Amazônia Legal → Mato Grosso
+## 3. Cenário sazonal — previsão oficial e comparação operacional
 
-Trimestre ASO/2026 (CPTEC/INPE–INMET–FUNCEME): chuva abaixo da normal no centro-norte do País; temperatura acima da normal, com risco de ondas de calor, ar seco e queimadas.
+Trimestre ASO/2026 (CPTEC/INPE–INMET–FUNCEME). Escalas distintas: **previsão sazonal** ≠ **observação semanal** ARARAS.
 
-- **Chuva (Brasil):** {br.get('chuva', INDISPONIVEL)} `{SELPREV}`
-- **Temperatura (Brasil):** {br.get('temperatura', INDISPONIVEL)} `{SELPREV}`
+### Cenário nacional / regional `{SELPREV}`
+
+- **Precipitação:** {br.get('chuva', INDISPONIVEL)}
+- **Temperatura:** {br.get('temperatura', INDISPONIVEL)}
+
+### Implicações para Mato Grosso
+
 - **Chuva em MT:** {mt.get('chuva', INDISPONIVEL)}
 - **Temperatura em MT:** {mt.get('temperatura', INDISPONIVEL)}
 
-### Comparação operacional — situação atual × série ambiental
+_Leitura: norte/centro com sinal de estiagem e atraso da transição chuvosa; extremo sul com pancadas irregulares possíveis — ver narrativa Amazônia Legal no Painel El Niño oficial._
 
-{snap.get('serie_ambiente_md') or 'Série ambiental operacional ainda insuficiente nesta rodada.'}
+### Comparação operacional — situação atual × baseline recente
 
-_Fonte: painel ARARAS MT. A série operacional não substitui climatologia oficial de longo prazo._
+{snap.get('serie_ambiente_lamina_md') or snap.get('serie_ambiente_md') or 'Série ambiental operacional ainda insuficiente nesta rodada.'}
+
+<details>
+<summary>Detalhamento técnico (todos os indicadores, mês, YTD, Q&amp;A)</summary>
+
+{snap.get('serie_ambiente_md') or '_Sem detalhe técnico nesta rodada._'}
+
+</details>
+
+_Fonte: painel ARARAS MT. Baseline operacional recente (~5 anos) **não substitui** climatologia oficial de longo prazo._
 
 {snap.get('sazonalidade_or_md') or ''}
 

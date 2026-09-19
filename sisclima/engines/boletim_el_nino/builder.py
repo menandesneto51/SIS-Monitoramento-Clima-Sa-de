@@ -300,6 +300,7 @@ def build_boletim_semanal(
 
         amb = resumo_serie_ambiente_boletim()
         snap["serie_ambiente_md"] = str(amb.get("markdown") or "")
+        snap["serie_ambiente_lamina_md"] = str(amb.get("markdown_lamina") or "")
         snap["serie_ambiente_ok"] = bool(amb.get("ok"))
         try:
             from sisclima.engines.kpis_p1_sala import resumo_kpis_p1_boletim

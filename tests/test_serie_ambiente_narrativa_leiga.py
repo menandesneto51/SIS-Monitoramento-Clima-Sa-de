@@ -92,7 +92,6 @@ def test_ytd_historico_agrega_por_ano_nao_por_dia():
     from sisclima.engines.serie_historica_ambiente import _agg_atual_hist, _zscore_atual_hist
 
     rows: list[dict] = []
-    # 2024: 2 dias (média 20); 2025: 30 dias a 40 (média 40)
     rows += [
         {"data": date(2024, 1, 1), "tmax_media": 10.0},
         {"data": date(2024, 1, 2), "tmax_media": 30.0},
@@ -108,3 +107,41 @@ def test_ytd_historico_agrega_por_ano_nao_por_dia():
     z = _zscore_atual_hist(atual, hist, "tmax_media", hist_por_ano=True)
     assert z is not None
     assert abs(z["media_historica_mesmo_periodo"] - 30.0) < 0.01
+
+
+def test_tmax_max_z_alinha_com_historico_exibido():
+    """z de Tmáx máxima usa média dos picos anuais (mesmo μ do valor histórico)."""
+    from sisclima.engines.serie_historica_ambiente import _agg_atual_hist, _zscore_atual_hist
+
+    rows: list[dict] = []
+    # Picos anuais no recorte: 41, 40, 39 → μ=40
+    for ano, pico in ((2023, 41.0), (2024, 40.0), (2025, 39.0)):
+        for d in range(1, 8):
+            rows.append({"data": date(ano, 9, d), "tmax_max": pico - 2.0 + d * 0.1})
+        rows.append({"data": date(ano, 9, 8), "tmax_max": pico})
+    hist = pd.DataFrame(rows)
+    atual = pd.DataFrame([{"data": date(2026, 9, d), "tmax_max": 39.5} for d in range(1, 8)])
+    pair = _agg_atual_hist(atual, hist, "tmax_max")
+    z = _zscore_atual_hist(atual, hist, "tmax_max")
+    assert pair is not None and z is not None
+    assert abs(pair[1] - 40.0) < 0.01
+    assert abs(z["media_historica_mesmo_periodo"] - 40.0) < 0.01
+    # 39.5 < 40 → z negativo
+    assert z["zscore"] < 0
+    assert abs(pair[0] - z["atual"]) < 0.01
+
+
+def test_mensagem_operacional_quando_sem_desvio():
+    out = comparar_janela_atual(_serie_sintetica(tmax_setembro_atual=35.5, umid_setembro_atual=55.0))
+    assert out["ok"] is True
+    periodo = out.get("periodo_cmp") or {}
+    narr = out.get("narrativa") or ""
+    lamina = out.get("markdown_lamina") or ""
+    assert "baseline operacional recente" in narr.lower() or "Mensagem operacional" in narr
+    assert "Semáforo analítico" in narr or "semaforo" in narr.lower()
+    if periodo.get("ok") and not periodo.get("houve_desvio"):
+        assert "|z| < 1" in narr or "dentro da variabilidade" in narr.lower()
+    assert "Atenção à interpretação" in narr or "não substitui" in lamina.lower()
+    assert "saúde" in narr.lower()
+    assert lamina  # lâmina compacta para Sala
+    assert "Indicadores-chave" in lamina

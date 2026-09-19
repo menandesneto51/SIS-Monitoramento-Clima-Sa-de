@@ -61,7 +61,7 @@ class BoletimElNinoSemanalTests(unittest.TestCase):
         self.assertIn("mínimo", md)
         self.assertIn("máximo", md)
         self.assertIn("Cenário sazonal", md)
-        self.assertIn("Amazônia Legal e Mato Grosso", md)
+        self.assertIn("Implicações para Mato Grosso", md)
         self.assertIn("Situação atual", md)
         self.assertIn("Notas metodológicas", md)
         self.assertIn("Impactos potenciais", md)

@@ -160,6 +160,25 @@ def _metricas() -> tuple[tuple[str, str], ...]:
     )
 
 
+# Indicadores da lâmina Sala de Situação (slide denso). Demais → anexo técnico.
+_ROTULOS_LAMINA_SALA: tuple[str, ...] = (
+    "Tmáx média (°C)",
+    "Tmáx máxima (°C)",
+    "Tmín média (°C)",
+    "Amplitude térmica média (°C)",
+    "UTCI médio",
+    "Umidade média (%)",
+    "Precipitação média (mm)",
+)
+
+_ROTULOS_LAMINA_CHAVE: tuple[str, ...] = (
+    "Tmáx média (°C)",
+    "UTCI médio",
+    "Umidade média (%)",
+    "Precipitação média (mm)",
+)
+
+
 def _col_fonte(col: str) -> str:
     """Coluna diária usada para métricas derivadas (ex.: acumulado de chuva)."""
     if col == "precipitacao_mm_acumulada":
@@ -251,14 +270,27 @@ def _zscore_atual_hist(
             "zscore": z,
             "delta": float(a - mu),
         }
+    # Tmáx máxima: z SEMPRE sobre picos anuais (mesma agregação do valor "histórico" exibido)
     if col == "tmax_max":
         a = float(pd.to_numeric(atual[fonte], errors="coerce").max())
-        como = "max"
-    else:
-        a = float(pd.to_numeric(atual[fonte], errors="coerce").mean())
-        como = "mean"
+        if "data" not in hist.columns or not hist["data"].notna().any():
+            return None
+        picos = _hist_por_ano(hist, fonte, como="max")
+        if pd.isna(a) or len(picos) < _MIN_ANOS_HIST:
+            return None
+        mu = float(picos.mean())
+        sd = float(picos.std(ddof=0))
+        z = float((a - mu) / sd) if sd > 1e-9 else 0.0
+        return {
+            "atual": float(a),
+            "media_historica_mesmo_periodo": mu,
+            "desvio_padrao": sd,
+            "zscore": z,
+            "delta": float(a - mu),
+        }
+    a = float(pd.to_numeric(atual[fonte], errors="coerce").mean())
     if hist_por_ano and "data" in hist.columns and hist["data"].notna().any():
-        anos = _hist_por_ano(hist, fonte, como=como)
+        anos = _hist_por_ano(hist, fonte, como="mean")
         if pd.isna(a) or len(anos) < _MIN_ANOS_HIST:
             return None
         mu = float(anos.mean())
@@ -414,7 +446,7 @@ def comparar_janela_atual(
 
     partes: list[str] = []
 
-    # 1) Janela N dias — mesmo período calendário
+    # 1) Janela N dias — baseline operacional recente (mesmos MM-DD)
     if periodo_cmp.get("ok") and indicadores:
         com_desvio = [
             (r, v) for r, v in indicadores.items() if abs(float(v.get("zscore") or 0)) >= 1.0
@@ -422,37 +454,323 @@ def comparar_janela_atual(
         sem_desvio = [
             (r, v) for r, v in indicadores.items() if abs(float(v.get("zscore") or 0)) < 1.0
         ]
+        n_dias_atual = int(periodo_cmp.get("n_dias_atual") or len(atual))
+        n_anos_h = max(1, int(n_anos))
+        n_esp = n_dias_atual * n_anos_h
+        n_obs = int(periodo_cmp.get("n_dias_historico") or 0)
+        anos_txt = str(periodo_cmp.get("anos_historico_txt") or "")
+        anos_ini = periodo_cmp["anos_historico"][0] if periodo_cmp.get("anos_historico") else "?"
+        anos_fim = periodo_cmp["anos_historico"][-1] if periodo_cmp.get("anos_historico") else "?"
+        cob_txt = (
+            f"Baseline operacional recente **{anos_ini}–{anos_fim}**: "
+            f"**{n_obs}** de **{n_esp}** observações diárias disponíveis "
+            f"({n_dias_atual} dias × {n_anos_h} anos) após controle de qualidade/completude."
+            if n_esp > 0
+            else f"Baseline operacional recente (**{anos_txt}**): {n_obs} dias históricos no recorte."
+        )
+
+        ini_pt = ini.strftime("%d/%m/%Y")
+        fim_pt = fim.strftime("%d/%m/%Y")
+        # Veredito da lâmina Sala: só indicadores do slide; calor/UTCI só
+        # contam como “desvio operacional” se z > +1 (pró-risco de calor).
+        inds_lamina = {r: v for r, v in indicadores.items() if r in _ROTULOS_LAMINA_SALA}
+        _calor = {
+            "Tmáx média (°C)",
+            "Tmáx máxima (°C)",
+            "Tmín média (°C)",
+            "Amplitude térmica média (°C)",
+            "UTCI médio",
+        }
+
+        def _desvio_operacional(rot: str, v: dict[str, float]) -> bool:
+            z = float(v.get("zscore") or 0)
+            if abs(z) < 1.0:
+                return False
+            if rot in _calor:
+                return z >= 1.0  # só aquecimento / estresse acima do baseline
+            if rot in {"Umidade média (%)", "Precipitação média (mm)", "Precipitação acumulada (mm)"}:
+                return z <= -1.0  # só secura / estiagem relativa
+            return abs(z) >= 1.0
+
+        com_desvio_lamina = [
+            (r, v) for r, v in inds_lamina.items() if _desvio_operacional(r, v)
+        ]
+        com_desvio_estat = [
+            (r, v) for r, v in inds_lamina.items() if abs(float(v.get("zscore") or 0)) >= 1.0
+        ]
+        if not com_desvio_lamina:
+            msg_central = (
+                f"**Mensagem operacional:** no período de {ini.strftime('%d/%m')} a "
+                f"{fim.strftime('%d/%m')}/{ano}, os indicadores ambientais avaliados "
+                f"permaneceram, em conjunto, dentro da variabilidade histórica esperada "
+                f"para esta época do ano (**|z| < 1** no critério operacional de calor/estiagem). "
+                f"Apesar disso, permanece relevante a previsão sazonal de temperaturas acima "
+                f"da média e irregularidade das chuvas, exigindo manutenção da vigilância para "
+                f"calor, baixa umidade, queimadas e seus impactos sobre a saúde."
+            )
+            # Transparência: |z|≥1 “contra o risco” (ex.: UTCI mais ameno) não altera o veredito
+            if com_desvio_estat and not com_desvio_lamina:
+                amenos = [
+                    f"{r} (z={float(v['zscore']):+.2f})"
+                    for r, v in com_desvio_estat
+                    if r in _calor and float(v.get("zscore") or 0) <= -1.0
+                ]
+                if amenos:
+                    verb = "ficaram" if len(amenos) > 1 else "ficou"
+                    adj = "mais amenos" if len(amenos) > 1 else "mais ameno"
+                    msg_central += (
+                        f" Nota: {'; '.join(amenos)} {verb} {adj} que o baseline "
+                        f"— desvio estatístico, sem sinal de anomalia de calor na semana."
+                    )
+        else:
+            nomes = "; ".join(r for r, _ in com_desvio_lamina)
+            msg_central = (
+                f"**Mensagem operacional:** no período de {ini.strftime('%d/%m')} a "
+                f"{fim.strftime('%d/%m')}/{ano}, houve desvio relevante (**|z| ≥ 1**) em "
+                f"**{len(com_desvio_lamina)}** variável(eis) da lâmina: {nomes}. "
+                f"Manter vigilância integrada à previsão sazonal (calor, chuva irregular, queimadas)."
+            )
+        # Desvios só no anexo técnico (risco 3d etc.)
+        com_desvio_anexo = [
+            (r, v)
+            for r, v in com_desvio
+            if r not in _ROTULOS_LAMINA_SALA
+        ]
+
         linhas = [
-            f"**Comparação no mesmo período do calendário "
-            f"({ini.strftime('%d/%m')}–{fim.strftime('%d/%m')}/{ano})**",
+            f"**Comparação operacional — janela {ini.strftime('%d/%m')}–{fim.strftime('%d/%m')}/{ano}**",
+            "",
+            msg_central,
             "",
             (
-                f"Janela atual ({ini.strftime('%d/%m/%Y')} a {fim.strftime('%d/%m/%Y')}) "
-                f"frente aos **mesmos dias do calendário** nos anos "
-                f"**{periodo_cmp.get('anos_historico_txt')}** "
-                f"({periodo_cmp['n_dias_historico']} dias históricos no recorte)."
+                f"Janela observada ({ini_pt} a {fim_pt}) frente aos **mesmos dias do calendário** "
+                f"no baseline operacional recente (**{anos_txt}**)."
+            ),
+            cob_txt,
+            "",
+            (
+                "_Critério: |z| ≥ 1 = desvio relevante frente ao baseline operacional recente "
+                "(série ~5 anos). Não mistura meses diferentes. "
+                "**Não substitui** climatologia oficial de longo prazo (INMET/INPE)._"
             ),
             "",
-            "_Critério: |z| ≥ 1 = desvio relevante frente ao padrão do mesmo período. "
-            "Não mistura meses diferentes. Não substitui climatologia oficial (INMET/INPE)._",
+            (
+                "> **Atenção à interpretação:** a comparação operacional semanal **não substitui** "
+                "nem invalida a previsão climática sazonal. Uma semana dentro ou abaixo do padrão "
+                "pode ocorrer dentro de um mês/trimestre com tendência de temperaturas acima da média."
+            ),
             "",
         ]
-        for rot, v in indicadores.items():
+        for rot in _ROTULOS_LAMINA_SALA:
+            v = indicadores.get(rot)
+            if not v:
+                continue
             linhas.append(
                 f"- **{rot}:** {v['atual']:.1f} agora vs {v['historico']:.1f} "
-                f"no mesmo período histórico (Δ {v['delta']:+.1f}"
+                f"no baseline operacional recente (Δ {v['delta']:+.1f}"
                 + (f"; z={v['zscore']:+.2f}" if v.get("zscore") is not None else "")
                 + ")."
             )
-        if com_desvio:
-            linhas.extend(["", "**Variáveis com desvio (|z|≥1):**"])
-            for rot, v in com_desvio:
+        if com_desvio_lamina:
+            linhas.extend(["", "**Variáveis da lâmina com desvio (|z|≥1):**"])
+            for rot, v in com_desvio_lamina:
                 linhas.append(
                     f"- **{rot}:** {_sentido_desvio_sazonal(rot, float(v['zscore']))}."
                 )
-        periodo_cmp["houve_desvio"] = bool(com_desvio)
-        periodo_cmp["variaveis_com_desvio"] = [r for r, _ in com_desvio]
-        periodo_cmp["variaveis_sem_desvio"] = [r for r, _ in sem_desvio]
+        # Anexo técnico: demais indicadores (risco 3d, PM, acumulado…)
+        anexo_inds = [
+            (r, v)
+            for r, v in indicadores.items()
+            if r not in _ROTULOS_LAMINA_SALA
+        ]
+        if anexo_inds:
+            linhas.extend(["", "**Anexo técnico — indicadores complementares**"])
+            for rot, v in anexo_inds:
+                linhas.append(
+                    f"- **{rot}:** {v['atual']:.1f} agora vs {v['historico']:.1f} "
+                    f"(Δ {v['delta']:+.1f}"
+                    + (f"; z={v['zscore']:+.2f}" if v.get("zscore") is not None else "")
+                    + ")."
+                )
+            if com_desvio_anexo:
+                linhas.append("_Desvios no anexo (|z|≥1):_ " + "; ".join(r for r, _ in com_desvio_anexo) + ".")
+
+        # Notas de leitura (umidade / precipitação)
+        umid = indicadores.get("Umidade média (%)")
+        if umid is not None:
+            linhas.extend(
+                [
+                    "",
+                    (
+                        "_Nota UR:_ a umidade **média** diária é pouco sensível ao risco sanitário "
+                        "da tarde. Para vigilância, preferir UR mínima, horas com UR < 30%/20%, "
+                        "dias consecutivos abaixo do limiar e combinação temperatura × UR × fumaça/PM2,5."
+                    ),
+                ]
+            )
+        if indicadores.get("Precipitação média (mm)") is not None or indicadores.get(
+            "Precipitação acumulada (mm)"
+        ):
+            linhas.extend(
+                [
+                    "",
+                    (
+                        "_Nota chuva:_ média diária isolada diz pouco sobre estiagem/queimadas. "
+                        "Priorizar acumulados 7/14/30/60/90d, dias sem chuva, percentil histórico "
+                        "e SPI/SPEI quando disponíveis (KPIs P1 do ARARAS)."
+                    ),
+                ]
+            )
+
+        # Semáforo analítico + ponte saúde
+        # Luz por risco sanitário de calor/estiagem: desvio "pro risco" (quente/seco),
+        # não o |z| absoluto (ex.: UTCI mais ameno não é vermelho de calor).
+        def _luz_risco(rotulos: list[str], *, risco_se_z_positivo: bool = True) -> str:
+            vals = []
+            for r in rotulos:
+                if r not in indicadores or indicadores[r].get("zscore") is None:
+                    continue
+                z = float(indicadores[r]["zscore"])
+                vals.append(z if risco_se_z_positivo else -z)
+            if not vals:
+                return "CINZA"
+            mx = max(vals)
+            if mx < 1.0:
+                return "VERDE"
+            if mx < 1.5:
+                return "AMARELO"
+            return "VERMELHO"
+
+        luz_t = _luz_risco(["Tmáx média (°C)", "Tmáx máxima (°C)", "Tmín média (°C)"])
+        luz_u = _luz_risco(["UTCI médio"])
+        # Umidade: risco quando mais seca que o baseline (z negativo)
+        luz_ur = _luz_risco(["Umidade média (%)"], risco_se_z_positivo=False)
+        # Chuva: risco quando mais seca (z negativo no acumulado/média)
+        luz_p = _luz_risco(
+            ["Precipitação média (mm)", "Precipitação acumulada (mm)"],
+            risco_se_z_positivo=False,
+        )
+        linhas.extend(
+            [
+                "",
+                f"**Semáforo analítico — {ini.strftime('%d/%m')} a {fim.strftime('%d/%m')}/{ano}**",
+                "",
+                f"- **[{luz_t}] Temperatura:** "
+                + (
+                    "dentro do padrão recente (sem anomalia de calor no agregado)"
+                    if luz_t == "VERDE"
+                    else "acima do baseline operacional (calor)"
+                ),
+                f"- **[{luz_u}] Estresse térmico (UTCI):** "
+                + (
+                    "dentro do padrão recente ou mais ameno que o baseline"
+                    if luz_u == "VERDE"
+                    else "acima do baseline operacional (estresse térmico)"
+                ),
+                f"- **[{luz_ur}] Umidade média:** "
+                + (
+                    "sem anomalia crítica de ar seco no agregado semanal"
+                    if luz_ur == "VERDE"
+                    else "mais seca que o baseline no agregado (ver nota UR)"
+                ),
+                f"- **[{luz_p}] Precipitação semanal:** "
+                + (
+                    "dentro da variabilidade recente ou acima do baseline"
+                    if luz_p == "VERDE"
+                    else "abaixo do baseline (estiagem relativa; ver nota chuva/SPI)"
+                ),
+                (
+                    "- **[AMARELO] Perspectiva:** manutenção da vigilância pela previsão sazonal "
+                    "(calor, irregularidade das chuvas, potencial de queimadas)"
+                ),
+                (
+                    "- **[AMARELO] Risco sanitário:** integrar PM2,5, focos de calor e indicadores "
+                    "epidemiológicos/assistenciais (SRAG, urgência, internações)"
+                ),
+                "",
+                "**O que este cenário representa para a saúde?**",
+                "",
+                (
+                    "- **Situação ambiental atual:** temperatura e estresse térmico sem anomalia "
+                    "expressiva de calor no agregado semanal; umidade média relativamente superior ao "
+                    "baseline recente; precipitação ainda baixa/irregular no contexto de estiagem."
+                    if luz_t == "VERDE" and luz_u == "VERDE"
+                    else (
+                        "- **Situação ambiental atual:** há sinal de calor/estiagem acima do baseline "
+                        "operacional recente — priorizar variáveis com desvio pró-risco e cruzar "
+                        "com qualidade do ar e pressão assistencial."
+                    )
+                ),
+                (
+                    "- **Impactos sob vigilância:** SRAG/sintomas respiratórios; exacerbação de "
+                    "asma/DPOC; desidratação; agravos cardiovasculares; atendimentos de urgência; "
+                    "internações; exposição à fumaça/PM2,5; pressão assistencial."
+                ),
+                (
+                    "- **Conclusão:** a distinção entre **situação observada agora** e "
+                    "**risco prospectivo** (previsão sazonal) deve orientar a Sala de Situação — "
+                    "monitoramento ativo e integração clima–saúde no ARARAS MT."
+                ),
+            ]
+        )
+
+        periodo_cmp["houve_desvio"] = bool(com_desvio_lamina)
+        periodo_cmp["houve_desvio_anexo"] = bool(com_desvio_anexo)
+        periodo_cmp["variaveis_com_desvio"] = [r for r, _ in com_desvio_lamina]
+        periodo_cmp["variaveis_com_desvio_anexo"] = [r for r, _ in com_desvio_anexo]
+        periodo_cmp["variaveis_sem_desvio"] = [
+            r for r, v in inds_lamina.items() if abs(float(v.get("zscore") or 0)) < 1.0
+        ]
+        periodo_cmp["mensagem_operacional"] = msg_central
+        periodo_cmp["cobertura_historico"] = {
+            "n_obs": n_obs,
+            "n_esperado": n_esp,
+            "n_dias_atual": n_dias_atual,
+            "n_anos": n_anos_h,
+        }
+        periodo_cmp["baseline_label"] = f"baseline operacional recente {anos_ini}–{anos_fim}"
+
+        # Lâmina compacta Sala (projeção): 4 chaves + mensagem + semáforo curto
+        tab_rows = ["| Indicador | Atual | Baseline | Δ | z |", "|---|---:|---:|---:|---:|"]
+        for rot in _ROTULOS_LAMINA_CHAVE:
+            v = inds_lamina.get(rot)
+            if not v:
+                continue
+            tab_rows.append(
+                f"| {rot} | {v['atual']:.1f} | {v['historico']:.1f} | "
+                f"{v['delta']:+.1f} | {float(v.get('zscore') or 0):+.2f} |"
+            )
+        lamina_md = "\n".join(
+            [
+                f"### Cenário climático e comparação histórica — {ini.strftime('%d/%m')} a {fim.strftime('%d/%m')}/{ano}",
+                "",
+                msg_central,
+                "",
+                cob_txt,
+                "",
+                (
+                    "> A comparação operacional semanal **não substitui** a previsão climática sazonal."
+                ),
+                "",
+                "**Indicadores-chave (baseline operacional recente)**",
+                "",
+                *tab_rows,
+                "",
+                f"**Semáforo:** [{luz_t}] temperatura · [{luz_u}] UTCI · [{luz_ur}] umidade · [{luz_p}] chuva · "
+                f"[AMARELO] perspectiva sazonal · [AMARELO] risco sanitário (PM2,5/focos/epi)",
+                "",
+                (
+                    "**Saúde:** sem anomalia expressiva de calor no agregado semanal; manter vigilância "
+                    "integrada (respiratório, cardiovascular, fumaça/PM2,5, urgência/internações)."
+                    if luz_t == "VERDE" and luz_u == "VERDE"
+                    else (
+                        "**Saúde:** sinal de calor/estiagem acima do baseline — cruzar com PM2,5, "
+                        "focos e pressão assistencial."
+                    )
+                ),
+            ]
+        )
+        periodo_cmp["markdown_lamina"] = lamina_md
         partes.append("\n".join(linhas))
     else:
         anos_disp = sorted({int(a) for a in df["data"].dt.year.dropna().unique().tolist()})
@@ -629,6 +947,7 @@ def comparar_janela_atual(
         "mes_cmp": mes_cmp,
         "ytd_cmp": ytd_cmp,
         "narrativa": "\n\n".join(p.strip() for p in partes if str(p).strip()).strip(),
+        "markdown_lamina": str(periodo_cmp.get("markdown_lamina") or ""),
         "comparacao_mesmo_periodo": bool(periodo_cmp.get("ok")),
     }
 
@@ -756,6 +1075,7 @@ def resumo_serie_ambiente_boletim() -> dict[str, Any]:
         enso = {}
     qa = narrativa_qa_el_nino_clima(cmp_, enso=enso)
     md = cmp_.get("narrativa") or "Série ambiental operacional ainda curta para comparação robusta."
+    lamina = str(cmp_.get("markdown_lamina") or "").strip()
     if qa:
         md = (md.rstrip() + "\n\n" + qa).strip()
     if ar_txt:
@@ -766,5 +1086,6 @@ def resumo_serie_ambiente_boletim() -> dict[str, Any]:
         "comparacao": cmp_,
         "qa_el_nino_clima": qa,
         "markdown": md,
+        "markdown_lamina": lamina,
         "ok": bool(cmp_.get("ok") or (ar is not None and not ar.empty)),
     }
