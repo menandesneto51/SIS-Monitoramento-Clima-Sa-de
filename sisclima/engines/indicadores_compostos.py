@@ -15,6 +15,7 @@ COMPOSTOS_COLS = [
     "completude_sala_pct",
     "gap_fumaca_nebulizacao",
     "pressao_x_resiliencia",
+    "exposicao_fumaca_0_100",
 ]
 
 _IRM_ORDER = {
@@ -86,6 +87,12 @@ def enrich_indicadores_compostos(resumo: pd.DataFrame) -> pd.DataFrame:
     if resumo is None or resumo.empty:
         return resumo if resumo is not None else pd.DataFrame()
     out = resumo.copy()
+    try:
+        from sisclima.engines.kpis_p1_sala import enrich_exposicao_fumaca
+
+        out = enrich_exposicao_fumaca(out)
+    except Exception:  # noqa: BLE001
+        pass
 
     fumaca = []
     pressao_faixa = []
@@ -105,7 +112,11 @@ def enrich_indicadores_compostos(resumo: pd.DataFrame) -> pd.DataFrame:
 
         neb = pd.to_numeric(row.get("equipamentos_nebulizacao"), errors="coerce")
         # Gap: sinal de fumaça e ausência explícita de nebulizadores (0 conhecido)
-        if sinal == 1 and pd.notna(neb) and float(neb) <= 0:
+        # Preferir gap já calculado por exposicao_fumaca quando score alto
+        exp = pd.to_numeric(row.get("exposicao_fumaca_0_100"), errors="coerce")
+        if pd.notna(exp) and float(exp) >= 40 and pd.notna(neb) and float(neb) <= 0:
+            gap_neb.append(1)
+        elif sinal == 1 and pd.notna(neb) and float(neb) <= 0:
             gap_neb.append(1)
         else:
             gap_neb.append(0)

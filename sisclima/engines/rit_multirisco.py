@@ -459,11 +459,20 @@ def resumo_rit_estadual(resumo: pd.DataFrame, top_n: int = 10) -> dict[str, Any]
 
     top_df = df.dropna(subset=["_rit"]).sort_values("_rit", ascending=False).head(int(top_n))
     top: list[dict[str, Any]] = []
+
+    def _rotulo_regional(val: Any) -> str:
+        if val is None or (isinstance(val, float) and pd.isna(val)):
+            return "—"
+        s = str(val).strip()
+        if s.lower() in {"", "nan", "none", "nat", "<na>"}:
+            return "—"
+        return s
+
     for _, r in top_df.iterrows():
         top.append(
             {
                 "municipio": r.get("municipio"),
-                "regional": r.get("regional") or r.get("regional_saude"),
+                "regional": _rotulo_regional(r.get("regional") if r.get("regional") is not None else r.get("regional_saude")),
                 "rit": float(r["_rit"]),
                 "faixa": r.get("rit_faixa"),
                 "dominante": r.get("rit_dominio_dominante"),
@@ -524,6 +533,58 @@ def resumo_rit_estadual(resumo: pd.DataFrame, top_n: int = 10) -> dict[str, Any]
         else ""
     )
 
+    # Distribuição por domínio dominante (quem puxa o RIT)
+    dominio_dist: dict[str, int] = {}
+    dominio_vr: dict[str, int] = {}
+    n_ar_dominante = 0
+    n_rede_dominante = 0
+    n_ar_vr = 0
+    n_rede_vr = 0
+    tab_dom = ""
+    if "rit_dominio_dominante" in df.columns:
+        dom = df["rit_dominio_dominante"].astype(str).str.strip().str.lower()
+        faixa = (
+            df["rit_faixa"].astype(str).str.lower()
+            if "rit_faixa" in df.columns
+            else pd.Series([""] * len(df), index=df.index)
+        )
+        vr_mask = faixa.isin(["vermelha", "roxa"])
+        for did in DOMINIOS:
+            m = dom.eq(did)
+            dominio_dist[did] = int(m.sum())
+            dominio_vr[did] = int((m & vr_mask).sum())
+        n_ar_dominante = int(dominio_dist.get("ar") or 0)
+        n_rede_dominante = int(dominio_dist.get("rede") or 0)
+        n_ar_vr = int(dominio_vr.get("ar") or 0)
+        n_rede_vr = int(dominio_vr.get("rede") or 0)
+        # Ordenar: ar e rede primeiro (sempre listados), demais com n>0
+        ordem = ["ar", "rede"] + [d for d in DOMINIOS if d not in ("ar", "rede")]
+        linhas_dom = []
+        for did in ordem:
+            tot = int(dominio_dist.get(did) or 0)
+            if tot <= 0 and did not in ("ar", "rede"):
+                continue
+            rot = DOMINIO_ROTULOS.get(did, did)
+            if did == "rede":
+                rot = "Fragilidade de rede (100−IRM)"
+            linhas_dom.append(
+                [
+                    rot,
+                    fmt_int(tot),
+                    fmt_frac(dominio_vr.get(did) or 0, tot) if tot > 0 else "—",
+                ]
+            )
+        if linhas_dom:
+            tab_dom = bloco_tabela(
+                "Quem puxa o RIT — domínio dominante",
+                md_table(
+                    ["Domínio dominante", "Municípios", "Destes em vermelha/roxa"],
+                    linhas_dom,
+                ),
+                "ARARAS MT/CIEVS-MT — domínio dominante = escore máximo entre domínios válidos. "
+                "Rede = fragilidade (100−IRM); IRM alto não eleva o RIT.",
+            )
+
     md = f"""### RIT multirisco (observado)
 
 **RIT** = Risco Integrado Territorial (0–100): leitura **observada multidomínio** na rodada.  
@@ -535,15 +596,23 @@ def resumo_rit_estadual(resumo: pd.DataFrame, top_n: int = 10) -> dict[str, Any]
 
 {tab}
 
+{tab_dom}
+
 > RIT = observado multidomínio; projeção ~7d = térmica. Composição: máximo entre domínios válidos.{nota_def}{nota_irm}
 >
-> **Atenção:** «domínio pressão omitido do RIT por defasagem» ({fmt_int(omit_p)} mun.) **não** é o mesmo indicador que «pressão × resiliência/IRM» (composto de capacidade de rede).
+> **Atenção:** «domínio pressão omitido do RIT por defasagem» ({fmt_int(omit_p)} mun.) **não** é o mesmo indicador que «pressão × resiliência/IRM» (composto de capacidade de rede). Domínio **rede** = fragilidade (100−IRM).
 """
     return {
         "disponivel": True,
         "markdown": md,
         "top": top,
         "faixas": faixas,
+        "dominio_dist": dominio_dist,
+        "dominio_vr": dominio_vr,
+        "n_ar_dominante": n_ar_dominante,
+        "n_rede_dominante": n_rede_dominante,
+        "n_ar_vr": n_ar_vr,
+        "n_rede_vr": n_rede_vr,
         "n_critico": crit,
         "n": n,
         "completude_mediana": med_comp,
@@ -554,11 +623,14 @@ def resumo_rit_estadual(resumo: pd.DataFrame, top_n: int = 10) -> dict[str, Any]
             f"| --- | --- |\n"
             f"| **{fmt_int(crit)}/{fmt_int(n)}** faixa vermelha ou roxa · completude mediana "
             f"{fmt_num(med_comp, 0, '%') if med_comp is not None else '—'} | classe projetada **térmica** |\n"
-            f"| Observado (máx. entre domínios válidos) | Não incorpora IRM como elevador — só fragilidade |"
+            f"| Observado (máx. entre domínios válidos) · ar dominante **{fmt_int(n_ar_dominante)}** · "
+            f"rede/fragilidade **{fmt_int(n_rede_dominante)}** | Não incorpora IRM como elevador — só fragilidade |"
         ),
         "sintese_executiva_md": (
             f"RIT VR **{fmt_frac(crit, n)}** · completude mediana "
             f"**{fmt_num(med_comp, 0, '%') if med_comp is not None else '—'}**"
+            f" · ar dominante **{fmt_frac(n_ar_dominante, n)}**"
+            f" · fragilidade de rede dominante **{fmt_frac(n_rede_dominante, n)}**"
             + (
                 f" · domínio pressão omitido por defasagem em {fmt_int(omit_p)} mun."
                 if omit_p

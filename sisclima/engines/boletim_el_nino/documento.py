@@ -118,17 +118,25 @@ def _bloco_irm_compostos(snap: dict[str, Any]) -> str:
     n = c.get("n_municipios") or rit.get("n")
     n_gap = c.get("n_gap_fumaca_nebulizacao")
     n_pr = c.get("n_pressao_x_resiliencia")
+    omit_rit = int((rit.get("n_pressao_omitida") or 0))
     linhas = [
         f"- **IRM mediano (capacidade CNES):** {fmt_num(irm, 0) if irm is not None else '—'} "
         f"(alto = melhor rede; no RIT entra só a fragilidade 100−IRM).",
     ]
-    if n_gap is not None and n is not None:
+    # Gap=0 sem discriminar qualidade: omitir do corpo (sem capacidade discriminatória)
+    if n_gap is not None and n is not None and int(n_gap) > 0:
         linhas.append(
             f"- **Gap fumaça × nebulização:** {fmt_frac(n_gap, n)} municípios com sinal de fumaça e nebulizadores = 0."
         )
     if n_pr is not None and n is not None:
         linhas.append(
-            f"- **Pressão × resiliência:** {fmt_frac(n_pr, n)} com tensão entre pressão assistencial e faixa do IRM."
+            f"- **Indicador composto pressão × resiliência/IRM** (distinto do domínio pressão do RIT): "
+            f"{fmt_frac(n_pr, n)} com tensão entre pressão assistencial e faixa do IRM."
+        )
+    if omit_rit:
+        linhas.append(
+            f"- **Domínio pressão omitido do RIT por defasagem:** {fmt_int(omit_rit)} municípios "
+            f"(não confundir com o composto pressão × resiliência acima)."
         )
     return "### Capacidade de rede (IRM) e compostos\n\n" + "\n".join(linhas) + "\n"
 
@@ -308,27 +316,36 @@ def _secao_ondas_calor(
         geo_body = geo_md
         if geo_body.startswith("### "):
             geo_body = "\n".join(geo_body.splitlines()[1:]).lstrip("\n")
-        linhas.extend(["#### GeoCalor / EHF (Fiocruz)", "", geo_body])
+        linhas.extend(["### GeoCalor / EHF", "", geo_body])
     elif snap.get("geocalor_fiocruz_ok") is False:
         linhas.append(
-            "#### GeoCalor / EHF (Fiocruz)\n\nIndisponível nesta rodada — ver notas metodológicas.\n"
+            "### GeoCalor / EHF\n\nIndisponível nesta rodada — ver notas metodológicas.\n"
         )
     if maps.get("grafico_geocalor_ehf"):
         geo = snap.get("geocalor_fiocruz") or {}
+        temp_ini = geo.get("temporada_inicio") or "—"
+        temp_fim = geo.get("temporada_fim") or "—"
+        jan_ini = geo.get("janela_inicio") or "—"
+        jan_fim = geo.get("janela_fim") or "—"
         linhas.extend(
             [
                 "",
-                figs.caption("Municípios em dia de onda (EHF / GeoCalor Fiocruz)"),
+                figs.caption(
+                    "Municípios em dia de onda (EHF) — canal da temporada operacional e janela do boletim"
+                ),
                 "",
                 f"![GeoCalor EHF]({maps.get('grafico_geocalor_ehf')})",
                 "",
                 f"Fonte: cálculo EHF estadual ARARAS (definição GeoCalor / Nairn & Fawcett). "
-                f"Janela observada {geo.get('janela_inicio') or '—'} a {geo.get('janela_fim') or '—'}.",
+                f"Temporada operacional {temp_ini} a {temp_fim}; "
+                f"janela do boletim destacada {jan_ini} a {jan_fim}. "
+                f"Canal = P25–P75 móvel de 14 dias sobre a série operacional — "
+                f"não substitui climatologia oficial de longo prazo.",
                 "",
             ]
         )
 
-    linhas.extend(["#### Operação ARARAS (grade e classes)", ""])
+    linhas.extend(["### Operação ARARAS (grade e classes)", ""])
     if picos.get("ok"):
         ini = picos.get("janela_inicio") or "—"
         fim = picos.get("janela_fim") or "—"
@@ -1235,6 +1252,21 @@ Municípios com dados comparáveis: {fmt_frac(n_delta, snap.get('n_municipios'))
 
     fig_classes = ""
     figs = _FigCounter()
+    fig_sazonalidade = ""
+    if maps.get("grafico_sazonalidade_historico"):
+        fonte_corr = maps.get("sazonalidade_fonte_corr") or "lags"
+        nota_corr = (
+            "lags clima→desfecho (Pearson R e Spearman ρ)"
+            if fonte_corr == "lags"
+            else "correlações ecológicas municipais nos top pares OR (Pearson R e Spearman ρ); lags temporais indisponíveis nesta rodada"
+        )
+        fig_sazonalidade = (
+            f"{figs.caption('Sazonalidade operacional — histórico × atual e correlações (R e ρ)')}\n\n"
+            f"![Sazonalidade histórico × atual]({maps.get('grafico_sazonalidade_historico')})\n\n"
+            f"Fonte: ARARAS MT — índice sazonal mensal e {nota_corr}. "
+            "Análise ecológica exploratória; não prova causalidade individual. "
+            "* indica p<0,05 no painel de correlações.\n"
+        )
     if maps.get("grafico_classes"):
         fig_classes = (
             f"![Classes ARARAS]({maps.get('grafico_classes')})\n\n"
@@ -1302,7 +1334,7 @@ Base normativa: Portaria n.º 0590/2026/GBSES.
 
 {_bloco_atos_oficiais()}
 
-> A projeção operacional de aproximadamente 7 dias **não substitui** a previsão climática sazonal. Os produtos possuem objetivos e horizontes temporais distintos.
+Nota: a projeção operacional de aproximadamente 7 dias **não substitui** a previsão climática sazonal. Os produtos possuem objetivos e horizontes temporais distintos.
 
 {_cards_executivos(snap)}
 
@@ -1342,6 +1374,10 @@ Trimestre ASO/2026 (CPTEC/INPE–INMET–FUNCEME): chuva abaixo da normal no cen
 {snap.get('serie_ambiente_md') or 'Série ambiental operacional ainda insuficiente nesta rodada.'}
 
 _Fonte: painel ARARAS MT. A série operacional não substitui climatologia oficial de longo prazo._
+
+{snap.get('sazonalidade_or_md') or ''}
+
+{fig_sazonalidade}
 
 ---
 
@@ -1566,7 +1602,8 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 
 {metodologia_indice_md()}
 - **Medidor de trajetória:** não calculado nesta rodada por insuficiência de série temporal.
-- **Série ambiental operacional:** média estadual diária (Open-Meteo / consolidação ARARAS) e qualidade do ar estadual; a comparação “janela atual × restante da série” é descritiva e não substitui climatologia oficial.
+- **Série ambiental operacional:** média estadual diária (Open-Meteo / consolidação ARARAS) e qualidade do ar estadual; a comparação usa o **mesmo período do calendário** (mesmos dias MM-DD e/ou o mesmo mês) em anos anteriores da série — não mistura meses diferentes. Não substitui climatologia oficial.
+- **Sazonalidade / Odds Ratio:** índice sazonal mensal, OR ecológico 2×2 (exposição climática × desfecho de saúde, limiares por quartil) e lags Spearman 0–14 dias; p<0,05 (Fisher/Spearman) destaca associação no recorte — **não** prova causalidade individual. Detalhe na aba Sazonalidade / OR.
 - **GeoCalor / EHF (Fiocruz–LAGAS):** EHIsig = T3d − P95 local; EHIaccl = T3d − T30d; EHF = EHIsig × max(1, EHIaccl); evento ≥ 3 dias consecutivos com EHF > 0; intensidade pela distribuição local dos EHF positivos (EHF85). Cálculo estadual ARARAS para os 142 municípios (o portal GeoCalor não publica Cuiabá/MT).
 - **Óbitos SIM sensíveis ao calor/clima:** ver metodologia abaixo e a aba homônima do painel.
 - **Figuras e tabelas:** identificação acima e fonte abaixo (NBR 14724 / NBR 10719); referências bibliográficas em NBR 6023.
@@ -1591,6 +1628,8 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 | --- | --- |
 | Anomalia | Diferença entre o valor observado e a climatologia de referência. |
 | Climatologia | Comportamento médio esperado para a região e a época. |
+| Odds Ratio (OR) ecológico | Chance relativa do desfecho no grupo de municípios mais expostos vs menos expostos (análise agregada). |
+| Índice sazonal | Razão entre a média do mês e a média geral do período (>1 = mês historicamente mais crítico). |
 | PM2,5 | Partículas com diâmetro aerodinâmico de até 2,5 µm. |
 | Percentil 95 | Valor acima do qual estão cerca de 5% das observações comparáveis. |
 | EHF | Excess Heat Factor (Nairn & Fawcett) — índice de onda de calor do GeoCalor/Fiocruz. |
@@ -1609,7 +1648,7 @@ Fonte: Painel El Niño n.º {cenario.get('edicao', '—')} — não são gatilho
 
 {conclusao_tendencia(snap, cenario, inmet)}
 
-## 18. Referências
+## REFERÊNCIAS
 
 {chr(10).join(r for r in refs_biblio)}
 """

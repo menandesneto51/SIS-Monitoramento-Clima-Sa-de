@@ -2,10 +2,12 @@
 
 **Produto:** ARARAS MT (Análise, Resposta e Acompanhamento de Riscos, Agravos e Saúde)  
 **Público:** gestores, Sala de Situação, CRS/SMS, imprensa técnica e leitores do painel público  
-**Versão:** 1.2 — 12/09/2026  
+**Versão:** 1.3 — 18/09/2026  
 **Responsável técnico:** CIEVS-MT / SES-MT  
 
 Este texto explica, em linguagem simples, **de onde vêm os números**, **como se combinam**, **quais pesos usam** e **o que cada cor significa**. Os valores de peso abaixo são os **padrões operacionais atuais** do sistema (podem ser recalibrados pelo CIEVS em `config/settings.yaml` / arquivos de índice, sem mudar o sentido geral).
+
+**Novidade v1.3:** catálogo ampliado de **doenças e agravos** (além de SRAG e arboviroses): desidratação/calor, cardiovascular, respiratório e renal no SIM; DDA e internações por CID; intoxicação/fumaça; SINAN extras (hantavirose, leishmaniose visceral, febre maculosa, animais peçonhentos); malária; GAL/LACEN. Seção nova **“Agravos e doenças monitorados”**.
 
 **Novidade v1.2:** **IRM** (capacidade CNES) e domínio RIT **fragilidade de rede**; compostos `gap_fumaca_nebulizacao` e `pressao_x_resiliencia`; frescor obrigatório (IRM→RIT→compostos) antes de alertas, boletim e painel.
 
@@ -23,6 +25,7 @@ Este texto explica, em linguagem simples, **de onde vêm os números**, **como s
    - **RIT** — **multirisco observado** (calor + fumaça + hidro + EHF + pressão fresca + fragilidade de rede).
    - **IRM** — **capacidade** da rede CNES (alto = melhor); no RIT entra só o inverso (fragilidade).
    - **Prioridade global** — ranking de gestão (0–100), não é o semáforo de alerta.
+   - **Cenário epidemiológico / saúde-calor** — **doenças e agravos** (SRAG, arbov, DDA, cardio/renal, fumaça…); não é o RIT.
 4. **Ocupação IndicaSUS ≠ pressão SISREG.** São pilares distintos da pressão sobre a rede.
 
 ---
@@ -65,13 +68,58 @@ Usada no **nível operacional**, na **predição ~7 dias**, na **faixa do RIT** 
 | Clima / calor | Tmáx, UTCI proxy, risco 3 dias, **EHF GeoCalor** | Open-Meteo / ERA5-Land; tabela `star_clima_geocalor_diario` |
 | Ar e fogo | PM2,5, IQA, focos 24h/7d | Qualidade do ar / satélite e produtos de queimadas |
 | Hidrologia / desastre | Nível de rio, alerta hidro, Cemaden | ANA, Cemaden e alertas oficiais mesclados |
-| Assistência | Ocupação de leitos, fila/solicitações | **IndicaSUS** (ocupação), **SISREG** (regulação) |
-| Epidemiologia | SRAG, arboviroses 7d, z-scores | SIVEP/SINAN e bases epidemiológicas do fluxo estadual |
-| Mortalidade | Óbitos sensíveis ao calor | **SIM** (grupos CID monitorados) |
-| Rede / território | Capacidade CNES, resiliência, aldeias/quilombos | CNES, cadastros territoriais, e-SUS (quando disponível e fresco) |
+| Assistência | Ocupação de leitos, fila/solicitações, internações por CID | **IndicaSUS** (ocupação + VW_INTERNACAO), **SISREG** (regulação) |
+| Epidemiologia | SRAG, arboviroses, DDA, intoxicação/fumaça, SINAN extras, malária | SIVEP, SINAN/DW e bases epidemiológicas do fluxo estadual |
+| Mortalidade | Óbitos sensíveis ao calor e cardiorrespiratório/renal | **SIM** (grupos CID — ver seção 4b) |
+| Laboratório | Positividade recente | **GAL/LACEN** |
+| Rede / território | Capacidade CNES, resiliência, aldeias/quilombos, nebulização APS | CNES, cadastros territoriais, e-SUS (quando disponível e fresco) |
 | Adaptação | Riscos AdaptaSUS, índice de adaptação | Matriz AdaptaSUS configurada no ARARAS |
 
 Cada rodada registra **frescor** (quão recente está a fonte). Dado velho pode ser omitido (ex.: pressão no RIT se > 14 dias).
+
+---
+
+## 4b. Agravos e doenças monitorados (além do “só SRAG/dengue”)
+
+O ARARAS **não** se limita a gripe/SRAG e dengue. O painel e o boletim acompanham um **pacote clima–saúde** alinhado ao Plano El Niño / AdaptaSUS. Em linguagem simples:
+
+### Onde olhar no painel
+
+| Onde | O que aparece |
+|---|---|
+| Aba **Cenário Epidemiológico** | Arboviroses 7d · SINAN extras · intoxicação/fumaça · internações CID · malária/SRAG |
+| Aba **SIVEP** / **Sentinela SG** | Série completa de SRAG e síndrome gripal (indicadores MS) |
+| Aba **Óbitos / saúde-calor** (quando disponível) | Consolida SIM + SINAN + GAL + SRAG para leitura “calor × saúde” |
+| **Índice de pressão (G/A/V)** | IndicaSUS + SISREG + SINAN + SIM (agravos com associação climática) |
+| **Boletim semanal** | Cenários (calor, fumaça, hidro) com agravos esperados (ex.: DDA/leptospirose se inundação confirmada) |
+
+### Pacote de doenças / desfechos (leitura leiga)
+
+| Grupo | O que é | Fonte típica | Entra em… |
+|---|---|---|---|
+| **Arboviroses** | Dengue, chikungunya (Zika quando houver view no DW) | SINAN | Carga em saúde · pressão · Cenário Epidemiológico |
+| **SRAG / respiratório** | Síndrome respiratória aguda grave, UTI, óbitos | SIVEP (preferencial); SINAN DW se vazio | Carga · nível · SIVEP |
+| **Desidratação / calor direto** | Exaustão, insolação, desidratação (CID E86, E87, T67, X30) | SIM / internações IndicaSUS | Pressão (SIM) · saúde-calor · internações CID |
+| **Cardiovascular** | Óbitos/agravos sensíveis ao calor (CID I*) | SIM | Pressão · GeoCalor (RR exploratório) |
+| **Respiratório (mortalidade)** | Óbitos CID J* (calor + fumaça/PM2,5) | SIM | Pressão · saúde-calor |
+| **Renal** | Lesão aguda / desfechos N17–N19 ligados a desidratação | SIM | Pressão · saúde-calor |
+| **Endócrino-metabólico** | Diabetes (E10–E14) quando CID disponível no SIM | SIM | Grupo auxiliar no classificador de óbitos |
+| **DDA (diarreia aguda)** | Doença diarreica aguda (CID A09, K52) — seca, estiagem e enchentes | Internações IndicaSUS / vigilância | Internações CID · narrativa hidro no boletim |
+| **Intoxicação / fumaça** | Intoxicação exógena ligada a fumaça/queimada/incêndio | SINAN (VW intoxicação) | Sinal de fumaça · Cenário Epidemiológico · gap nebulização |
+| **SINAN extras clima** | Hantavirose, animais peçonhentos, SRAG (SINAN), leishmaniose visceral, febre maculosa | SINAN/DW | Cards “extras clima” · enriquecimento municipal |
+| **Malária** | Casos recentes (janela DW) | DW / SIVEP malaria | Cards Onda 2 · Cenário Epidemiológico |
+| **Laboratório (GAL)** | Positividade recente (contexto, não diagnóstico individual) | GAL/LACEN | Saúde-calor consolidado |
+| **Hidro (vigilância condicional)** | DDA, **leptospirose** e traumas se **inundação confirmada** | Narrativa boletim + alertas hidro | Não substitui notificação oficial; aciona vigilância |
+
+Catálogo técnico: `config/monitoramento_agravos_el_nino.yaml` e `config/indice_pressao_semaforo.yaml` (`agravos_clima`).
+
+### Regras que evitam confusão
+
+1. **Nem todo agravo “puxa” o semáforo Verde→Roxa sozinho.** Muitos alimentam **Cenário Epidemiológico**, **pressão G/A/V**, **saúde-calor** ou o **boletim** — sem alterar a fórmula do RIT v1.
+2. **Carga em saúde (seção 6.2)** continua com pesos fortes em **SRAG** e **arboviroses** (+ ar e pressão). Os demais agravos aparecem nas abas e no pacote SIM/internações.
+3. **Ausência de linha ≠ zero casos.** View do DW vazia, atraso de notificação ou município sem hospital notificante.
+4. **Correlação ecológica ≠ causalidade.** GeoCalor (RR) e odds ratio sazonal geram hipótese; não fecham laudo individual.
+5. **Leptospirose / DDA pós-cheia** no boletim é **orientação de vigilância** quando o cenário hidro confirma inundação — não inventa incidência estadual.
 
 ---
 
@@ -127,6 +175,8 @@ Três notas publicadas na Visão. Cada uma combina componentes **já normalizado
 | Queimadas | **8%** |
 | Pressão assistencial | **30%** |
 
+**Nota v1.3:** esta nota composta ainda enfatiza **SRAG + arboviroses**. Desidratação, DDA, intoxicação, SINAN extras, malária e grupos SIM cardiorrespiratório/renal entram sobretudo no **Cenário Epidemiológico**, no **semáforo de pressão (G/A/V)** e na consolidação **saúde-calor** — não “somem” só porque o peso da carga não os lista um a um.
+
 ### 6.3 Vigilância integrada
 
 “Prioridade composta para olhar o território.”
@@ -179,8 +229,8 @@ Combina quatro pilares da rede e da vigilância (pesos padrão do semáforo):
 |---|---|---|
 | IndicaSUS | Ocupação de leitos | **30%** |
 | SISREG | Fila / solicitações abertas | **20%** |
-| SINAN / epidemiológico | Casos, z-scores, SRAG etc. | **30%** |
-| SIM | Óbitos na janela monitorada | **20%** |
+| SINAN / epidemiológico | Arboviroses, SRAG e demais z-scores / casos 7d sensíveis ao clima | **30%** |
+| SIM | Óbitos na janela: calor direto, desidratação, cardio, resp, renal | **20%** |
 
 Leitura do semáforo de pressão (escala 0–100 tipicamente):
 
@@ -278,7 +328,15 @@ A **tendência ~7 dias** no painel cruza o nível atual com essa projeção (agr
 | **UTCI proxy** | Como o corpo sente o calor (temperatura + umidade + vento) |
 | **PM2,5 / IQA** | Partículas finas / qualidade do ar; focos de queimada mostram fogo mesmo sem PM municipal |
 | **Vulnerabilidade ao calor** | Idosos, crianças, rural e exposição territorial |
-| **Arboviroses 7d** | Pressão recente de dengue/zika/chikungunya — não é a temporada inteira |
+| **Arboviroses 7d** | Pressão recente de dengue/chikungunya (Zika se houver) — não é a temporada inteira |
+| **SRAG / SIVEP** | Casos, UTI e óbitos respiratórios graves; Sentinela SG é outro produto (unidades sentinela) |
+| **Desidratação / calor (CID)** | E86, E87, T67, X30 — morbimortalidade por exposição ao calor |
+| **SIM grupos clima** | Cardio (I*), resp (J*), renal (N*), endócrino (E10–E14) além do calor direto |
+| **DDA** | Diarreia aguda (A09/K52) — seca, estiagem e enchentes; internações CID |
+| **Intoxicação / fumaça** | SINAN intoxicação exógena filtrada por fumaça/queimada |
+| **SINAN extras clima** | Hantavirose, animais peçonhentos, LV, febre maculosa, SRAG (SINAN) |
+| **Malária 7d** | Casos recentes no recorte DW (quando enrich ativo) |
+| **Internações CID clima** | IndicaSUS/VW_INTERNACAO agrupadas (resp, DDA, desidratação, cardio) |
 | **Odds ratio / sazonalidade** | Comparação ecológica mês atual × histórico (não é causalidade individual) |
 | **Completude (%)** | Quanto do cálculo pôde usar dado válido nesta rodada |
 | **Fumaça sem PM** | Focos de queimada com PM2,5 nulo — não é ar limpo |
@@ -318,9 +376,12 @@ A **tendência ~7 dias** no painel cruza o nível atual com essa projeção (agr
 | Aba **Guia do leitor** | Cores + glossário em linguagem simples |
 | Aba **Cálculos** | Pesos atuais de tensão / carga / vigilância |
 | Aba **Visão** | Cards, RIT, risco 3d, prioridades (painel interno) |
+| Aba **Cenário Epidemiológico** | Arboviroses, extras SINAN, intoxicação, internações CID, malária |
+| Aba **SIVEP** / **Sentinela SG** | SRAG e síndrome gripal (série MS) |
 | Aba **Fontes e qualidade** | Frescor e cobertura das bases |
 | “Por que este nível?” | Motivo do estágio + scorecard RIT |
 | ADR técnico | `docs/adr/ADR-RIT-multirisco.md` (detalhe do RIT) |
+| Catálogo de agravos | `config/monitoramento_agravos_el_nino.yaml` |
 
 ---
 
@@ -339,7 +400,10 @@ A semana seguinte pode projetar calor forte; o RIT olha o **agora** multirisco. 
 Não. Para comunicação de risco use o **nível** e os boletins oficiais. A prioridade é ferramenta de **gestão/plantão**.
 
 **Os pesos podem mudar?**  
-Sim, por calibragem do CIEVS. O painel (aba Cálculos) mostra os pesos **em vigor** na rodada. Este guia descreve o padrão de setembro/2026.
+Sim, por calibragem do CIEVS. O painel (aba Cálculos) mostra os pesos **em vigor** na rodada. Este guia descreve o padrão de setembro/2026 (v1.3).
+
+**Só monitoramos dengue e SRAG?**  
+Não. O pacote inclui desidratação/calor, cardio/resp/renal no SIM, DDA, intoxicação/fumaça, SINAN extras, malária e GAL — ver **seção 4b**. A nota “carga em saúde” ainda pesa mais SRAG+arbov; o restante aparece nas abas epidemiológicas e no semáforo de pressão.
 
 **IA do sistema diagnostica paciente?**  
 Não. O ARARAS apoia vigilância e gestão; não substitui conduta clínica nem protocolo do MS/SES.
@@ -352,10 +416,11 @@ Não. O ARARAS apoia vigilância e gestão; não substitui conduta clínica nem 
 2. **~7 dias** = só calor projetado.  
 3. **RIT** = pior entre calor, ar, hidro, EHF, pressão fresca e fragilidade de rede (máximo).  
 4. **IRM** = capacidade CNES (alto = melhor); inverso no domínio rede do RIT.  
-5. **Tensão / carga / vigilância** = notas 0–100 com pesos da seção 6.  
+5. **Tensão / carga / vigilância** = notas 0–100 com pesos da seção 6 (carga ainda SRAG+arbov-centrada).  
 6. **Prioridade global** = ranking ponderado (30/25/20/15/10).  
-7. **Pressão saúde** = IndicaSUS + SISREG + SINAN + SIM.  
-8. **Sem dado ≠ sem risco.** **Sinal ≠ decreto.**
+7. **Pressão saúde** = IndicaSUS + SISREG + SINAN + SIM (agravos clima).  
+8. **Doenças monitoradas** = além de SRAG/dengue: desidratação, cardio/resp/renal, DDA, fumaça/intox, extras SINAN, malária (seção 4b).  
+9. **Sem dado ≠ sem risco.** **Sinal ≠ decreto.**
 
 ---
 

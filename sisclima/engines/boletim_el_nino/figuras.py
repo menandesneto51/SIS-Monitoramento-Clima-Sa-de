@@ -59,7 +59,7 @@ def _save(fig, path: Path) -> str | None:
 CUIABA_IBGE6 = "510340"
 CUIABA_LAT = -15.6014
 CUIABA_LON = -56.0979
-# Marcos oficiais INMET (estação) — semana SE 35/2026; não confundir com grade Open-Meteo
+# Referência histórica SE 35/2026 (estação INMET) — não anotar no gráfico nem no boletim corrente
 INMET_CUIABA_RECORDE_SE35 = {
     "2026-08-30": 41.2,
     "2026-08-31": 41.3,
@@ -319,19 +319,6 @@ def export_serie_cuiaba_temperaturas(
     if "tmedia" in df.columns:
         ax.plot(df["data"], df["tmedia"], color="#e76f3c", lw=0.5, alpha=0.9, label="Média")
     ax.plot(df["data"], df["tmax"], color="#c1121f", lw=0.5, alpha=0.95, label="Máxima")
-    # Marcos INMET da semana (observação de estação)
-    for d_str, val in INMET_CUIABA_RECORDE_SE35.items():
-        d = pd.Timestamp(d_str)
-        if df["data"].min() <= d <= df["data"].max():
-            ax.scatter([d], [val], s=36, c="#111", zorder=5, marker="o")
-            ax.annotate(
-                f"INMET {val:.1f} °C".replace(".", ","),
-                (d, val),
-                textcoords="offset points",
-                xytext=(6, 8),
-                fontsize=7,
-                color="#111",
-            )
     ax.set_ylabel("Temperatura (°C)")
     ax.set_xlabel("Data")
     ax.set_title(f"Temperaturas diárias — Cuiabá ({ini[:4]}–{fim[:4]})")
@@ -345,7 +332,10 @@ def export_serie_cuiaba_temperaturas(
     saved = _save(fig, path)
     if not saved:
         return meta
-    recent = df[df["data"] >= "2026-08-25"]
+    from datetime import date, timedelta
+
+    corte = pd.Timestamp(date.today() - timedelta(days=7))
+    recent = df[df["data"] >= corte]
     om_max = float(pd.to_numeric(recent["tmax"], errors="coerce").max()) if not recent.empty else None
     meta.update(
         {
@@ -354,8 +344,6 @@ def export_serie_cuiaba_temperaturas(
             "inicio": ini,
             "fim": fim,
             "openmeteo_tmax_semana": om_max,
-            "inmet_tmax_30ago": 41.2,
-            "inmet_tmax_31ago": 41.3,
             "n_dias": int(len(df)),
         }
     )
@@ -682,31 +670,355 @@ def export_grafico_geocalor_ehf(
     *,
     nome: str = "grafico_geocalor_ehf_janela.png",
 ) -> dict[str, Any]:
-    """Linha: municípios em dia de onda (EHF) na janela GeoCalor/Fiocruz."""
-    serie = list((resumo or {}).get("serie_diaria_n_onda") or [])
+    """Canal operacional: municípios em dia de onda (EHF) na temporada + janela do boletim.
+
+    Usa ``serie_temporada_n_onda`` quando há pontos suficientes; senão cai na janela curta.
+    Canal = P25–P75 móvel de 14 dias. Não é climatologia multi-anual.
+    """
+    meta = resumo or {}
+    serie_temp = list(meta.get("serie_temporada_n_onda") or [])
+    serie_janela = list(meta.get("serie_diaria_n_onda") or [])
+    usar_temporada = len(serie_temp) >= 21
+    serie = serie_temp if usar_temporada else serie_janela
     if len(serie) < 2:
         return {"disponivel": False}
     try:
         import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
     except Exception as exc:  # noqa: BLE001
         log.warning("matplotlib indisponível: %s", exc)
         return {"disponivel": False}
-    datas = [str(r.get("data") or "")[5:] for r in serie]  # MM-DD
-    vals = [int(r.get("n_onda") or 0) for r in serie]
-    fig, ax = plt.subplots(figsize=(8.2, 3.4), dpi=160)
-    ax.fill_between(range(len(vals)), vals, color="#fca5a5", alpha=0.45)
-    ax.plot(range(len(vals)), vals, color="#b91c1c", linewidth=2.0, marker="o", markersize=4)
-    ax.set_xticks(range(len(datas)))
-    ax.set_xticklabels(datas, rotation=45, ha="right", fontsize=7)
+
+    datas = pd.to_datetime([r.get("data") for r in serie], errors="coerce")
+    vals = pd.Series([int(r.get("n_onda") or 0) for r in serie], dtype=float)
+    if datas.isna().all():
+        return {"disponivel": False}
+
+    # Canal móvel 14 dias (P25–P75)
+    win = min(14, max(3, len(vals) // 3))
+    p25 = vals.rolling(win, min_periods=max(2, win // 2), center=True).quantile(0.25)
+    p75 = vals.rolling(win, min_periods=max(2, win // 2), center=True).quantile(0.75)
+
+    mediana_temp = meta.get("n_onda_mediana_temporada")
+    if mediana_temp is None and vals.notna().any():
+        mediana_temp = float(vals.median())
+
+    jan_ini = pd.to_datetime(meta.get("janela_inicio"), errors="coerce")
+    jan_fim = pd.to_datetime(meta.get("janela_fim"), errors="coerce")
+    in_janela = pd.Series(False, index=vals.index)
+    if pd.notna(jan_ini) and pd.notna(jan_fim):
+        in_janela = (datas >= jan_ini) & (datas <= jan_fim)
+
+    fig, ax = plt.subplots(figsize=(9.2, 3.8), dpi=160)
+    # Canal institucional (azul claro)
+    ax.fill_between(
+        datas,
+        p25,
+        p75,
+        color="#93C5FD",
+        alpha=0.45,
+        label=f"Canal móvel P25–P75 ({win}d)",
+        linewidth=0,
+    )
+    # Linha temporada
+    ax.plot(
+        datas,
+        vals,
+        color="#1351B4",
+        linewidth=1.6,
+        label="Municípios em dia de onda (EHF)",
+        zorder=3,
+    )
+    if mediana_temp is not None:
+        ax.axhline(
+            float(mediana_temp),
+            color="#64748B",
+            ls="--",
+            lw=1.1,
+            label=f"Mediana da temporada ({float(mediana_temp):.0f})",
+        )
+    # Janela do boletim destacada
+    if in_janela.any():
+        ax.plot(
+            datas[in_janela],
+            vals[in_janela],
+            color="#b91c1c",
+            linewidth=2.2,
+            marker="o",
+            markersize=4,
+            label="Janela do boletim",
+            zorder=4,
+        )
+        # faixa vertical suave na janela
+        ax.axvspan(
+            datas[in_janela].min(),
+            datas[in_janela].max(),
+            color="#FEE2E2",
+            alpha=0.35,
+            zorder=0,
+        )
+
+    temp_ini = meta.get("temporada_inicio") or (str(datas.min().date()) if pd.notna(datas.min()) else "")
+    temp_fim = meta.get("temporada_fim") or (str(datas.max().date()) if pd.notna(datas.max()) else "")
+    ano = str(temp_ini)[:4] if temp_ini else "2026"
+    if usar_temporada:
+        ax.set_title(f"GeoCalor / EHF — municípios em dia de onda · temporada operacional {ano}")
+    else:
+        ini = meta.get("janela_inicio") or ""
+        fim = meta.get("janela_fim") or ""
+        ax.set_title(f"GeoCalor / EHF — municípios em dia de onda · {ini} a {fim}")
+
     ax.set_ylabel("Municípios em dia de onda (EHF)")
-    ini = (resumo or {}).get("janela_inicio") or ""
-    fim = (resumo or {}).get("janela_fim") or ""
-    ax.set_title(f"GeoCalor / EHF (Fiocruz) — municípios em onda · {ini} a {fim}")
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
+    if len(datas) > 40:
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
+    else:
+        ax.xaxis.set_major_locator(mdates.DayLocator(interval=max(1, len(datas) // 10)))
+    fig.autofmt_xdate(rotation=45, ha="right")
+    ax.legend(loc="upper left", fontsize=7.5, frameon=False, ncol=2)
     ax.spines[["top", "right"]].set_visible(False)
     ax.grid(True, axis="y", alpha=0.25)
+    ax.set_ylim(bottom=0)
     path = out_dir / nome
     saved = _save(fig, path)
-    return {"disponivel": bool(saved), "path": saved}
+    return {
+        "disponivel": bool(saved),
+        "path": saved,
+        "temporada": bool(usar_temporada),
+        "temporada_inicio": temp_ini,
+        "temporada_fim": temp_fim,
+    }
+
+
+def export_grafico_sazonalidade_historico(
+    pack: dict[str, Any] | None,
+    out_dir: Path,
+    *,
+    nome: str = "grafico_sazonalidade_historico_atual.png",
+    resumo: pd.DataFrame | None = None,
+) -> dict[str, Any]:
+    """Figura composta: índice sazonal mensal (histórico × atual) + top correlações R/ρ/p.
+
+    Preferência: lags temporais. Se vazios, calcula Pearson/Spearman ecológicos
+    transversais (município) nos top pares OR do pacote.
+    """
+    pack = pack or {}
+    mensal = pack.get("mensal") if isinstance(pack.get("mensal"), pd.DataFrame) else pd.DataFrame()
+    picos = pack.get("picos") if isinstance(pack.get("picos"), pd.DataFrame) else pd.DataFrame()
+    lags = pack.get("lags") if isinstance(pack.get("lags"), pd.DataFrame) else pd.DataFrame()
+    odds = pack.get("odds") if isinstance(pack.get("odds"), pd.DataFrame) else pd.DataFrame()
+    if mensal.empty and lags.empty and odds.empty:
+        return {"disponivel": False}
+    try:
+        import matplotlib.pyplot as plt
+        import numpy as np
+    except Exception as exc:  # noqa: BLE001
+        log.warning("matplotlib indisponível: %s", exc)
+        return {"disponivel": False}
+
+    from datetime import date
+
+    from sisclima.engines.clima_exposicoes import CLIMA_ROTULOS
+
+    # Se lags vazios, montar correlações transversais a partir dos top OR
+    fonte_corr = "lags"
+    if lags.empty or (len(lags.columns) == 1 and "_empty" in lags.columns):
+        fonte_corr = "transversal"
+        lags = _correlacoes_transversais_or(odds, resumo)
+
+    fig, (ax_a, ax_b) = plt.subplots(
+        1, 2, figsize=(11.2, 4.2), dpi=160, gridspec_kw={"width_ratios": [1.05, 1.35]}
+    )
+
+    # --- Painel A: índice sazonal mensal ---
+    mes_atual = int(date.today().month)
+    if not mensal.empty and "indice_sazonal" in mensal.columns:
+        sm = mensal.copy()
+        sm["indice_sazonal"] = pd.to_numeric(sm["indice_sazonal"], errors="coerce")
+        sm["mes"] = pd.to_numeric(sm.get("mes"), errors="coerce")
+        sm = sm.dropna(subset=["indice_sazonal"]).sort_values("mes")
+        labels = [str(r.get("mes_rotulo") or int(r["mes"])) for _, r in sm.iterrows()]
+        vals = sm["indice_sazonal"].tolist()
+        cores = []
+        for _, r in sm.iterrows():
+            m = int(r["mes"]) if pd.notna(r.get("mes")) else -1
+            if m == mes_atual:
+                cores.append("#b91c1c")
+            elif float(r["indice_sazonal"]) > 1.0:
+                cores.append("#1351B4")
+            else:
+                cores.append("#93C5FD")
+        ax_a.bar(range(len(vals)), vals, color=cores, width=0.72)
+        ax_a.axhline(1.0, color="#64748B", ls="--", lw=1.0, label="Média do período (=1)")
+        ax_a.set_xticks(range(len(labels)))
+        ax_a.set_xticklabels(labels, fontsize=8)
+        ax_a.set_ylabel("Índice sazonal")
+        ax_a.set_title("Índice sazonal mensal (histórico)")
+        if not picos.empty and "tipo" in picos.columns:
+            se = picos[picos["tipo"] == "se_atual_vs_media"].head(1)
+            if (
+                not se.empty
+                and pd.notna(se["valor_atual"].iloc[0])
+                and pd.notna(se["valor_medio_historico"].iloc[0])
+            ):
+                atual = float(se["valor_atual"].iloc[0])
+                media = float(se["valor_medio_historico"].iloc[0])
+                se_n = se["semana_epi"].iloc[0] if "semana_epi" in se.columns else "—"
+                try:
+                    se_n = int(float(se_n))
+                except Exception:
+                    pass
+                se_txt = f"SE {se_n}: atual {atual:.2f} vs média {media:.2f} (Δ {atual - media:+.2f})"
+                ax_a.text(
+                    0.02,
+                    0.98,
+                    se_txt,
+                    transform=ax_a.transAxes,
+                    va="top",
+                    ha="left",
+                    fontsize=7.5,
+                    color="#1e293b",
+                    bbox={
+                        "boxstyle": "round,pad=0.25",
+                        "facecolor": "#F8FAFC",
+                        "edgecolor": "#CBD5E1",
+                        "linewidth": 0.6,
+                    },
+                )
+        ax_a.legend(loc="upper right", fontsize=7, frameon=False)
+        ax_a.spines[["top", "right"]].set_visible(False)
+        ax_a.grid(True, axis="y", alpha=0.25)
+    else:
+        ax_a.text(0.5, 0.5, "Índice sazonal indisponível", ha="center", va="center", transform=ax_a.transAxes)
+        ax_a.set_axis_off()
+
+    # --- Painel B: Pearson R / Spearman ρ ---
+    titulo_b = (
+        "Top associações temporais (R e ρ)"
+        if fonte_corr == "lags"
+        else "Top pares OR — correlação ecológica municipal (R e ρ)"
+    )
+    if not lags.empty and ("spearman" in lags.columns or "abs_spearman" in lags.columns):
+        lg = lags.copy()
+        lg["abs_spearman"] = pd.to_numeric(
+            lg["abs_spearman"] if "abs_spearman" in lg.columns else lg.get("spearman"),
+            errors="coerce",
+        ).abs()
+        lg["spearman"] = pd.to_numeric(lg.get("spearman"), errors="coerce")
+        lg["pearson"] = pd.to_numeric(lg.get("pearson"), errors="coerce")
+        lg["p_value"] = pd.to_numeric(lg.get("p_value"), errors="coerce")
+        lg = lg.dropna(subset=["abs_spearman"]).sort_values("abs_spearman", ascending=False).head(8)
+        if lg.empty:
+            ax_b.text(0.5, 0.5, "Correlações insuficientes", ha="center", va="center", transform=ax_b.transAxes)
+            ax_b.set_axis_off()
+        else:
+            y = np.arange(len(lg))
+            h = 0.35
+            pear = lg["pearson"].fillna(0).to_numpy()
+            spea = lg["spearman"].fillna(0).to_numpy()
+            ax_b.barh(y + h / 2, pear, height=h, color="#1351B4", label="Pearson R")
+            ax_b.barh(y - h / 2, spea, height=h, color="#DC2626", alpha=0.85, label="Spearman ρ")
+            labels_b = []
+            for _, r in lg.iterrows():
+                exp = CLIMA_ROTULOS.get(str(r.get("exposicao") or ""), str(r.get("exposicao") or "—"))
+                des = str(r.get("desfecho") or "—").replace("_", " ")
+                lag_s = ""
+                if pd.notna(r.get("lag_dias")):
+                    try:
+                        lag_s = f" (lag {int(float(r['lag_dias']))}d)"
+                    except Exception:
+                        lag_s = ""
+                labels_b.append(f"{exp} → {des}{lag_s}")
+            ax_b.set_yticks(y)
+            ax_b.set_yticklabels(labels_b, fontsize=6.5)
+            ax_b.axvline(0, color="#94A3B8", lw=0.8)
+            ax_b.set_xlabel("Correlação")
+            ax_b.set_title(titulo_b)
+            xmax = max(abs(float(np.nanmax(pear))), abs(float(np.nanmax(spea))), 0.1) * 1.45
+            ax_b.set_xlim(-xmax, xmax)
+            for i, (_, r) in enumerate(lg.iterrows()):
+                p = r.get("p_value")
+                try:
+                    p_s = f"p={float(p):.3g}"
+                    sig = " *" if float(p) < 0.05 else ""
+                except Exception:
+                    p_s = "p=—"
+                    sig = ""
+                try:
+                    ann = (
+                        f"R={float(r['pearson']):+.2f} · ρ={float(r['spearman']):+.2f} · {p_s}{sig}"
+                    )
+                except Exception:
+                    ann = p_s
+                ax_b.text(xmax * 0.98, i, ann, va="center", ha="right", fontsize=5.8, color="#334155")
+            ax_b.legend(loc="lower right", fontsize=7, frameon=False)
+            ax_b.spines[["top", "right"]].set_visible(False)
+            ax_b.grid(True, axis="x", alpha=0.25)
+            ax_b.invert_yaxis()
+    else:
+        ax_b.text(0.5, 0.5, "Correlações (R/ρ) indisponíveis", ha="center", va="center", transform=ax_b.transAxes)
+        ax_b.set_axis_off()
+
+    fig.suptitle(
+        "Sazonalidade operacional — histórico × atual e correlações clima→desfecho",
+        fontsize=11,
+        y=1.02,
+    )
+    fig.tight_layout()
+    path = out_dir / nome
+    saved = _save(fig, path)
+    return {"disponivel": bool(saved), "path": saved, "fonte_corr": fonte_corr}
+
+
+def _correlacoes_transversais_or(
+    odds: pd.DataFrame,
+    resumo: pd.DataFrame | None,
+) -> pd.DataFrame:
+    """Pearson/Spearman ecológicos (município) nos top pares OR significativos."""
+    if odds is None or odds.empty or resumo is None or resumo.empty:
+        return pd.DataFrame()
+    od = odds.copy()
+    if "significativo_005" in od.columns:
+        sig = pd.to_numeric(od["significativo_005"], errors="coerce").fillna(0).astype(int).eq(1)
+        if sig.any():
+            od = od.loc[sig]
+    od["or"] = pd.to_numeric(od.get("or"), errors="coerce")
+    od = od.dropna(subset=["or"]).sort_values("or", ascending=False).head(12)
+    rows: list[dict[str, Any]] = []
+    for _, r in od.iterrows():
+        exp = str(r.get("exposicao") or "")
+        des = str(r.get("desfecho") or "")
+        if exp not in resumo.columns or des not in resumo.columns:
+            continue
+        x = pd.to_numeric(resumo[exp], errors="coerce")
+        y = pd.to_numeric(resumo[des], errors="coerce")
+        ok = x.notna() & y.notna()
+        n = int(ok.sum())
+        if n < 12:
+            continue
+        xv, yv = x[ok], y[ok]
+        pear = float(xv.corr(yv, method="pearson"))
+        spear = float(xv.rank().corr(yv.rank(), method="pearson"))
+        # p aproximado via Spearman (mesma heurística do motor de sazonalidade)
+        try:
+            from sisclima.engines.seasonality import _spearman_pvalue
+
+            p_sp = _spearman_pvalue(spear, n)
+        except Exception:
+            p_sp = float("nan")
+        rows.append(
+            {
+                "exposicao": exp,
+                "desfecho": des,
+                "lag_dias": None,
+                "pearson": pear,
+                "spearman": spear,
+                "abs_spearman": abs(spear) if spear == spear else float("nan"),
+                "p_value": p_sp,
+                "n_dias_validos": n,
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def relpath_fig(path: str | Path | None, dest: Path) -> str:

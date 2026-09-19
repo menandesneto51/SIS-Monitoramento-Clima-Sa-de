@@ -33,3 +33,6 @@ python-multipart==0.0.32
 # streamlit 1.60 exige websockets>=12,<17 (Cloud falhava com 17.0.1)
 websockets==15.0.1
 watchdog==6.0.0
+# PDF apresentável (reportlab) + inspeção QA de páginas (PyMuPDF/fitz)
+reportlab==4.4.3
+pymupdf==1.26.4

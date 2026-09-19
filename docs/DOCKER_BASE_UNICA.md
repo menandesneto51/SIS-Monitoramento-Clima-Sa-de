@@ -54,13 +54,19 @@ $env:DATABASE_URL="postgresql+psycopg2://sisclima:SENHA@localhost:5432/sis_clima
 5. Suba o painel e a ETL automática:
 
 ```powershell
+# Local / homologação (código montado):
 docker compose up -d --build db etl-scheduler app landing
+
+# Produção SES (imagem imutável + Postgres estrito):
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build db etl-scheduler app landing
 ```
 
 6. Depois da homologação funcional, suba o agendador de alertas:
 
 ```powershell
-docker compose up -d alerts-scheduler
+docker compose --profile alertas up -d alerts-scheduler
+# Produção:
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile alertas up -d alerts-scheduler
 ```
 
 O serviço `etl-scheduler` executa uma rodada imediatamente e repete a cada

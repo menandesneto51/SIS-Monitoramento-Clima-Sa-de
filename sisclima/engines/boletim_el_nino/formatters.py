@@ -162,7 +162,19 @@ def humanize_label(chave: str) -> str:
     k = str(chave or "").strip()
     if k in HIDRO_LABEL:
         return HIDRO_LABEL[k]
-    return k.replace("_", " ")
+    aliases = {
+        "ocupacao_leitos_pct": "ocupação de leitos (%)",
+        "ocupacao leitos pct": "ocupação de leitos (%)",
+        "indice_carga_saude": "índice de carga em saúde",
+        "indice carga saude": "índice de carga em saúde",
+        "pressao_calor_pct": "pressão de calor (%)",
+        "pressao calor pct": "pressão de calor (%)",
+        "pressao_calor": "pressão de calor",
+    }
+    if k in aliases:
+        return aliases[k]
+    k2 = k.replace("_", " ")
+    return aliases.get(k2, k2)
 
 
 def fmt_distribuicao_niveis(d: dict[str, Any] | None) -> str:
@@ -224,9 +236,13 @@ def expand_siglas(text: str) -> str:
     """Expande siglas na primeira ocorrência no texto; normaliza setas e classes."""
     out = str(text or "")
     out = out.replace("->", "→").replace("^", "↑")
-    out = re.sub(r"(?<![A-Za-zÀ-ÿ])v(?=\s*\d)", "↓", out)
+    # Só "v 2" / "v2" com espaço opcional quando NÃO for tag de versão colada (v1, v1.2).
+    # Exige espaço após v OU dígito isolado de tendência — nunca "RIT v1".
+    out = re.sub(r"(?<![A-Za-zÀ-ÿ\d.])v(?=\s+\d)", "↓", out)
     out = re.sub(r"sinal hidrológico de alerta", "sinal hidrológico de baixa disponibilidade", out, flags=re.I)
     out = re.sub(r"não tratar a classes", "não interpretar as classes", out, flags=re.I)
+    out = re.sub(r"\bnos municípios classes?\b", "nos municípios nas classes", out, flags=re.I)
+    out = re.sub(r"\bmunicípios classes?\b", "municípios nas classes", out, flags=re.I)
     out = re.sub(r"\bclasses?\s+vermelh[oa]/rox[oa]\b", "classes vermelha e roxa", out, flags=re.I)
     out = re.sub(r"\bem\s+vermelho/rox[oa]\b", "nas classes vermelha e roxa", out, flags=re.I)
     out = re.sub(r"\bvermelho/rox[oa]\b", "classes vermelha e roxa", out, flags=re.I)
@@ -239,11 +255,17 @@ def expand_siglas(text: str) -> str:
         out,
     ):
         seen.add("CIEVS-MT")
+    # e-SUS / eSUS não devem expandir SUS no meio do nome
+    if re.search(r"\be-?SUS\b", out, flags=re.I):
+        seen.add("SUS")
     for sigla, expansao in sorted(SIGLAS.items(), key=lambda x: -len(x[0])):
         if sigla in seen:
             continue
         if re.search(r"[,.]", sigla):
             pattern = re.compile(rf"(?<![\w]){re.escape(sigla)}(?![\w])")
+        elif sigla == "SUS":
+            # Evita transformar "e-SUS" / "PEC/eSUS" em "e-Sistema Único…"
+            pattern = re.compile(r"(?<![A-Za-zÀ-ÿ/\-])SUS\b(?!-)")
         else:
             pattern = re.compile(rf"\b{re.escape(sigla)}\b(?!-)")
         m = pattern.search(out)

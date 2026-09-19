@@ -19,7 +19,11 @@ from sisclima.engines.boletim_el_nino.estoque_saf import build_estoque_saf_secti
 from sisclima.engines.boletim_el_nino.maps import export_maps
 from sisclima.engines.boletim_el_nino.prontidao import compute_prontidao
 from sisclima.engines.boletim_el_nino.qa import run_qa
-from sisclima.engines.boletim_el_nino.referencias import format_referencias_bibliograficas, refs_usadas_boletim
+from sisclima.engines.boletim_el_nino.referencias import (
+    format_referencias_bibliograficas,
+    refs_usadas_boletim,
+    refs_usadas_executivo,
+)
 from sisclima.engines.boletim_el_nino.snapshot import merge_predicao_7d, snapshot_operacional
 from sisclima.engines.boletim_el_nino.territorios import build_territorios
 from sisclima.engines.monitoramento_agravos_el_nino import aggregate_agravos_el_nino, merge_agravos_monitorados
@@ -204,6 +208,13 @@ def build_boletim_semanal(
         "niveis_projecao_7d": snap.get("niveis_projecao_7d"),
         "delta_projecao": snap.get("delta_projecao"),
         "delta_n_comparavel": snap.get("delta_n_comparavel"),
+        "n_agravadores": snap.get("n_agravadores"),
+        "n_vermelha_roxa": snap.get("n_vermelha_roxa"),
+        "n_tmax_37_rodada": snap.get("n_tmax_37"),
+        "n_tmax_37_janela": (snap.get("picos_termicos") or {}).get("n_tmax_37")
+        or snap.get("n_tmax_37_semana"),
+        "tmax_max_janela": (snap.get("picos_termicos") or {}).get("tmax_max_semana")
+        or snap.get("tmax_max_semana"),
         "hydro_facts": snap.get("hydro_facts"),
     }
     maps = export_maps(
@@ -227,6 +238,21 @@ def build_boletim_semanal(
                 snap["delta_projecao"] = dict(maps["delta_counts"])
                 dc = maps["delta_counts"]
                 snap["n_agravadores"] = int(dc.get("aumento_1") or 0) + int(dc.get("aumento_2plus") or 0)
+                rf = snap.setdefault("REPORT_FACTS", {})
+                rf["delta_projecao"] = dict(dc)
+                rf["n_agravadores"] = snap["n_agravadores"]
+                rf["niveis"] = snap.get("niveis")
+                rf["niveis_projecao_7d"] = snap.get("niveis_projecao_7d")
+                rf["current_classes"] = snap.get("niveis")
+                rf["projected_classes"] = snap.get("niveis_projecao_7d")
+                rf["n_vermelha_roxa"] = snap.get("n_vermelha_roxa")
+                rf["n_tmax_37_rodada"] = snap.get("n_tmax_37")
+                rf["n_tmax_37_janela"] = (snap.get("picos_termicos") or {}).get("n_tmax_37") or snap.get(
+                    "n_tmax_37_semana"
+                )
+                rf["tmax_max_janela"] = (snap.get("picos_termicos") or {}).get("tmax_max_semana") or snap.get(
+                    "tmax_max_semana"
+                )
             n_tot = snap.get("n_municipios")
             if n_tot is not None:
                 snap["delta_sem_pareamento"] = max(0, int(n_tot) - int(maps["delta_n"]))
@@ -270,19 +296,51 @@ def build_boletim_semanal(
     try:
         from sisclima.engines.serie_historica_ambiente import resumo_serie_ambiente_boletim
         from sisclima.engines.obitos_clima_contexto import resumo_obitos_clima
+        from sisclima.engines.boletim_el_nino.sazonalidade_or import resumo_sazonalidade_or_boletim
 
         amb = resumo_serie_ambiente_boletim()
         snap["serie_ambiente_md"] = str(amb.get("markdown") or "")
         snap["serie_ambiente_ok"] = bool(amb.get("ok"))
+        try:
+            from sisclima.engines.kpis_p1_sala import resumo_kpis_p1_boletim
+
+            kpis_p1 = resumo_kpis_p1_boletim(resumo_enriched)
+            snap["kpis_p1"] = {
+                "ok": bool(kpis_p1.get("ok")),
+                "spi_30d": (kpis_p1.get("spi_30d") or {}).get("kpi"),
+                "spi_90d": (kpis_p1.get("spi_90d") or {}).get("kpi"),
+                "heat_days": (kpis_p1.get("heat_days") or {}).get("kpi"),
+                "farrington_srag": (kpis_p1.get("farrington_srag") or {}).get("kpi"),
+                "farrington_dengue": (kpis_p1.get("farrington_dengue") or {}).get("kpi"),
+                "fumaca": (kpis_p1.get("fumaca") or {}).get("kpi"),
+            }
+            snap["kpis_p1_ok"] = bool(kpis_p1.get("ok"))
+            md_k = str(kpis_p1.get("markdown") or "").strip()
+            if md_k:
+                base = str(snap.get("serie_ambiente_md") or "").rstrip()
+                snap["serie_ambiente_md"] = (base + "\n\n" + md_k).strip() if base else md_k
+        except Exception as exc_k:  # noqa: BLE001
+            log.warning("KPIs P1 indisponíveis no boletim: %s", exc_k)
+            snap.setdefault("kpis_p1_ok", False)
         ob = resumo_obitos_clima()
         snap["obitos_clima_md"] = str(ob.get("markdown_boletim") or "")
         snap["obitos_metodologia_md"] = str(ob.get("metodologia_md") or "")
         snap["obitos_clima_ok"] = bool(ob.get("ok"))
+        saz = resumo_sazonalidade_or_boletim(resumo_enriched, persist=False)
+        snap["sazonalidade_or_md"] = str(saz.get("markdown") or "")
+        snap["sazonalidade_or_exec_md"] = str(saz.get("markdown_executivo") or "")
+        snap["sazonalidade_or_ok"] = bool(saz.get("ok"))
+        snap["sazonalidade_or_meta"] = saz.get("meta") or {}
+        snap["sazonalidade_or_pack"] = saz.get("pack") or {}
     except Exception as exc:  # noqa: BLE001
-        log.warning("Série ambiental / óbitos clima indisponíveis no boletim: %s", exc)
+        log.warning("Série ambiental / óbitos clima / sazonalidade-OR indisponíveis no boletim: %s", exc)
         snap.setdefault("serie_ambiente_md", "")
         snap.setdefault("obitos_clima_md", "")
         snap.setdefault("obitos_metodologia_md", "")
+        snap.setdefault("sazonalidade_or_md", "")
+        snap.setdefault("sazonalidade_or_exec_md", "")
+        snap.setdefault("sazonalidade_or_ok", False)
+        snap.setdefault("kpis_p1_ok", False)
 
     try:
         from sisclima.engines.esus_clima_analise import analisar_esus_clima, markdown_esus_clima
@@ -332,6 +390,7 @@ def build_boletim_semanal(
             export_grafico_geocalor_ehf,
             export_grafico_picos_tmax,
             export_grafico_projecao_7d,
+            export_grafico_sazonalidade_historico,
             export_mapa_vulneraveis,
             export_serie_climatica,
             export_serie_cuiaba_amplitude,
@@ -393,6 +452,48 @@ def build_boletim_semanal(
         except Exception as exc:  # noqa: BLE001
             log.warning("Gráfico GeoCalor/EHF indisponível: %s", exc)
         try:
+            g_saz = export_grafico_sazonalidade_historico(
+                snap.get("sazonalidade_or_pack") or {},
+                assets_dir,
+                resumo=resumo_enriched,
+            )
+            if g_saz.get("disponivel"):
+                maps["grafico_sazonalidade_historico"] = relpath_fig(g_saz.get("path"), dest)
+                maps["sazonalidade_fonte_corr"] = g_saz.get("fonte_corr")
+                # Enriquecer MD com R/ρ quando lags temporais estão vazios
+                if g_saz.get("fonte_corr") == "transversal" and snap.get("sazonalidade_or_md"):
+                    from sisclima.engines.boletim_el_nino.figuras import _correlacoes_transversais_or
+                    from sisclima.engines.boletim_el_nino.sazonalidade_or import _fmt_lag_row
+
+                    pack = snap.get("sazonalidade_or_pack") or {}
+                    corr = _correlacoes_transversais_or(
+                        pack.get("odds") if isinstance(pack.get("odds"), pd.DataFrame) else None,
+                        resumo_enriched,
+                    )
+                    if corr is not None and not corr.empty:
+                        blocos = [
+                            "",
+                            "#### Correlações ecológicas municipais (Pearson R e Spearman ρ)",
+                            "",
+                            "_Lags temporais indisponíveis nesta rodada; abaixo R/ρ transversais "
+                            "nos top pares OR (unidade = município)._",
+                            "",
+                        ]
+                        for _, r in corr.head(8).iterrows():
+                            blocos.append(_fmt_lag_row(r))
+                        blocos.append("")
+                        md0 = str(snap.get("sazonalidade_or_md") or "")
+                        # inserir antes da linha de Fonte final
+                        if "_Fonte:" in md0:
+                            partes = md0.rsplit("_Fonte:", 1)
+                            snap["sazonalidade_or_md"] = (
+                                partes[0].rstrip() + "\n" + "\n".join(blocos) + "\n_Fonte:" + partes[1]
+                            )
+                        else:
+                            snap["sazonalidade_or_md"] = md0 + "\n" + "\n".join(blocos)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Gráfico sazonalidade histórico×atual indisponível: %s", exc)
+        try:
             g_esus = export_grafico_esus_por_classe(None, assets_dir)
             if g_esus.get("disponivel"):
                 maps["grafico_esus_vulneraveis"] = relpath_fig(g_esus.get("path"), dest)
@@ -410,7 +511,10 @@ def build_boletim_semanal(
     except Exception as exc:  # noqa: BLE001
         log.warning("Figuras do boletim indisponíveis: %s", exc)
 
-    refs_abnt = format_referencias_bibliograficas(ref_ids=refs_usadas_boletim(), acesso_em=ref)
+    refs_abnt = format_referencias_bibliograficas(
+        ref_ids=(refs_usadas_executivo() if executivo else refs_usadas_boletim()),
+        acesso_em=ref,
+    )
     if executivo:
         from sisclima.engines.boletim_el_nino.documento_executivo import format_markdown_executivo
 
@@ -465,6 +569,34 @@ def build_boletim_semanal(
                 qa.setdefault("issues", []).append(f"{flag}={m3qa.get(flag)}")
         qa["ok"] = False
         qa["MAP3_BLOQUEIA_APRESENTAVEL"] = True
+
+    # Bloqueio de publicação do executivo (QA gerencial)
+    if executivo:
+        blockers_exec = {
+            "EHF_MUNICIPAL_EVENT_CONSISTENCY_ERROR",
+            "EHF_EVENT_CONSISTENCY_ERROR",
+            "RIT_PRESSURE_CONFLICT",
+            "DUPLICATE_RECOMMENDATION",
+            "INTERNAL_TECH_TEXT_ERROR",
+            "RESPONSIBLE_WITHOUT_ACTION",
+            "ACTION_WITHOUT_DEADLINE",
+            "ACTION_WITHOUT_DELIVERABLE",
+            "STALE_DATA_WITHOUT_LABEL",
+            "PAGE_BLANK",
+            "BLANK_PAGE",
+            "HEAT_TEMPORAL_SCOPE_ERROR",
+            "CURRENT_CLASS_SUM_ERROR",
+            "PROJECTED_CLASS_SUM_ERROR",
+            "DELTA_SUM_ERROR",
+            "RANKING_WITH_MISSING_VALUE",
+            "MARKDOWN_ARTIFACT_ERROR",
+            "REFERENCE_FORMAT_ERROR",
+        }
+        hit = [i for i in (qa.get("issues") or []) if str(i).split("=")[0] in blockers_exec]
+        if hit:
+            qa["ok"] = False
+            qa["EXECUTIVO_BLOQUEIA_PUBLICACAO"] = True
+            qa["EXECUTIVO_BLOCKERS"] = hit
 
     rotulo_arq = semana["rotulo"].replace(" ", "_").replace("/", "-")
     arquivo = (

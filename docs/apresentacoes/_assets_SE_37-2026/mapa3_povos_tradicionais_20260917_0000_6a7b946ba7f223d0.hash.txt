@@ -1,0 +1,4 @@
+classification_hash=6a7b946ba7f223d0
+data_hora_rodada=2026-09-17
+n=142
+counts={'verde': 0, 'amarela': 4, 'laranja': 37, 'vermelha': 41, 'roxa': 60}

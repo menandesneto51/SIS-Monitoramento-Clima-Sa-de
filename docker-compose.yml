@@ -1,3 +1,7 @@
+# Desenvolvimento / homologação local.
+# Produção SES: use também docker-compose.prod.yml
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build db etl-scheduler app landing
+
 services:
   db:
     image: postgres:16-alpine
@@ -7,8 +11,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-sis_clima_saude}
       POSTGRES_USER: ${POSTGRES_USER:-sisclima}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sisclima_trocar}
-    # Workstation: só localhost (host scripts / validação). Em servidor SES
-    # sem necessidade de acesso externo ao PG, troque por `expose: ["5432"]`.
+    # Host scripts (backup/smoke) só via localhost. Containers usam rede interna "db:5432".
     expose:
       - "5432"
     ports:
@@ -31,6 +34,7 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      DATABASE_STRICT_POSTGRES: ${DATABASE_STRICT_POSTGRES:-false}
       SIVEP_USE_UNIFIED_DB: "true"
       # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
       COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
@@ -49,7 +53,6 @@ services:
         condition: service_healthy
     command: ["pipeline"]
 
-
   etl-scheduler:
     build: .
     image: araras-mt:local
@@ -59,6 +62,7 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      DATABASE_STRICT_POSTGRES: ${DATABASE_STRICT_POSTGRES:-false}
       SIVEP_USE_UNIFIED_DB: "true"
       # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
       COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
@@ -105,6 +109,7 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      DATABASE_STRICT_POSTGRES: ${DATABASE_STRICT_POSTGRES:-false}
       SIVEP_USE_UNIFIED_DB: "true"
       # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
       COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
@@ -113,6 +118,7 @@ services:
       - "${STREAMLIT_PORT:-8501}:8501"
     volumes:
       # Código local para mapas/shapefile e painel V9 sem rebuild a cada ajuste.
+      # Em produção (docker-compose.prod.yml) estes mounts de código são removidos.
       - ./streamlit_app.py:/app/streamlit_app.py:ro
       - ./app_v9.py:/app/app_v9.py:ro
       - ./sisclima:/app/sisclima:ro
@@ -125,22 +131,31 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8501/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
     command: ["app"]
 
   alerts-scheduler:
     build: .
     image: araras-mt:local
     container_name: sis_clima_alerts
+    # Não sobe no `up -d` padrão — exige --profile alertas (cutover SES).
+    profiles: ["alertas"]
     restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-sisclima}:${POSTGRES_PASSWORD:-sisclima_trocar}@db:5432/${POSTGRES_DB:-sis_clima_saude}
+      DATABASE_STRICT_POSTGRES: ${DATABASE_STRICT_POSTGRES:-false}
       SIVEP_USE_UNIFIED_DB: "true"
       # OSRM público trava a ETL (milhares de rotas). Só ligue com OSRM interno SES.
       COBERTURA_USAR_TRAJETO: ${COBERTURA_USAR_TRAJETO:-false}
       OSRM_URL: ${OSRM_URL:-}
-      SEND_ALERT_ON_LEVEL_CHANGE: ${SEND_ALERT_ON_LEVEL_CHANGE:-true}
+      SEND_ALERT_ON_LEVEL_CHANGE: ${SEND_ALERT_ON_LEVEL_CHANGE:-false}
       # Ciclo diário — independente do notebook (serviço sempre ligado no host/servidor).
       ALERT_INTERVAL_HOURS: ${ALERT_INTERVAL_HOURS:-24}
       ALERT_DIGEST_COOLDOWN_HOURS: ${ALERT_DIGEST_COOLDOWN_HOURS:-20}

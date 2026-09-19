@@ -28,3 +28,5 @@ pyogrio==0.12.1
 beautifulsoup4==4.14.3
 psycopg2-binary==2.9.12
 pymssql==2.3.4
+reportlab==4.4.3
+pymupdf==1.26.4
