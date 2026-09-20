@@ -57,6 +57,14 @@ def refresh_resumo_multirisco(
     work = resumo.copy()
     meta: dict[str, Any] = {"ok": True, "steps": []}
 
+    try:
+        from sisclima.ingestion.regionais_ses import aplicar_regionais_ses
+
+        work = aplicar_regionais_ses(work)
+        meta["steps"].append("regionais_ses")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Frescor: regionais SES falhou: %s", exc)
+
     if merge_predicao:
         before = "nivel_predicao_7d" in work.columns
         work = _merge_predicao_no_resumo(work)
@@ -69,7 +77,8 @@ def refresh_resumo_multirisco(
         try:
             from sisclima.engines.ehf_geocalor import inject_ehf_geocalor
 
-            work = inject_ehf_geocalor(work, prefer_geocalor=True)
+            # data_ref=None → snapshot ancora em ontem (observado), não no max forecast
+            work = inject_ehf_geocalor(work, prefer_geocalor=True, data_ref=None)
             meta["steps"].append("ehf")
         except Exception as exc:  # noqa: BLE001
             log.warning("Frescor: inject EHF falhou: %s", exc)

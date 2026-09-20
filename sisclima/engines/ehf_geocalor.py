@@ -232,15 +232,24 @@ def geocalor_freshness_meta(*, max_age_days: int | None = None) -> dict[str, Any
         if daily is None or daily.empty or "data" not in daily.columns:
             out.update({"ok": False, "reason": "star_vazio"})
             return out
-        mx = pd.to_datetime(daily["data"], errors="coerce").max()
+        datas = pd.to_datetime(daily["data"], errors="coerce")
+        mx = datas.max()
         if pd.isna(mx):
             out.update({"ok": False, "reason": "sem_data"})
             return out
-        idade = int((pd.Timestamp.today().normalize() - pd.Timestamp(mx).normalize()).days)
-        out.update({"max_data": str(pd.Timestamp(mx).date()), "idade_dias": idade})
-        if idade > int(max_age_days):
+        hoje = pd.Timestamp.today().normalize()
+        observado = hoje - pd.Timedelta(days=1)
+        mx_obs = datas[datas <= observado].max()
+        ref = mx_obs if pd.notna(mx_obs) else pd.Timestamp(mx).normalize()
+        idade = int((hoje - pd.Timestamp(ref).normalize()).days)
+        out.update({
+            "max_data": str(pd.Timestamp(ref).date()),
+            "max_data_serie": str(pd.Timestamp(mx).date()),
+            "idade_dias": idade,
+        })
+        if idade < 0 or idade > int(max_age_days):
             out["ok"] = False
-            out["reason"] = "stale"
+            out["reason"] = "stale" if idade > int(max_age_days) else "data_futura"
     except Exception as exc:  # noqa: BLE001
         out.update({"ok": False, "reason": "erro", "detail": str(exc)})
     return out
@@ -294,11 +303,17 @@ def snapshot_ehf_geocalor_municipal(
     if df.empty:
         return pd.DataFrame()
 
-    fim = pd.to_datetime(data_ref, errors="coerce") if data_ref is not None else df["data"].max()
-    if pd.isna(fim):
-        fim = df["data"].max()
-    fim = min(pd.Timestamp(fim).normalize(), df["data"].max().normalize())
+    # Ancora operacional = ontem (observado). Série STAR pode incluir forecast
+    # (datas futuras); sem data_ref explícita, nunca usar max futuro como EHF "atual".
     hoje = pd.Timestamp.today().normalize()
+    observado = hoje - pd.Timedelta(days=1)
+    if data_ref is not None:
+        fim = pd.to_datetime(data_ref, errors="coerce")
+        if pd.isna(fim):
+            fim = observado
+    else:
+        fim = observado
+    fim = min(pd.Timestamp(fim).normalize(), df["data"].max().normalize(), observado)
     idade_global = int((hoje - fim).days)
 
     rows: list[dict] = []

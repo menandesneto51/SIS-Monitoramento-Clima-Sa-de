@@ -167,7 +167,10 @@ def _gate_dados(report: dict[str, Any]) -> None:
         except ValueError:
             idade = None
     out["ehf_idade_dias_mediana"] = idade
-    report["gates"]["ehf_fresco"] = idade is not None and idade <= EHF_MAX_IDADE_DIAS
+    # Idade negativa = data futura (forecast) — não conta como EHF observado fresco.
+    report["gates"]["ehf_fresco"] = (
+        idade is not None and 0 <= idade <= EHF_MAX_IDADE_DIAS
+    )
 
     # Frescor clima via hist / data no resumo
     clima_ok = False
