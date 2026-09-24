@@ -91,7 +91,8 @@ def build_fonte_frescor_home(resumo: pd.DataFrame | None = None) -> pd.DataFrame
         ("Open-Meteo / biometeo", "met_biometeo", ["data", "data_referencia", "time"], 36, "Clima horário/diário"),
         ("IndicaSUS / ocupação hospitalar", "hospital_ocupacao_municipio", ["data_processamento", "ultima_movimentacao"], 24, "Só mun. com hospital notificante"),
         ("SISREG / pressão hospitalar", "ops_sisreg_municipio", ["data_processamento", "atualizado_em"], 48, "Fila/regulação — demanda territorial"),
-        ("Predição calor ~7d", "predicao_calor_7d_municipal_v6", ["data_processamento", "gerado_em", "data_referencia", "data"], 36, "Nowcast climático (não sazonal)"),
+        ("Predição calor ~7d", "predicao_calor_7d_municipal_v6", ["data_processamento", "gerado_em", "data_referencia", "data"], 36, "Open-Meteo + ERA5 (não sazonal)"),
+        ("Predição calor ~3d", "predicao_calor_3d_municipal_v6", ["data_processamento", "gerado_em", "data_referencia", "data"], 36, "Open-Meteo + ERA5 (3 dias)"),
         ("SIVEP / SRAG", "epi_sivep_srag", ["data", "data_sintomas", "data_notificacao"], 72, "Respiratório"),
         ("Cenário epidemiológico", "epi_arboviroses_municipal", ["data", "data_referencia", "semana_epidemiologica"], 96, "Arbo + extras clima"),
         ("INMET alertas", "inmet_alertas", ["inicio", "data_atualizacao", "gerado_em"], 24, "Alertas oficiais"),
@@ -129,6 +130,200 @@ def frescor_resumo(frescor: pd.DataFrame) -> dict[str, Any]:
         "n_total": n_total,
         "n_problema": n_problema,
     }
+
+
+def build_frescor_operacional() -> dict[str, Any]:
+    """Card único: ETL + predição OM/ERA5 3d·7d + EHF (SLO operacional)."""
+    from pathlib import Path
+
+    now = pd.Timestamp.now()
+    out: dict[str, Any] = {
+        "ok": False,
+        "callout_kind": "info",
+        "narrativa": "Frescor operacional indisponível nesta rodada.",
+        "cards": [],
+        "detalhe": {},
+    }
+
+    # ETL
+    etl_path = Path(
+        __import__("sisclima.core.config", fromlist=["env"]).env(
+            "ETL_HEALTH_FILE", "logs/etl_scheduler_health.json"
+        )
+        or "logs/etl_scheduler_health.json"
+    )
+    from sisclima.core.config import ROOT
+
+    if not etl_path.is_absolute():
+        etl_path = ROOT / etl_path
+    etl: dict[str, Any] = {"ok": False, "status": "—", "idade_h": None, "finished_at": "—"}
+    if etl_path.is_file():
+        try:
+            import json
+
+            raw = json.loads(etl_path.read_text(encoding="utf-8"))
+            etl["status"] = str(raw.get("status") or "—")
+            etl["finished_at"] = str(raw.get("finished_at") or "—")
+            etl["run_id"] = raw.get("run_id")
+            try:
+                fin = pd.to_datetime(raw.get("finished_at"), errors="coerce", utc=True)
+                if pd.notna(fin):
+                    agora = pd.Timestamp.now(tz="UTC")
+                    etl["idade_h"] = round(float((agora - fin).total_seconds() / 3600.0), 1)
+            except Exception:  # noqa: BLE001
+                etl["idade_h"] = None
+            idade = etl.get("idade_h")
+            etl["ok"] = etl["status"].lower() == "success" and (
+                idade is None or float(idade) <= 36
+            )
+        except Exception as exc:  # noqa: BLE001
+            etl["reason"] = str(exc)
+    else:
+        etl["reason"] = "arquivo ausente"
+    out["detalhe"]["etl"] = etl
+
+    def _pred_card(horizonte: str, tabela: str) -> dict[str, Any]:
+        meta: dict[str, Any] = {
+            "horizonte": horizonte,
+            "ok": False,
+            "fonte": "—",
+            "n": 0,
+            "idade_h": None,
+            "era5": False,
+        }
+        if not table_exists(tabela):
+            meta["reason"] = "tabela ausente"
+            return meta
+        df = read_table(tabela)
+        if df is None or df.empty:
+            meta["reason"] = "vazia"
+            return meta
+        meta["n"] = int(df["cod_ibge"].nunique()) if "cod_ibge" in df.columns else int(len(df))
+        if "fonte_predicao" in df.columns and df["fonte_predicao"].notna().any():
+            fonte = str(df["fonte_predicao"].astype(str).mode().iloc[0])
+            meta["fonte"] = fonte
+            meta["era5"] = "era5" in fonte.lower()
+        for col in ("data_processamento", "gerado_em", "data_referencia"):
+            if col in df.columns:
+                ts = pd.to_datetime(df[col], errors="coerce").dropna()
+                if not ts.empty:
+                    meta["idade_h"] = round(float((now - ts.max()).total_seconds() / 3600.0), 1)
+                    break
+        meta["ok"] = meta["n"] >= 100 and (
+            meta["idade_h"] is None or float(meta["idade_h"]) <= 36
+        )
+        return meta
+
+    p3 = _pred_card("~3d", "predicao_calor_3d_municipal_v6")
+    p7 = _pred_card("~7d", "predicao_calor_7d_municipal_v6")
+    out["detalhe"]["pred_3d"] = p3
+    out["detalhe"]["pred_7d"] = p7
+
+    # EHF
+    ehf: dict[str, Any] = {"ok": False}
+    try:
+        from sisclima.engines.ehf_geocalor import geocalor_freshness_meta
+
+        ehf = geocalor_freshness_meta()
+    except Exception as exc:  # noqa: BLE001
+        ehf = {"ok": False, "reason": str(exc)}
+    out["detalhe"]["ehf"] = ehf
+
+    # Smoke pós-ETL (se existir)
+    smoke_path = ROOT / (
+        __import__("sisclima.core.config", fromlist=["env"]).env("ETL_SMOKE_FILE", "logs/smoke_pos_etl.json")
+        or "logs/smoke_pos_etl.json"
+    )
+    smoke: dict[str, Any] = {"ok": None, "presente": False}
+    if smoke_path.is_file():
+        try:
+            import json
+
+            sraw = json.loads(smoke_path.read_text(encoding="utf-8"))
+            smoke = {
+                "presente": True,
+                "ok": bool(sraw.get("all_ok")),
+                "gerado_em": sraw.get("gerado_em"),
+                "gates": sraw.get("gates") or {},
+            }
+        except Exception as exc:  # noqa: BLE001
+            smoke = {"presente": True, "ok": False, "reason": str(exc)}
+    out["detalhe"]["smoke"] = smoke
+
+    def _idade_txt(h: float | None) -> str:
+        if h is None:
+            return "idade n/d"
+        if h < 1:
+            return f"{int(h * 60)} min"
+        return f"{h:.0f} h"
+
+    etl_val = "OK" if etl.get("ok") else str(etl.get("status") or "NOK").upper()
+    etl_cap = _idade_txt(etl.get("idade_h"))
+    if etl.get("finished_at") and etl["finished_at"] != "—":
+        etl_cap = f"{etl_cap} · {str(etl['finished_at'])[:16]}"
+
+    def _pred_val(m: dict[str, Any]) -> str:
+        if not m.get("ok") and m.get("n", 0) == 0:
+            return "—"
+        tag = "OM+ERA5" if m.get("era5") else ("OM" if "openmeteo" in str(m.get("fonte") or "").lower() else "pred")
+        return f"{m.get('n', 0)} mun · {tag}"
+
+    ehf_val = "OK" if ehf.get("ok") else "defasado"
+    ehf_cap = (
+        f"máx. {ehf.get('max_data') or '—'} · {ehf.get('idade_dias', '—')} d"
+        if ehf.get("max_data") or ehf.get("idade_dias") is not None
+        else str(ehf.get("reason") or "sem STAR")
+    )
+
+    smoke_val = "—"
+    smoke_cap = "ainda não rodou pós-ETL"
+    if smoke.get("presente"):
+        smoke_val = "OK" if smoke.get("ok") else "FALHOU"
+        smoke_cap = str(smoke.get("gerado_em") or "")[:19] or "ver logs/smoke_pos_etl.json"
+
+    cards = [
+        ("ETL diária", etl_val, etl_cap),
+        ("Projeção ~3d", _pred_val(p3), _idade_txt(p3.get("idade_h"))),
+        ("Projeção ~7d", _pred_val(p7), _idade_txt(p7.get("idade_h"))),
+        ("EHF / GeoCalor", ehf_val, ehf_cap),
+        ("Smoke pós-ETL", smoke_val, smoke_cap),
+    ]
+    out["cards"] = cards
+
+    problemas: list[str] = []
+    if not etl.get("ok"):
+        problemas.append("ETL")
+    if not p3.get("ok"):
+        problemas.append("pred ~3d")
+    if not p7.get("ok"):
+        problemas.append("pred ~7d")
+    if not ehf.get("ok"):
+        problemas.append("EHF")
+    if smoke.get("presente") and smoke.get("ok") is False:
+        problemas.append("smoke")
+
+    out["ok"] = not problemas or problemas == ["EHF"]  # EHF sozinho = tip, não warn grave
+    if not problemas:
+        out["callout_kind"] = "tip"
+        out["narrativa"] = (
+            "Frescor operacional OK: ETL recente, projeção Open-Meteo + ERA5 (~3d e ~7d) "
+            "e EHF dentro do limiar. Nowcast ≠ cenário sazonal ASO/El Niño."
+        )
+    elif problemas == ["EHF"]:
+        out["callout_kind"] = "info"
+        out["narrativa"] = (
+            "Projeção térmica OK; EHF/GeoCalor fora do limiar de frescor (monitoramento observado — "
+            "não bloqueia a classe projetada). Verificar STAR ETL."
+        )
+        out["ok"] = True
+    else:
+        out["callout_kind"] = "warn"
+        out["narrativa"] = (
+            "Atenção ao frescor operacional: " + ", ".join(problemas) + ". "
+            "Não interpretar ausência/defasagem como risco zero. "
+            "Projeção usa Open-Meteo + climatologia ERA5 (reanálise)."
+        )
+    return out
 
 
 # Códigos internos → linguagem de gestor (alerta integrado / TITAN)
@@ -266,7 +461,7 @@ def build_trajetoria_7d(
     resumo: pd.DataFrame | None,
     predicao: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
-    """Síntese atual × projeção ~7d (mesma lógica operacional do boletim El Niño)."""
+    """Síntese atual × projeção 3d/7d (Open-Meteo + ERA5; mesma lógica do boletim)."""
     empty: dict[str, Any] = {
         "ok": False,
         "n_total": 0,
@@ -283,7 +478,7 @@ def build_trajetoria_7d(
         "rotulo": "sem dado",
         "callout_kind": "info",
         "proj_counts": {},
-        "narrativa": "Trajetória ~7 dias indisponível nesta rodada (falta tendência ou predição).",
+        "narrativa": "Trajetória 3d/7d (Open-Meteo + ERA5) indisponível nesta rodada.",
     }
     if resumo is None or resumo.empty:
         return empty
@@ -359,8 +554,32 @@ def build_trajetoria_7d(
 
     out["ok"] = bool(out["n_subindo"] + out["n_estavel"] + out["n_descendo"] > 0 or out["crit_proj"] > 0)
 
+    # Criticidade ~3d (paralela à ~7d; não altera o delta de tendência 7d).
+    out["crit_proj_3d"] = 0
+    out["pct_crit_proj_3d"] = 0.0
+    proj3 = None
+    if predicao is not None and not predicao.empty and "nivel_predicao_3d" in predicao.columns:
+        pv3 = predicao.copy()
+        if "cod_ibge" in df.columns and "cod_ibge" in pv3.columns:
+            if "_cod" not in df.columns:
+                df["_cod"] = df["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+            pv3["_cod"] = pv3["cod_ibge"].astype(str).str.extract(r"(\d{7})", expand=False)
+            m3 = df[["_cod"]].merge(
+                pv3[["_cod", "nivel_predicao_3d"]].drop_duplicates("_cod"),
+                on="_cod",
+                how="left",
+            )
+            proj3 = _norm_nivel_series(m3["nivel_predicao_3d"])
+        else:
+            proj3 = _norm_nivel_series(pv3["nivel_predicao_3d"])
+    elif "nivel_predicao_3d" in df.columns:
+        proj3 = _norm_nivel_series(df["nivel_predicao_3d"])
+    if proj3 is not None and proj3.notna().any():
+        out["crit_proj_3d"] = int(proj3.isin(["vermelha", "roxa"]).sum())
+        out["pct_crit_proj_3d"] = 100.0 * out["crit_proj_3d"] / max(n, 1)
+
     partes = [
-        f"Trajetória ~7 dias ({out['rotulo']}): "
+        f"Trajetória ~7 dias ({out['rotulo']}; Open-Meteo + ERA5): "
         f"{out['n_subindo']} de {n} ({out['pct_subindo']:.0f}%) municípios com elevação de classificação"
     ]
     if out["n_sobe_1"] or out["n_sobe_2mais"]:
@@ -370,7 +589,8 @@ def build_trajetoria_7d(
     partes.append(
         f"; {out['n_estavel']} estáveis; {out['n_descendo']} com redução. "
         f"Vermelha+roxa: {out['crit_atual']}/{n} ({out['pct_crit_atual']:.0f}%) hoje → "
-        f"{out['crit_proj']}/{n} ({out['pct_crit_proj']:.0f}%) na projeção."
+        f"{out['crit_proj_3d']}/{n} ({out['pct_crit_proj_3d']:.0f}%) em ~3d → "
+        f"{out['crit_proj']}/{n} ({out['pct_crit_proj']:.0f}%) em ~7d."
     )
     pc = out["proj_counts"]
     if pc:
@@ -580,6 +800,7 @@ def tabela_divergencia_pred_rit(
         {
             "Município": [_mun(r) for _, r in top.iterrows()],
             "Nível": top["nivel"].astype(str).str.lower().values,
+            "Pred ~3d": top.get("nivel_predicao_3d", pd.Series(["—"] * len(top))).astype(str).str.lower().values,
             "Pred ~7d": top.get("nivel_predicao_7d", pd.Series(["—"] * len(top))).astype(str).str.lower().values,
             "RIT": [f"{float(v):.0f}" if pd.notna(v) else "—" for v in top["_rit"]],
             "Faixa RIT": top.get("rit_faixa", pd.Series(["—"] * len(top))).astype(str).str.lower().values,

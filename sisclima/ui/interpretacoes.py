@@ -189,7 +189,7 @@ GUIDE_SENTINELA = guide_card(
 )
 
 GUIDE_GEOCALOR = guide_card(
-    "Como ler GeoCalor",
+    "Como ler RR GeoCalor (cardiorrespiratório)",
     [
         "<b>RR por lag 0–7</b>: associação ondas de calor × desfechos cardiorrespiratórios.",
         "<b>Exploratório</b>: não é laudo causal individual.",

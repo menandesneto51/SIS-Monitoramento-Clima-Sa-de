@@ -65,6 +65,7 @@ from sisclima.ui.home_ops import (
     AVISO_SINAL_VS_ATIVACAO,
     ameaca_dominante_estado,
     build_fonte_frescor_home,
+    build_frescor_operacional,
     build_trajetoria_7d,
     cards_agravos_extras_clima,
     cards_compostos_sala,
@@ -1542,6 +1543,22 @@ if _mostrar_home:
         "(agravamento ≥15%). Pressão em escala 0–100 (alta ≥70)."
     )
 
+    _frescor_ops = build_frescor_operacional()
+    ui_theme.section_title(
+        "Frescor operacional",
+        "ETL · projeção Open-Meteo + ERA5 (~3d / ~7d) · EHF · smoke pós-ETL",
+    )
+    ui_theme.callout(
+        str(_frescor_ops.get("narrativa") or ""),
+        str(_frescor_ops.get("callout_kind") or "info"),
+    )
+    if _frescor_ops.get("cards"):
+        ui_theme.insight_cards(list(_frescor_ops["cards"]))
+    st.caption(
+        "Nowcast térmico ≠ cenário sazonal ASO/El Niño. "
+        "EHF é monitoramento observado (não entra no cálculo da classe projetada)."
+    )
+
     _traj = build_trajetoria_7d(_view, pred_v6 if not pred_v6.empty else None)
     ui_theme.section_title(
         f"Trajetória ~7 dias · {_rotulo_recorte}",
@@ -2011,6 +2028,17 @@ elif SECTION_KEY == "Fontes e qualidade":
             ("Referência", _data_ref or "rodada atual", "data do resumo municipal"),
         ]
     )
+    _frescor_ops_fq = build_frescor_operacional()
+    ui_theme.section_title(
+        "Frescor operacional (ETL · OM+ERA5 · EHF)",
+        "Mesmo cartão da Visão — SLO de planta",
+    )
+    ui_theme.callout(
+        str(_frescor_ops_fq.get("narrativa") or ""),
+        str(_frescor_ops_fq.get("callout_kind") or "info"),
+    )
+    if _frescor_ops_fq.get("cards"):
+        ui_theme.insight_cards(list(_frescor_ops_fq["cards"]))
     if backend_name() != "postgresql":
         ui_theme.callout(
             f"Ambiente atual: {backend_name()} (não PostgreSQL). "

@@ -10,6 +10,7 @@ import streamlit as st
 from sisclima.engines.geospatial import LEVEL_COLOR_MAP
 from sisclima.engines.stages import STAGE_ORDER
 from sisclima.ui.explainers import LEVEL_GUIDE
+from sisclima.ui.home_ops import cards_rit_estado
 from sisclima.ui.theme import callout, insight_cards, level_legend, section_title
 
 ACOES_POPULACAO: dict[str, list[str]] = {
@@ -100,6 +101,41 @@ def render_painel_publico(
         ]
     )
 
+    section_title(
+        "Risco integrado territorial (RIT)",
+        "Leitura multirisco observada — paralelo ao nível colorido e à predição de 7 dias",
+    )
+    callout(
+        "O RIT junta calor, fumaça, hidro, onda de calor (EHF) e pressão em saúde (quando fresca). "
+        "Não substitui o semáforo Verde→Roxa nem o decreto de emergência.",
+        "info",
+    )
+    insight_cards(cards_rit_estado(resumo))
+    if map_df is not None and not map_df.empty and "rit_faixa" in map_df.columns:
+        choropleth(
+            map_df,
+            geojson,
+            "rit_faixa",
+            "Faixa do RIT (multirisco observado)",
+            hover_cols=[
+                c
+                for c in [
+                    "municipio",
+                    "regional_saude",
+                    "nivel",
+                    "rit_0_100",
+                    "rit_faixa",
+                    "rit_dominio_dominante",
+                    "tmax",
+                    "pm25_ugm3",
+                ]
+                if c in map_df.columns
+            ],
+            categorical=True,
+        )
+    else:
+        st.caption("Mapa da faixa RIT indisponível nesta rodada (aguarde o enrich).")
+
     section_title("Mapa de risco para 3 dias", "Quanto mais intenso o vermelho, maior o acúmulo de calor recente")
     if map_df is not None and not map_df.empty and "risco_cumulativo_3d" in map_df.columns:
         choropleth(
@@ -107,7 +143,19 @@ def render_painel_publico(
             geojson,
             "risco_cumulativo_3d",
             "Risco cumulativo de calor — 3 dias",
-            hover_cols=["municipio", "regional_saude", "nivel", "tmax", "utci_proxy"],
+            hover_cols=[
+                c
+                for c in [
+                    "municipio",
+                    "regional_saude",
+                    "nivel",
+                    "rit_faixa",
+                    "rit_0_100",
+                    "tmax",
+                    "utci_proxy",
+                ]
+                if c in map_df.columns
+            ],
             categorical=False,
         )
     else:

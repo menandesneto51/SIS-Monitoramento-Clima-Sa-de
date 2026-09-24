@@ -11,11 +11,66 @@ de multipáginas do Streamlit.
 from pathlib import Path
 import os
 import runpy
+import sys
 import streamlit as st
 
 from sisclima.branding import ARARAS_SYMBOL_PATH
 
 ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+# Streamlit (Windows) pode relançar o script com sys._base_executable (Python do sistema),
+# perdendo o site-packages do venv → ImportError falso em views_extra.
+_venv_home = os.environ.get("VIRTUAL_ENV") or str(Path(os.environ.get("LOCALAPPDATA", "")) / "araras-mt-venv")
+_venv_sp = Path(_venv_home) / "Lib" / "site-packages"
+if _venv_sp.is_dir():
+    os.environ.setdefault("VIRTUAL_ENV", _venv_home)
+    if str(_venv_sp) not in sys.path:
+        sys.path.insert(0, str(_venv_sp))
+    _pp = os.environ.get("PYTHONPATH", "")
+    _parts = [str(ROOT), str(_venv_sp)] + ([_pp] if _pp else [])
+    # Dedup preservando ordem
+    _seen: set[str] = set()
+    _ordered: list[str] = []
+    for _p in _parts:
+        if _p and _p not in _seen:
+            _seen.add(_p)
+            _ordered.append(_p)
+    os.environ["PYTHONPATH"] = os.pathsep.join(_ordered)
+
+# Evita painel subir com Python do sistema SEM site-packages do venv — sintoma típico:
+# ImportError: cannot import name 'render_cenario_epidemiologico' from views_extra
+_exe = Path(sys.executable).resolve().as_posix().lower()
+_venv_ok = ("araras-mt-venv" in _exe) or ("/.venv/" in _exe) or ("/venv/" in _exe)
+_has_pandas = False
+try:
+    import pandas  # noqa: F401
+
+    _has_pandas = True
+except Exception:
+    _has_pandas = False
+if os.name == "nt" and (not _has_pandas):
+    try:
+        st.set_page_config(page_title="ARARAS MT · ambiente Python incompleto", layout="wide")
+    except Exception:
+        pass
+    st.error("Ambiente Python sem dependências do ARARAS (ex.: pandas).")
+    st.markdown(
+        "O erro `cannot import name 'render_cenario_epidemiologico'` costuma ser **efeito colateral**: "
+        "o módulo `views_extra` não termina de carregar neste interpretador."
+    )
+    st.code(
+        f"sys.executable = {sys.executable}\n"
+        f"VIRTUAL_ENV = {os.environ.get('VIRTUAL_ENV')}\n"
+        f"venv site-packages = {_venv_sp} (exists={_venv_sp.is_dir()})\n\n"
+        "Inicie com:\n"
+        "  .\\scripts\\start_painel.ps1\n"
+        "ou:\n"
+        "  %LOCALAPPDATA%\\araras-mt-venv\\Scripts\\python.exe -m streamlit run streamlit_app.py --server.port 8501",
+        language="text",
+    )
+    st.stop()
 
 # Carrega .env local sem sobrescrever DATABASE_URL já definida (Docker/Compose).
 try:
