@@ -9,9 +9,9 @@ $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $localAgent = Join-Path $repoRoot "agents\ses_data_catalog\catalog_agent.py"
 if (Test-Path $localAgent) { $agent = $localAgent }
 elseif ($AgentRoot) { $agent = Join-Path $AgentRoot "agents\ses_data_catalog\catalog_agent.py" }
-else { throw "Defina SES_DATA_CATALOG_AGENT_ROOT para o clone canônico do vigia-vsr." }
+else { throw "Defina SES_DATA_CATALOG_AGENT_ROOT apontando para o clone canônico do vigia-vsr." }
 if (-not (Test-Path $agent)) { throw "Motor SES_DATA_CATALOG não encontrado em: $agent" }
-$argsList = @($agent, $Query, "--context", $Context)
-if ($CatalogRoot) { $argsList += @("--catalog-root", $CatalogRoot) }
-python @argsList
+$pythonArgs = @($agent, $Query, "--context", $Context)
+if ($CatalogRoot) { $pythonArgs += @("--catalog-root", $CatalogRoot) }
+python @pythonArgs
 exit $LASTEXITCODE
