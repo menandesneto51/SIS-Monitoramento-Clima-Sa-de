@@ -18,3 +18,6 @@ rules:
   - "Agentes analíticos não entram automaticamente em produção."
   - "Não inventar fórmula oficial ou causalidade."
   - "Não expor PII."
+
+domain_specialists:
+  - "CLIMATE_HEALTH_SPECIALIST"
