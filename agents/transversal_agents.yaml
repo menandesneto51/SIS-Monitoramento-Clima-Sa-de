@@ -21,3 +21,6 @@ rules:
 
 domain_specialists:
   - "CLIMATE_HEALTH_SPECIALIST"
+
+orchestration_services:
+  - "SPECIALIST_ORCHESTRATOR"
