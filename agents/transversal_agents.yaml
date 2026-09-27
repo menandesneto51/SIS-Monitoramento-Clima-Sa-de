@@ -22,6 +22,7 @@ rules:
 domain_specialists:
   - "CLIMATE_HEALTH_SPECIALIST"
 
+  - "PHEM_SPECIALIST"
 orchestration_services:
   - "SPECIALIST_ORCHESTRATOR"
 
@@ -32,3 +33,6 @@ decision_services:
   - "INCIDENT_COORDINATOR"
   - "RISK_COMMUNICATION_SPECIALIST"
   - "INTERVENTION_EVALUATOR"
+
+core_runtime_specialists:
+  - "EPIDEMIOLOGIST"
