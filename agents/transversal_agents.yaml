@@ -24,3 +24,6 @@ domain_specialists:
 
 orchestration_services:
   - "SPECIALIST_ORCHESTRATOR"
+
+  - "FORECAST_SCENARIO_SPECIALIST"
+  - "ONE_HEALTH_ENVIRONMENT_SPECIALIST"
