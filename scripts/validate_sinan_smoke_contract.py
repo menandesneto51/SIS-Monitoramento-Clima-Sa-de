@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -9,65 +10,53 @@ from sisclima.ingestion.sqlserver import read_sqlserver
 
 
 DISCOVERY_SQL = Path("sql/dw_sinan_intoxicacao_schema_discovery.sql")
+MAPPING_FILE = Path("config/sinan_smoke_contract.json")
 
-# Semantic contract required by the downstream smoke-notification adapter.
-CONTRACT = {
-    "notification": {
-        "numero_notificacao",
-        "data_notificacao",
-        "cod_ibge",
-        "municipio",
-    },
-    "agent": {
-        "agente_tox",
-        "out_agente",
-    },
-    "route": {
-        "via_1",
-        "via_2",
-        "via_3",
-    },
-    "circumstance": {
-        "circunstan",
-        "circun_des",
-    },
-}
+REQUIRED_KEYS = (
+    "numero_notificacao",
+    "data_notificacao",
+    "cod_ibge",
+    "municipio",
+    "agente_tox",
+    "out_agente",
+    "via_1",
+    "via_2",
+    "via_3",
+    "circunstan",
+    "circun_des",
+)
 
 
 @dataclass(frozen=True)
 class ContractValidation:
     valid: bool
-    discovered_columns: tuple[str, ...]
-    matched: dict[str, tuple[str, ...]]
-    missing_groups: tuple[str, ...]
+    missing_mappings: tuple[str, ...]
+    missing_columns: tuple[str, ...]
 
 
-def _norm(value: str) -> str:
-    return (
-        str(value)
-        .strip()
-        .lower()
-        .replace(" ", "_")
-        .replace("-", "_")
+def load_mapping() -> dict:
+    return json.loads(MAPPING_FILE.read_text(encoding="utf-8"))
+
+
+def validate_mapping(columns: list[str], mapping_doc: dict) -> ContractValidation:
+    mapping = mapping_doc.get("mapping") or {}
+    discovered = {str(column) for column in columns}
+
+    missing_mappings = tuple(
+        key for key in REQUIRED_KEYS
+        if not isinstance(mapping.get(key), str) or not mapping.get(key, "").strip()
     )
 
-
-def validate_columns(columns: list[str]) -> ContractValidation:
-    normalized = {_norm(c): c for c in columns}
-    matched: dict[str, tuple[str, ...]] = {}
-    missing_groups: list[str] = []
-
-    for group, expected in CONTRACT.items():
-        hits = tuple(sorted(original for normalized_name, original in normalized.items() if normalized_name in expected))
-        matched[group] = hits
-        if not hits:
-            missing_groups.append(group)
+    missing_columns = tuple(
+        mapping[key]
+        for key in REQUIRED_KEYS
+        if key not in missing_mappings and mapping[key] not in discovered
+    )
 
     return ContractValidation(
-        valid=not missing_groups,
-        discovered_columns=tuple(columns),
-        matched=matched,
-        missing_groups=tuple(missing_groups),
+        valid=not missing_mappings and not missing_columns,
+        missing_mappings=missing_mappings,
+        missing_columns=missing_columns,
     )
 
 
@@ -82,21 +71,24 @@ def main() -> int:
         print("SCHEMA_DISCOVERY_FAILED: nenhuma coluna retornada do DW.")
         return 2
 
-    # The discovery SQL returns two result sets in SQL Server clients, while
-    # pandas/pyodbc reads the first. That first result set is sufficient.
     columns = [str(v) for v in df["COLUMN_NAME"].dropna().tolist()]
-    result = validate_columns(columns)
+    mapping_doc = load_mapping()
+    result = validate_mapping(columns, mapping_doc)
 
-    print(f"DISCOVERED_COLUMNS={len(result.discovered_columns)}")
-    for group, hits in result.matched.items():
-        print(f"{group.upper()}={','.join(hits) if hits else 'MISSING'}")
+    print(f"DISCOVERED_COLUMNS={len(columns)}")
+    print("MAPPING_STATUS=" + str(mapping_doc.get("status", "unknown")))
+
+    if result.missing_mappings:
+        print("MISSING_MAPPINGS=" + ",".join(result.missing_mappings))
+
+    if result.missing_columns:
+        print("MAPPED_COLUMNS_NOT_FOUND=" + ",".join(result.missing_columns))
 
     if result.valid:
-        print("SMOKE_CONTRACT_SCHEMA=READY_FOR_MANUAL_MAPPING")
+        print("SMOKE_CONTRACT_SCHEMA=VALIDATED")
         return 0
 
-    print("SMOKE_CONTRACT_SCHEMA=INCOMPLETE")
-    print("MISSING_GROUPS=" + ",".join(result.missing_groups))
+    print("SMOKE_CONTRACT_SCHEMA=PENDING")
     return 1
 
 
