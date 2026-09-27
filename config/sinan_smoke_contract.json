@@ -1,0 +1,17 @@
+{
+  "status": "pending",
+  "view": "dbo.VW_SINAN_INTOXICACAOEXOGENA",
+  "mapping": {
+    "numero_notificacao": null,
+    "data_notificacao": null,
+    "cod_ibge": null,
+    "municipio": null,
+    "agente_tox": null,
+    "out_agente": null,
+    "via_1": null,
+    "via_2": null,
+    "via_3": null,
+    "circunstan": null,
+    "circun_des": null
+  }
+}
