@@ -42,3 +42,16 @@ engineering_services:
   - "AI_SYSTEMS_SPECIALIST"
   - "AGENT_EVALUATOR"
   - "AI_GOVERNANCE_SPECIALIST"
+
+  - "MODEL_PERFORMANCE_MONITOR"
+  - "PORTFOLIO_GOVERNOR"
+  - "AI_RESEARCH_SPECIALIST"
+
+governance_services:
+  - "PRIVACY_SENTINEL"
+
+knowledge_services:
+  - "KNOWLEDGE_CURATOR"
+
+governed_registries:
+  - "PROMPT_RAG_REGISTRY"
