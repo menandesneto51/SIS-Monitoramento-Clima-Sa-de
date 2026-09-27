@@ -2,27 +2,16 @@
 description: Preflight obrigatório do Catálogo Mestre de Dados SES-MT
 alwaysApply: true
 ---
-
 # SES_DATA_CATALOG
-Antes de criar fonte, coletor, scraper, API, ETL, tabela, indicador ou linkage:
+Antes de criar ou alterar fonte, coletor, scraper, API, ETL, tabela de integração, indicador ou linkage:
 1. Execute `.\scripts\catalogo-ses.ps1`.
-2. Verifique SISREG, DW SES/Datawarehouse, eSUS APS, IndicaSUS e SI-PNI.
-3. Reutilize fontes e loaders existentes.
-4. Trate a saída como CatalogEvidencePack.
-5. Verifique catalog_health antes de concluir ausência de dado.
-6. Encaminhe candidatos a DATA_GUARDIAN/DATAOPS quando disponíveis.
-7. Valide grain, chaves, competência, atualização, completude, duplicidade e lineage.
-8. Não exponha PII.
-9. Prefira integração Bronze/Silver/Gold.
-
-Contexto: SIS-MONITORAMENTO-CLIMA-SAUDE.
-
-
-## Gate de decisão
-
-Obedeça `preflight_decision.status`:
-- `reuse_existing`: bloquear nova fonte e reutilizar/validar candidatos existentes.
-- `refresh_catalog`: bloquear nova fonte até atualizar os inventários incompletos.
-- `review_new_source`: permitir apenas revisão formal de nova fonte; não implementar automaticamente.
-
-`new_source_allowed_for_review=true` autoriza análise de governança, não criação automática nem acesso a dados.
+2. Consulte SISREG, DW SES/Datawarehouse, eSUS APS, IndicaSUS e SI-PNI via agente canônico.
+3. Reutilize fonte existente quando houver correspondência suficiente.
+4. Não duplique loaders/coletores existentes.
+5. Use o `CatalogEvidencePack` como evidência de metadados, nunca como acesso a microdados.
+6. Verifique `catalog_health`; catálogo incompleto invalida a conclusão "o dado não existe".
+7. Encaminhe candidatos para DATA_GUARDIAN/DATAOPS quando disponíveis.
+8. Valide grain, chaves, competência, atualização, completude, duplicidade e lineage.
+9. Não exponha PII em prompts, logs, testes ou produtos.
+10. Prefira arquitetura Bronze/Silver/Gold.
+Contexto padrão: SIS-MONITORAMENTO-CLIMA-SAUDE.
