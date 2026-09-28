@@ -1,0 +1,13 @@
+{
+  "status": "pending",
+  "shapefile": "data/geo/municipios_mt/MT_Municipios_2025.shp",
+  "expected_crs": "EPSG:4674",
+  "expected_feature_count": 142,
+  "fields": {
+    "cod_ibge": null,
+    "municipio": null
+  },
+  "output": "data/public/municipios_mt_2025_shapefile_web.geojson",
+  "coordinate_precision": 5,
+  "simplify_tolerance_degrees": 0.002
+}
