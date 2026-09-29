@@ -1,0 +1,18 @@
+---
+description: Serviços decisórios habilitados neste projeto
+alwaysApply: true
+---
+
+# Serviços decisórios
+
+- INCIDENT_COORDINATOR
+- RISK_COMMUNICATION_SPECIALIST
+- INTERVENTION_EVALUATOR
+
+Regras:
+- operar somente após análise técnica validada;
+- INCIDENT_COORDINATOR não ativa estrutura formal automaticamente;
+- RISK_COMMUNICATION_SPECIALIST não publica sem aprovação institucional;
+- INTERVENTION_EVALUATOR não transforma pré/pós em causalidade;
+- não expor PII;
+- recomendações não substituem autoridade ou protocolo.
